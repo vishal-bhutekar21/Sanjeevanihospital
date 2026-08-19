@@ -23,8 +23,10 @@ export default {
         hospital: {
           teal: '#0A4D68',
           cyan: '#088395',
+          navy: '#06283D',
           soft: '#EBF4F6',
           dark: '#051923',
+          surface: '#F8FAFC',
         },
         emergency: {
           50: '#fef2f2',
@@ -42,12 +44,14 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'Noto Sans Devanagari', 'system-ui', 'sans-serif'],
-        marathi: ['Noto Sans Devanagari', 'Inter', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', '"Noto Sans Devanagari"', 'system-ui', 'sans-serif'],
+        heading: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        marathi: ['"Noto Sans Devanagari"', 'Inter', 'sans-serif'],
       },
       boxShadow: {
         'card-subtle': '0 2px 10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)',
-        'card-hover': '0 10px 25px -5px rgba(10, 77, 104, 0.1), 0 8px 10px -6px rgba(10, 77, 104, 0.05)',
+        'card-hover': '0 12px 30px -5px rgba(10, 77, 104, 0.12), 0 8px 10px -6px rgba(10, 77, 104, 0.06)',
+        'glow-teal': '0 0 20px -2px rgba(10, 77, 104, 0.25)',
       }
     },
   },
