@@ -21,12 +21,14 @@ export default {
           950: '#082f49',
         },
         hospital: {
+          royal: '#002B5B',
+          navy: '#003B73',
+          blue: '#005B96',
+          cyan: '#007791',
           teal: '#0A4D68',
-          cyan: '#088395',
-          navy: '#0B2545',
-          royal: '#133E87',
-          soft: '#F0F7F9',
-          dark: '#031926',
+          soft: '#EBF4F6',
+          bg: '#F4F7FB',
+          dark: '#001529',
           surface: '#FFFFFF',
         },
         emergency: {
@@ -35,6 +37,7 @@ export default {
           500: '#ef4444',
           600: '#dc2626',
           700: '#b91c1c',
+          crimson: '#C53030',
         },
         health: {
           50: '#ecfdf5',
@@ -42,6 +45,7 @@ export default {
           500: '#10b981',
           600: '#059669',
           700: '#047857',
+          emerald: '#00875A',
         }
       },
       fontFamily: {
@@ -50,9 +54,10 @@ export default {
         marathi: ['"Noto Sans Devanagari"', 'Manrope', 'sans-serif'],
       },
       boxShadow: {
-        'card-subtle': '0 2px 10px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)',
-        'card-hover': '0 12px 30px -5px rgba(10, 77, 104, 0.12), 0 8px 10px -6px rgba(10, 77, 104, 0.06)',
-        'glow-teal': '0 0 20px -2px rgba(10, 77, 104, 0.25)',
+        'card-subtle': '0 2px 12px rgba(0, 43, 91, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)',
+        'card-hover': '0 16px 36px -6px rgba(0, 43, 91, 0.14), 0 8px 16px -4px rgba(0, 43, 91, 0.08)',
+        'glow-teal': '0 0 25px -2px rgba(0, 119, 145, 0.35)',
+        'glow-royal': '0 0 30px -4px rgba(0, 43, 91, 0.45)',
       }
     },
   },

@@ -4,25 +4,34 @@
 
 @layer base {
   :root {
-    --primary: 10 77 104;
+    --primary: 0 43 91;
     --primary-foreground: 255 255 255;
-    --secondary: 8 131 149;
+    --secondary: 0 119 145;
     --secondary-foreground: 255 255 255;
-    --background: 248 250 252;
+    --background: 244 247 251;
     --foreground: 15 23 42;
     --card: 255 255 255;
     --card-foreground: 15 23 42;
     --muted: 241 245 249;
-    --muted-foreground: 100 116 139;
+    --muted-foreground: 51 65 85;
     --border: 226 232 240;
   }
 
   body {
-    @apply bg-slate-50 text-slate-900 font-sans tracking-tight;
+    background-color: #F4F7FB;
+    color: #0F172A;
+    font-family: 'Manrope', 'Noto Sans Devanagari', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Outfit', 'Manrope', sans-serif;
+    color: #002B5B;
+    letter-spacing: -0.02em;
   }
 }
 
-/* Restrained animations */
+/* Smooth fade-in animation */
 .fade-in {
   animation: fadeIn 0.4s ease-out forwards;
 }

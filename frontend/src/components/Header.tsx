@@ -36,58 +36,58 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white border-b border-slate-200 shadow-sm">
-      {/* ─── TOP NOTIFICATION & EMERGENCY BAR (Zero Overlapping, Crisp High Contrast) ─── */}
-      <div className="bg-slate-950 text-slate-200 py-2.5 px-4 sm:px-8 text-xs border-b border-slate-800">
-        <div className="max-w-7xl mx-auto flex justify-between items-center gap-4">
+    <header className="sticky top-0 z-50 bg-white border-b-2 border-slate-200 shadow-md">
+      {/* ─── TOP EMERGENCY & INFO BAR (Scrollable, High-Contrast, Zero Overlapping) ─── */}
+      <div className="bg-[#001529] text-white py-2.5 px-4 sm:px-8 text-xs font-semibold border-b border-slate-800 overflow-x-auto">
+        <div className="max-w-7xl mx-auto flex justify-between items-center gap-6 min-w-max">
           
-          {/* Emergency 24x7 Hotline */}
-          <div className="flex items-center space-x-2 shrink-0">
-            <span className="flex h-2.5 w-2.5 relative shrink-0">
+          {/* Emergency 24x7 Casualty Hotline */}
+          <div className="flex items-center space-x-2.5 shrink-0">
+            <span className="flex h-3 w-3 relative shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-600"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-600"></span>
             </span>
-            <span className="font-bold text-rose-300 hidden sm:inline">
-              24x7 Emergency:
+            <span className="font-extrabold text-rose-300">
+              24x7 Casualty & ICU Active:
             </span>
             <a
               href="tel:+917507342222"
-              className="font-extrabold text-amber-300 hover:text-white transition flex items-center gap-1.5 bg-white/10 px-2.5 py-0.5 rounded tracking-wide"
+              className="font-black text-amber-300 hover:text-white transition flex items-center gap-1.5 bg-white/15 px-3 py-1 rounded-lg tracking-wider border border-amber-300/30"
             >
-              <Phone className="w-3 h-3 text-amber-400" />
+              <Phone className="w-3.5 h-3.5 text-amber-400" />
               <span>+91-75073-42222</span>
             </a>
           </div>
 
-          {/* Location & Accreditations (Desktop Only) */}
-          <div className="hidden lg:flex items-center space-x-6 text-[11px] text-slate-300">
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <MapPin className="w-3.5 h-3.5 text-hospital-cyan shrink-0" />
+          {/* Jalna Location & MJPJAY Government Empanelled Tag */}
+          <div className="flex items-center space-x-6 text-xs text-slate-200 shrink-0">
+            <div className="flex items-center gap-1.5 font-medium">
+              <MapPin className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
               <span>Plot 17, Rishi Park, Ambad Choufuli, Jalna</span>
             </div>
-            <div className="flex items-center gap-1.5 text-emerald-400 font-bold bg-emerald-950/70 border border-emerald-800/80 px-2.5 py-0.5 rounded">
-              <Award className="w-3 h-3" />
-              <span>MJPJAY Govt. Empanelled</span>
+            <div className="flex items-center gap-1.5 text-emerald-300 font-extrabold bg-emerald-950/80 border border-emerald-500/50 px-3 py-1 rounded-lg">
+              <Award className="w-3.5 h-3.5 text-emerald-400" />
+              <span>MJPJAY & Ayushman Empanelled</span>
             </div>
           </div>
 
-          {/* Admin Link & Language Toggle */}
+          {/* Admin Portal & Language Switcher */}
           <div className="flex items-center space-x-4 shrink-0">
             <Link
               to="/admin/login"
-              className="hidden sm:flex items-center gap-1 text-slate-400 hover:text-white transition font-semibold text-[11px]"
+              className="flex items-center gap-1 text-slate-300 hover:text-white transition font-bold text-xs bg-white/10 px-2.5 py-1 rounded-lg"
             >
-              <Shield className="w-3.5 h-3.5 text-hospital-cyan" />
+              <Shield className="w-3.5 h-3.5 text-cyan-300" />
               <span>{t('nav.adminPortal')}</span>
             </Link>
 
             {/* Language Switch Button */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 hover:bg-hospital-teal text-white font-bold transition border border-white/20 text-xs shadow-sm cursor-pointer"
+              className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-cyan-600 hover:bg-cyan-500 text-white font-black transition border border-cyan-400/50 text-xs shadow-md cursor-pointer"
               title="Switch Language / भाषा बदला"
             >
-              <Languages className="w-3.5 h-3.5 text-emerald-300" />
+              <Languages className="w-3.5 h-3.5 text-white" />
               <span>{i18n.language === 'en' ? 'मराठी' : 'English'}</span>
             </button>
           </div>
@@ -97,25 +97,25 @@ export const Header: React.FC = () => {
 
       {/* ─── MAIN BRAND & NAVIGATION BAR ────────────────────────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-24">
+        <div className="flex justify-between items-center h-24 sm:h-28">
           
-          {/* Hospital Brand Logo (NO CHIPS, Pure Prestigious Corporate Typography) */}
+          {/* Hospital Brand Logo (NO CHIPS, Grand Classic Hospital Typography) */}
           <Link to="/" className="flex items-center space-x-4 group shrink-0">
-            <div className="w-13 h-13 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-hospital-navy via-hospital-teal to-teal-800 flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform duration-200 p-3">
-              <HeartPulse className="w-8 h-8 text-cyan-300" />
+            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-[#002B5B] via-[#003B73] to-[#007791] flex items-center justify-center text-white shadow-lg group-hover:scale-105 transition-transform duration-200 p-3.5 border-2 border-cyan-400/30">
+              <HeartPulse className="w-9 h-9 text-cyan-300" />
             </div>
             <div className="space-y-0.5">
-              <span className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight block leading-tight font-heading group-hover:text-hospital-teal transition-colors">
+              <span className="text-2xl sm:text-3xl font-black text-[#002B5B] tracking-tight block leading-tight font-heading group-hover:text-cyan-700 transition-colors">
                 SANJEEVANI
               </span>
-              <span className="text-xs sm:text-[13px] uppercase tracking-widest text-hospital-teal font-extrabold block">
+              <span className="text-xs sm:text-[13px] uppercase tracking-widest text-[#003B73] font-black block">
                 Multispeciality Hospital • Jalna
               </span>
             </div>
           </Link>
 
-          {/* Desktop Navigation Links (Spacious, Elegant, Large Typography) */}
-          <nav className="hidden xl:flex items-center space-x-7 text-[15px] font-bold text-slate-700">
+          {/* Desktop Navigation Links (Large, Bold, High-Contrast Typography) */}
+          <nav className="hidden xl:flex items-center space-x-7 text-[16px] font-bold text-slate-800">
             {navLinks.map((link) => {
               const isActive =
                 link.path === '/'
@@ -127,8 +127,8 @@ export const Header: React.FC = () => {
                   to={link.path}
                   className={`transition-all py-1.5 border-b-2 ${
                     isActive
-                      ? 'text-hospital-teal border-hospital-teal font-extrabold'
-                      : 'border-transparent text-slate-600 hover:text-hospital-teal hover:border-slate-300'
+                      ? 'text-[#002B5B] border-[#002B5B] font-black'
+                      : 'border-transparent text-slate-700 hover:text-[#002B5B] hover:border-slate-300'
                   }`}
                 >
                   {link.label}
@@ -137,20 +137,20 @@ export const Header: React.FC = () => {
             })}
           </nav>
 
-          {/* Action CTAs: Big Identifiable Book Appointment Button */}
+          {/* Action CTAs: 2X LARGER EYE-CATCHING BOOK APPOINTMENT BUTTON */}
           <div className="flex items-center space-x-3 shrink-0">
             <a
               href="tel:02482223322"
-              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-3 text-xs font-extrabold text-slate-700 bg-slate-100 border border-slate-200 rounded-xl hover:bg-slate-200 transition"
+              className="hidden lg:inline-flex items-center gap-1.5 px-4 py-3.5 text-xs font-black text-slate-800 bg-slate-100 border-2 border-slate-300 rounded-2xl hover:bg-slate-200 transition"
             >
-              <Phone className="w-3.5 h-3.5 text-hospital-teal" />
+              <Phone className="w-4 h-4 text-[#002B5B]" />
               <span>02482-223322</span>
             </a>
 
-            {/* BIG IDENTIFIABLE BOOK APPOINTMENT BUTTON */}
+            {/* 2X LARGER, IDENTIFIABLE BOOK APPOINTMENT BUTTON */}
             <Link
               to="/book"
-              className="inline-flex items-center gap-2.5 px-6 sm:px-8 py-3.5 text-sm sm:text-base font-black text-white bg-gradient-to-r from-hospital-navy via-hospital-teal to-teal-700 hover:from-teal-700 hover:to-hospital-navy rounded-xl shadow-lg shadow-teal-950/20 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 border border-teal-500/30 tracking-wide"
+              className="inline-flex items-center gap-3 px-8 sm:px-10 py-4 text-base sm:text-lg font-black text-white bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#007791] hover:from-[#003B73] hover:to-[#002B5B] rounded-2xl shadow-xl shadow-royal/30 hover:shadow-2xl hover:scale-105 transition-all duration-200 border-2 border-cyan-400/40 tracking-wide"
             >
               <Calendar className="w-5 h-5 text-emerald-300 shrink-0" />
               <span className="whitespace-nowrap">{t('nav.bookAppointment')}</span>
@@ -159,10 +159,10 @@ export const Header: React.FC = () => {
             {/* Mobile Menu Toggle Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-2.5 rounded-xl text-slate-700 hover:text-hospital-teal hover:bg-slate-100 transition border border-slate-200"
+              className="xl:hidden p-3 rounded-2xl text-slate-800 hover:text-[#002B5B] hover:bg-slate-100 transition border-2 border-slate-300"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
             </button>
           </div>
 
@@ -171,16 +171,16 @@ export const Header: React.FC = () => {
 
       {/* ─── MOBILE DRAWER NAVIGATION MENU ───────────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-white border-b border-slate-200 px-6 py-6 space-y-5 shadow-2xl animate-fade-in">
-          <nav className="flex flex-col space-y-3 text-base font-bold text-slate-800">
+        <div className="xl:hidden bg-white border-b-2 border-slate-200 px-6 py-6 space-y-5 shadow-2xl animate-fade-in">
+          <nav className="flex flex-col space-y-3 text-lg font-bold text-slate-900">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`py-2.5 px-4 rounded-xl transition ${
+                className={`py-3 px-4 rounded-xl transition ${
                   location.pathname === link.path
-                    ? 'bg-hospital-soft text-hospital-teal font-extrabold'
+                    ? 'bg-hospital-soft text-[#002B5B] font-black'
                     : 'hover:bg-slate-50'
                 }`}
               >
@@ -189,11 +189,11 @@ export const Header: React.FC = () => {
             ))}
           </nav>
 
-          <div className="pt-4 border-t border-slate-100 flex flex-col space-y-3">
+          <div className="pt-4 border-t-2 border-slate-100 flex flex-col space-y-3">
             <Link
               to="/book"
               onClick={() => setMobileMenuOpen(false)}
-              className="w-full flex items-center justify-center gap-2 py-3.5 px-4 rounded-xl bg-hospital-teal text-white font-extrabold text-base shadow text-center"
+              className="w-full flex items-center justify-center gap-2.5 py-4 px-4 rounded-2xl bg-gradient-to-r from-[#002B5B] to-[#007791] text-white font-black text-lg shadow-lg text-center"
             >
               <Calendar className="w-5 h-5 text-emerald-300" />
               <span>{t('nav.bookAppointment')}</span>
@@ -201,7 +201,7 @@ export const Header: React.FC = () => {
 
             <a
               href="tel:+917507342222"
-              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-50 text-rose-700 border border-rose-200 font-extrabold text-xs text-center"
+              className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-rose-50 text-rose-700 border-2 border-rose-200 font-extrabold text-sm text-center"
             >
               <Phone className="w-4 h-4" />
               <span>24x7 Casualty: +91-75073-42222</span>

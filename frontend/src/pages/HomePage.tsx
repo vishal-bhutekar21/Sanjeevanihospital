@@ -212,43 +212,43 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-28 sm:space-y-36">
-      {/* ─── 1. HERO SECTION (Spacious, Big Bold Font, High Contrast) ─────────────── */}
-      <section className="relative bg-gradient-to-b from-hospital-soft/90 via-slate-50 to-white pt-16 sm:pt-20 pb-24 sm:pb-32 border-b border-slate-200 overflow-hidden">
+    <div className="space-y-32 sm:space-y-40">
+      {/* ─── 1. HERO SECTION (Grand Classic Hospital Atmosphere) ────────────────── */}
+      <section className="relative bg-gradient-to-b from-[#EBF4F6] via-[#F4F7FB] to-white pt-16 sm:pt-24 pb-28 sm:pb-36 border-b-2 border-slate-200 overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
             
             {/* Left Content Column */}
             <div className="lg:col-span-7 space-y-8 text-left">
               {/* Trust Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-hospital-navy text-white text-xs sm:text-sm font-extrabold shadow-sm tracking-wide">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#002B5B] text-white text-xs sm:text-sm font-black shadow-md tracking-wide">
                 <Sparkles className="w-4 h-4 text-cyan-300" />
                 <span>{t('hero.badge')}</span>
               </div>
 
-              {/* Main Grand Headline (BIG BOLD FONT) */}
-              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 tracking-tight leading-[1.12] font-heading">
+              {/* Main Headline (Massive, Saturated, High Contrast) */}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black text-[#002B5B] tracking-tight leading-[1.1] font-heading">
                 {t('hero.title')}
               </h1>
 
-              {/* Subtitle */}
-              <p className="text-base sm:text-xl text-slate-600 leading-relaxed font-medium max-w-2xl">
+              {/* Subtitle (High contrast, crystal clear) */}
+              <p className="text-base sm:text-xl text-slate-700 leading-relaxed font-semibold max-w-2xl">
                 {t('hero.subtitle')}
               </p>
 
-              {/* Primary Action CTAs */}
-              <div className="flex flex-col sm:flex-row gap-4 pt-2">
+              {/* 2X GIANT ACTION CTAs */}
+              <div className="flex flex-col sm:flex-row gap-5 pt-3">
                 <Link
                   to="/book"
-                  className="inline-flex items-center justify-center gap-3 px-9 py-4 rounded-2xl bg-gradient-to-r from-hospital-navy via-hospital-teal to-teal-700 text-white font-black shadow-xl shadow-teal-950/20 hover:shadow-2xl hover:scale-105 transition-all text-base sm:text-lg border border-teal-500/30"
+                  className="inline-flex items-center justify-center gap-3.5 px-10 sm:px-12 py-5 rounded-2xl bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#007791] hover:from-[#003B73] hover:to-[#002B5B] text-white font-black shadow-2xl shadow-royal/40 hover:scale-105 transition-all text-lg sm:text-xl border-2 border-cyan-400/40 tracking-wide"
                 >
-                  <Calendar className="w-5 h-5 text-emerald-300" />
+                  <Calendar className="w-6 h-6 text-emerald-300" />
                   <span>{t('hero.bookCta')}</span>
                 </Link>
 
                 <a
                   href="tel:+917507342222"
-                  className="inline-flex items-center justify-center gap-2.5 px-7 py-4 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 font-extrabold hover:bg-rose-100 transition text-base shadow-sm"
+                  className="inline-flex items-center justify-center gap-2.5 px-8 py-5 rounded-2xl bg-rose-50 border-2 border-rose-300 text-rose-700 font-black hover:bg-rose-100 transition text-base sm:text-lg shadow-md"
                 >
                   <Phone className="w-5 h-5 text-rose-600" />
                   <span>{t('hero.callEmergency')}</span>
@@ -256,22 +256,22 @@ export const HomePage: React.FC = () => {
               </div>
 
               {/* 4 Pillars Trust Metrics */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t border-slate-200">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 border-t-2 border-slate-200">
                 <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-hospital-navy font-heading">{t('hero.statIcu')}</div>
-                  <div className="text-xs sm:text-sm text-slate-600 font-semibold">{t('hero.statIcuSub')}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-[#002B5B] font-heading">{t('hero.statIcu')}</div>
+                  <div className="text-xs sm:text-sm text-slate-700 font-bold">{t('hero.statIcuSub')}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-hospital-navy font-heading">{t('hero.statDepts')}</div>
-                  <div className="text-xs sm:text-sm text-slate-600 font-semibold">{t('hero.statDeptsSub')}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-[#002B5B] font-heading">{t('hero.statDepts')}</div>
+                  <div className="text-xs sm:text-sm text-slate-700 font-bold">{t('hero.statDeptsSub')}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-hospital-navy font-heading">{t('hero.statSurgeries')}</div>
-                  <div className="text-xs sm:text-sm text-slate-600 font-semibold">{t('hero.statSurgeriesSub')}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-[#002B5B] font-heading">{t('hero.statSurgeries')}</div>
+                  <div className="text-xs sm:text-sm text-slate-700 font-bold">{t('hero.statSurgeriesSub')}</div>
                 </div>
                 <div className="space-y-1">
-                  <div className="text-3xl sm:text-4xl font-black text-emerald-600 font-heading">{t('hero.statService')}</div>
-                  <div className="text-xs sm:text-sm text-slate-600 font-semibold">{t('hero.statServiceSub')}</div>
+                  <div className="text-3xl sm:text-4xl font-black text-emerald-700 font-heading">{t('hero.statService')}</div>
+                  <div className="text-xs sm:text-sm text-slate-700 font-bold">{t('hero.statServiceSub')}</div>
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ export const HomePage: React.FC = () => {
                   alt="Sanjeevani Multispeciality Hospital Building Facade Jalna"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-transparent to-transparent"></div>
                 <div className="absolute bottom-5 left-5 right-5 text-white space-y-1">
                   <p className="text-xs font-black uppercase tracking-widest text-emerald-400">
                     Sanjeevani Multispeciality Hospital
@@ -296,13 +296,13 @@ export const HomePage: React.FC = () => {
               </div>
 
               {/* Verified Badges */}
-              <div className="absolute -bottom-6 -left-4 bg-white rounded-2xl p-4 shadow-xl border border-slate-200 hidden sm:flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-700 shrink-0">
-                  <ShieldCheck className="w-6 h-6" />
+              <div className="absolute -bottom-6 -left-4 bg-white rounded-2xl p-4 shadow-xl border-2 border-slate-200 hidden sm:flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-emerald-100 flex items-center justify-center text-emerald-800 shrink-0">
+                  <ShieldCheck className="w-7 h-7" />
                 </div>
                 <div>
-                  <p className="text-sm font-black text-slate-900">MJPJAY Govt. Empanelled</p>
-                  <p className="text-xs text-slate-500">Cashless Scheme Hospital</p>
+                  <p className="text-sm font-black text-[#002B5B]">MJPJAY Govt. Empanelled</p>
+                  <p className="text-xs text-slate-600 font-semibold">Cashless Scheme Hospital</p>
                 </div>
               </div>
             </div>
@@ -311,23 +311,23 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 2. QUICK ACTION TILES ────────────────────────────────────────────────── */}
+      {/* ─── 2. QUICK ACTION TILES (Saturated Saturated Borders & Elevated Shadows) ── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
           
           {/* Tile 1: Book OPD */}
           <Link
             to="/book"
-            className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover hover:border-hospital-teal transition-all flex flex-col justify-between space-y-5 group"
+            className="bg-white rounded-3xl p-8 border-2 border-slate-200 shadow-card-subtle hover:shadow-card-hover hover:border-[#002B5B] transition-all flex flex-col justify-between space-y-5 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-hospital-soft text-hospital-teal flex items-center justify-center group-hover:bg-hospital-navy group-hover:text-white transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-[#EBF4F6] text-[#002B5B] flex items-center justify-center group-hover:bg-[#002B5B] group-hover:text-white transition-colors">
               <Calendar className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 font-heading">{t('quickActions.book')}</h3>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{t('quickActions.bookDesc')}</p>
+              <h3 className="text-xl font-black text-[#002B5B] font-heading">{t('quickActions.book')}</h3>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">{t('quickActions.bookDesc')}</p>
             </div>
-            <span className="text-xs font-extrabold text-hospital-teal flex items-center gap-1">
+            <span className="text-xs font-black text-[#002B5B] flex items-center gap-1.5">
               <span>{isMr ? 'वेळ निवडा' : 'Select Time Slot'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
@@ -336,16 +336,16 @@ export const HomePage: React.FC = () => {
           {/* Tile 2: 24x7 Emergency */}
           <a
             href="tel:+917507342222"
-            className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover hover:border-rose-300 transition-all flex flex-col justify-between space-y-5 group"
+            className="bg-white rounded-3xl p-8 border-2 border-rose-200 shadow-card-subtle hover:shadow-card-hover hover:border-rose-400 transition-all flex flex-col justify-between space-y-5 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-600 flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center group-hover:bg-rose-600 group-hover:text-white transition-colors">
               <HeartPulse className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 font-heading">{t('quickActions.emergency')}</h3>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{t('quickActions.emergencyDesc')}</p>
+              <h3 className="text-xl font-black text-rose-700 font-heading">{t('quickActions.emergency')}</h3>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">{t('quickActions.emergencyDesc')}</p>
             </div>
-            <span className="text-xs font-extrabold text-rose-600 flex items-center gap-1">
+            <span className="text-xs font-black text-rose-700 flex items-center gap-1.5">
               <span>+91-75073-42222</span>
               <Phone className="w-4 h-4" />
             </span>
@@ -354,16 +354,16 @@ export const HomePage: React.FC = () => {
           {/* Tile 3: MJPJAY Scheme */}
           <Link
             to="/mjpjay"
-            className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover hover:border-emerald-300 transition-all flex flex-col justify-between space-y-5 group"
+            className="bg-white rounded-3xl p-8 border-2 border-emerald-200 shadow-card-subtle hover:shadow-card-hover hover:border-emerald-400 transition-all flex flex-col justify-between space-y-5 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center group-hover:bg-emerald-700 group-hover:text-white transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center group-hover:bg-emerald-700 group-hover:text-white transition-colors">
               <ShieldCheck className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 font-heading">{t('quickActions.mjpjay')}</h3>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{t('quickActions.mjpjayDesc')}</p>
+              <h3 className="text-xl font-black text-emerald-800 font-heading">{t('quickActions.mjpjay')}</h3>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">{t('quickActions.mjpjayDesc')}</p>
             </div>
-            <span className="text-xs font-extrabold text-emerald-700 flex items-center gap-1">
+            <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
               <span>{isMr ? 'पात्रता तपासा' : 'Check Eligibility'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
@@ -372,16 +372,16 @@ export const HomePage: React.FC = () => {
           {/* Tile 4: Cashless Insurance */}
           <Link
             to="/insurance"
-            className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover hover:border-cyan-300 transition-all flex flex-col justify-between space-y-5 group"
+            className="bg-white rounded-3xl p-8 border-2 border-cyan-200 shadow-card-subtle hover:shadow-card-hover hover:border-cyan-400 transition-all flex flex-col justify-between space-y-5 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-cyan-100 text-hospital-cyan flex items-center justify-center group-hover:bg-hospital-cyan group-hover:text-white transition-colors">
+            <div className="w-14 h-14 rounded-2xl bg-cyan-100 text-[#007791] flex items-center justify-center group-hover:bg-[#007791] group-hover:text-white transition-colors">
               <CreditCard className="w-7 h-7" />
             </div>
             <div className="space-y-1.5">
-              <h3 className="text-lg font-black text-slate-900 font-heading">{t('quickActions.insurance')}</h3>
-              <p className="text-xs sm:text-sm text-slate-500 leading-relaxed">{t('quickActions.insuranceDesc')}</p>
+              <h3 className="text-xl font-black text-[#007791] font-heading">{t('quickActions.insurance')}</h3>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed">{t('quickActions.insuranceDesc')}</p>
             </div>
-            <span className="text-xs font-extrabold text-hospital-cyan flex items-center gap-1">
+            <span className="text-xs font-black text-[#007791] flex items-center gap-1.5">
               <span>{isMr ? 'विमा यादी पहा' : 'View Insurance Panels'}</span>
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </span>
@@ -391,12 +391,12 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 3. CLINICAL SPECIALTIES GRID ────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
             {t('sections.specialtiesHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 font-medium">
+          <p className="text-base sm:text-lg text-slate-700 font-semibold">
             {t('sections.specialtiesSub')}
           </p>
         </div>
@@ -405,43 +405,43 @@ export const HomePage: React.FC = () => {
           {clinicalSpecialties.map((dept) => (
             <div
               key={dept.id}
-              className="bg-white rounded-3xl border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover overflow-hidden transition-all duration-200 flex flex-col group"
+              className="bg-white rounded-3xl border-2 border-slate-200/90 shadow-card-subtle hover:shadow-card-hover overflow-hidden transition-all duration-200 flex flex-col group"
             >
-              <div className="relative h-52 overflow-hidden">
+              <div className="relative h-56 overflow-hidden">
                 <img
                   src={dept.image}
                   alt={dept.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent"></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-[#001529]/20 to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
-                  <span className="text-xs font-black bg-hospital-navy/90 backdrop-blur px-3 py-1 rounded-lg">
+                  <span className="text-xs font-black bg-[#002B5B] px-3.5 py-1.5 rounded-xl border border-cyan-400/40">
                     {dept.doctor}
                   </span>
                 </div>
               </div>
 
-              <div className="p-7 flex-1 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <h3 className="text-xl font-bold text-slate-900 group-hover:text-hospital-teal transition-colors font-heading">
+              <div className="p-8 flex-1 flex flex-col justify-between space-y-6">
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-black text-[#002B5B] group-hover:text-[#007791] transition-colors font-heading">
                     {isMr ? dept.titleMr : dept.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-medium">
                     {isMr ? dept.descMr : dept.desc}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="pt-5 border-t-2 border-slate-100 flex items-center justify-between">
                   <Link
                     to={`/departments/${dept.slug}`}
-                    className="text-xs font-black text-slate-700 hover:text-hospital-teal transition flex items-center gap-1"
+                    className="text-xs sm:text-sm font-black text-slate-800 hover:text-[#002B5B] transition flex items-center gap-1"
                   >
                     <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
                     <ChevronRight className="w-4 h-4" />
                   </Link>
                   <Link
                     to="/book"
-                    className="px-4 py-2 rounded-xl bg-hospital-soft text-hospital-teal hover:bg-hospital-navy hover:text-white font-extrabold text-xs transition shadow-sm"
+                    className="px-5 py-2.5 rounded-xl bg-[#EBF4F6] text-[#002B5B] hover:bg-[#002B5B] hover:text-white font-black text-xs sm:text-sm transition shadow-sm"
                   >
                     {t('common.bookSlot')}
                   </Link>
@@ -454,7 +454,7 @@ export const HomePage: React.FC = () => {
         <div className="text-center pt-4">
           <Link
             to="/departments"
-            className="inline-flex items-center gap-2 px-9 py-4 rounded-2xl bg-hospital-navy text-white font-black text-sm hover:bg-slate-800 transition shadow-md"
+            className="inline-flex items-center gap-2 px-10 py-4 rounded-2xl bg-[#002B5B] text-white font-black text-base hover:bg-slate-900 transition shadow-lg"
           >
             <span>{t('common.viewAll')}</span>
             <ArrowRight className="w-4 h-4" />
@@ -463,7 +463,7 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 4. MEDICAL TECHNOLOGY & REAL EQUIPMENT SHOWCASE ─────────────────────── */}
-      <section className="bg-slate-950 text-white py-24 sm:py-32">
+      <section className="bg-[#001529] text-white py-28 sm:py-36">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-heading">
@@ -478,22 +478,22 @@ export const HomePage: React.FC = () => {
             {hospitalEquipment.map((eq, idx) => (
               <div
                 key={idx}
-                className="bg-slate-900 rounded-3xl border border-slate-800 overflow-hidden shadow-xl flex flex-col group hover:border-slate-700 transition-all"
+                className="bg-[#002B5B] rounded-3xl border-2 border-slate-700 overflow-hidden shadow-2xl flex flex-col group hover:border-cyan-400 transition-all"
               >
-                <div className="h-48 overflow-hidden relative">
+                <div className="h-52 overflow-hidden relative">
                   <img
                     src={eq.image}
                     alt={eq.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
                   />
-                  <div className="absolute top-3 left-3 bg-hospital-navy text-cyan-300 text-[11px] font-black px-2.5 py-1 rounded-md border border-cyan-500/20">
+                  <div className="absolute top-3 left-3 bg-[#001529] text-cyan-300 text-xs font-black px-3 py-1 rounded-lg border border-cyan-400/40">
                     {eq.category}
                   </div>
                 </div>
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-3">
+                <div className="p-7 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="text-base font-bold text-white leading-snug font-heading">{eq.title}</h3>
-                    <p className="text-xs sm:text-sm text-slate-300 mt-2 leading-relaxed">{eq.desc}</p>
+                    <h3 className="text-lg font-black text-white leading-snug font-heading">{eq.title}</h3>
+                    <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed font-medium">{eq.desc}</p>
                   </div>
                 </div>
               </div>
@@ -503,12 +503,12 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 5. SENIOR MEDICAL FACULTY & DOCTOR DIRECTORY ────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
             {t('sections.doctorsHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 font-medium">
+          <p className="text-base sm:text-lg text-slate-700 font-semibold">
             {t('sections.doctorsSub')}
           </p>
         </div>
@@ -517,53 +517,53 @@ export const HomePage: React.FC = () => {
           {seniorDoctors.map((doc) => (
             <div
               key={doc.id}
-              className="bg-white rounded-3xl border border-slate-200/90 shadow-card-subtle hover:shadow-card-hover p-7 flex flex-col justify-between space-y-6 group transition-all"
+              className="bg-white rounded-3xl border-2 border-slate-200/90 shadow-card-subtle hover:shadow-card-hover p-8 flex flex-col justify-between space-y-6 group transition-all"
             >
               <div className="flex items-start space-x-4">
-                <div className="w-22 h-22 sm:w-24 sm:h-24 rounded-2xl overflow-hidden shrink-0 border-2 border-slate-200 shadow">
+                <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-2xl overflow-hidden shrink-0 border-2 border-slate-200 shadow-md">
                   <img
                     src={doc.image}
                     alt={doc.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
-                <div className="space-y-1 flex-1 min-w-0">
-                  <h3 className="text-lg font-black text-slate-900 truncate font-heading">
+                <div className="space-y-1.5 flex-1 min-w-0">
+                  <h3 className="text-xl font-black text-[#002B5B] truncate font-heading">
                     {isMr ? doc.nameMr : doc.name}
                   </h3>
-                  <p className="text-xs sm:text-sm font-bold text-hospital-teal">
+                  <p className="text-xs sm:text-sm font-bold text-[#007791]">
                     {isMr ? doc.roleMr : doc.role}
                   </p>
-                  <p className="text-xs font-semibold text-slate-500">
+                  <p className="text-xs font-bold text-slate-600">
                     {doc.degree}
                   </p>
-                  <p className="text-xs text-slate-400 truncate">
+                  <p className="text-xs text-slate-500 font-medium truncate">
                     {isMr ? doc.deptMr : doc.dept}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs sm:text-sm bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              <div className="space-y-2 text-xs sm:text-sm bg-[#F4F7FB] p-4 rounded-2xl border border-slate-200">
                 <div className="flex justify-between">
-                  <span className="text-slate-500 font-medium">{t('common.opdFee')}:</span>
-                  <span className="font-extrabold text-slate-900">₹{doc.fee}</span>
+                  <span className="text-slate-600 font-bold">{t('common.opdFee')}:</span>
+                  <span className="font-black text-[#002B5B] text-base">₹{doc.fee}</span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-500 font-medium">{t('common.timings')}:</span>
-                  <span className="font-bold text-slate-700">{doc.timings}</span>
+                  <span className="text-slate-600 font-semibold">{t('common.timings')}:</span>
+                  <span className="font-extrabold text-slate-800">{doc.timings}</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <Link
                   to={`/doctors/${doc.id}`}
-                  className="flex-1 py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black text-center transition"
+                  className="flex-1 py-3.5 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-black text-center transition border border-slate-200"
                 >
                   {t('common.viewProfile')}
                 </Link>
                 <Link
                   to={`/book?doctorId=${doc.id}`}
-                  className="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-hospital-navy to-hospital-teal text-white text-xs font-black text-center hover:opacity-95 transition shadow-sm"
+                  className="flex-1 py-3.5 px-3 rounded-xl bg-gradient-to-r from-[#002B5B] to-[#007791] text-white text-xs sm:text-sm font-black text-center hover:opacity-95 transition shadow-md"
                 >
                   {t('common.bookSlot')}
                 </Link>
@@ -575,15 +575,15 @@ export const HomePage: React.FC = () => {
 
       {/* ─── 6. MJPJAY & CASHLESS SCHEMES SPOTLIGHT ──────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-hospital-navy via-slate-900 to-hospital-teal rounded-3xl p-8 sm:p-14 text-white shadow-2xl space-y-7">
+        <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#001529] rounded-3xl p-8 sm:p-16 text-white shadow-2xl space-y-8 border-2 border-cyan-500/30">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            <div className="lg:col-span-8 space-y-5">
+            <div className="lg:col-span-8 space-y-6">
               <h2 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
                 {isMr
                   ? 'महात्मा ज्योतिराव फुले जन आरोग्य योजना (MJPJAY)'
                   : 'Mahatma Jyotirao Phule Jan Arogya Yojana (MJPJAY)'}
               </h2>
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl font-normal">
+              <p className="text-base sm:text-lg text-slate-200 leading-relaxed max-w-2xl font-medium">
                 {isMr
                   ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि प्रगत उपचार. आमच्या समर्पित आरोग्य मित्र डेस्कवरून त्वरित मदत मिळवा.'
                   : 'Providing completely cashless advanced surgical care and tertiary healthcare to eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital Jalna.'}
@@ -591,39 +591,39 @@ export const HomePage: React.FC = () => {
               <div className="flex flex-wrap gap-4 pt-2">
                 <Link
                   to="/mjpjay"
-                  className="px-7 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm font-black transition shadow"
+                  className="px-8 py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white text-sm sm:text-base font-black transition shadow-lg"
                 >
                   {isMr ? 'योजना प्रक्रिया व कागदपत्रे' : 'MJPJAY Process & Documents'}
                 </Link>
                 <Link
                   to="/insurance"
-                  className="px-7 py-3.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-bold transition border border-white/20"
+                  className="px-8 py-4 rounded-2xl bg-white/15 hover:bg-white/25 text-white text-sm sm:text-base font-black transition border-2 border-white/30"
                 >
                   {isMr ? 'कॅशलेस विमा कंपन्या' : 'Panel Insurance Companies'}
                 </Link>
               </div>
             </div>
 
-            <div className="lg:col-span-4 bg-white/10 backdrop-blur rounded-2xl p-7 border border-white/15 space-y-4 text-xs sm:text-sm">
-              <p className="font-extrabold text-amber-300 uppercase tracking-wider text-sm">
+            <div className="lg:col-span-4 bg-white/10 backdrop-blur rounded-3xl p-8 border-2 border-white/20 space-y-4 text-xs sm:text-sm">
+              <p className="font-black text-amber-300 uppercase tracking-wider text-sm">
                 {isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required'}
               </p>
-              <ul className="space-y-2.5 text-slate-200">
+              <ul className="space-y-3 text-slate-100 font-semibold">
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                   <span>{isMr ? 'पिवळे किंवा केशरी रेशन कार्ड' : 'Yellow or Orange Ration Card'}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                   <span>{isMr ? 'रुग्ण व कुटुंबप्रमुखांचे आधार कार्ड' : 'Patient & Head Aadhaar Card'}</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
                   <span>{isMr ? 'डॉक्टरांचे प्रिस्क्रिप्शन व तपासणी रिपोर्ट' : "Doctor Prescription & Reports"}</span>
                 </li>
               </ul>
-              <div className="pt-3 border-t border-white/15 text-xs text-slate-300">
-                Arogya Mitra Helpline: <span className="font-bold text-white">+91-75073-42222</span>
+              <div className="pt-4 border-t border-white/20 text-xs text-slate-200 font-bold">
+                Arogya Mitra Helpline: <span className="font-black text-amber-300 text-sm">+91-75073-42222</span>
               </div>
             </div>
           </div>
@@ -631,12 +631,12 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 7. PATIENT TESTIMONIALS ─────────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-heading">
+          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
             {t('sections.reviewsHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-600 font-medium">
+          <p className="text-base sm:text-lg text-slate-700 font-semibold">
             {t('sections.reviewsSub')}
           </p>
         </div>
@@ -667,7 +667,7 @@ export const HomePage: React.FC = () => {
           ].map((rev, idx) => (
             <div
               key={idx}
-              className="bg-white rounded-3xl border border-slate-200/90 p-8 shadow-card-subtle flex flex-col justify-between space-y-6"
+              className="bg-white rounded-3xl border-2 border-slate-200/90 p-8 shadow-card-subtle flex flex-col justify-between space-y-6"
             >
               <div className="space-y-4">
                 <div className="flex text-amber-400">
@@ -675,17 +675,17 @@ export const HomePage: React.FC = () => {
                     <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-sm sm:text-base text-slate-700 leading-relaxed italic">
+                <p className="text-sm sm:text-base text-slate-800 leading-relaxed italic font-medium">
                   "{isMr ? rev.quoteMr : rev.quote}"
                 </p>
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div className="pt-4 border-t-2 border-slate-100 flex items-center justify-between">
                 <div>
-                  <p className="text-base font-black text-slate-900">{rev.name}</p>
-                  <p className="text-xs text-slate-400 font-medium">{rev.loc}</p>
+                  <p className="text-base font-black text-[#002B5B]">{rev.name}</p>
+                  <p className="text-xs text-slate-500 font-bold">{rev.loc}</p>
                 </div>
-                <span className="text-xs font-extrabold px-3 py-1 rounded-xl bg-slate-100 text-hospital-teal">
+                <span className="text-xs font-black px-3 py-1.5 rounded-xl bg-[#EBF4F6] text-[#002B5B]">
                   {rev.treatment}
                 </span>
               </div>
@@ -695,63 +695,63 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 8. LOCATION & CASUALTY DIRECT CONTACT ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="bg-white rounded-3xl border border-slate-200/90 p-8 sm:p-14 shadow-card-subtle grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="bg-white rounded-3xl border-2 border-slate-200/90 p-8 sm:p-16 shadow-card-subtle grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
-            <h2 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight font-heading">
+            <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
               {t('sections.locationHeading')}
             </h2>
-            <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
+            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-semibold">
               {t('sections.locationSub')}
             </p>
 
-            <div className="space-y-4 text-xs sm:text-sm text-slate-700">
-              <div className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-hospital-teal shrink-0 mt-0.5" />
+            <div className="space-y-4 text-sm text-slate-800 font-medium">
+              <div className="flex items-start gap-3.5">
+                <MapPin className="w-6 h-6 text-[#002B5B] shrink-0 mt-0.5" />
                 <div>
-                  <span className="font-bold text-slate-900 block">Sanjeevani Multispeciality Hospital</span>
-                  <span>Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203</span>
+                  <span className="font-black text-[#002B5B] text-base block">Sanjeevani Multispeciality Hospital</span>
+                  <span className="text-slate-700">Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203</span>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-rose-600 shrink-0" />
+              <div className="flex items-center gap-3.5">
+                <Phone className="w-6 h-6 text-rose-600 shrink-0" />
                 <div>
-                  <span className="font-bold text-rose-700">24x7 Emergency Casualty: </span>
-                  <a href="tel:+917507342222" className="font-extrabold text-slate-900 hover:underline">
+                  <span className="font-black text-rose-700">24x7 Emergency Casualty: </span>
+                  <a href="tel:+917507342222" className="font-black text-slate-900 hover:underline">
                     +91-75073-42222 | 02482-223322
                   </a>
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5 text-emerald-600 shrink-0" />
+              <div className="flex items-center gap-3.5">
+                <Clock className="w-6 h-6 text-emerald-600 shrink-0" />
                 <div>
-                  <span className="font-bold text-slate-900">OPD Timings: </span>
+                  <span className="font-black text-[#002B5B]">OPD Timings: </span>
                   <span>Mon–Sat: 09:00 AM – 03:00 PM & 05:00 PM – 08:00 PM</span>
                 </div>
               </div>
             </div>
 
-            <div className="pt-2">
+            <div className="pt-3">
               <Link
                 to="/book"
-                className="inline-flex items-center gap-2.5 px-9 py-4 rounded-2xl bg-gradient-to-r from-hospital-navy to-hospital-teal text-white font-black text-sm sm:text-base shadow-lg hover:opacity-95 transition"
+                className="inline-flex items-center gap-3 px-10 py-5 rounded-2xl bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#007791] text-white font-black text-base sm:text-lg shadow-xl hover:scale-105 transition"
               >
-                <Calendar className="w-5 h-5 text-emerald-300" />
+                <Calendar className="w-6 h-6 text-emerald-300" />
                 <span>{t('hero.bookCta')}</span>
               </Link>
             </div>
           </div>
 
           {/* Location Directions Tile */}
-          <div className="bg-slate-50 rounded-3xl p-8 border border-slate-200 space-y-5 flex flex-col justify-center text-center">
-            <div className="w-18 h-18 rounded-2xl bg-hospital-soft text-hospital-teal flex items-center justify-center mx-auto p-4">
-              <MapPin className="w-10 h-10" />
+          <div className="bg-[#EBF4F6] rounded-3xl p-10 border-2 border-slate-200 space-y-6 flex flex-col justify-center text-center">
+            <div className="w-20 h-20 rounded-2xl bg-[#002B5B] text-white flex items-center justify-center mx-auto p-4 shadow-lg">
+              <MapPin className="w-10 h-10 text-cyan-300" />
             </div>
-            <div className="space-y-1">
-              <h3 className="text-xl font-bold text-slate-900 font-heading">Ambad Choufuli Landmark</h3>
-              <p className="text-xs sm:text-sm text-slate-500 max-w-sm mx-auto">
+            <div className="space-y-1.5">
+              <h3 className="text-2xl font-black text-[#002B5B] font-heading">Ambad Choufuli Landmark</h3>
+              <p className="text-xs sm:text-sm text-slate-600 font-semibold max-w-sm mx-auto">
                 Easily accessible from Jalna Railway Station (3.5 km) and Jalna Central Bus Stand (2.8 km).
               </p>
             </div>
@@ -759,7 +759,7 @@ export const HomePage: React.FC = () => {
               href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl bg-white border border-slate-300 text-slate-900 text-xs sm:text-sm font-extrabold hover:bg-slate-100 transition shadow-sm mx-auto"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-white border-2 border-slate-300 text-[#002B5B] text-sm font-black hover:bg-slate-50 transition shadow-md mx-auto"
             >
               <span>{isMr ? 'गुगल मॅप्सवर दिशा पहा' : 'Open in Google Maps'}</span>
               <ArrowRight className="w-4 h-4" />
