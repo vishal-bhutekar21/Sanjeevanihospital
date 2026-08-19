@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sanjeevani-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sanjeevani_admin
+      POSTGRES_PASSWORD: SanjeevaniSecureDbPassword2026!
+      POSTGRES_DB: sanjeevani_hospital_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sanjeevani_admin -d sanjeevani_hospital_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - sanjeevani_network
+
+  # 2. NestJS Backend API Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sanjeevani-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: "postgresql://sanjeevani_admin:SanjeevaniSecureDbPassword2026!@postgres:5432/sanjeevani_hospital_db?schema=public"
+      JWT_SECRET: "sanjeevani_multispeciality_production_jwt_secret_key_2026_super_secure_entropy_key"
+      JWT_EXPIRES_IN: "7d"
+      RAZORPAY_KEY_ID: "rzp_test_TRlp6qdfVyCHyQ"
+      RAZORPAY_KEY_SECRET: "Mg9ra16kSOpZfdlr2DqYTCks"
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      - sanjeevani_network
+
+  # 3. React Frontend Web Application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: "http://localhost:3000/api"
+    container_name: sanjeevani-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - sanjeevani_network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  sanjeevani_network:
+    driver: bridge

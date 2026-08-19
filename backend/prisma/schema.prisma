@@ -1,0 +1,330 @@
+// Prisma Schema for Sanjeevani Multispeciality Hospital Platform
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  HOSPITAL_ADMIN
+  DOCTOR
+  RECEPTIONIST
+}
+
+enum SlotStatus {
+  AVAILABLE
+  HELD
+  CONFIRMED
+}
+
+enum AppointmentStatus {
+  PENDING_PAYMENT
+  CONFIRMED
+  IN_CONSULTATION
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  VERIFIED
+  FAILED
+  REFUNDED
+}
+
+enum SessionStatus {
+  OTP_PENDING
+  OTP_VERIFIED
+  PAYMENT_PENDING
+  PAYMENT_COMPLETED
+  SLOT_CONFIRMED
+  EXPIRED
+}
+
+enum ModerationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Hospital {
+  id              String          @id @default(uuid())
+  name            String
+  slug            String          @unique
+  tagline         String?
+  address         String
+  city            String          @default("Jalna")
+  state           String          @default("Maharashtra")
+  pincode         String          @default("431203")
+  phone           String
+  emergencyPhone  String          @map("emergency_phone")
+  email           String
+  establishedYear Int             @default(2016) @map("established_year")
+  latitude        Float?          @default(19.8295)
+  longitude       Float?          @default(75.8752)
+  isActive        Boolean         @default(true) @map("is_active")
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  admins          HospitalAdmin[]
+  departments     Department[]
+  doctors         Doctor[]
+  appointments    Appointment[]
+  auditLogs       AuditLog[]
+  events          HospitalEvent[]
+  reviews         PatientReview[]
+  settings        HospitalSetting[]
+
+  @@map("hospitals")
+}
+
+model HospitalAdmin {
+  id             String    @id @default(uuid())
+  hospitalId     String    @map("hospital_id")
+  supabaseUserId String?   @unique @map("supabase_user_id")
+  name           String
+  email          String    @unique
+  passwordHash   String?   @map("password_hash")
+  role           AdminRole @default(HOSPITAL_ADMIN)
+  isActive       Boolean   @default(true) @map("is_active")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  hospital       Hospital  @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@map("hospital_admins")
+}
+
+model Department {
+  id            String        @id @default(uuid())
+  hospitalId    String        @map("hospital_id")
+  nameEn        String        @map("name_en")
+  nameMr        String        @map("name_mr")
+  slug          String
+  descriptionEn String?       @map("description_en")
+  descriptionMr String?       @map("description_mr")
+  icon          String?
+  isActive      Boolean       @default(true) @map("is_active")
+  createdAt     DateTime      @default(now()) @map("created_at")
+  updatedAt     DateTime      @updatedAt @map("updated_at")
+
+  hospital      Hospital      @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  doctors       Doctor[]
+  appointments  Appointment[]
+
+  @@unique([hospitalId, slug])
+  @@map("departments")
+}
+
+model Doctor {
+  id               String           @id @default(uuid())
+  hospitalId       String           @map("hospital_id")
+  departmentId     String           @map("department_id")
+  name             String
+  designation      String
+  specialty        String
+  qualifications   String
+  experienceYears  Int?             @map("experience_years")
+  consultationFee  Int              @default(500) @map("consultation_fee")
+  photoUrl         String?          @map("photo_url")
+  isActive         Boolean          @default(true) @map("is_active")
+  createdAt        DateTime         @default(now()) @map("created_at")
+  updatedAt        DateTime         @updatedAt @map("updated_at")
+
+  hospital         Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  department       Department       @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  schedules        DoctorSchedule[]
+  slots            AppointmentSlot[]
+  appointments     Appointment[]
+
+  @@map("doctors")
+}
+
+model DoctorSchedule {
+  id               String          @id @default(uuid())
+  doctorId         String          @map("doctor_id")
+  dayOfWeek        Int             @map("day_of_week") // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+  startTime        String          @map("start_time")   // e.g. "10:00"
+  endTime          String          @map("end_time")     // e.g. "14:00"
+  slotDurationMins Int             @default(30) @map("slot_duration_mins")
+  isActive         Boolean         @default(true) @map("is_active")
+  createdAt        DateTime        @default(now()) @map("created_at")
+  updatedAt        DateTime        @updatedAt @map("updated_at")
+
+  doctor           Doctor          @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  breaks           ScheduleBreak[]
+
+  @@unique([doctorId, dayOfWeek, startTime])
+  @@map("doctor_schedules")
+}
+
+model ScheduleBreak {
+  id               String         @id @default(uuid())
+  doctorScheduleId String         @map("doctor_schedule_id")
+  breakStart       String         @map("break_start") // e.g. "13:00"
+  breakEnd         String         @map("break_end")   // e.g. "13:30"
+
+  schedule         DoctorSchedule @relation(fields: [doctorScheduleId], references: [id], onDelete: Cascade)
+
+  @@map("schedule_breaks")
+}
+
+model AppointmentSlot {
+  id               String         @id @default(uuid())
+  doctorId         String         @map("doctor_id")
+  slotDate         DateTime       @map("slot_date") @db.Date
+  startTime        String         @map("start_time") // e.g. "10:30"
+  endTime          String         @map("end_time")   // e.g. "11:00"
+  status           SlotStatus     @default(AVAILABLE)
+  heldUntil        DateTime?      @map("held_until")
+  bookingSessionId String?        @map("booking_session_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  doctor           Doctor         @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  appointment      Appointment?
+
+  @@unique([doctorId, slotDate, startTime])
+  @@map("appointment_slots")
+}
+
+model BookingSession {
+  id             String         @id @default(uuid())
+  phoneNumber    String         @map("phone_number")
+  otpCode        String?        @map("otp_code")
+  otpVerifiedAt  DateTime?      @map("otp_verified_at")
+  patientName    String?        @map("patient_name")
+  patientAge     Int?           @map("patient_age")
+  patientGender  String?        @map("patient_gender")
+  patientAddress String?        @map("patient_address")
+  doctorId       String?        @map("doctor_id")
+  status         SessionStatus  @default(OTP_PENDING)
+  expiresAt      DateTime       @map("expires_at")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  payment        Payment?
+  appointment    Appointment?
+
+  @@map("booking_sessions")
+}
+
+model Payment {
+  id                String         @id @default(uuid())
+  bookingSessionId  String         @unique @map("booking_session_id")
+  razorpayOrderId   String         @unique @map("razorpay_order_id")
+  razorpayPaymentId String?        @unique @map("razorpay_payment_id")
+  razorpaySignature String?        @map("razorpay_signature")
+  amount            Int            // Amount in Paisa (e.g. 50000 = Rs. 500)
+  currency          String         @default("INR")
+  status            PaymentStatus  @default(PENDING)
+  verifiedAt        DateTime?      @map("verified_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime       @updatedAt @map("updated_at")
+
+  bookingSession    BookingSession @relation(fields: [bookingSessionId], references: [id], onDelete: Cascade)
+  appointment       Appointment?
+
+  @@map("payments")
+}
+
+model Appointment {
+  id              String            @id @default(uuid())
+  appointmentCode String            @unique @map("appointment_code") // e.g. "SMH-2026-000101"
+  hospitalId      String            @map("hospital_id")
+  departmentId    String            @map("department_id")
+  doctorId        String            @map("doctor_id")
+  slotId          String            @unique @map("slot_id")
+  sessionId       String?           @unique @map("session_id")
+  paymentId       String?           @unique @map("payment_id")
+  patientName     String            @map("patient_name")
+  patientPhone    String            @map("patient_phone")
+  patientAge      Int               @map("patient_age")
+  patientGender   String?           @map("patient_gender")
+  patientAddress  String?           @map("patient_address")
+  appointmentDate DateTime          @map("appointment_date") @db.Date
+  startTime       String            @map("start_time")
+  status          AppointmentStatus @default(CONFIRMED)
+  notes           String?
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  hospital        Hospital          @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+  department      Department        @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  doctor          Doctor            @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  slot            AppointmentSlot   @relation(fields: [slotId], references: [id], onDelete: Cascade)
+  bookingSession  BookingSession?   @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  payment         Payment?          @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([hospitalId, appointmentDate])
+  @@index([doctorId, appointmentDate])
+  @@map("appointments")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  hospitalId String   @map("hospital_id")
+  userId     String?  @map("user_id")
+  action     String
+  entity     String
+  entityId   String   @map("entity_id")
+  metadata   Json?
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@map("audit_logs")
+}
+
+model HospitalEvent {
+  id          String   @id @default(uuid())
+  hospitalId  String   @map("hospital_id")
+  title       String
+  description String
+  eventDate   DateTime @map("event_date")
+  category    String   @default("Health Camp")
+  imageUrl    String?  @map("image_url")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@map("hospital_events")
+}
+
+model PatientReview {
+  id          String           @id @default(uuid())
+  hospitalId  String           @map("hospital_id")
+  patientName String           @map("patient_name")
+  department  String?
+  rating      Int              @default(5)
+  comment     String
+  source      String           @default("Google Review")
+  status      ModerationStatus @default(PENDING)
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  hospital    Hospital         @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@map("patient_reviews")
+}
+
+model HospitalSetting {
+  id          String   @id @default(uuid())
+  hospitalId  String   @map("hospital_id")
+  key         String
+  value       String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  hospital    Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, key])
+  @@map("hospital_settings")
+}

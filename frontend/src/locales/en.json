@@ -1,0 +1,89 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About Us",
+    "departments": "Departments",
+    "doctors": "Doctors",
+    "facilities": "Facilities & ICU",
+    "mjpjay": "MJPJAY & Schemes",
+    "insurance": "Cashless Insurance",
+    "events": "Health Camps & News",
+    "contact": "Contact",
+    "bookAppointment": "Book Appointment",
+    "adminPortal": "Hospital Admin",
+    "emergency24x7": "24x7 Emergency"
+  },
+  "hero": {
+    "title": "Comprehensive Healthcare, Closer to You.",
+    "subtitle": "Sanjeevani Multispeciality Hospital — Delivering advanced surgical care, 24x7 emergency resuscitation, and multi-speciality clinical excellence in Jalna.",
+    "bookCta": "Book Doctor Appointment",
+    "exploreCare": "Explore Our Specialties",
+    "badge": "Trusted Tertiary Healthcare in Jalna since 2016"
+  },
+  "quickActions": {
+    "book": "Book Appointment",
+    "call": "Call Reception",
+    "emergency": "Emergency / Casualty",
+    "ambulance": "Call Ambulance",
+    "findDoctor": "Find a Doctor",
+    "directions": "Get Directions"
+  },
+  "emergency": {
+    "stripText": "Need immediate medical attention? Our 24x7 Emergency Resuscitation & ICU Trauma Unit is open.",
+    "callNow": "Call Emergency Hotline",
+    "disclaimer": "Emergency casualty is operational 24 hours a day, 365 days a year."
+  },
+  "stats": {
+    "departments": "Specialized Departments",
+    "experience": "Years of Clinical Service",
+    "emergency": "24x7 Emergency & ICU",
+    "satisfaction": "Dedicated Medical Specialists"
+  },
+  "sections": {
+    "featuredDepartments": "Featured Clinical Departments",
+    "featuredDepartmentsSub": "High-standard clinical care across medical and surgical disciplines",
+    "specialistDoctors": "Senior Medical Faculty & Specialists",
+    "specialistDoctorsSub": "Consult experienced clinicians and surgeons at Sanjeevani Hospital",
+    "whyChoose": "Why Choose Sanjeevani Hospital?",
+    "whyChooseSub": "Our commitment to quality clinical outcomes, sterile safety, and accessible healthcare in Jalna",
+    "testimonials": "Patient Experiences & Reviews",
+    "testimonialsSub": "Real feedback from patients and families treated at our hospital",
+    "facilities": "Hospital Infrastructure & Technology",
+    "facilitiesSub": "Equipped with advanced diagnostic and intensive care capabilities",
+    "schemes": "Government Schemes & Cashless Support",
+    "schemesSub": "Transparent financial assistance and government healthcare benefits",
+    "camps": "Community Health Camps & Outreach",
+    "campsSub": "Regular diagnostic screening camps and medical awareness initiatives"
+  },
+  "common": {
+    "verified": "Verified Record",
+    "loading": "Loading...",
+    "retry": "Try Again",
+    "viewAll": "View All",
+    "readMore": "Read More",
+    "bookSlot": "Book Slot",
+    "viewProfile": "View Profile",
+    "opdFee": "OPD Consultation Fee",
+    "experience": "Experience",
+    "department": "Department",
+    "qualifications": "Qualifications",
+    "availability": "Available Timings",
+    "location": "Location",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "mjpjay": {
+    "title": "Mahatma Jyotirao Phule Jan Arogya Yojana (MJPJAY)",
+    "subtitle": "Providing accessible tertiary care and cashless surgical treatments to eligible families.",
+    "disclaimerTitle": "Mandatory Scheme Compliance Notice",
+    "disclaimerText": "Eligibility, coverage, and treatment availability are subject to applicable government scheme rules, required documentation, and Arogya Mitra verification.",
+    "docChecklistTitle": "Required Documents Checklist",
+    "processTitle": "Hospital Scheme Admission Process"
+  },
+  "insurance": {
+    "title": "Cashless Mediclaim & Insurance Services",
+    "subtitle": "Dedicated TPA desk coordinating seamless pre-authorization and claims settlement.",
+    "processTitle": "How Cashless Hospitalization Works",
+    "documentsTitle": "Documents Required at Admission"
+  }
+}
