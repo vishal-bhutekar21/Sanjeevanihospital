@@ -49,9 +49,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Manrope', '"Noto Sans Devanagari"', 'system-ui', 'sans-serif'],
-        heading: ['Outfit', 'Manrope', 'sans-serif'],
-        marathi: ['"Noto Sans Devanagari"', 'Manrope', 'sans-serif'],
+        sans: ['Manrope', 'Mukta', 'system-ui', 'sans-serif'],
+        heading: ['Outfit', 'Mukta', 'Manrope', 'sans-serif'],
+        marathi: ['Mukta', 'Yantramanav', 'sans-serif'],
       },
       boxShadow: {
         'card-subtle': '0 2px 12px rgba(0, 43, 91, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03)',

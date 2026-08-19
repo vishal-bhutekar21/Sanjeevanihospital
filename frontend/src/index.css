@@ -8,26 +8,30 @@
     --primary-foreground: 255 255 255;
     --secondary: 0 119 145;
     --secondary-foreground: 255 255 255;
-    --background: 244 247 251;
+    --background: 213 239 227;
     --foreground: 15 23 42;
-    --card: 255 255 255;
+    --card: 244 251 247;
     --card-foreground: 15 23 42;
-    --muted: 241 245 249;
+    --muted: 195 231 222;
     --muted-foreground: 51 65 85;
-    --border: 226 232 240;
+    --border: 134 239 172;
   }
 
-  body {
-    background-color: #F4F7FB;
+  html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    background: linear-gradient(160deg, #D5EFE3 0%, #C3E7DE 35%, #B4DEF5 70%, #A2D4F2 100%) !important;
+    background-attachment: fixed !important;
     color: #0F172A;
-    font-family: 'Manrope', 'Noto Sans Devanagari', system-ui, sans-serif;
+    font-family: 'Manrope', 'Mukta', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Manrope', sans-serif;
-    color: #002B5B;
+    font-family: 'Outfit', 'Mukta', 'Manrope', sans-serif;
     letter-spacing: -0.02em;
+    color: inherit;
   }
 }
 
