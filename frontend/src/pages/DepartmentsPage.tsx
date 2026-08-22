@@ -85,7 +85,7 @@ export const DepartmentsPage: React.FC = () => {
         isMr ? '२४x७ भूलतज्ज्ञ उपस्थिती' : '24x7 Critical Care Intensivist',
         isMr ? 'बेडसाइड डायलिसिस सपोर्ट' : 'Bedside Hemodialysis Support',
       ],
-      image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.55-PM-1.webp',
       icon: HeartPulse,
     },
     {
@@ -129,7 +129,7 @@ export const DepartmentsPage: React.FC = () => {
         isMr ? 'हर्निया व अपेंडिक्स शस्त्रक्रिया' : 'Laparoscopic Hernia & Appendix',
         isMr ? 'मूळव्याध व फिस्टुला लेझर उपचार' : 'Laser Anorectal Surgeries',
       ],
-      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-21-at-4.28.59-PM.webp',
       icon: Scissors,
     },
     {

@@ -17,9 +17,11 @@ import {
   Sparkles,
   ArrowRight,
   Camera,
+  Trophy,
 } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
+import { AWARDS_DATA } from '../data/awardsData';
 
 export const EventsPage: React.FC = () => {
   const { i18n } = useTranslation();
@@ -276,7 +278,7 @@ export const EventsPage: React.FC = () => {
 
   const [events, setEvents] = useState<any[]>(defaultEvents);
   const [reviews, setReviews] = useState<any[]>(defaultReviews);
-  const [activeTab, setActiveTab] = useState<'events' | 'reviews' | 'gallery'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'awards' | 'gallery' | 'reviews'>('events');
 
   const [reviewForm, setReviewForm] = useState({
     patientName: '',
@@ -405,10 +407,10 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ─── 2. TAB SWITCHER ─────────────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-xl">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-2xl">
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
             activeTab === 'events'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -418,8 +420,19 @@ export const EventsPage: React.FC = () => {
           <span>{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
         </button>
         <button
+          onClick={() => setActiveTab('awards')}
+          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+            activeTab === 'awards'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Trophy className="w-3.5 h-3.5 text-amber-500" />
+          <span>{isMr ? 'पुरस्कार व सन्मान (१६)' : 'Awards & Honors (16)'}</span>
+        </button>
+        <button
           onClick={() => setActiveTab('gallery')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
             activeTab === 'gallery'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -430,7 +443,7 @@ export const EventsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
             activeTab === 'reviews'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
@@ -545,7 +558,90 @@ export const EventsPage: React.FC = () => {
         </div>
       )}
 
-      {/* ─── TAB 2: VERIFIED PATIENT REVIEWS & STORIES ───────────────────────── */}
+      {/* ─── TAB 2: AWARDS & HONORS (16 AUTHENTIC CITATIONS FROM LIVE WEBSITE) ── */}
+      {activeTab === 'awards' && (
+        <div className="space-y-8">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading flex items-center gap-2">
+              <Trophy className="w-5 h-5 text-amber-500" />
+              <span>{isMr ? 'संजीवनी हॉस्पिटलचे अधिकृत पुरस्कार, सन्मान व यशोगाथा' : 'Official Awards, Citations & Institutional Achievements'}</span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              {isMr
+                ? 'वैद्यकीय गुणवत्ता, २४ तास आपत्कालीन अतिदक्षता आणि निष्कलंक रुग्णसेवेसाठी मिळालेली सन्मानचिन्हे व पारितोषिके:'
+                : 'Recognized for benchmark critical care resuscitation, MJPJAY implementation, and community health services across Maharashtra:'}
+            </p>
+          </div>
+
+          {/* 16 Awards Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {AWARDS_DATA.map((item) => (
+              <div
+                key={item.id}
+                className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition bg-white"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2.5 right-2.5 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                    <span>{item.year || 'Honor'}</span>
+                  </div>
+                </div>
+
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
+                  <div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
+                      {isMr ? item.subtitleMr : item.subtitle}
+                    </span>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading mt-0.5">
+                      {isMr ? item.titleMr : item.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      {isMr ? item.descriptionMr : item.description}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                    <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isMr ? 'अधिकृत गौरव' : 'Verified Citation'}</span>
+                    </span>
+                    <span className="text-slate-400 font-medium">Sanjeevani Jalna</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Achievement Milestone Banner */}
+          <div className="card-clean p-6 sm:p-8 bg-gradient-to-r from-amber-50/80 via-white to-teal-50 border border-amber-200 flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <span className="badge-teal text-xs">{isMr ? '२०१६ पासून अविरत विश्वास' : 'Serving Jalna Since 2016'}</span>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-heading">
+                {isMr ? '५०,०००+ समाधानी रुग्ण आणि अविरत जीवनरक्षक कार्य' : '50,000+ Patients Treated with Compassion & Clinical Precision'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                {isMr
+                  ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना हे सर्वसामान्य कुटुंबांसाठी उच्च दर्जाचे आणि विश्वासार्ह वैद्यकीय उपचार रास्त दरात उपलब्ध करून देण्यासाठी वचनबद्ध आहे.'
+                  : 'Our healthcare mission continues with unwavering dedication to clinical excellence, zero hidden fees, and empathetic round-the-clock emergency medical response.'}
+              </p>
+            </div>
+            <a
+              href="tel:+917507342222"
+              className="btn-primary text-xs py-3 px-6 whitespace-nowrap shadow-sm shrink-0 flex items-center gap-2"
+            >
+              <Phone className="w-4 h-4" />
+              <span>{isMr ? 'हॉस्पिटल हेल्पलाईन: +91-75073-42222' : 'Hospital Desk: +91-75073-42222'}</span>
+            </a>
+          </div>
+        </div>
+      )}
+
+      {/* ─── TAB 3: VERIFIED PATIENT REVIEWS & STORIES ───────────────────────── */}
       {activeTab === 'reviews' && (
         <div className="space-y-8">
           {/* Summary Rating Stats Card with Soft Teal Background */}

@@ -20,13 +20,18 @@ import {
   ArrowRight,
   Bed,
   Layers,
-  Navigation,
   AlertCircle,
+  Trophy,
+  Navigation,
 } from 'lucide-react';
+import { DOCTORS_DATA } from '../data/doctorsData';
+import { AWARDS_DATA } from '../data/awardsData';
 
 export const HomePage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
+
+  const seniorDoctors = DOCTORS_DATA.slice(0, 6);
 
   // 6 Major Clinical Departments
   const clinicalSpecialties = [
@@ -101,88 +106,6 @@ export const HomePage: React.FC = () => {
       image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
       icon: Stethoscope,
       slug: 'internal-medicine',
-    },
-  ];
-
-  // Senior Faculty Doctors
-  const seniorDoctors = [
-    {
-      id: 'doc-goyal',
-      name: 'Dr. Nishant Goyal',
-      nameMr: 'डॉ. निशांत गोयल',
-      role: 'Director & Senior Orthopedic Surgeon',
-      roleMr: 'संचालक व वरिष्ठ अस्थिरोग तज्ज्ञ',
-      degree: 'MBBS, DNB, D. Ortho',
-      dept: 'Orthopedics & Joint Replacement',
-      deptMr: 'अस्थिरोग व सांधे प्रत्यारोपण',
-      fee: 500,
-      image: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&w=600&q=80',
-      timings: '11:00 AM – 03:00 PM | 06:00 PM – 08:00 PM',
-    },
-    {
-      id: 'doc-mirkad',
-      name: 'Dr. Shivdas Mirkad',
-      nameMr: 'डॉ. शिवदास मिरकड',
-      role: 'Director & Pediatrician / Neonatologist',
-      roleMr: 'संचालक व बालरोगतज्ज्ञ',
-      degree: 'MBBS, MD, DCH',
-      dept: 'Pediatrics & Neonatology',
-      deptMr: 'बालरोग व नवजात शिशु काळजी',
-      fee: 500,
-      image: 'https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&w=600&q=80',
-      timings: '10:00 AM – 02:00 PM | 05:00 PM – 08:00 PM',
-    },
-    {
-      id: 'doc-bagal',
-      name: 'Dr. Baliram Bagal',
-      nameMr: 'डॉ. बळीराम बागल',
-      role: 'Director & Chief Intensivist / Anesthesiologist',
-      roleMr: 'संचालक व मुख्य अतिदक्षतातज्ज्ञ / भूलतज्ज्ञ',
-      degree: 'MBBS, DA, FICM, CCCS',
-      dept: 'Critical Care & Anesthesia',
-      deptMr: 'अतिदक्षता विभाग व भूलशास्त्र',
-      fee: 400,
-      image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&w=600&q=80',
-      timings: '24x7 On-Call & Emergency ICU Triage',
-    },
-    {
-      id: 'doc-anshul',
-      name: 'Dr. Anshul Goyal',
-      nameMr: 'डॉ. अंशुल गोयल',
-      role: 'Consultant Obstetrician & Gynecologist',
-      roleMr: 'वरिष्ठ प्रसूती व स्त्रीरोगतज्ज्ञ',
-      degree: 'MBBS, DNB, DGO',
-      dept: 'Obstetrics & Gynecology',
-      deptMr: 'प्रसूती व स्त्रीरोग विभाग',
-      fee: 500,
-      image: 'https://images.unsplash.com/photo-1594824813588-444747683936?auto=format&fit=crop&w=600&q=80',
-      timings: '10:30 AM – 02:30 PM | 05:30 PM – 07:30 PM',
-    },
-    {
-      id: 'doc-rajguru',
-      name: 'Dr. Kailash Rajguru',
-      nameMr: 'डॉ. कैलाश राजगुरु',
-      role: 'Consultant Physician & Intensivist',
-      roleMr: 'वरिष्ठ फिजिशियन व अतिदक्षतातज्ज्ञ',
-      degree: 'MBBS, MD (Medicine)',
-      dept: 'Internal Medicine & ICU',
-      deptMr: 'इंटरनल मेडिसिन व अतिदक्षता',
-      fee: 400,
-      image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&w=600&q=80',
-      timings: '09:00 AM – 01:00 PM | 05:00 PM – 08:00 PM',
-    },
-    {
-      id: 'doc-katole',
-      name: 'Dr. Millind Katole',
-      nameMr: 'डॉ. मिलींद काटोले',
-      role: 'Consultant General & Laparoscopic Surgeon',
-      roleMr: 'वरिष्ठ जनरल व लेप्रोस्कोपिक सर्जन',
-      degree: 'MBBS, MS (General Surgery)',
-      dept: 'General & Minimally Invasive Surgery',
-      deptMr: 'जनरल व दुर्बिणीद्वारे शस्त्रक्रिया',
-      fee: 500,
-      image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80',
-      timings: '11:00 AM – 03:00 PM',
     },
   ];
 
@@ -694,7 +617,82 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 7. PATIENT TESTIMONIALS ───────────────────────────────────────────── */}
+      {/* ─── 7. AWARDS & INSTITUTIONAL ACHIEVEMENTS (FROM LIVE WEBSITE) ─────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="text-center max-w-2xl mx-auto space-y-2">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300">
+            <Trophy className="w-3.5 h-3.5 text-amber-700" />
+            <span>{isMr ? 'पुरस्कार, सन्मान व यशोगाथा' : 'Awards & Recognition'}</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
+            {isMr ? 'संजीवनी हॉस्पिटलचे प्रतिष्ठित पुरस्कार व गौरव' : 'Prestigious Awards & Clinical Milestones'}
+          </h2>
+          <p className="text-sm text-slate-500">
+            {isMr
+              ? 'उत्कृष्ट वैद्यकीय गुणवत्ता, २४ तास आपत्कालीन सेवा आणि निष्कलंक रुग्णसेवेसाठी राज्य व राष्ट्रीय स्तरावर मिळालेले सन्मान:'
+              : 'Recognized by state medical bodies, administration, and healthcare authorities for excellence in critical care and clinical outcomes:'}
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {AWARDS_DATA.slice(0, 4).map((award) => (
+            <div
+              key={award.id}
+              className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition bg-white"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                <img
+                  src={award.image}
+                  alt={award.title}
+                  loading="lazy"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute top-2.5 right-2.5 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                  <span>{award.year}</span>
+                </div>
+              </div>
+
+              <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
+                    {isMr ? award.subtitleMr : award.subtitle}
+                  </span>
+                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading mt-0.5">
+                    {isMr ? award.titleMr : award.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
+                    {isMr ? award.descriptionMr : award.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>{isMr ? 'अधिकृत सन्मान' : 'Official Citation'}</span>
+                  </span>
+                  <Link to="/events" className="text-slate-700 hover:text-[#0F766E] font-semibold flex items-center gap-0.5">
+                    <span>{isMr ? 'अधिक पहा' : 'View More'}</span>
+                    <ChevronRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-center pt-2">
+          <Link
+            to="/events"
+            className="btn-secondary text-xs"
+          >
+            <Trophy className="w-3.5 h-3.5 text-amber-500" />
+            <span>{isMr ? 'सर्व १६ पुरस्कार व यशोगाथा पहा' : 'View All 16 Awards & Achievements'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+      </section>
+
+      {/* ─── 8. PATIENT TESTIMONIALS ───────────────────────────────────────────── */}
       <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         <div className="text-center max-w-2xl mx-auto space-y-2">
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
