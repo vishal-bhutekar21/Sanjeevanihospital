@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Stethoscope, Calendar, Clock, MapPin, ShieldCheck, ArrowLeft, Award, CheckCircle2 } from 'lucide-react';
+import { Stethoscope, Calendar, ArrowLeft, ShieldCheck, CheckCircle2 } from 'lucide-react';
 
 export const DoctorDetailPage: React.FC = () => {
   const { doctorId } = useParams();
@@ -68,57 +68,57 @@ export const DoctorDetailPage: React.FC = () => {
   const doc = doctorData[doctorId || 'doc-goyal'] || doctorData['doc-goyal'];
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
-      {/* Back Button */}
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      {/* Back Link */}
       <Link
         to="/doctors"
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-hospital-teal hover:underline"
+        className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to Doctors Directory</span>
       </Link>
 
       {/* Main Profile Header */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 items-center">
-        <div className="lg:col-span-4 flex flex-col items-center text-center space-y-3 sm:space-y-4">
-          <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-2xl bg-gradient-to-br from-hospital-teal to-hospital-cyan flex items-center justify-center text-white shadow-md">
-            <Stethoscope className="w-12 h-12 sm:w-16 sm:h-16" />
+      <div className="card-clean p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div className="lg:col-span-4 flex flex-col items-center text-center space-y-3">
+          <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-xl bg-teal-50 text-[#0F766E] flex items-center justify-center">
+            <Stethoscope className="w-12 h-12" />
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold text-slate-900">{doc.name}</h1>
-            <p className="text-xs font-bold text-hospital-teal mt-0.5">{doc.qualifications}</p>
-            <p className="text-xs text-slate-500 font-medium">{doc.designation}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">{doc.name}</h1>
+            <p className="text-xs font-semibold text-[#0F766E] mt-0.5">{doc.qualifications}</p>
+            <p className="text-xs text-slate-500">{doc.designation}</p>
           </div>
-          <div className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+          <div className="badge-teal text-xs">
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Verified Medical Specialist</span>
           </div>
         </div>
 
-        <div className="lg:col-span-8 space-y-5 sm:space-y-6 lg:border-l lg:border-slate-100 lg:pl-8">
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 text-xs">
-            <div className="p-3 bg-slate-50 rounded-xl">
+        <div className="lg:col-span-8 space-y-5 lg:border-l lg:border-slate-100 lg:pl-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
+            <div className="p-3 bg-slate-50 rounded-lg">
               <span className="text-slate-500 block">Department</span>
-              <span className="font-bold text-slate-900 mt-0.5 block truncate">{doc.department}</span>
+              <span className="font-semibold text-slate-900 mt-0.5 block truncate">{doc.department}</span>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl">
+            <div className="p-3 bg-slate-50 rounded-lg">
               <span className="text-slate-500 block">Experience</span>
-              <span className="font-bold text-slate-900 mt-0.5 block">{doc.experienceYears}+ Years</span>
+              <span className="font-semibold text-slate-900 mt-0.5 block">{doc.experienceYears}+ Years</span>
             </div>
-            <div className="p-3 bg-slate-50 rounded-xl col-span-2 sm:col-span-1">
+            <div className="p-3 bg-slate-50 rounded-lg col-span-2 sm:col-span-1">
               <span className="text-slate-500 block">Consultation Fee</span>
-              <span className="font-bold text-hospital-teal text-sm mt-0.5 block">₹{doc.consultationFee}</span>
+              <span className="font-bold text-[#0F766E] text-sm mt-0.5 block">₹{doc.consultationFee}</span>
             </div>
           </div>
 
-          <div className="space-y-1.5 sm:space-y-2">
-            <h3 className="text-sm font-bold text-slate-900">Clinical Focus & Background</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">{doc.about}</p>
+          <div className="space-y-1">
+            <h3 className="text-sm font-bold text-slate-900 font-heading">Clinical Focus & Background</h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">{doc.about}</p>
           </div>
 
-          <div className="p-4 bg-hospital-soft/80 rounded-2xl border border-hospital-teal/20 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
-            <div className="space-y-1 text-center sm:text-left">
-              <span className="text-[11px] font-bold text-hospital-teal uppercase tracking-wider block">
+          <div className="p-4 bg-slate-50 rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+            <div className="space-y-0.5">
+              <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">
                 Weekly Consultation Timings
               </span>
               <p className="text-xs font-semibold text-slate-800">{doc.timings}</p>
@@ -126,9 +126,9 @@ export const DoctorDetailPage: React.FC = () => {
 
             <Link
               to={`/book?doctorId=${doctorId}`}
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-hospital-teal text-white text-xs font-bold rounded-xl shadow-md hover:bg-hospital-teal/90 transition shrink-0"
+              className="btn-primary text-xs py-2 px-4"
             >
-              <Calendar className="w-4 h-4 text-emerald-300" />
+              <Calendar className="w-4 h-4" />
               <span>Book Appointment Slot</span>
             </Link>
           </div>
@@ -136,12 +136,12 @@ export const DoctorDetailPage: React.FC = () => {
       </div>
 
       {/* Procedures & Clinical Services */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-4">
-        <h3 className="text-base font-bold text-slate-900">Specialized Procedures & Interventions</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="card-clean p-6 sm:p-8 space-y-3">
+        <h3 className="text-base font-bold text-slate-900 font-heading">Specialized Procedures & Interventions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           {doc.procedures.map((proc: string, idx: number) => (
-            <div key={idx} className="flex items-center space-x-2.5 p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium text-slate-700">
-              <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div key={idx} className="flex items-center space-x-2.5 p-3 rounded-lg bg-slate-50 text-xs font-medium text-slate-700">
+              <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
               <span>{proc}</span>
             </div>
           ))}

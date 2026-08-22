@@ -71,60 +71,57 @@ export const FacilitiesPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-14">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
-          <Activity className="w-4 h-4 text-slate-950" />
+      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-4">
+        <div className="badge-teal text-xs">
+          <Activity className="w-3.5 h-3.5" />
           <span>{isMr ? 'अत्याधुनिक वैद्यकीय पायाभूत सुविधा' : 'Advanced Healthcare Infrastructure'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
-          {isMr ? 'हॉस्पिटल सुविधा आणि' : 'Hospital Facilities &'}<br />
-          <span className="text-[#FDE047] font-black">
-            {isMr ? '२१ खाटांचा अतिदक्षता विभाग (ICU)' : '21-Bed Critical Care Infrastructure'}
-          </span>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+          {isMr ? 'हॉस्पिटल सुविधा आणि २१ खाटांचा ICU' : 'Hospital Facilities & 21-Bed Critical Care'}
         </h1>
 
-        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे रुग्णांच्या सुरक्षिततेसाठी आणि जलद उपचारांसाठी आंतरराष्ट्रीय दर्जाचे तंत्रज्ञान, २१ खाटांचा सुसज्ज ICU आणि मॉड्युलर शस्त्रक्रिया गृह सज्ज आहेत.'
             : 'State-of-the-art medical technology engineered for patient safety, sterile surgical outcomes, and 24x7 critical resuscitation in Jalna.'}
         </p>
       </div>
 
-      {/* ─── FACILITIES GRID ─────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      {/* ─── FACILITIES GRID ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {facilities.map((fac, idx) => {
           const Icon = fac.icon;
           return (
             <div
               key={idx}
-              className="bg-gradient-to-br from-[#FFFDF5] via-[#FFF9ED] to-[#FEF3C7] rounded-3xl border-3 border-[#FDE68A] shadow-xl hover:shadow-2xl transition-all overflow-hidden flex flex-col group"
+              className="card-clean overflow-hidden flex flex-col group"
             >
-              <div className="relative h-48 sm:h-56 overflow-hidden">
+              <div className="relative h-48 overflow-hidden">
                 <img
                   src={fac.image}
                   alt={fac.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-[#001529]/20 to-transparent"></div>
-                <div className="absolute top-3.5 right-3.5 bg-amber-400 text-slate-950 text-xs font-black px-2.5 py-1 rounded-xl shadow border border-amber-500">
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
+                <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-teal-300 text-[11px] font-medium px-2.5 py-1 rounded">
                   {fac.badge}
                 </div>
               </div>
 
-              <div className="p-5 sm:p-7 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-2.5">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#002B5B] text-amber-300 flex items-center justify-center font-bold shadow-md shrink-0">
-                      <Icon className="w-5 h-5" />
+              <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-black text-[#002B5B] font-heading">
+                    <h3 className="text-base font-bold text-slate-900 font-heading">
                       {isMr ? fac.titleMr : fac.title}
                     </h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-semibold">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {isMr ? fac.descMr : fac.desc}
                   </p>
                 </div>

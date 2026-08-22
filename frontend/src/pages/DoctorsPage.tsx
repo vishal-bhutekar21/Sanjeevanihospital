@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Calendar, Search, ShieldCheck, Clock, Award, Phone } from 'lucide-react';
+import { Search, ShieldCheck } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
 export const DoctorsPage: React.FC = () => {
@@ -109,100 +109,97 @@ export const DoctorsPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
-      {/* ─── HERO BANNER ─────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
-          <ShieldCheck className="w-4 h-4 text-slate-950" />
-          <span>{isMr ? 'संजीवनी हॉस्पिटल वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Verified Hospital Medical Faculty & Consultants'}</span>
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+      {/* ─── PAGE HEADER ──────────────────────────────────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-4">
+        <div className="badge-teal text-xs">
+          <ShieldCheck className="w-3.5 h-3.5" />
+          <span>{isMr ? 'वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Verified Medical Faculty'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
-          {isMr ? 'तज्ज्ञ डॉक्टर व' : 'Specialist Doctors &'}<br />
-          <span className="text-[#FDE047] font-black">
-            {isMr ? 'वैद्यकीय सल्लागार सूची' : 'Medical Faculty Directory'}
-          </span>
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+          {isMr ? 'तज्ज्ञ डॉक्टर व वैद्यकीय सल्लागार' : 'Specialist Doctors & Medical Faculty'}
         </h1>
 
-        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
           {isMr
-            ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी अस्थिरोग सर्जन, बालरोगतज्ज्ञ, स्त्रीरोगतज्ज्ञ, भूलतज्ज्ञ आणि फिजिशियन ओपीडी व २४ तास सेवेसाठी उपलब्ध आहेत.'
-            : 'Consult highly experienced surgeons, physicians, pediatricians, and intensivists with advanced surgical and critical care capabilities.'}
+            ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी अस्थिरोग सर्जन, बालरोगतज्ज्ञ, स्त्रीरोगतज्ज्ञ, भूलतज्ज्ञ आणि फिजिशियन उपलब्ध आहेत.'
+            : 'Consult experienced surgeons, physicians, pediatricians, and intensivists available for OPD and 24x7 emergency critical care.'}
         </p>
 
         {/* Search Bar */}
-        <div className="relative max-w-lg pt-2 w-full">
-          <Search className="w-5 h-5 absolute left-4 top-5.5 text-slate-400" />
+        <div className="relative max-w-md pt-2 w-full">
+          <Search className="w-4 h-4 absolute left-3.5 top-5 text-slate-400" />
           <input
             type="text"
             placeholder={isMr ? 'डॉक्टरांचे नाव किंवा विभाग शोधा...' : 'Search doctor or specialty...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-white text-slate-900 font-bold border-2 border-cyan-400 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-xl"
+            className="w-full pl-10 pr-4 py-2.5 bg-slate-800 text-white placeholder-slate-400 border border-slate-700 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-teal-400"
           />
         </div>
       </div>
 
       {/* ─── DOCTOR CARDS GRID ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((doc) => (
           <div
             key={doc.id}
-            className="bg-white rounded-3xl border-3 border-[#93C5FD]/80 p-7 shadow-xl hover:shadow-2xl flex flex-col justify-between space-y-6 transition-all"
+            className="card-clean p-5 flex flex-col justify-between space-y-5"
           >
             <div className="space-y-4">
-              <div className="flex items-start space-x-4">
-                <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-2xl overflow-hidden shrink-0 border-2 border-slate-200 shadow-md">
+              <div className="flex items-start space-x-3.5">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-lg overflow-hidden shrink-0 bg-slate-100">
                   <img
                     src={doc.image}
                     alt={doc.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform"
+                    className="w-full h-full object-cover"
                   />
                 </div>
-                <div className="space-y-1 min-w-0 flex-1">
-                  <h3 className="text-xl font-black text-[#002B5B] truncate font-heading">
+                <div className="space-y-0.5 min-w-0 flex-1">
+                  <h3 className="text-base font-bold text-slate-900 truncate font-heading">
                     {isMr ? doc.nameMr : doc.name}
                   </h3>
-                  <p className="text-xs sm:text-sm font-bold text-[#007791]">
+                  <p className="text-xs font-semibold text-[#0F766E]">
                     {isMr ? doc.roleMr : doc.role}
                   </p>
-                  <p className="text-xs font-bold text-slate-600">
+                  <p className="text-xs text-slate-500">
                     {doc.degree}
                   </p>
-                  <p className="text-xs text-slate-500 font-medium truncate">
+                  <p className="text-[11px] text-slate-400 truncate">
                     {isMr ? doc.deptMr : doc.dept}
                   </p>
                 </div>
               </div>
 
-              <div className="p-4 bg-[#EBF5FF] rounded-2xl space-y-2 text-xs sm:text-sm border-2 border-[#93C5FD]">
+              <div className="p-3.5 bg-slate-50 rounded-lg space-y-1.5 text-xs text-slate-600">
                 <div>
-                  <span className="font-black text-slate-700">Specialty: </span>
-                  <span className="font-semibold text-slate-900">{isMr ? doc.specialtyMr : doc.specialty}</span>
+                  <span className="font-semibold text-slate-700">Specialty: </span>
+                  <span>{isMr ? doc.specialtyMr : doc.specialty}</span>
                 </div>
                 <div>
-                  <span className="font-black text-slate-700">Schedule: </span>
-                  <span className="font-extrabold text-[#002B5B]">{doc.timings}</span>
+                  <span className="font-semibold text-slate-700">Schedule: </span>
+                  <span className="text-slate-800">{doc.timings}</span>
                 </div>
-                <div className="pt-1 flex justify-between items-center border-t border-blue-200">
-                  <span className="font-bold text-slate-600">OPD Consultation Fee:</span>
-                  <span className="font-black text-emerald-700 text-base">₹{doc.fee}</span>
+                <div className="pt-1 flex justify-between items-center border-t border-slate-200">
+                  <span className="text-slate-500">OPD Consultation Fee:</span>
+                  <span className="font-bold text-[#0F766E] text-sm">₹{doc.fee}</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-2.5 pt-1">
               <Link
                 to={`/doctors/${doc.id}`}
-                className="flex-1 py-3 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-900 text-xs sm:text-sm font-black text-center transition border border-slate-300"
+                className="btn-secondary text-xs flex-1 min-h-[38px] py-1.5"
               >
                 {isMr ? 'प्रोफाइल पहा' : 'View Profile'}
               </Link>
               <Link
                 to={`/book?doctorId=${doc.id}`}
-                className="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-[#002B5B] to-[#007791] text-white text-xs sm:text-sm font-black text-center hover:opacity-95 transition shadow-md"
+                className="btn-primary text-xs flex-1 min-h-[38px] py-1.5"
               >
-                <span className="text-white font-black">{isMr ? 'अपॉइंटमेंट घ्या' : 'Book Appointment'}</span>
+                <span>{isMr ? 'अपॉइंटमेंट घ्या' : 'Book Appointment'}</span>
               </Link>
             </div>
           </div>

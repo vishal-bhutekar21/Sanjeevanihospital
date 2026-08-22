@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Building2, ArrowLeft, Calendar, Stethoscope, CheckCircle2, ShieldCheck, Activity } from 'lucide-react';
+import { ArrowLeft, Calendar, CheckCircle2, Activity } from 'lucide-react';
 
 export const DepartmentDetailPage: React.FC = () => {
   const { slug } = useParams();
@@ -54,64 +54,64 @@ export const DepartmentDetailPage: React.FC = () => {
   const currentDept = deptData[slug || 'orthopedics'] || deptData['orthopedics'];
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       <Link
         to="/departments"
-        className="inline-flex items-center gap-1.5 text-xs font-bold text-hospital-teal hover:underline"
+        className="inline-flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-[#0F766E] transition"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Back to All Departments</span>
       </Link>
 
       {/* Hero Header */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-6">
+      <div className="card-clean p-6 sm:p-8 space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2">
-            <span className="text-xs font-bold text-hospital-cyan uppercase tracking-wider block">
+          <div className="space-y-1.5">
+            <span className="text-xs font-semibold text-[#0F766E] uppercase tracking-wider block">
               {currentDept.nameMr}
             </span>
-            <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-xl sm:text-3xl font-bold text-slate-900 tracking-tight font-heading">
               {currentDept.nameEn}
             </h1>
-            <p className="text-xs font-semibold text-slate-600">
-              Lead Specialist: <span className="text-hospital-teal font-bold">{currentDept.doctor}</span>
+            <p className="text-xs text-slate-600 font-medium">
+              Lead Specialist: <span className="text-slate-900 font-semibold">{currentDept.doctor}</span>
             </p>
           </div>
 
           <Link
             to={`/book?doctorId=${currentDept.doctorId}`}
-            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-hospital-teal text-white text-xs font-bold rounded-xl shadow-md hover:bg-hospital-teal/90 transition shrink-0 w-full sm:w-auto"
+            className="btn-primary text-xs py-2.5 px-4"
           >
-            <Calendar className="w-4 h-4 text-emerald-300" />
+            <Calendar className="w-4 h-4" />
             <span>Book Department Consultation</span>
           </Link>
         </div>
 
-        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-4 border-t border-slate-100">
+        <p className="text-xs sm:text-sm text-slate-600 leading-relaxed pt-3 border-t border-slate-100">
           {currentDept.about}
         </p>
       </div>
 
       {/* Treatments & Ward Facilities */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-        <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-4">
-          <h3 className="text-sm sm:text-base font-bold text-slate-900">Clinical Procedures & Scope</h3>
-          <ul className="space-y-2.5 text-xs text-slate-700">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="card-clean p-6 space-y-3">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading">Clinical Procedures & Scope</h3>
+          <ul className="space-y-2 text-xs text-slate-700">
             {currentDept.treatments.map((t: string, idx: number) => (
               <li key={idx} className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
                 <span>{t}</span>
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-4">
-          <h3 className="text-sm sm:text-base font-bold text-slate-900">Specialized Department Infrastructure</h3>
-          <ul className="space-y-2.5 text-xs text-slate-700">
+        <div className="card-clean p-6 space-y-3">
+          <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading">Specialized Infrastructure</h3>
+          <ul className="space-y-2 text-xs text-slate-700">
             {currentDept.facilities.map((f: string, idx: number) => (
               <li key={idx} className="flex items-start space-x-2.5">
-                <Activity className="w-4 h-4 text-hospital-cyan shrink-0 mt-0.5" />
+                <Activity className="w-4 h-4 text-[#0F766E] shrink-0 mt-0.5" />
                 <span>{f}</span>
               </li>
             ))}

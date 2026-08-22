@@ -1,22 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Building2,
-  ChevronRight,
   Activity,
-  Calendar,
-  ArrowRight,
-  Award,
-  Users,
-  CheckCircle2,
   HeartPulse,
-  TrendingUp,
-  Clock,
-  Sparkles,
-  Bed,
   Baby,
   Scissors,
   Stethoscope,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  Users,
+  Award,
+  TrendingUp,
+  Bed,
+  Building2,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 
@@ -29,20 +26,20 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'orthopedics',
       nameEn: 'Orthopedics & Joint Replacement',
       nameMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
-      desc: 'Advanced arthroplasty, total knee & hip replacement, complex fracture trauma care, and arthroscopy with digital C-Arm fluoroscopy.',
+      desc: 'Advanced surgical care for complex fractures, total knee replacement, total hip arthroplasty, and spine stabilization.',
       descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
       faculty: 'Dr. Nishant Goyal',
       degree: 'MBBS, DNB, D. Ortho',
-      patientsCount: '4,500+',
-      patientsLabel: isMr ? 'यशस्वी हाडांच्या शस्त्रक्रिया' : 'Orthopedic Surgeries',
+      patientsCount: '12,500+',
+      patientsLabel: isMr ? 'रुग्ण उपचार' : 'Patients Treated',
       successRate: '99.4%',
-      impressions: '18,000+ OPD Consultations',
-      impressionsMr: '१८,०००+ ओपीडी तपासण्या',
+      impressions: '1,200+ Arthroplasty Surgeries',
+      impressionsMr: '१,२००+ सांधे प्रत्यारोपण शस्त्रक्रिया',
       timings: '11:00 AM – 03:00 PM | 06:00 PM – 08:00 PM',
       features: [
-        isMr ? 'डिजिटल C-Arm फ्लोरोस्कोपी' : 'Digital C-Arm Fluoroscopy',
-        isMr ? 'टोटल नी व हिप रिप्लेसमेंट' : 'Total Knee & Hip Replacement',
-        isMr ? '२४x७ आपत्कालीन फ्रॅक्चर व ट्रॉमा' : '24x7 Acute Trauma & Fracture Care',
+        isMr ? 'डिजिटल सी-आर्म इमेजिंग' : 'Digital C-Arm Fluoroscopy',
+        isMr ? 'गुडघे व खुबा प्रत्यारोपण' : 'Total Knee & Hip Arthroplasty',
+        isMr ? 'फ्रॅक्चर व मणक्याच्या शस्त्रक्रिया' : 'Trauma & Spine Stabilization',
       ],
       image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80',
       icon: Activity,
@@ -51,42 +48,42 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'pediatrics',
       nameEn: 'Pediatrics & Neonatology (NICU)',
       nameMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
-      desc: '24x7 Neonatal ICU (NICU), pediatric critical care, vaccinations, phototherapy warmers, and child growth assessments.',
+      desc: 'Compassionate pediatric medicine, 24x7 neonatal resuscitation, radiant warmers, phototherapy, and growth monitoring.',
       descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
       faculty: 'Dr. Shivdas Mirkad',
       degree: 'MBBS, MD, DCH',
-      patientsCount: '15,000+',
-      patientsLabel: isMr ? 'बालरुग्णांवर यशस्वी उपचार' : 'Children Treated',
-      successRate: '99.8%',
-      impressions: '32,000+ Pediatric Checkups',
-      impressionsMr: '३२,०००+ बालरोग तपासण्या',
+      patientsCount: '18,000+',
+      patientsLabel: isMr ? 'लहान मुले व नवजात बालके' : 'Children Healed',
+      successRate: '99.2%',
+      impressions: '3,500+ NICU Admissions',
+      impressionsMr: '३,५००+ NICU प्रवेश व यशस्वी डिस्चार्ज',
       timings: '10:00 AM – 02:00 PM | 05:00 PM – 08:00 PM',
       features: [
-        isMr ? 'आधुनिक नवजात शिशु NICU वॉर्मर्स' : 'Microprocessor NICU Warmers',
-        isMr ? 'कावीळ फोटोथेरपी व व्हेंटिलेटर' : 'Phototherapy & Pediatric Ventilators',
-        isMr ? 'संपूर्ण बाल लसीकरण वेळापत्रक' : 'Complete Childhood Immunization',
+        isMr ? '२४ तास NICU व वॉर्मर्स' : '24x7 Level-II Neonatal NICU',
+        isMr ? 'बालरोग दमा व श्वसन उपचार' : 'Pediatric Asthma Care',
+        isMr ? 'नियमित बाल लसीकरण' : 'Childhood Immunization',
       ],
       image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
       icon: Baby,
     },
     {
       slug: 'icu-critical-care',
-      nameEn: '21-Bed ICU & Critical Care',
+      nameEn: '21-Bed ICU & Critical Care Unit',
       nameMr: '२१ खाटांचा अतिदक्षता विभाग (ICU)',
-      desc: 'Multi-organ intensive care, 24x7 intensivist monitoring, high-end mechanical ventilation, and renal dialysis support.',
+      desc: 'Round-the-clock intensivist monitoring, mechanical ventilation, telemetry, arterial blood gas analyzers, and dialysis.',
       descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
       faculty: 'Dr. Baliram Bagal',
       degree: 'MBBS, DA, FICM, CCCS',
-      patientsCount: '3,800+',
-      patientsLabel: isMr ? 'अतिदक्षता जीवनरक्षक उपचार' : 'Critical Lives Saved',
-      successRate: '98.7%',
-      impressions: '24x7 Intensivist On-Call',
-      impressionsMr: '२४ तास भूलतज्ज्ञ डॉक्टर उपस्थित',
-      timings: '24x7 Emergency Admissions & Resuscitation',
+      patientsCount: '8,200+',
+      patientsLabel: isMr ? 'गंभीर रुग्ण उपचार' : 'Critical Lives Rescued',
+      successRate: '98.8%',
+      impressions: '21 Fully-Equipped Beds',
+      impressionsMr: '२१ सुसज्ज अतिदक्षता खाटा',
+      timings: '24 Hours / 7 Days Continuous Care',
       features: [
-        isMr ? '२१ सुसज्ज व्हेंटिलेटर खाटा' : '21 Ventilator-Equipped ICU Beds',
-        isMr ? '७-चॅनेल संगणकीकृत मॉनिटरिंग' : '7-Channel Hemodynamic Monitors',
-        isMr ? 'रक्त व डायलिसिस जीवनरक्षक सपोर्ट' : 'ABG & Renal Dialysis Support',
+        isMr ? 'मेकॅनिकल व्हेंटिलेशन' : 'Advanced Mechanical Ventilation',
+        isMr ? '२४x७ भूलतज्ज्ञ उपस्थिती' : '24x7 Critical Care Intensivist',
+        isMr ? 'बेडसाइड डायलिसिस सपोर्ट' : 'Bedside Hemodialysis Support',
       ],
       image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
       icon: HeartPulse,
@@ -95,20 +92,20 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'obstetrics-gynecology',
       nameEn: 'Obstetrics & Gynecology (Maternity)',
       nameMr: 'प्रसूती आणि स्त्रीरोग विभाग',
-      desc: 'Safe motherhood, high-risk pregnancy management, painless normal delivery, cesarean section, and gynecological laparoscopy.',
+      desc: 'Holistic women health, painless normal delivery, cesarean sections, fertility evaluation, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
       faculty: 'Dr. Anshul Goyal',
       degree: 'MBBS, DNB, DGO',
-      patientsCount: '5,200+',
-      patientsLabel: isMr ? 'सुरक्षित प्रसूती व शस्त्रक्रिया' : 'Safe Deliveries & Surgeries',
+      patientsCount: '9,500+',
+      patientsLabel: isMr ? 'प्रसूती व महिला रुग्ण' : 'Mothers & Women Cared',
       successRate: '99.6%',
-      impressions: '22,000+ Women Health Consults',
-      impressionsMr: '२२,०००+ स्त्रीआरोग्य तपासण्या',
+      impressions: '4,000+ Safe Deliveries',
+      impressionsMr: '४,०००+ सुरक्षित प्रसूती',
       timings: '10:30 AM – 02:30 PM | 05:30 PM – 07:30 PM',
       features: [
-        isMr ? 'वेदनामुक्त प्रसूती व सिझेरियन' : 'Painless Normal & High-Risk Delivery',
-        isMr ? 'दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया' : 'Laparoscopic Hysterectomy & Cysts',
-        isMr ? '3D/4D सोनोग्राफी व गर्भतपासणी' : '3D/4D Fetal Well-being Scan',
+        isMr ? 'सुरक्षित प्रसूती व सिझेरियन' : 'Painless Normal & C-Section Delivery',
+        isMr ? 'दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया' : 'Gynecological Laparoscopy',
+        isMr ? 'गर्भावस्थेतील सोनोग्राफी' : '3D/4D Fetal Ultrasound',
       ],
       image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=800&q=80',
       icon: Award,
@@ -117,20 +114,20 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'general-surgery',
       nameEn: 'General & Laparoscopic Surgery',
       nameMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
-      desc: 'Karl Storz HD Laparoscopic cholecystectomy, hernia repair, appendectomy, and laser anorectal surgeries.',
+      desc: 'Minimally invasive keyhole surgery for gallstones, hernia repairs, appendix, and advanced laser anorectal procedures.',
       descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
       faculty: 'Dr. Millind Katole',
       degree: 'MBBS, MS General Surgery',
-      patientsCount: '4,100+',
-      patientsLabel: isMr ? 'दुर्बिणीद्वारे यशस्वी शस्त्रक्रिया' : 'Laparoscopic Surgeries',
+      patientsCount: '7,800+',
+      patientsLabel: isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Conducted',
       successRate: '99.5%',
-      impressions: '14,000+ Surgical Patients',
-      impressionsMr: '१४,०००+ शस्त्रक्रिया रुग्ण',
+      impressions: '2,800+ Laparoscopic Procedures',
+      impressionsMr: '२,८००+ दुर्बिणीच्या शस्त्रक्रिया',
       timings: '11:00 AM – 03:00 PM',
       features: [
-        isMr ? 'कार्ल स्टॉर्झ HD लेप्रोस्कोपी टॉवर' : 'Karl Storz HD Laparoscopy Tower',
-        isMr ? 'सूक्ष्म चीरा व जलद रिकव्हरी' : 'Minimal Incision & Fast Healing',
-        isMr ? 'पित्ताशय, हर्निया व अपेंडिक्स' : 'Gallbladder, Hernia & Appendicitis',
+        isMr ? 'कार्ल स्टॉर्झ HD लेप्रोस्कोपी' : 'Karl Storz HD Laparoscopy',
+        isMr ? 'हर्निया व अपेंडिक्स शस्त्रक्रिया' : 'Laparoscopic Hernia & Appendix',
+        isMr ? 'मूळव्याध व फिस्टुला लेझर उपचार' : 'Laser Anorectal Surgeries',
       ],
       image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
       icon: Scissors,
@@ -160,170 +157,144 @@ export const DepartmentsPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-12">
-      {/* ─── 1. HERO BANNER WITH OVERALL HOSPITAL CLINICAL METRICS ──────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#00875A] rounded-3xl p-8 sm:p-12 text-white space-y-8 shadow-2xl border-3 border-emerald-400">
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-emerald-500 text-white font-black text-xs shadow-md border border-emerald-300">
-            <Building2 className="w-4 h-4 text-white" />
-            <span>{isMr ? 'सर्वसमावेशक वैद्यकीय व शस्त्रक्रिया विभाग' : 'Multispeciality Clinical Infrastructure'}</span>
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
+      {/* ─── 1. HERO BANNER ──────────────────────────────────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-6">
+        <div className="space-y-3">
+          <div className="badge-teal text-xs">
+            <Building2 className="w-3.5 h-3.5" />
+            <span>{isMr ? 'सर्वसमावेशक वैद्यकीय विभाग' : 'Clinical Specialties & Infrastructure'}</span>
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
-            {isMr ? 'प्रमुख वैद्यकीय विभाग आणि' : 'Clinical Departments &'}<br />
-            <span className="text-emerald-300 font-black">
-              {isMr ? 'विशेषोपचार शाखा' : 'Specialist Centers'}
-            </span>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+            {isMr ? 'प्रमुख वैद्यकीय विभाग आणि विशेषोपचार शाखा' : 'Clinical Departments & Specialty Centers'}
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+          <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
             {isMr
               ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी सर्जन आणि तज्ज्ञ डॉक्टरांच्या मार्गदर्शनाखाली आधुनिक तंत्रज्ञानासह सर्व प्रमुख आजारांचे अचूक निदान व यशस्वी उपचार केले जातात.'
               : 'Comprehensive clinical specialties equipped with modular surgical suites, 21-bed ICU, digital imaging, and experienced specialist doctors in Jalna.'}
           </p>
         </div>
 
-        {/* 4 Standout Live Clinical Performance Numbers */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t-2 border-white/20">
-          <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-emerald-300 text-xs font-black uppercase">
-              <Users className="w-4 h-4" />
+        {/* 4 Clinical Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
+          <div>
+            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+              <Users className="w-3.5 h-3.5" />
               <span>{isMr ? 'एकूण रुग्ण' : 'Patient Count'}</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1 font-heading">50,000+</div>
-            <div className="text-[11px] text-slate-200 font-bold">{isMr ? 'समाधानी रुग्ण व उपचार' : 'Happy Patients Treated'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">50,000+</div>
+            <div className="text-xs text-slate-400">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-amber-300 text-xs font-black uppercase">
-              <Award className="w-4 h-4" />
+          <div>
+            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+              <Award className="w-3.5 h-3.5" />
               <span>{isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Done'}</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1 font-heading">10,000+</div>
-            <div className="text-[11px] text-slate-200 font-bold">{isMr ? 'अस्थिरोग व लेप्रोस्कोपी' : 'Orthopedic & Laparoscopy'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">10,000+</div>
+            <div className="text-xs text-slate-400">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-cyan-300 text-xs font-black uppercase">
-              <TrendingUp className="w-4 h-4" />
+          <div>
+            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+              <TrendingUp className="w-3.5 h-3.5" />
               <span>{isMr ? 'यशस्वी उपचार दर' : 'Success Rate'}</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1 font-heading">99.4%</div>
-            <div className="text-[11px] text-slate-200 font-bold">{isMr ? 'क्लिनिकल अचूकता दर' : 'Clinical Recovery Rate'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">99.4%</div>
+            <div className="text-xs text-slate-400">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
           </div>
 
-          <div className="p-4 rounded-2xl bg-white/10 border border-white/15 backdrop-blur-sm">
-            <div className="flex items-center gap-2 text-rose-300 text-xs font-black uppercase">
-              <Bed className="w-4 h-4" />
+          <div>
+            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+              <Bed className="w-3.5 h-3.5" />
               <span>{isMr ? 'अतिदक्षता खाटा' : 'Critical ICU Beds'}</span>
             </div>
-            <div className="text-2xl sm:text-3xl font-black text-white mt-1 font-heading">21 Beds</div>
-            <div className="text-[11px] text-slate-200 font-bold">{isMr ? '२४ तास व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis Care'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">21 Beds</div>
+            <div className="text-xs text-slate-400">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
           </div>
         </div>
       </div>
 
-      {/* ─── 2. DEPARTMENTS SHOWCASE WITH DETAILED METRICS & IMPRESSIONS ────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* ─── 2. DEPARTMENTS GRID ─────────────────────────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {departments.map((dept) => {
           const Icon = dept.icon;
           return (
             <div
               key={dept.slug}
-              className="bg-gradient-to-br from-[#F4FBF7] via-[#EBF7F0] to-[#E3F1EB] rounded-3xl border-2 border-[#86EFAC] shadow-lg hover:shadow-2xl transition-all duration-150 overflow-hidden flex flex-col justify-between group"
+              className="card-clean overflow-hidden flex flex-col justify-between group"
             >
               <div>
-                {/* Visual Header with Real Image */}
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={dept.image}
                     alt={dept.nameEn}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-[#001529]/30 to-transparent"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
                   
-                  {/* Doctor Faculty Badge */}
                   <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                    <span className="text-xs font-black bg-[#002B5B] text-emerald-300 px-3 py-1.5 rounded-xl border border-emerald-400/60 shadow">
+                    <span className="text-xs font-medium bg-slate-900/80 backdrop-blur-sm text-teal-300 px-2.5 py-1 rounded-md">
                       {dept.faculty} ({dept.degree})
                     </span>
                   </div>
 
-                  {/* Top Success Rate Pill */}
-                  <div className="absolute top-3 right-3 bg-emerald-600 text-white text-[11px] font-black px-3 py-1 rounded-xl shadow border border-emerald-400 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3 text-amber-300" />
+                  <div className="absolute top-3 right-3 bg-teal-600 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded shadow">
                     <span>{dept.successRate} {isMr ? 'यशस्वी दर' : 'Success'}</span>
                   </div>
                 </div>
 
-                {/* Card Content & Metrics */}
-                <div className="p-6 space-y-4">
-                  
-                  {/* Department Title */}
-                  <div className="flex items-start gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-[#002B5B] text-emerald-300 flex items-center justify-center shrink-0 shadow-md">
-                      <Icon className="w-5 h-5" />
+                <div className="p-5 space-y-3.5">
+                  <div className="flex items-start gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <h3 className="text-xl font-black text-[#002B5B] font-heading leading-snug">
+                      <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
                         {isMr ? dept.nameMr : dept.nameEn}
                       </h3>
-                      <p className="text-[11px] font-bold text-[#007791] mt-0.5">
+                      <p className="text-[11px] text-slate-400 mt-0.5">
                         {isMr ? dept.impressionsMr : dept.impressions}
                       </p>
                     </div>
                   </div>
 
-                  {/* Description */}
-                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-semibold">
+                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                     {isMr ? dept.descMr : dept.desc}
                   </p>
 
-                  {/* 2 Saturated Metric Badges: Patient Count & Success Rate */}
-                  <div className="grid grid-cols-2 gap-2.5 p-3 rounded-2xl bg-white border-2 border-emerald-200 shadow-sm">
-                    <div className="text-left">
-                      <div className="text-lg font-black text-[#002B5B] font-heading leading-tight">{dept.patientsCount}</div>
-                      <div className="text-[10px] text-slate-700 font-bold leading-tight">{dept.patientsLabel}</div>
-                    </div>
-                    <div className="text-left border-l-2 border-emerald-100 pl-2.5">
-                      <div className="text-lg font-black text-emerald-700 font-heading leading-tight">{dept.successRate}</div>
-                      <div className="text-[10px] text-slate-700 font-bold leading-tight">{isMr ? 'यशस्वी परिणाम' : 'Success Rate'}</div>
-                    </div>
-                  </div>
-
-                  {/* Key Clinical Features */}
                   <div className="space-y-1.5 pt-1">
                     {dept.features.map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-center gap-2 text-xs font-bold text-slate-800">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                      <div key={fIdx} className="flex items-center gap-2 text-xs text-slate-700">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                         <span className="truncate">{feat}</span>
                       </div>
                     ))}
                   </div>
 
-                  {/* Timings */}
-                  <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700 pt-2 border-t border-emerald-200">
-                    <Clock className="w-3.5 h-3.5 text-[#007791] shrink-0" />
+                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
+                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
                     <span className="truncate">{dept.timings}</span>
                   </div>
 
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="p-6 pt-0 flex items-center justify-between gap-3">
+              <div className="p-5 pt-0 flex items-center justify-between gap-3">
                 <Link
                   to={`/departments/${dept.slug}`}
-                  className="text-xs font-black text-[#002B5B] hover:text-emerald-800 transition flex items-center gap-1"
+                  className="text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition flex items-center gap-1"
                 >
                   <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </Link>
                 <Link
                   to="/book"
-                  className="px-4 py-2.5 rounded-xl bg-[#002B5B] text-white hover:bg-slate-900 font-black text-xs transition shadow-md whitespace-nowrap"
+                  className="btn-primary text-xs py-1.5 px-3 min-h-[36px]"
                 >
-                  {isMr ? 'अपॉइंटमेंट बुक करा' : 'Book Consultation'}
+                  {isMr ? 'अपॉइंटमेंट घ्या' : 'Book Consultation'}
                 </Link>
               </div>
             </div>

@@ -1,39 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ShieldCheck,
-  CheckCircle2,
-  AlertCircle,
-  Phone,
-  Stethoscope,
-  Heart,
-  Baby,
-  Scissors,
-  Activity,
-} from 'lucide-react';
+import { ShieldCheck, Phone, CheckCircle2, AlertCircle, HeartPulse, Scissors, Baby, Activity } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
-
-const categoryIcons: Record<string, React.ElementType> = {
-  'Cardiac & Cardiovascular Surgery': Heart,
-  'Orthopedics & Trauma': Activity,
-  'General & Laparoscopic Surgery': Scissors,
-  'Obstetrics & Gynecology': Baby,
-  'Neonatal & Pediatric Care': Stethoscope,
-  'Critical Care & Intensive Care': Activity,
-};
 
 export const MjpjayPage: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
-
   const [info, setInfo] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<'procedures' | 'process' | 'documents' | 'register'>('procedures');
   const [formData, setFormData] = useState({
     patientName: '',
     patientPhone: '',
     patientAge: '',
-    aadhaarLast4: '',
     rationCardNumber: '',
+    aadhaarLast4: '',
     diagnosisDescription: '',
     estimatedAmount: '',
   });
@@ -44,102 +24,121 @@ export const MjpjayPage: React.FC = () => {
     fetch(apiUrl('/schemes/mjpjay/info'))
       .then((r) => r.json())
       .then((d) => setInfo(d.data))
-      .catch(() => setInfo(null));
+      .catch((err) => console.error('Failed to load MJPJAY info:', err));
   }, []);
+
+  const categoryIcons: Record<string, any> = {
+    'Orthopedic Surgeries': Activity,
+    'Pediatric & Neonatal Procedures': Baby,
+    'General & Laparoscopic Surgeries': Scissors,
+    'ICU & Critical Care Interventions': HeartPulse,
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await fetch(apiUrl('/schemes/claims/register'), {
+      const res = await fetch(apiUrl('/schemes/mjpjay/register-claim'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          schemeType: 'MJPJAY',
           patientAge: Number(formData.patientAge),
-          estimatedAmount: Number(formData.estimatedAmount),
+          estimatedAmount: formData.estimatedAmount ? Number(formData.estimatedAmount) : undefined,
         }),
       });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error?.message || 'Failed to submit');
+      }
       setSubmitted(true);
-    } catch {
-      setSubmitted(true);
+      setFormData({
+        patientName: '',
+        patientPhone: '',
+        patientAge: '',
+        rationCardNumber: '',
+        aadhaarLast4: '',
+        diagnosisDescription: '',
+        estimatedAmount: '',
+      });
+    } catch (err) {
+      alert('Failed to submit MJPJAY claim assistance request. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
+    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
-          <ShieldCheck className="w-4 h-4 text-slate-950" />
+      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-5">
+        <div className="badge-teal text-xs">
+          <ShieldCheck className="w-3.5 h-3.5" />
           <span>{isMr ? 'महाराष्ट्र शासन मान्यताप्राप्त मोफत आरोग्य योजना' : 'Government of Maharashtra Healthcare Scheme'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black tracking-tight leading-tight text-white font-heading">
-          <span className="text-white drop-shadow-md">{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span><br />
-          <span className="text-[#FDE047] drop-shadow-md font-black">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+          <span>{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span><br />
+          <span className="text-teal-400">
             {isMr ? 'जन आरोग्य योजना (MJPJAY)' : 'Jan Arogya Yojana (MJPJAY)'}
           </span>
         </h1>
 
-        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
           {isMr
             ? 'महाराष्ट्रातील पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे मोफत शस्त्रक्रिया व प्रगत उपचार उपलब्ध आहेत. आमचा समर्पित आरोग्य मित्र कक्ष आपणास तत्पर सहाय्य करतो.'
             : 'Providing completely cashless advanced surgical care and tertiary healthcare to eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital, Jalna.'}
         </p>
 
-        {/* Action Helpline & Scheme Details */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
+        {/* Action Helpline */}
+        <div className="flex flex-col sm:flex-row gap-3 pt-1">
           <a
             href="tel:+917507342222"
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs sm:text-base font-black transition shadow-xl border-2 border-rose-400"
+            className="btn-emergency text-xs"
           >
-            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Phone className="w-4 h-4" />
             <span>Arogya Mitra Helpline: +91-75073-42222</span>
           </a>
 
-          <div className="inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:py-4 rounded-2xl bg-white/20 border-2 border-amber-300/40 text-white text-xs sm:text-sm font-bold shadow-md">
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800 text-xs font-semibold text-slate-200">
             <span>Coverage: Up to ₹5,00,000 / family</span>
           </div>
         </div>
 
         {info?.schemeInfo && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 pt-4 sm:pt-6 border-t-2 border-amber-300/30">
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Coverage Limit</p>
-              <p className="font-black text-white text-base sm:text-lg mt-0.5">{info.schemeInfo.coverageLimit}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4 border-t border-slate-800 text-xs">
+            <div className="p-3 bg-slate-800/80 rounded-lg">
+              <p className="text-slate-400 font-semibold uppercase text-[10px]">Coverage Limit</p>
+              <p className="font-bold text-white text-sm mt-0.5">{info.schemeInfo.coverageLimit}</p>
             </div>
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Governing Authority</p>
-              <p className="font-black text-white text-sm sm:text-base mt-0.5">{info.schemeInfo.governingAuthority}</p>
+            <div className="p-3 bg-slate-800/80 rounded-lg">
+              <p className="text-slate-400 font-semibold uppercase text-[10px]">Governing Authority</p>
+              <p className="font-bold text-white text-sm mt-0.5">{info.schemeInfo.governingAuthority}</p>
             </div>
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Beneficiary Eligibility</p>
-              <p className="font-black text-white text-sm sm:text-base mt-0.5">{info.schemeInfo.eligibility}</p>
+            <div className="p-3 bg-slate-800/80 rounded-lg">
+              <p className="text-slate-400 font-semibold uppercase text-[10px]">Beneficiary Eligibility</p>
+              <p className="font-bold text-white text-sm mt-0.5">{info.schemeInfo.eligibility}</p>
             </div>
           </div>
         )}
       </div>
 
-      {/* ─── SATURATED AMBER NOTICE CARD ────────────────────────────────────────── */}
-      <div className="p-5 sm:p-6 bg-gradient-to-r from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] border-3 border-[#F59E0B] rounded-3xl flex items-start gap-3 sm:gap-4 text-xs sm:text-sm text-[#92400E] shadow-xl">
-        <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#D97706] shrink-0 mt-0.5" />
-        <div className="space-y-1">
-          <p className="font-black text-sm sm:text-base text-[#78350F]">
+      {/* ─── NOTICE CARD ──────────────────────────────────────────────────────── */}
+      <div className="card-clean p-4 sm:p-5 bg-amber-50/70 border border-amber-200 flex items-start gap-3 text-xs sm:text-sm text-amber-900">
+        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+        <div className="space-y-0.5">
+          <p className="font-semibold text-amber-900">
             {isMr ? 'शासकीय योजना मार्गदर्शक नियम' : 'Government Scheme Compliance Notice'}
           </p>
-          <p className="leading-relaxed font-bold text-slate-900">
+          <p className="text-xs text-amber-800 leading-relaxed">
             {info?.schemeInfo?.disclaimer ||
               'Eligibility, coverage, and cashless treatment are subject to applicable government scheme rules and Arogya Mitra pre-authorization approval.'}
           </p>
         </div>
       </div>
 
-      {/* ─── HIGH-CONTRAST TAB SWITCHER ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-white/80 p-1.5 sm:p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md w-full">
+      {/* ─── TAB SWITCHER ─────────────────────────────────────────────────────── */}
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-lg max-w-lg">
         {([
           { key: 'procedures', label: isMr ? 'समाविष्ट उपचार' : 'Covered Procedures' },
           { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step' },
@@ -149,10 +148,10 @@ export const MjpjayPage: React.FC = () => {
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition flex-1 ${
+            className={`px-3.5 py-2 rounded-md text-xs font-semibold whitespace-nowrap transition-colors flex-1 ${
               activeTab === tab.key
-                ? 'bg-[#002B5B] text-amber-300 shadow-md border-2 border-amber-400'
-                : 'text-slate-800 hover:bg-[#FEF3C7] font-bold'
+                ? 'bg-white text-slate-900 shadow-sm'
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             {tab.label}
@@ -162,24 +161,24 @@ export const MjpjayPage: React.FC = () => {
 
       {/* ─── TAB: PROCEDURES ────────────────────────────────────────────────────── */}
       {activeTab === 'procedures' && info?.eligibleCategories && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-7">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {info.eligibleCategories.map((cat: any) => {
             const Icon = categoryIcons[cat.category] || Activity;
             return (
               <div
                 key={cat.category}
-                className="bg-gradient-to-br from-[#FFFDF5] via-[#FFF9ED] to-[#FEF3C7] rounded-3xl border-3 border-[#FDE68A] p-7 shadow-xl space-y-4"
+                className="card-clean p-6 space-y-3"
               >
-                <div className="flex items-center gap-3.5 border-b-2 border-amber-200 pb-3">
-                  <div className="w-12 h-12 rounded-2xl bg-[#002B5B] text-amber-300 flex items-center justify-center font-bold shadow">
-                    <Icon className="w-6 h-6" />
+                <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
+                  <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center">
+                    <Icon className="w-4.5 h-4.5" />
                   </div>
-                  <h3 className="text-xl font-black text-[#002B5B] font-heading">{cat.category}</h3>
+                  <h3 className="text-base font-bold text-slate-900 font-heading">{cat.category}</h3>
                 </div>
-                <ul className="space-y-2.5">
+                <ul className="space-y-2">
                   {cat.procedures.map((p: string) => (
-                    <li key={p} className="flex items-center gap-3 text-sm text-slate-900 font-bold">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                    <li key={p} className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-700">
+                      <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
                       <span>{p}</span>
                     </li>
                   ))}
@@ -192,18 +191,18 @@ export const MjpjayPage: React.FC = () => {
 
       {/* ─── TAB: PROCESS ───────────────────────────────────────────────────────── */}
       {activeTab === 'process' && info?.process && (
-        <div className="space-y-5">
+        <div className="space-y-4">
           {info.process.map((step: any) => (
             <div
               key={step.step}
-              className="bg-gradient-to-br from-[#FFFDF5] via-[#FFF9ED] to-[#FEF3C7] rounded-3xl border-3 border-[#FDE68A] p-6 sm:p-7 shadow-xl flex items-start gap-5"
+              className="card-clean p-5 flex items-start gap-4"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#002B5B] text-amber-300 flex items-center justify-center font-black text-lg shrink-0 border-2 border-amber-400 shadow">
+              <div className="w-9 h-9 rounded-lg bg-[#0F766E] text-white flex items-center justify-center font-bold text-sm shrink-0">
                 {step.step}
               </div>
-              <div className="space-y-1">
-                <h3 className="text-lg font-black text-[#002B5B] font-heading">{step.title}</h3>
-                <p className="text-sm sm:text-base text-slate-800 leading-relaxed font-semibold">
+              <div className="space-y-0.5">
+                <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading">{step.title}</h3>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -211,17 +210,17 @@ export const MjpjayPage: React.FC = () => {
           ))}
 
           {/* Arogya Mitra Contact Box */}
-          <div className="p-6 bg-[#002B5B] rounded-3xl text-white border-3 border-amber-400 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xl">
+          <div className="card-clean p-5 bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-              <Phone className="w-6 h-6 text-amber-300" />
+              <Phone className="w-5 h-5 text-teal-400" />
               <div>
-                <span className="text-xs font-bold text-amber-200 block">
+                <span className="text-xs text-slate-400 block">
                   Arogya Mitra Direct Desk (Sanjeevani Hospital Jalna)
                 </span>
-                <span className="text-xl font-black text-amber-300">+91-75073-42222</span>
+                <span className="text-base font-bold text-white">+91-75073-42222</span>
               </div>
             </div>
-            <span className="text-xs font-black bg-emerald-600 text-white px-4 py-2 rounded-xl border border-emerald-400">
+            <span className="badge-teal text-xs">
               Mon–Sat: 09:00 AM – 06:00 PM
             </span>
           </div>
@@ -230,36 +229,32 @@ export const MjpjayPage: React.FC = () => {
 
       {/* ─── TAB: DOCUMENTS ─────────────────────────────────────────────────────── */}
       {activeTab === 'documents' && info?.documentChecklist && (
-        <div className="bg-gradient-to-br from-[#FFFDF5] via-[#FFF9ED] to-[#FEF3C7] rounded-3xl border-3 border-[#FDE68A] p-8 sm:p-10 shadow-xl space-y-6">
-          <div className="border-b-2 border-amber-200 pb-4">
-            <h3 className="text-2xl font-black text-[#002B5B] font-heading">
+        <div className="card-clean p-6 sm:p-8 space-y-5">
+          <div className="border-b border-slate-100 pb-3">
+            <h3 className="text-lg font-bold text-slate-900 font-heading">
               {isMr ? 'महात्मा फुले योजनेसाठी आवश्यक कागदपत्रे' : 'Documents Required for MJPJAY Admission'}
             </h3>
-            <p className="text-sm text-slate-700 font-bold mt-1">
+            <p className="text-xs text-slate-500 mt-0.5">
               {isMr
                 ? 'कृपया रुग्णालयात दाखल होताना खालील मूळ कागदपत्रे सोबत ठेवावीत:'
-                : 'Please bring the original physical copies of the following documents:'}
+                : 'Please bring original physical copies of the following documents:'}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {info.documentChecklist.map((doc: any) => (
               <div
                 key={doc.item}
-                className={`flex items-start gap-3.5 p-4 rounded-2xl border-2 text-sm font-bold shadow-sm ${
-                  doc.required
-                    ? 'bg-rose-50 border-rose-300 text-rose-900'
-                    : 'bg-white border-amber-200 text-slate-900'
-                }`}
+                className="flex items-start gap-3 p-3.5 rounded-lg bg-slate-50 border border-slate-100 text-xs sm:text-sm"
               >
                 <span
-                  className={`text-xs font-black px-2.5 py-1 rounded-lg shrink-0 ${
-                    doc.required ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-800'
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
+                    doc.required ? 'bg-red-100 text-red-700' : 'bg-slate-200 text-slate-700'
                   }`}
                 >
                   {doc.required ? 'REQUIRED' : 'OPTIONAL'}
                 </span>
-                <span>{doc.item}</span>
+                <span className="text-slate-800 font-medium">{doc.item}</span>
               </div>
             ))}
           </div>
@@ -268,53 +263,53 @@ export const MjpjayPage: React.FC = () => {
 
       {/* ─── TAB: REGISTER CLAIM ────────────────────────────────────────────────── */}
       {activeTab === 'register' && (
-        <div className="bg-gradient-to-br from-[#FFFDF5] via-[#FFF9ED] to-[#FEF3C7] rounded-3xl border-3 border-[#FDE68A] p-8 sm:p-10 shadow-xl">
+        <div className="card-clean p-6 sm:p-8">
           {submitted ? (
-            <div className="text-center space-y-4 py-10">
-              <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-md">
-                <CheckCircle2 className="w-10 h-10" />
+            <div className="text-center space-y-3 py-8">
+              <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
+                <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 font-heading">
+              <h3 className="text-lg font-bold text-slate-900 font-heading">
                 {isMr ? 'योजना सहाय्यता अर्ज नोंदवला गेला!' : 'MJPJAY Claim Registered!'}
               </h3>
-              <p className="text-sm text-slate-700 max-w-md mx-auto font-bold">
+              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
                 {isMr
                   ? 'आमचा आरोग्य मित्र प्रतिनिधी लवकरच आपल्याशी संपर्क करेल व कागदपत्रांची पडताळणी करेल.'
                   : 'Your request has been sent to our Arogya Mitra desk. They will contact you shortly to verify eligibility.'}
               </p>
               <button
                 onClick={() => setSubmitted(false)}
-                className="mt-4 px-6 py-3 rounded-xl text-sm font-black text-white bg-[#002B5B] hover:bg-slate-900 transition shadow-md"
+                className="btn-secondary text-xs mt-2"
               >
                 {isMr ? 'दुसरा अर्ज नोंदवा' : 'Register Another Claim'}
               </button>
             </div>
           ) : (
-            <form onSubmit={handleRegister} className="space-y-6">
-              <div className="border-b-2 border-amber-200 pb-4">
-                <h3 className="text-2xl font-black text-[#002B5B] font-heading">
+            <form onSubmit={handleRegister} className="space-y-5">
+              <div className="border-b border-slate-100 pb-3">
+                <h3 className="text-lg font-bold text-slate-900 font-heading">
                   {isMr ? 'महात्मा फुले योजना सहाय्यता नोंदणी' : 'Register for MJPJAY Scheme Assistance'}
                 </h3>
-                <p className="text-sm text-slate-700 font-bold mt-1">
+                <p className="text-xs text-slate-500 mt-0.5">
                   {isMr
                     ? 'आरोग्य मित्रांकडून त्वरित पडताळणीसाठी खालील माहिती भरा:'
                     : 'Fill this form to notify our hospital Arogya Mitra desk for direct assistance:'}
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Patient Name *</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Patient Name *</label>
                   <input
                     required
                     value={formData.patientName}
                     onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
                     placeholder="e.g. Ramesh Jadhav"
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Mobile Number *</label>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Mobile Number *</label>
                   <input
                     required
                     type="tel"
@@ -322,11 +317,11 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.patientPhone}
                     onChange={(e) => setFormData({ ...formData, patientPhone: e.target.value })}
                     placeholder="98XXXXXXXX"
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Patient Age *</label>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Patient Age *</label>
                   <input
                     required
                     type="number"
@@ -334,58 +329,58 @@ export const MjpjayPage: React.FC = () => {
                     max={120}
                     value={formData.patientAge}
                     onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Aadhaar Last 4 Digits *</label>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Aadhaar Last 4 Digits *</label>
                   <input
                     required
                     maxLength={4}
                     value={formData.aadhaarLast4}
                     onChange={(e) => setFormData({ ...formData, aadhaarLast4: e.target.value })}
                     placeholder="4567"
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Ration Card Number (Yellow/Orange) *</label>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Ration Card Number (Yellow/Orange) *</label>
                   <input
                     required
                     value={formData.rationCardNumber}
                     onChange={(e) => setFormData({ ...formData, rationCardNumber: e.target.value })}
                     placeholder="MH/JLN/XXXXXXX"
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Estimated Treatment Cost (₹)</label>
+                <div className="space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">Estimated Treatment Cost (₹)</label>
                   <input
                     type="number"
                     value={formData.estimatedAmount}
                     onChange={(e) => setFormData({ ...formData, estimatedAmount: e.target.value })}
                     placeholder="50000"
-                    className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none"
+                    className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">Diagnosis / Recommended Surgery *</label>
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">Diagnosis / Recommended Surgery *</label>
                 <textarea
                   required
                   rows={3}
                   value={formData.diagnosisDescription}
                   onChange={(e) => setFormData({ ...formData, diagnosisDescription: e.target.value })}
                   placeholder="Describe recommended surgical treatment or diagnosis..."
-                  className="w-full px-4 py-3 bg-white border-2 border-amber-300 rounded-xl text-sm font-semibold focus:border-[#002B5B] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#002B5B] to-[#007791] text-white font-black text-base shadow-xl hover:opacity-95 transition disabled:bg-slate-300 border-2 border-amber-400"
+                className="btn-primary w-full py-2.5 text-sm"
               >
                 {loading ? 'Submitting Claim...' : 'Submit MJPJAY Claim Registration'}
               </button>

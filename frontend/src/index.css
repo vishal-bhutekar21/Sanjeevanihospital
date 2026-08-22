@@ -3,149 +3,124 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --primary: 0 23 54; /* #001736 */
-    --primary-container: 0 43 91; /* #002b5b */
-    --secondary: 0 108 71; /* #006c47 */
-    --secondary-teal: 0 135 90; /* #00875a */
-    --surface: 248 249 255; /* #f8f9ff */
-    --on-surface: 11 28 48; /* #0b1c30 */
-    --surface-container: 229 238 255; /* #e5eeff */
-    --emergency: 220 38 38; /* #dc2626 */
-    --mint: 235 247 240; /* #ebf7f0 */
-  }
-
   html, body {
     overflow-x: hidden;
     max-width: 100vw;
     width: 100%;
-    background-color: #F8F9FF !important;
-    background-image: radial-gradient(at 0% 0%, rgba(211, 228, 254, 0.4) 0px, transparent 50%),
-                      radial-gradient(at 100% 100%, rgba(235, 247, 240, 0.5) 0px, transparent 50%) !important;
-    background-attachment: fixed !important;
-    color: #0B1C30;
-    font-family: 'Inter', 'Mukta', system-ui, sans-serif;
+    background-color: #F8FAFC !important;
+    color: #0F172A;
+    font-family: 'Inter', 'Mukta', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
     touch-action: manipulation;
+    line-height: 1.5;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Mukta', 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', 'Mukta', sans-serif;
     letter-spacing: -0.02em;
-    color: #001736;
-    word-break: break-word;
+    color: #0F172A;
+    font-weight: 700;
   }
 }
 
-/* Typography styles based on Sanjivani Vitality */
 @layer components {
-  .headline-xl {
-    font-family: 'Outfit', 'Mukta', sans-serif;
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 56px;
-    letter-spacing: -0.02em;
+  /* Minimalist, borderless, clean cards */
+  .card-clean {
+    background-color: #FFFFFF;
+    border-radius: 0.75rem; /* 12px */
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  @media (max-width: 640px) {
-    .headline-xl {
-      font-size: 32px;
-      line-height: 40px;
-    }
+  .card-clean:hover {
+    box-shadow: 0 4px 12px 0 rgba(15, 23, 42, 0.08);
   }
 
-  .headline-lg {
-    font-family: 'Outfit', 'Mukta', sans-serif;
-    font-size: 32px;
-    font-weight: 600;
-    line-height: 40px;
-    letter-spacing: -0.01em;
-  }
-
-  .headline-md {
-    font-family: 'Outfit', 'Mukta', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
-    line-height: 32px;
-  }
-
-  .body-lg {
-    font-family: 'Inter', 'Mukta', sans-serif;
-    font-size: 18px;
-    font-weight: 400;
-    line-height: 28px;
-  }
-
-  .body-md {
-    font-family: 'Inter', 'Mukta', sans-serif;
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 24px;
-  }
-
-  .body-sm {
-    font-family: 'Inter', 'Mukta', sans-serif;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 20px;
-  }
-
-  .label-bold {
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 20px;
-    letter-spacing: 0.01em;
-  }
-
-  .label-caps {
-    font-family: 'Inter', sans-serif;
-    font-size: 12px;
-    font-weight: 700;
-    line-height: 16px;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-  }
-
-  /* Sanjivani Vitality Components */
+  /* Professional Button Hierarchy */
   .btn-primary {
-    background-color: #00875A;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    background-color: #0F766E;
     color: #FFFFFF;
     font-weight: 600;
+    font-size: 0.875rem;
     border-radius: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgba(15, 118, 110, 0.2);
   }
   .btn-primary:hover {
-    background-color: #006C47;
-    box-shadow: 0 6px 16px rgba(0, 108, 71, 0.3);
+    background-color: #115E59;
+    box-shadow: 0 2px 4px 0 rgba(15, 118, 110, 0.3);
   }
 
   .btn-secondary {
-    background-color: transparent;
-    color: #002B5B;
-    border: 1.5px solid #002B5B;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    background-color: #FFFFFF;
+    color: #334155;
     font-weight: 600;
+    font-size: 0.875rem;
     border-radius: 0.5rem;
-    padding: 0.75rem 1.5rem;
-    transition: all 0.2s ease;
+    border: 1px solid #E2E8F0;
+    transition: all 0.15s ease-in-out;
   }
   .btn-secondary:hover {
-    background-color: #EFF4FF;
+    background-color: #F8FAFC;
+    color: #0F172A;
+    border-color: #CBD5E1;
   }
 
-  .vitality-card {
-    background-color: #FFFFFF;
-    border: 1px solid rgba(211, 228, 254, 0.8);
-    border-radius: 1rem;
-    box-shadow: 0 4px 20px -2px rgba(0, 43, 91, 0.07), 0 2px 6px -1px rgba(0, 43, 91, 0.04);
-    transition: all 0.25s ease;
+  .btn-emergency {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+    background-color: #DC2626;
+    color: #FFFFFF;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: 0.5rem;
+    transition: all 0.15s ease-in-out;
+    box-shadow: 0 1px 2px 0 rgba(220, 38, 38, 0.2);
   }
-  .vitality-card:hover {
-    box-shadow: 0 16px 36px -6px rgba(0, 43, 91, 0.12), 0 8px 16px -4px rgba(0, 43, 91, 0.06);
-    transform: translateY(-2px);
+  .btn-emergency:hover {
+    background-color: #B91C1C;
+  }
+
+  /* Subtle Status Badges */
+  .badge-teal {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #F0FDFA;
+    color: #0F766E;
+  }
+
+  .badge-slate {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background-color: #F1F5F9;
+    color: #334155;
   }
 }
 
@@ -157,21 +132,5 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
-  }
-}
-
-/* Smooth fade-in animation */
-.fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }

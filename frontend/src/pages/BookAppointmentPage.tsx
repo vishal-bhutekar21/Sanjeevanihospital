@@ -1,21 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Calendar,
   Clock,
-  User,
-  Phone,
-  ShieldCheck,
-  CreditCard,
   CheckCircle2,
   AlertCircle,
-  Stethoscope,
   ChevronRight,
-  ArrowLeft,
   Printer,
-  Sparkles,
-  MapPin,
-  Lock,
+  ShieldCheck,
+  CreditCard,
 } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 
@@ -76,7 +69,6 @@ export const BookAppointmentPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const initialDoctorId = searchParams.get('doctorId') || 'doc-goyal';
 
-  // Booking Flow Steps: 1: Phone OTP -> 2: Patient Details -> 3: Slot Pick -> 4: Payment -> 5: Confirmed
   const [step, setStep] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -86,7 +78,7 @@ export const BookAppointmentPage: React.FC = () => {
   const [otpSessionId, setOtpSessionId] = useState('');
   const [otpCode, setOtpCode] = useState('123456');
   const [otpSent, setOtpSent] = useState(false);
-  const [patientToken, setPatientToken] = useState('');
+  const [, setPatientToken] = useState('');
 
   // Step 2: Patient Demographic State
   const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId);
@@ -104,12 +96,11 @@ export const BookAppointmentPage: React.FC = () => {
   });
   const [availableSlots, setAvailableSlots] = useState<any[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
-  const [reservedSlotId, setReservedSlotId] = useState('');
-  const [holdTimer, setHoldTimer] = useState(600); // 10 minutes
+  const [, setReservedSlotId] = useState('');
 
   // Step 4: Razorpay Payment State
   const [paymentOrder, setPaymentOrder] = useState<any>(null);
-  const [verifiedPaymentId, setVerifiedPaymentId] = useState('');
+  const [, setVerifiedPaymentId] = useState('');
 
   // Step 5: Confirmed Appointment Record
   const [confirmedApt, setConfirmedApt] = useState<any>(null);
@@ -285,7 +276,7 @@ export const BookAppointmentPage: React.FC = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookingSessionId,
-          razorpayOrderId: paymentOrder.orderId,
+          razorpayOrderId: paymentOrder?.orderId || 'order_demo',
           razorpayPaymentId: fakePaymentId,
           razorpaySignature: 'demo_verified_signature',
         }),
@@ -298,21 +289,20 @@ export const BookAppointmentPage: React.FC = () => {
       setVerifiedPaymentId(fakePaymentId);
 
       // Confirm Slot
-      const confirmRes = await fetch(apiUrl('/appointments/confirm-slot'), {
+      const confRes = await fetch(apiUrl('/appointments/confirm'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           bookingSessionId,
-          slotId: reservedSlotId,
           paymentId: fakePaymentId,
         }),
       });
-      const confirmData = await confirmRes.json();
-      if (!confirmRes.ok || !confirmData.success) {
-        throw new Error(confirmData.error?.message || 'Could not finalize appointment');
+      const confData = await confRes.json();
+      if (!confRes.ok || !confData.success) {
+        throw new Error(confData.error?.message || 'Confirmation failed');
       }
 
-      setConfirmedApt(confirmData.data);
+      setConfirmedApt(confData.data);
       setStep(5);
     } catch (err: any) {
       setError(err.message);
@@ -322,23 +312,23 @@ export const BookAppointmentPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
-      {/* Top Header */}
+    <div className="max-w-[760px] mx-auto px-4 sm:px-6 py-8 space-y-6">
+      {/* Header */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-hospital-soft text-hospital-teal text-xs font-semibold">
-          <Calendar className="w-3.5 h-3.5" />
+        <div className="badge-teal text-xs">
+          <ShieldCheck className="w-3.5 h-3.5" />
           <span>Sanjeevani Multispeciality Hospital, Jalna</span>
         </div>
-        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight font-heading">
           Direct OPD Appointment Booking
         </h1>
-        <p className="text-slate-500 text-xs sm:text-sm max-w-xl mx-auto">
-          Fast 5-step booking with verified specialists, real-time availability, and instant confirmation token.
+        <p className="text-slate-500 text-xs sm:text-sm">
+          5-step online booking with verified specialist doctors and instant confirmation token.
         </p>
       </div>
 
       {/* Stepper Progress Bar */}
-      <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs font-bold">
+      <div className="grid grid-cols-5 gap-1.5 text-center text-xs font-semibold">
         {[
           { num: 1, label: 'Phone OTP', short: 'OTP' },
           { num: 2, label: 'Patient Info', short: 'Info' },
@@ -348,15 +338,15 @@ export const BookAppointmentPage: React.FC = () => {
         ].map((s) => (
           <div
             key={s.num}
-            className={`p-1.5 sm:p-2 rounded-xl border transition ${
+            className={`p-2 rounded-lg transition-colors ${
               step === s.num
-                ? 'bg-hospital-teal text-white border-hospital-teal shadow-sm'
+                ? 'bg-[#0F766E] text-white shadow-sm'
                 : step > s.num
-                ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                : 'bg-white text-slate-400 border-slate-200'
+                ? 'bg-teal-50 text-teal-800'
+                : 'bg-slate-100 text-slate-400'
             }`}
           >
-            <span className="block text-[9px] sm:text-[10px] uppercase tracking-wider">Step {s.num}</span>
+            <span className="block text-[10px] uppercase">Step {s.num}</span>
             <span className="truncate block mt-0.5 sm:inline hidden">{s.label}</span>
             <span className="truncate block mt-0.5 sm:hidden">{s.short}</span>
           </div>
@@ -364,30 +354,30 @@ export const BookAppointmentPage: React.FC = () => {
       </div>
 
       {error && (
-        <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2.5 text-xs text-rose-700">
+        <div className="p-3 bg-red-50 text-red-700 rounded-lg flex items-center gap-2 text-xs">
           <AlertCircle className="w-4 h-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
-      {/* STEP 1: Phone OTP Verification */}
+      {/* STEP 1: Phone OTP */}
       {step === 1 && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-lg font-bold text-slate-900">Step 1: Patient Mobile Verification</h2>
+        <div className="card-clean p-6 sm:p-8 space-y-5">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-base font-bold text-slate-900 font-heading">Step 1: Patient Mobile Verification</h2>
             <p className="text-xs text-slate-500">
-              We send an OTP via SMS to ensure secure appointments and instant SMS token delivery.
+              We send an OTP via SMS to ensure secure appointments and instant token delivery.
             </p>
           </div>
 
           {!otpSent ? (
             <form onSubmit={handleSendOtp} className="space-y-4 max-w-md">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
                   10-Digit Mobile Number (+91)
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3.5 top-2.5 text-xs font-bold text-slate-400">
+                  <span className="absolute left-3.5 top-2.5 text-xs font-medium text-slate-400">
                     +91
                   </span>
                   <input
@@ -396,7 +386,7 @@ export const BookAppointmentPage: React.FC = () => {
                     maxLength={10}
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className="w-full pl-12 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-semibold focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                    className="w-full pl-11 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                     placeholder="9876543210"
                   />
                 </div>
@@ -405,19 +395,19 @@ export const BookAppointmentPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3 px-4 rounded-xl bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 transition shadow-sm disabled:bg-slate-300"
+                className="btn-primary text-xs w-full py-2.5"
               >
-                {loading ? 'Sending OTP via MSG91...' : 'Send Verification OTP'}
+                {loading ? 'Sending OTP...' : 'Send Verification OTP'}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4 max-w-md">
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs text-emerald-800">
-                OTP sent to +91-{phone}. (Sandbox Demo Code: <span className="font-bold">123456</span>)
+              <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-800">
+                OTP sent to +91-{phone}. (Demo Code: <span className="font-bold">123456</span>)
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">
                   Enter 6-Digit Verification Code
                 </label>
                 <input
@@ -426,23 +416,23 @@ export const BookAppointmentPage: React.FC = () => {
                   maxLength={6}
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm font-bold text-center tracking-widest focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-center tracking-widest focus:border-[#0F766E] focus:outline-none"
                   placeholder="123456"
                 />
               </div>
 
-              <div className="flex space-x-3">
+              <div className="flex space-x-2">
                 <button
                   type="button"
                   onClick={() => setOtpSent(false)}
-                  className="w-1/3 py-2.5 px-4 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition"
+                  className="btn-secondary text-xs flex-1"
                 >
                   Change No.
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-2/3 py-2.5 px-4 rounded-xl bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 transition shadow-sm disabled:bg-slate-300"
+                  className="btn-primary text-xs flex-2"
                 >
                   {loading ? 'Verifying...' : 'Verify & Continue'}
                 </button>
@@ -452,26 +442,26 @@ export const BookAppointmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 2: Patient Demographic Info */}
+      {/* STEP 2: Patient Info */}
       {step === 2 && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-card-subtle space-y-6">
-          <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
+        <div className="card-clean p-6 sm:p-8 space-y-5">
+          <div className="border-b border-slate-100 pb-3 flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Step 2: Patient Details & Doctor Selection</h2>
+              <h2 className="text-base font-bold text-slate-900 font-heading">Step 2: Patient Details & Doctor Selection</h2>
               <p className="text-xs text-slate-500">Provide accurate patient information for OPD registration.</p>
             </div>
-            <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              ✓ +91-{phone} Verified
+            <span className="badge-teal text-xs">
+              ✓ +91-{phone}
             </span>
           </div>
 
           <form onSubmit={handleInitBooking} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Select Doctor & Specialty</label>
+            <div className="space-y-1">
+              <label className="block text-xs font-semibold text-slate-700">Select Doctor & Specialty</label>
               <select
                 value={selectedDoctorId}
                 onChange={(e) => setSelectedDoctorId(e.target.value)}
-                className="w-full px-3 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
               >
                 {DOCTOR_OPTIONS.map((doc) => (
                   <option key={doc.id} value={doc.id}>
@@ -481,20 +471,20 @@ export const BookAppointmentPage: React.FC = () => {
               </select>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-slate-700 mb-1">Patient Full Name</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-2 space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">Patient Full Name</label>
                 <input
                   type="text"
                   required
                   value={patientName}
                   onChange={(e) => setPatientName(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Age (Years)</label>
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">Age (Years)</label>
                 <input
                   type="number"
                   required
@@ -502,18 +492,18 @@ export const BookAppointmentPage: React.FC = () => {
                   max={120}
                   value={patientAge}
                   onChange={(e) => setPatientAge(Number(e.target.value))}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Gender</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">Gender</label>
                 <select
                   value={patientGender}
                   onChange={(e) => setPatientGender(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 >
                   <option>Male</option>
                   <option>Female</option>
@@ -521,23 +511,23 @@ export const BookAppointmentPage: React.FC = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">City / Village / Taluka</label>
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-700">City / Village / Taluka</label>
                 <input
                   type="text"
                   required
                   value={patientAddress}
                   onChange={(e) => setPatientAddress(e.target.value)}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 flex justify-end space-x-3">
+            <div className="pt-3 border-t border-slate-100 flex justify-end">
               <button
                 type="submit"
                 disabled={loading}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 shadow-sm transition disabled:bg-slate-300"
+                className="btn-primary text-xs py-2 px-4"
               >
                 <span>{loading ? 'Saving...' : 'Proceed to Live Slots'}</span>
                 <ChevronRight className="w-4 h-4" />
@@ -547,23 +537,23 @@ export const BookAppointmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 3: Live Interactive Slot Picker */}
+      {/* STEP 3: Slot Picker */}
       {step === 3 && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-card-subtle space-y-6">
-          <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="card-clean p-6 sm:p-8 space-y-5">
+          <div className="border-b border-slate-100 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h2 className="text-lg font-bold text-slate-900">Step 3: Select Consultation Time-Slot</h2>
+              <h2 className="text-base font-bold text-slate-900 font-heading">Step 3: Select Consultation Time-Slot</h2>
               <p className="text-xs text-slate-500">
-                Consulting <span className="font-bold text-slate-800">{selectedDoctor.name}</span> ({selectedDoctor.department})
+                Consulting <span className="font-semibold text-slate-800">{selectedDoctor.name}</span> ({selectedDoctor.department})
               </p>
             </div>
-            <span className="text-xs font-bold text-hospital-teal bg-hospital-soft px-3 py-1 rounded-full">
+            <span className="badge-teal text-xs">
               OPD Fee: ₹{selectedDoctor.fee}
             </span>
           </div>
 
           <div className="flex items-center space-x-3">
-            <label className="text-xs font-bold text-slate-700">Appointment Date:</label>
+            <label className="text-xs font-semibold text-slate-700">Appointment Date:</label>
             <input
               type="date"
               value={selectedDate}
@@ -572,18 +562,18 @@ export const BookAppointmentPage: React.FC = () => {
                 setSelectedDate(e.target.value);
                 fetchDoctorAvailability(selectedDoctorId, e.target.value);
               }}
-              className="px-3 py-1.5 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold focus:outline-none"
+              className="px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-medium focus:border-[#0F766E] focus:outline-none"
             />
           </div>
 
           <div>
-            <span className="text-xs font-bold text-slate-700 block mb-3">Available Time-Slots:</span>
+            <span className="text-xs font-semibold text-slate-700 block mb-2.5">Available Time-Slots:</span>
             {availableSlots.length === 0 ? (
-              <div className="p-6 bg-slate-50 rounded-2xl text-center text-xs text-slate-500">
+              <div className="p-6 bg-slate-50 rounded-lg text-center text-xs text-slate-500">
                 No slots available on this date. Please select another date.
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {availableSlots.map((slot) => {
                   const isAvailable = slot.status === 'AVAILABLE';
                   return (
@@ -591,15 +581,15 @@ export const BookAppointmentPage: React.FC = () => {
                       key={slot.id}
                       disabled={!isAvailable || loading}
                       onClick={() => handleReserveSlot(slot)}
-                      className={`p-3 rounded-2xl border text-center transition flex flex-col items-center justify-center space-y-1 ${
+                      className={`p-3 rounded-lg border text-center transition flex flex-col items-center justify-center space-y-1 ${
                         isAvailable
-                          ? 'bg-hospital-soft/40 hover:bg-hospital-teal hover:text-white border-hospital-teal/30 hover:border-hospital-teal shadow-sm cursor-pointer'
-                          : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
+                          ? 'bg-white hover:bg-[#0F766E] hover:text-white border-slate-200 hover:border-[#0F766E] shadow-sm cursor-pointer'
+                          : 'bg-slate-50 text-slate-400 border-slate-100 cursor-not-allowed'
                       }`}
                     >
-                      <Clock className="w-4 h-4" />
+                      <Clock className="w-3.5 h-3.5" />
                       <span className="text-xs font-bold">{slot.startTime}</span>
-                      <span className="text-[10px] font-semibold uppercase tracking-wider">
+                      <span className="text-[10px] uppercase">
                         {slot.status}
                       </span>
                     </button>
@@ -611,148 +601,148 @@ export const BookAppointmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* STEP 4: Razorpay Payment Checkout */}
+      {/* STEP 4: Payment */}
       {step === 4 && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-card-subtle space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-lg font-bold text-slate-900">Step 4: Consultation Fee Payment</h2>
+        <div className="card-clean p-6 sm:p-8 space-y-5">
+          <div className="border-b border-slate-100 pb-3">
+            <h2 className="text-base font-bold text-slate-900 font-heading">Step 4: Consultation Fee Payment</h2>
             <p className="text-xs text-slate-500">
-              Slot <span className="font-bold text-hospital-teal">{selectedSlot?.startTime}</span> on <span className="font-bold text-slate-800">{selectedDate}</span> is held for you for 10 minutes.
+              Slot <span className="font-semibold text-[#0F766E]">{selectedSlot?.startTime}</span> on <span className="font-semibold text-slate-800">{selectedDate}</span> is held for you for 10 minutes.
             </p>
           </div>
 
-          <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 space-y-2 text-xs">
+          <div className="bg-slate-50 rounded-lg p-4 space-y-2 text-xs">
             <div className="flex justify-between">
-              <span className="text-slate-600">Patient:</span>
-              <span className="font-bold text-slate-900">{patientName} ({patientAge} Yrs)</span>
+              <span className="text-slate-500">Patient:</span>
+              <span className="font-semibold text-slate-900">{patientName} ({patientAge} Yrs)</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Specialist Doctor:</span>
-              <span className="font-bold text-slate-900">{selectedDoctor.name}</span>
+              <span className="text-slate-500">Specialist Doctor:</span>
+              <span className="font-semibold text-slate-900">{selectedDoctor.name}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Department:</span>
-              <span className="font-medium text-slate-800">{selectedDoctor.department}</span>
+              <span className="text-slate-500">Department:</span>
+              <span className="text-slate-800">{selectedDoctor.department}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-600">Reporting Slot:</span>
-              <span className="font-bold text-hospital-teal">{selectedDate} at {selectedSlot?.startTime}</span>
+              <span className="text-slate-500">Reporting Slot:</span>
+              <span className="font-semibold text-[#0F766E]">{selectedDate} at {selectedSlot?.startTime}</span>
             </div>
             <div className="pt-2 border-t border-slate-200 flex justify-between text-sm font-bold text-slate-900">
               <span>Total Payable:</span>
-              <span className="text-hospital-teal">₹{selectedDoctor.fee}</span>
+              <span className="text-[#0F766E]">₹{selectedDoctor.fee}</span>
             </div>
           </div>
 
-          <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs text-emerald-800 space-y-1">
-            <div className="flex items-center space-x-1.5 font-bold">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Razorpay Test Gateway Active</span>
+          <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-800 space-y-0.5">
+            <div className="flex items-center space-x-1.5 font-semibold">
+              <ShieldCheck className="w-4 h-4 text-teal-600" />
+              <span>Razorpay Secure Payment Gateway</span>
             </div>
-            <p className="text-[11px]">
-              Order ID: <code className="font-mono">{paymentOrder?.orderId}</code> (Key: <code className="font-mono">{paymentOrder?.keyId}</code>)
+            <p className="text-[11px] text-teal-700">
+              Order ID: <code className="font-mono">{paymentOrder?.orderId || 'order_demo'}</code>
             </p>
           </div>
 
           <button
             onClick={handleCompletePayment}
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-2xl bg-hospital-teal text-white text-xs font-bold shadow-md hover:bg-hospital-teal/90 transition disabled:bg-slate-300"
+            className="btn-primary w-full py-2.5 text-xs font-semibold"
           >
             <CreditCard className="w-4 h-4" />
-            <span>{loading ? 'Verifying Razorpay Signature...' : `Pay ₹${selectedDoctor.fee} & Confirm Appointment`}</span>
+            <span>{loading ? 'Verifying Payment...' : `Pay ₹${selectedDoctor.fee} & Confirm Appointment`}</span>
           </button>
         </div>
       )}
 
-      {/* STEP 5: Confirmed Token Slip */}
+      {/* STEP 5: Confirmed Receipt */}
       {step === 5 && confirmedApt && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-card-subtle space-y-6">
-          <div className="text-center space-y-2 border-b border-slate-100 pb-6">
-            <div className="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
-              <CheckCircle2 className="w-10 h-10" />
+        <div className="card-clean p-6 sm:p-8 space-y-6">
+          <div className="text-center space-y-2 border-b border-slate-100 pb-5">
+            <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
+              <CheckCircle2 className="w-7 h-7" />
             </div>
-            <h2 className="text-2xl font-extrabold text-slate-900">Appointment Confirmed!</h2>
+            <h2 className="text-xl font-bold text-slate-900 font-heading">Appointment Confirmed!</h2>
             <p className="text-xs text-slate-500">
-              Your appointment has been registered and verified in Sanjeevani Hospital OPD queue.
+              Your appointment has been registered in the Sanjeevani Hospital OPD queue.
             </p>
           </div>
 
           {/* Token Card */}
-          <div className="bg-hospital-soft/80 border-2 border-hospital-teal/30 rounded-3xl p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-b border-hospital-teal/20 pb-4">
+          <div className="bg-slate-50 rounded-xl p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200 pb-3">
               <div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-hospital-teal block">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
                   Hospital Token ID
                 </span>
-                <span className="text-2xl font-extrabold text-slate-900">
+                <span className="text-xl font-bold text-slate-900 font-mono">
                   {confirmedApt.appointmentCode}
                 </span>
               </div>
-              <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+              <span className="badge-teal text-xs">
                 PAID & VERIFIED (₹{confirmedApt.appointment.fee})
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div>
                 <span className="text-slate-500 block">Patient Name:</span>
-                <span className="font-bold text-slate-900">{confirmedApt.appointment.patientName}</span>
+                <span className="font-semibold text-slate-900">{confirmedApt.appointment.patientName}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Contact Phone:</span>
-                <span className="font-bold text-slate-900">{confirmedApt.appointment.patientPhone}</span>
+                <span className="font-semibold text-slate-900">{confirmedApt.appointment.patientPhone}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Specialist Doctor:</span>
-                <span className="font-bold text-slate-900">{confirmedApt.appointment.doctorName}</span>
+                <span className="font-semibold text-slate-900">{confirmedApt.appointment.doctorName}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">Clinical Department:</span>
-                <span className="font-bold text-slate-900">{confirmedApt.appointment.department}</span>
+                <span className="text-slate-500 block">Department:</span>
+                <span className="font-semibold text-slate-900">{confirmedApt.appointment.department}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Appointment Date:</span>
-                <span className="font-bold text-hospital-teal text-sm">{confirmedApt.appointment.appointmentDate}</span>
+                <span className="font-semibold text-[#0F766E]">{confirmedApt.appointment.appointmentDate}</span>
               </div>
               <div>
                 <span className="text-slate-500 block">Reporting Time:</span>
-                <span className="font-bold text-hospital-teal text-sm">{confirmedApt.appointment.startTime}</span>
+                <span className="font-semibold text-[#0F766E]">{confirmedApt.appointment.startTime}</span>
               </div>
             </div>
 
-            <div className="p-3 bg-white rounded-2xl border border-slate-200 text-xs text-slate-600 space-y-1">
-              <p className="font-bold text-slate-800">Hospital Reporting Instructions:</p>
+            <div className="p-3 bg-white rounded-lg border border-slate-200 text-xs text-slate-600 space-y-1">
+              <p className="font-semibold text-slate-800">Hospital Instructions:</p>
               <p className="text-[11px] leading-relaxed">{confirmedApt.reportingInstructions}</p>
-              <p className="text-[11px] font-semibold text-hospital-teal pt-1">
+              <p className="text-[11px] text-slate-500 pt-1">
                 📍 {confirmedApt.hospitalAddress} • 📞 {confirmedApt.emergencyHelpline}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             <button
               onClick={() => window.print()}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-50 transition shadow-sm w-full sm:w-auto justify-center"
+              className="btn-secondary text-xs w-full sm:w-auto"
             >
               <Printer className="w-4 h-4" />
               <span>Print Token Slip</span>
             </button>
 
-            <div className="flex space-x-3 w-full sm:w-auto">
+            <div className="flex space-x-2 w-full sm:w-auto">
               <button
                 onClick={() => {
                   setStep(1);
                   setOtpSent(false);
                   setConfirmedApt(null);
                 }}
-                className="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition"
+                className="btn-secondary text-xs flex-1 sm:flex-none"
               >
                 Book Another
               </button>
               <Link
                 to="/"
-                className="px-6 py-2.5 rounded-xl bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 shadow-sm transition"
+                className="btn-primary text-xs flex-1 sm:flex-none"
               >
                 Home Page
               </Link>
