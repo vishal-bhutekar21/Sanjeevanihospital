@@ -177,42 +177,42 @@ export const DepartmentsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Clinical Stats */}
+        {/* 4 Clinical Stats (Warm Yellow/Amber Styling) */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-200/80">
-          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
-              <Users className="w-3.5 h-3.5" />
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
+              <Users className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'एकूण रुग्ण' : 'Patient Count'}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">50,000+</div>
-            <div className="text-xs text-slate-500">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
+            <div className="text-xs text-amber-900/80">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
           </div>
 
-          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
-              <Award className="w-3.5 h-3.5" />
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
+              <Award className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Done'}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">10,000+</div>
-            <div className="text-xs text-slate-500">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
+            <div className="text-xs text-amber-900/80">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
           </div>
 
-          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
-              <TrendingUp className="w-3.5 h-3.5" />
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
+              <TrendingUp className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'यशस्वी उपचार दर' : 'Success Rate'}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-teal-700 mt-1 font-heading">99.4%</div>
-            <div className="text-xs text-slate-500">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
+            <div className="text-xs text-amber-900/80">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
           </div>
 
-          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
-              <Bed className="w-3.5 h-3.5" />
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
+              <Bed className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'अतिदक्षता खाटा' : 'Critical ICU Beds'}</span>
             </div>
             <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">21 Beds</div>
-            <div className="text-xs text-slate-500">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
+            <div className="text-xs text-amber-900/80">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
           </div>
         </div>
       </div>

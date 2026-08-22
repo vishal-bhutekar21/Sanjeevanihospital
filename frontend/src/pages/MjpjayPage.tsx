@@ -338,27 +338,27 @@ export const MjpjayPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Standout Infographic Badges */}
+        {/* 4 Standout Infographic Badges (Warm Yellow/Amber Styling) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'कॅशलेस उपचार' : 'Zero Expense'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'कॅशलेस उपचार' : 'Zero Expense'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '१००% मोफत शस्त्रक्रिया' : '100% Cashless'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'कोणतेही आगाऊ शुल्क नाही' : 'No advance deposit'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कोणतेही आगाऊ शुल्क नाही' : 'No advance deposit'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'अतिदक्षता विभाग' : 'Critical Care'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'अतिदक्षता विभाग' : 'Critical Care'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२१ खाटांचा ICU' : '21-Bed ICU'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'पात्रता' : 'Beneficiaries'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'पात्रता' : 'Beneficiaries'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'पिवळे / केशरी कार्ड' : 'Yellow & Orange Cards'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'अन्नपूर्णा व अंत्योदय कार्ड' : 'AAY & Annapurna cards'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'अन्नपूर्णा व अंत्योदय कार्ड' : 'AAY & Annapurna cards'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'आरोग्य मित्र कक्ष' : 'Hospital Helpdesk'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'आरोग्य मित्र कक्ष' : 'Hospital Helpdesk'}</p>
             <p className="font-bold text-teal-700 text-base mt-0.5">{isMr ? '२४x७ सक्रिय' : '24x7 Active'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'कागदपत्र तपासणी कक्ष' : 'Fast-track approvals'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कागदपत्र तपासणी कक्ष' : 'Fast-track approvals'}</p>
           </div>
         </div>
       </div>

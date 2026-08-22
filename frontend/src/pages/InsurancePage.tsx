@@ -267,27 +267,27 @@ export const InsurancePage: React.FC = () => {
           </div>
         </div>
 
-        {/* 4 Standout Infographic Badges */}
+        {/* 4 Standout Infographic Badges (Warm Yellow/Amber Styling) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'पूर्व-मंजुरी वेग' : 'Speed'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'पूर्व-मंजुरी वेग' : 'Speed'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२ ते ४ तासांत मंजुरी' : '2–4 Hour Turnaround'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'डिजिटल ई-प्री-ऑथ' : 'Fast digital pre-auth'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'डिजिटल ई-प्री-ऑथ' : 'Fast digital pre-auth'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'डिपॉझिट नियम' : 'Admission'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'डिपॉझिट नियम' : 'Admission'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'शून्य अ‍ॅडव्हान्स कॅश' : 'Zero Advance Deposit'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'मंजूर रकमेसाठी कॅशलेस' : 'For approved cashless limits'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'मंजूर रकमेसाठी कॅशलेस' : 'For approved cashless limits'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'संलग्न नेटवर्क' : 'Network'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'संलग्न नेटवर्क' : 'Network'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '३५+ विमा कंपन्या' : '35+ Insurers & TPAs'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'शासकीय व खाजगी कंपन्या' : 'PSU & Private Panels'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'शासकीय व खाजगी कंपन्या' : 'PSU & Private Panels'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'समर्पित डेस्क' : 'Coordinator'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'समर्पित डेस्क' : 'Coordinator'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'तज्ज्ञ क्लेम समन्वयक' : 'Dedicated TPA Desk'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'हॉस्पिटल तळमजला रूम १०३' : 'Lobby Helpdesk'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'हॉस्पिटल तळमजला रूम १०३' : 'Lobby Helpdesk'}</p>
           </div>
         </div>
       </div>

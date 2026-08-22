@@ -295,27 +295,27 @@ export const EventsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* 4 Standout Infographic Badges */}
+        {/* 4 Standout Infographic Badges (Proper Warm Yellow/Amber Cards) */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'मोफत शिबिरे' : 'Health Camps'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'मोफत शिबिरे' : 'Health Camps'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '१००+ मोफत शिबिरे' : '100+ Camps Done'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'जालना व मराठवाड्यात' : 'Across Marathwada'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'जालना व मराठवाड्यात' : 'Across Marathwada'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'रुग्ण तपासणी' : 'Free Screenings'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'रुग्ण तपासणी' : 'Free Screenings'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२५,०००+ मोफत तपासण्या' : '25,000+ Screened'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'बीएमडी, ईसीजी व रक्त चाचण्या' : 'BMD, ECG, blood sugar'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'बीएमडी, ईसीजी व रक्त चाचण्या' : 'BMD, ECG, blood sugar'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'समाधानी रुग्ण' : 'Happy Patients'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'समाधानी रुग्ण' : 'Happy Patients'}</p>
             <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '५०,०००+ बरे झालेले रुग्ण' : '50,000+ Treated'}</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'यशस्वी शस्त्रक्रिया व उपचार' : 'Since 2016 in Jalna'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'यशस्वी शस्त्रक्रिया व उपचार' : 'Since 2016 in Jalna'}</p>
           </div>
-          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
-            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'रुग्ण समाधान' : 'Satisfaction'}</p>
+          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'रुग्ण समाधान' : 'Satisfaction'}</p>
             <p className="font-bold text-teal-700 text-base mt-0.5">99.4%</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'क्लिनिकल अचूकता दर' : 'Positive clinical outcome'}</p>
+            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'क्लिनिकल अचूकता दर' : 'Positive clinical outcome'}</p>
           </div>
         </div>
       </div>
