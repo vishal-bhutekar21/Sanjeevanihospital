@@ -158,19 +158,19 @@ export const DepartmentsPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
-      {/* ─── 1. HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-6">
+      {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-6">
         <div className="space-y-3">
           <div className="badge-teal text-xs">
             <Building2 className="w-3.5 h-3.5" />
             <span>{isMr ? 'सर्वसमावेशक वैद्यकीय विभाग' : 'Clinical Specialties & Infrastructure'}</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
             {isMr ? 'प्रमुख वैद्यकीय विभाग आणि विशेषोपचार शाखा' : 'Clinical Departments & Specialty Centers'}
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
             {isMr
               ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी सर्जन आणि तज्ज्ञ डॉक्टरांच्या मार्गदर्शनाखाली आधुनिक तंत्रज्ञानासह सर्व प्रमुख आजारांचे अचूक निदान व यशस्वी उपचार केले जातात.'
               : 'Comprehensive clinical specialties equipped with modular surgical suites, 21-bed ICU, digital imaging, and experienced specialist doctors in Jalna.'}
@@ -178,41 +178,41 @@ export const DepartmentsPage: React.FC = () => {
         </div>
 
         {/* 4 Clinical Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-800">
-          <div>
-            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-200/80">
+          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
               <Users className="w-3.5 h-3.5" />
               <span>{isMr ? 'एकूण रुग्ण' : 'Patient Count'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">50,000+</div>
-            <div className="text-xs text-slate-400">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">50,000+</div>
+            <div className="text-xs text-slate-500">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
               <Award className="w-3.5 h-3.5" />
               <span>{isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Done'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">10,000+</div>
-            <div className="text-xs text-slate-400">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">10,000+</div>
+            <div className="text-xs text-slate-500">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
               <TrendingUp className="w-3.5 h-3.5" />
               <span>{isMr ? 'यशस्वी उपचार दर' : 'Success Rate'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">99.4%</div>
-            <div className="text-xs text-slate-400">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-teal-700 mt-1 font-heading">99.4%</div>
+            <div className="text-xs text-slate-500">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
           </div>
 
-          <div>
-            <div className="flex items-center gap-1.5 text-teal-400 text-xs font-semibold">
+          <div className="p-3 bg-white rounded-lg border border-teal-100 shadow-2xs">
+            <div className="flex items-center gap-1.5 text-[#0F766E] text-xs font-semibold">
               <Bed className="w-3.5 h-3.5" />
               <span>{isMr ? 'अतिदक्षता खाटा' : 'Critical ICU Beds'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-white mt-1 font-heading">21 Beds</div>
-            <div className="text-xs text-slate-400">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
+            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">21 Beds</div>
+            <div className="text-xs text-slate-500">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
           </div>
         </div>
       </div>

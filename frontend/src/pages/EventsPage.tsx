@@ -267,65 +267,55 @@ export const EventsPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
-      {/* ─── 1. HERO BANNER WITH CLINICAL BACKGROUND OVERLAY ─────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden shadow-card">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=1600&q=80')`,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-slate-950/95 backdrop-blur-[2px]" />
-
-        <div className="relative p-6 sm:p-10 lg:p-12 text-white space-y-6">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="badge-teal text-xs py-1 px-3">
-              <HeartPulse className="w-4 h-4 text-teal-400" />
-              <span>{isMr ? 'सामाजिक आरोग्य उपक्रम आणि रुग्ण अनुभव' : 'Community Health Initiatives & Verified Patient Feedback'}</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/10 backdrop-blur-sm text-white text-xs font-semibold border border-white/15">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>{isMr ? '४.९ / ५ रुग्ण समाधान दर' : '4.9 / 5 Rating across 1,200+ Reviews'}</span>
-            </div>
+      {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-6">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="badge-teal text-xs py-1 px-3">
+            <HeartPulse className="w-4 h-4 text-[#0F766E]" />
+            <span>{isMr ? 'सामाजिक आरोग्य उपक्रम आणि रुग्ण अनुभव' : 'Community Health Initiatives & Verified Patient Feedback'}</span>
           </div>
-
-          <div className="space-y-3 max-w-3xl">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-heading leading-tight">
-              {isMr ? 'मोफत आरोग्य शिबिरे आणि' : 'Community Health Camps &'}<br />
-              <span className="text-teal-400">
-                {isMr ? 'रुग्णांचे खरे अनुभव व अभिप्राय' : 'Verified Patient Reviews'}
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-              {isMr
-                ? 'संजीवनी हॉस्पिटल, जालना तर्फे ग्रामीण व शहरी भागातील नागरिकांसाठी नियमित आयोजित केली जाणारी मोफत तपासणी शिबिरे आणि यशस्वी उपचार घेतलेल्या हजारो समाधानी रुग्णांचे मनोगत.'
-                : 'Free specialist diagnostic checkup camps organized regularly by Sanjeevani Multispeciality Hospital, Jalna, and genuine recovery stories from cured patients.'}
-            </p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-200">
+            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+            <span>{isMr ? '४.९ / ५ रुग्ण समाधान दर' : '4.9 / 5 Rating across 1,200+ Reviews'}</span>
           </div>
+        </div>
 
-          {/* 4 Standout Infographic Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-800 text-xs">
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'मोफत शिबिरे' : 'Health Camps'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? '१००+ मोफत शिबिरे' : '100+ Camps Done'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'जालना व मराठवाड्यात' : 'Across Marathwada'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'रुग्ण तपासणी' : 'Free Screenings'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? '२५,०००+ मोफत तपासण्या' : '25,000+ Screened'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'बीएमडी, ईसीजी व रक्त चाचण्या' : 'BMD, ECG, blood sugar'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'समाधानी रुग्ण' : 'Happy Patients'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? '५०,०००+ बरे झालेले रुग्ण' : '50,000+ Treated'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'यशस्वी शस्त्रक्रिया व उपचार' : 'Since 2016 in Jalna'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'रुग्ण समाधान' : 'Satisfaction'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">99.4%</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'क्लिनिकल अचूकता दर' : 'Positive clinical outcome'}</p>
-            </div>
+        <div className="space-y-3 max-w-3xl">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
+            {isMr ? 'मोफत आरोग्य शिबिरे आणि' : 'Community Health Camps &'}<br />
+            <span className="text-[#0F766E]">
+              {isMr ? 'रुग्णांचे खरे अनुभव व अभिप्राय' : 'Verified Patient Reviews'}
+            </span>
+          </h1>
+
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            {isMr
+              ? 'संजीवनी हॉस्पिटल, जालना तर्फे ग्रामीण व शहरी भागातील नागरिकांसाठी नियमित आयोजित केली जाणारी मोफत तपासणी शिबिरे आणि यशस्वी उपचार घेतलेल्या हजारो समाधानी रुग्णांचे मनोगत.'
+              : 'Free specialist diagnostic checkup camps organized regularly by Sanjeevani Multispeciality Hospital, Jalna, and genuine recovery stories from cured patients.'}
+          </p>
+        </div>
+
+        {/* 4 Standout Infographic Badges */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'मोफत शिबिरे' : 'Health Camps'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '१००+ मोफत शिबिरे' : '100+ Camps Done'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'जालना व मराठवाड्यात' : 'Across Marathwada'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'रुग्ण तपासणी' : 'Free Screenings'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२५,०००+ मोफत तपासण्या' : '25,000+ Screened'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'बीएमडी, ईसीजी व रक्त चाचण्या' : 'BMD, ECG, blood sugar'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'समाधानी रुग्ण' : 'Happy Patients'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '५०,०००+ बरे झालेले रुग्ण' : '50,000+ Treated'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'यशस्वी शस्त्रक्रिया व उपचार' : 'Since 2016 in Jalna'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'रुग्ण समाधान' : 'Satisfaction'}</p>
+            <p className="font-bold text-teal-700 text-base mt-0.5">99.4%</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'क्लिनिकल अचूकता दर' : 'Positive clinical outcome'}</p>
           </div>
         </div>
       </div>

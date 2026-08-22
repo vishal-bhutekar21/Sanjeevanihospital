@@ -110,18 +110,18 @@ export const DoctorsPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      {/* ─── PAGE HEADER ──────────────────────────────────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-4">
+      {/* ─── PAGE HEADER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-4">
         <div className="badge-teal text-xs">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>{isMr ? 'वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Verified Medical Faculty'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
           {isMr ? 'तज्ज्ञ डॉक्टर व वैद्यकीय सल्लागार' : 'Specialist Doctors & Medical Faculty'}
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी अस्थिरोग सर्जन, बालरोगतज्ज्ञ, स्त्रीरोगतज्ज्ञ, भूलतज्ज्ञ आणि फिजिशियन उपलब्ध आहेत.'
             : 'Consult experienced surgeons, physicians, pediatricians, and intensivists available for OPD and 24x7 emergency critical care.'}
@@ -135,7 +135,7 @@ export const DoctorsPage: React.FC = () => {
             placeholder={isMr ? 'डॉक्टरांचे नाव किंवा विभाग शोधा...' : 'Search doctor or specialty...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-slate-800 text-white placeholder-slate-400 border border-slate-700 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-teal-400"
+            className="w-full pl-10 pr-4 py-2.5 bg-white text-slate-900 placeholder-slate-400 border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-[#0F766E]"
           />
         </div>
       </div>

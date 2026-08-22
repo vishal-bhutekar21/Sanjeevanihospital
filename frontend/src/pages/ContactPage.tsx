@@ -30,18 +30,18 @@ export const ContactPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-10">
-      {/* ─── HEADER BANNER ──────────────────────────────────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-3">
+      {/* ─── HEADER BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-3">
         <div className="badge-teal text-xs">
           <MapPin className="w-3.5 h-3.5" />
           <span>{isMr ? 'हॉस्पिटल संपर्क व पत्ता' : 'Hospital Location & Direct Contact'}</span>
         </div>
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना'
             : 'Sanjeevani Multispeciality Hospital, Jalna'}
         </h1>
-        <p className="text-sm sm:text-base text-slate-300 font-normal max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 font-normal max-w-3xl leading-relaxed">
           {isMr
             ? 'अंबड चौफुली, जालना येथे २४ तास आपत्कालीन सेवा, २१ खाटांचा अतिदक्षता विभाग (ICU) आणि तज्ज्ञ डॉक्टरांचा सल्ला उपलब्ध आहे.'
             : 'Located conveniently at Ambad Choufuli, Jalna. Accessible 24 hours a day for emergency casualty, 21-bed ICU, and specialist outpatient consultations.'}

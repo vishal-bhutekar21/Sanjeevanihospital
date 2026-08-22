@@ -600,27 +600,27 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 6. MJPJAY SCHEME SPOTLIGHT ─────────────────────────────────────────── */}
+      {/* ─── 6. MJPJAY SCHEME SPOTLIGHT (CLEAN HEALTHCARE STYLING) ───────────── */}
       <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white">
+        <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-emerald-50/50 border border-teal-200 shadow-sm">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
             {/* Left Column */}
             <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 text-xs font-semibold">
-                <ShieldCheck className="w-4 h-4" />
-                <span>१००% मोफत व कॅशलेस उपचार</span>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-semibold border border-teal-200">
+                <ShieldCheck className="w-4 h-4 text-teal-700" />
+                <span>{isMr ? '१००% मोफत व कॅशलेस उपचार' : '100% Cashless Govt. Scheme'}</span>
               </div>
 
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white font-heading">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 font-heading">
                 <span>{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span>
                 <br />
-                <span className="text-teal-400">
+                <span className="text-[#0F766E]">
                   {isMr ? 'जन आरोग्य योजना (MJPJAY)' : 'Jan Arogya Yojana (MJPJAY)'}
                 </span>
               </h2>
               
-              <p className="text-sm text-slate-300 leading-relaxed">
+              <p className="text-sm text-slate-600 leading-relaxed">
                 {isMr
                   ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि प्रगत उपचार. आमच्या समर्पित आरोग्य मित्र डेस्कवरून त्वरित मदत मिळवा.'
                   : 'Cashless surgical care and tertiary hospitalization for eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital, Jalna.'}
@@ -629,13 +629,13 @@ export const HomePage: React.FC = () => {
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link
                   to="/mjpjay"
-                  className="btn-primary text-xs"
+                  className="btn-primary text-xs py-2 px-4 shadow-xs"
                 >
                   <span>{isMr ? 'योजना प्रक्रिया व कागदपत्रे' : 'MJPJAY Process & Documents'}</span>
                 </Link>
                 <Link
                   to="/insurance"
-                  className="btn-secondary bg-white/10 text-white border-white/20 hover:bg-white/20 text-xs"
+                  className="btn-secondary text-xs py-2 px-4"
                 >
                   <span>{isMr ? 'कॅशलेस विमा कंपन्या' : 'Insurance Panels'}</span>
                 </Link>
@@ -643,31 +643,31 @@ export const HomePage: React.FC = () => {
             </div>
 
             {/* Right Column: Document Checklist Card */}
-            <div className="lg:col-span-5 bg-slate-800/80 rounded-xl p-5 text-slate-100 space-y-3">
-              <p className="font-semibold text-white text-sm flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-teal-400" />
+            <div className="lg:col-span-5 bg-white rounded-xl p-5 border border-teal-200 shadow-xs space-y-3">
+              <p className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
                 <span>{isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required'}</span>
               </p>
 
-              <ul className="space-y-2 text-xs text-slate-300">
+              <ul className="space-y-2 text-xs text-slate-700">
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                   <span>{isMr ? 'पिवळे किंवा केशरी रेशन कार्ड (Original)' : 'Yellow or Orange Ration Card (Original)'}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                   <span>{isMr ? 'रुग्ण व कुटुंबप्रमुखांचे आधार कार्ड' : 'Patient & Family Head Aadhaar Card'}</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                   <span>{isMr ? 'डॉक्टरांचे प्रिस्क्रिप्शन व तपासणी रिपोर्ट' : "Doctor's Prescription & Reports"}</span>
                 </li>
               </ul>
 
-              <div className="pt-2 border-t border-slate-700 flex items-center justify-between text-xs">
+              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
                 <div>
-                  <span className="text-slate-400 block text-[11px]">{isMr ? 'आरोग्य मित्र कक्ष:' : 'Arogya Mitra Helpline:'}</span>
-                  <a href="tel:+917507342222" className="text-white font-semibold hover:underline">
+                  <span className="text-slate-500 block text-[11px]">{isMr ? 'आरोग्य मित्र कक्ष:' : 'Arogya Mitra Helpline:'}</span>
+                  <a href="tel:+917507342222" className="text-slate-900 font-bold hover:underline">
                     +91-75073-42222
                   </a>
                 </div>

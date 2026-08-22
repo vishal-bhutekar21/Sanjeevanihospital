@@ -223,82 +223,71 @@ export const InsurancePage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
-      {/* ─── 1. HERO BANNER WITH HOSPITAL BACKGROUND OVERLAY ─────────────────── */}
-      <div className="relative rounded-2xl overflow-hidden shadow-card">
-        {/* Background Image with Dark Gradient Mask */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=1600&q=80')`,
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-900/90 to-slate-950/95 backdrop-blur-[2px]" />
-
-        <div className="relative p-6 sm:p-10 lg:p-12 text-white space-y-6">
-          <div className="flex flex-wrap items-center gap-2.5">
-            <div className="badge-teal text-xs py-1 px-3">
-              <CreditCard className="w-4 h-4 text-teal-400" />
-              <span>{isMr ? 'कॅशलेस मेडिक्लेम व इन्शुरन्स टीपीए (TPA) सेवा' : 'Cashless Mediclaim & TPA Services'}</span>
-            </div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white/10 backdrop-blur-sm text-white text-xs font-semibold border border-white/15">
-              <ShieldCheck className="w-3.5 h-3.5 text-teal-300" />
-              <span>{isMr ? '३५+ आघाडीच्या विमा कंपन्यांशी संलग्न' : 'Empanelled with 35+ Insurers & TPAs'}</span>
-            </div>
+      {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-teal-50/80 via-white to-blue-50/40 border border-teal-200 shadow-xs space-y-6">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <div className="badge-teal text-xs py-1 px-3">
+            <CreditCard className="w-4 h-4 text-[#0F766E]" />
+            <span>{isMr ? 'कॅशलेस मेडिक्लेम व इन्शुरन्स टीपीए (TPA) सेवा' : 'Cashless Mediclaim & TPA Services'}</span>
           </div>
-
-          <div className="space-y-3 max-w-3xl">
-            <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white font-heading leading-tight">
-              {isMr ? 'कॅशलेस मेडिक्लेम आणि' : 'Cashless Mediclaim &'}<br />
-              <span className="text-teal-400">
-                {isMr ? 'इन्शुरन्स टीपीए (TPA) सहाय्यता कक्ष' : 'Insurance TPA Help Desk'}
-              </span>
-            </h1>
-
-            <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal">
-              {isMr
-                ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल भारतातील सर्व प्रमुख शासकीय व खाजगी आरोग्य विमा कंपन्या आणि टीपीए भागीदारांशी संलग्न आहे. आमचा समर्पित इन्शुरन्स डेस्क रुग्णांसाठी अखंड कॅशलेस पूर्व-मंजुरी, झिरो अ‍ॅडव्हान्स डिपॉझिट आणि सुलभ क्लेम सेटलमेंटची सुविधा देतो.'
-                : 'Sanjeevani Multispeciality Hospital, Jalna coordinates seamless cashless pre-authorization, zero upfront deposit, and priority claim settlement with all major public and private insurance companies.'}
-            </p>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white border border-teal-200 text-teal-800 text-xs font-semibold shadow-2xs">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#0F766E]" />
+            <span>{isMr ? '३५+ आघाडीच्या विमा कंपन्यांशी संलग्न' : 'Empanelled with 35+ Insurers & TPAs'}</span>
           </div>
+        </div>
 
-          {/* Action Helpline & Working Hours */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
-            <a
-              href="tel:+917507342222"
-              className="btn-emergency text-xs py-2.5 px-4 shadow-md"
-            >
-              <Phone className="w-4 h-4" />
-              <span>{isMr ? 'इन्शुरन्स हेल्पलाईन: +91-75073-42222' : 'Insurance Helpline: +91-75073-42222'}</span>
-            </a>
+        <div className="space-y-3 max-w-3xl">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
+            {isMr ? 'कॅशलेस मेडिक्लेम आणि' : 'Cashless Mediclaim &'}<br />
+            <span className="text-[#0F766E]">
+              {isMr ? 'इन्शुरन्स टीपीए (TPA) सहाय्यता कक्ष' : 'Insurance TPA Help Desk'}
+            </span>
+          </h1>
 
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-slate-800/90 border border-slate-700 text-xs font-semibold text-teal-300">
-              <Clock className="w-4 h-4 text-teal-400" />
-              <span>{info?.tpaDeskTimings || (isMr ? 'वेळ: सोम-शनि ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन)' : 'Mon–Sat: 09:00 AM – 06:00 PM | Emergency 24x7')}</span>
-            </div>
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+            {isMr
+              ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल भारतातील सर्व प्रमुख शासकीय व खाजगी आरोग्य विमा कंपन्या आणि टीपीए भागीदारांशी संलग्न आहे. आमचा समर्पित इन्शुरन्स डेस्क रुग्णांसाठी अखंड कॅशलेस पूर्व-मंजुरी, झिरो अ‍ॅडव्हान्स डिपॉझिट आणि सुलभ क्लेम सेटलमेंटची सुविधा देतो.'
+              : 'Sanjeevani Multispeciality Hospital, Jalna coordinates seamless cashless pre-authorization, zero upfront deposit, and priority claim settlement with all major public and private insurance companies.'}
+          </p>
+        </div>
+
+        {/* Action Helpline & Working Hours */}
+        <div className="flex flex-wrap items-center gap-3 pt-2">
+          <a
+            href="tel:+917507342222"
+            className="btn-emergency text-xs py-2.5 px-4 shadow-sm"
+          >
+            <Phone className="w-4 h-4" />
+            <span>{isMr ? 'इन्शुरन्स हेल्पलाईन: +91-75073-42222' : 'Insurance Helpline: +91-75073-42222'}</span>
+          </a>
+
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
+            <Clock className="w-4 h-4 text-[#0F766E]" />
+            <span>{info?.tpaDeskTimings || (isMr ? 'वेळ: सोम-शनि ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन)' : 'Mon–Sat: 09:00 AM – 06:00 PM | Emergency 24x7')}</span>
           </div>
+        </div>
 
-          {/* 4 Standout Infographic Badges */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-800 text-xs">
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'पूर्व-मंजुरी वेग' : 'Speed'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? '२ ते ४ तासांत मंजुरी' : '2–4 Hour Turnaround'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'डिजिटल ई-प्री-ऑथ' : 'Fast digital pre-auth'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'डिपॉझिट नियम' : 'Admission'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? 'शून्य अ‍ॅडव्हान्स कॅश' : 'Zero Advance Deposit'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'मंजूर रकमेसाठी कॅशलेस' : 'For approved cashless limits'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'संलग्न नेटवर्क' : 'Network'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? '३५+ विमा कंपन्या' : '35+ Insurers & TPAs'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'शासकीय व खाजगी कंपन्या' : 'PSU & Private Panels'}</p>
-            </div>
-            <div className="p-3 bg-slate-900/80 rounded-lg border border-slate-800">
-              <p className="text-teal-400 font-semibold uppercase text-[10px]">{isMr ? 'समर्पित डेस्क' : 'Coordinator'}</p>
-              <p className="font-bold text-white text-sm mt-0.5">{isMr ? 'तज्ज्ञ क्लेम समन्वयक' : 'Dedicated TPA Desk'}</p>
-              <p className="text-[11px] text-slate-400 mt-0.5">{isMr ? 'हॉस्पिटल तळमजला रूम १०३' : 'Lobby Helpdesk'}</p>
-            </div>
+        {/* 4 Standout Infographic Badges */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'पूर्व-मंजुरी वेग' : 'Speed'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२ ते ४ तासांत मंजुरी' : '2–4 Hour Turnaround'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'डिजिटल ई-प्री-ऑथ' : 'Fast digital pre-auth'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'डिपॉझिट नियम' : 'Admission'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'शून्य अ‍ॅडव्हान्स कॅश' : 'Zero Advance Deposit'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'मंजूर रकमेसाठी कॅशलेस' : 'For approved cashless limits'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'संलग्न नेटवर्क' : 'Network'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '३५+ विमा कंपन्या' : '35+ Insurers & TPAs'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'शासकीय व खाजगी कंपन्या' : 'PSU & Private Panels'}</p>
+          </div>
+          <div className="p-3.5 bg-white rounded-xl border border-teal-100 shadow-2xs">
+            <p className="text-[#0F766E] font-bold uppercase text-[10px]">{isMr ? 'समर्पित डेस्क' : 'Coordinator'}</p>
+            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'तज्ज्ञ क्लेम समन्वयक' : 'Dedicated TPA Desk'}</p>
+            <p className="text-[11px] text-slate-500 mt-0.5">{isMr ? 'हॉस्पिटल तळमजला रूम १०३' : 'Lobby Helpdesk'}</p>
           </div>
         </div>
       </div>

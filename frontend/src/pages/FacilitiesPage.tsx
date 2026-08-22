@@ -72,18 +72,18 @@ export const FacilitiesPage: React.FC = () => {
 
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-slate-900 text-white space-y-4">
+      {/* ─── HERO BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
+      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-4">
         <div className="badge-teal text-xs">
           <Activity className="w-3.5 h-3.5" />
           <span>{isMr ? 'अत्याधुनिक वैद्यकीय पायाभूत सुविधा' : 'Advanced Healthcare Infrastructure'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-heading">
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
           {isMr ? 'हॉस्पिटल सुविधा आणि २१ खाटांचा ICU' : 'Hospital Facilities & 21-Bed Critical Care'}
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-300 max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे रुग्णांच्या सुरक्षिततेसाठी आणि जलद उपचारांसाठी आंतरराष्ट्रीय दर्जाचे तंत्रज्ञान, २१ खाटांचा सुसज्ज ICU आणि मॉड्युलर शस्त्रक्रिया गृह सज्ज आहेत.'
             : 'State-of-the-art medical technology engineered for patient safety, sterile surgical outcomes, and 24x7 critical resuscitation in Jalna.'}
