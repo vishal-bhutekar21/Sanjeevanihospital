@@ -325,6 +325,21 @@ export const InsurancePage: React.FC = () => {
         </div>
       </div>
 
+      {/* ─── GOVERNMENT & TPA COMPLIANCE NOTICE (WARM AMBER STYLING) ──────────── */}
+      <div className="card-notice-amber flex items-start gap-3.5">
+        <AlertCircle className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
+        <div className="space-y-0.5">
+          <h4 className="font-bold text-amber-950 text-xs sm:text-sm">
+            {isMr ? 'कॅशलेस मेडिक्लेम व टीपीए मार्गदर्शक सूचना' : 'Mediclaim Cashless Settlement Notice'}
+          </h4>
+          <p className="text-xs text-amber-900 leading-relaxed">
+            {isMr
+              ? 'कॅशलेस मंजुरी आणि उपचारांची व्याप्ती संबंधित विमा कंपनी किंवा टीपीए (TPA) पॉलिसीच्या अटी, सह-पेमेंट आणि उप-मर्यादेनुसार ठरवली जाते.'
+              : 'Cashless hospital admission, sum insured limits, and pre-authorization approvals are subject to policy terms, co-pay clauses, and TPA pre-authorization.'}
+          </p>
+        </div>
+      </div>
+
       {/* ─── 3. TAB NAVIGATION WITH GENEROUS SPACING ────────────────────────────── */}
       <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-2xl">
         {([

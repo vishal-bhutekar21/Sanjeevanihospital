@@ -363,18 +363,17 @@ export const MjpjayPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 2. GOVERNMENT SCHEME NOTICE WITH CLEAN ACCENT ─────────────────────── */}
-      <div className="card-clean p-4 sm:p-5 bg-amber-50/60 border border-amber-200 flex items-start gap-3.5 text-xs sm:text-sm text-amber-900">
-        <AlertCircle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+      {/* ─── 2. GOVERNMENT SCHEME NOTICE (WARM AMBER STYLING) ─────────────────── */}
+      <div className="card-notice-amber flex items-start gap-3.5">
+        <AlertCircle className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
         <div className="space-y-0.5">
-          <p className="font-semibold text-amber-950">
-            {isMr ? 'शासकीय योजना मार्गदर्शक नियम व माहिती' : 'Government Health Assurance Society Notice'}
-          </p>
-          <p className="text-xs text-amber-900/90 leading-relaxed">
-            {info?.schemeInfo?.disclaimer ||
-              (isMr
-                ? 'महात्मा फुले जन आरोग्य योजनेअंतर्गत मोफत उपचारांसाठी रुग्णाचे वैध रेशन कार्ड, आधार कार्ड आणि शासकीय आरोग्य मित्र कक्षाकडून इलेक्ट्रॉनिक पूर्व-मंजुरी आवश्यक असते.'
-                : 'Free treatment under MJPJAY is subject to state government guidelines, valid ration card verification, and pre-authorization approval from the State Health Assurance Society (SHAS).')}
+          <h4 className="font-bold text-amber-950 text-xs sm:text-sm">
+            {isMr ? 'शासकीय योजना मार्गदर्शक नियम व माहिती' : 'Government Scheme Compliance Notice'}
+          </h4>
+          <p className="text-xs text-amber-900 leading-relaxed">
+            {isMr
+              ? 'महात्मा फुले जन आरोग्य योजनेअंतर्गत मोफत उपचारांसाठी रुग्णाचे वैध रेशन कार्ड, आधार कार्ड आणि शासकीय आरोग्य मित्र कक्षाकडून इलेक्ट्रॉनिक पूर्व-मंजुरी आवश्यक असते.'
+              : 'Eligibility, coverage, and cashless treatment are subject to applicable government scheme rules and Arogya Mitra pre-authorization approval.'}
           </p>
         </div>
       </div>

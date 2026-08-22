@@ -7,9 +7,10 @@
     overflow-x: hidden;
     max-width: 100vw;
     width: 100%;
-    background-color: #F8FAFC !important;
+    background: linear-gradient(180deg, #FFFFFF 0%, #FEFCE8 25%, #FFFDF5 60%, #F8FAFC 100%) !important;
+    background-attachment: fixed !important;
     color: #0F172A;
-    font-family: 'Inter', 'Mukta', system-ui, -apple-system, sans-serif;
+    font-family: 'Inter', 'Mukta', 'Noto Sans Devanagari', system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
@@ -18,7 +19,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Plus Jakarta Sans', 'Inter', 'Mukta', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', 'Mukta', 'Noto Sans Devanagari', sans-serif;
     letter-spacing: -0.02em;
     color: #0F172A;
     font-weight: 700;
@@ -30,11 +31,21 @@
   .card-clean {
     background-color: #FFFFFF;
     border-radius: 0.75rem; /* 12px */
-    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05);
+    box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .card-clean:hover {
-    box-shadow: 0 4px 12px 0 rgba(15, 23, 42, 0.08);
+    box-shadow: 0 4px 12px 0 rgba(15, 23, 42, 0.07);
+  }
+
+  /* Warm Amber/Yellow Compliance & Advisory Notice Card (as requested) */
+  .card-notice-amber {
+    background: linear-gradient(90deg, #FEF3C7 0%, #FDE68A 50%, #FCD34D 100%);
+    border: 1px solid #F59E0B;
+    border-radius: 0.75rem;
+    padding: 1rem 1.25rem;
+    color: #78350F;
+    box-shadow: 0 1px 2px 0 rgba(245, 158, 11, 0.1);
   }
 
   /* Professional Button Hierarchy */
@@ -43,8 +54,8 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-height: 44px;
-    padding: 0.625rem 1.25rem;
+    min-height: 40px;
+    padding: 0.5rem 1.15rem;
     background-color: #0F766E;
     color: #FFFFFF;
     font-weight: 600;
@@ -63,8 +74,8 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-height: 44px;
-    padding: 0.625rem 1.25rem;
+    min-height: 40px;
+    padding: 0.5rem 1.15rem;
     background-color: #FFFFFF;
     color: #334155;
     font-weight: 600;
@@ -84,8 +95,8 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    min-height: 44px;
-    padding: 0.625rem 1.25rem;
+    min-height: 40px;
+    padding: 0.5rem 1.15rem;
     background-color: #DC2626;
     color: #FFFFFF;
     font-weight: 600;
@@ -96,19 +107,32 @@
   }
   .btn-emergency:hover {
     background-color: #B91C1C;
+    box-shadow: 0 2px 4px 0 rgba(220, 38, 38, 0.3);
   }
 
-  /* Subtle Status Badges */
   .badge-teal {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
     padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
+    background-color: #CCFBF1;
+    color: #0F766E;
     font-size: 0.75rem;
     font-weight: 600;
-    background-color: #F0FDFA;
-    color: #0F766E;
+    border-radius: 0.375rem;
+  }
+
+  .badge-amber {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background-color: #FEF3C7;
+    color: #92400E;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 0.375rem;
+    border: 1px solid #FDE68A;
   }
 
   .badge-slate {
@@ -116,21 +140,10 @@
     align-items: center;
     gap: 0.375rem;
     padding: 0.25rem 0.625rem;
-    border-radius: 9999px;
-    font-size: 0.75rem;
-    font-weight: 600;
     background-color: #F1F5F9;
-    color: #334155;
-  }
-}
-
-/* Utilities for touch devices & responsive scrolling */
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 0.375rem;
   }
 }

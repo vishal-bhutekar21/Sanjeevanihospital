@@ -233,17 +233,6 @@ export const DepartmentsPage: React.FC = () => {
                     alt={dept.nameEn}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
-                  
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
-                    <span className="text-xs font-medium bg-slate-900/80 backdrop-blur-sm text-teal-300 px-2.5 py-1 rounded-md">
-                      {dept.faculty} ({dept.degree})
-                    </span>
-                  </div>
-
-                  <div className="absolute top-3 right-3 bg-teal-600 text-white text-[11px] font-semibold px-2.5 py-0.5 rounded shadow">
-                    <span>{dept.successRate} {isMr ? 'यशस्वी दर' : 'Success'}</span>
-                  </div>
                 </div>
 
                 <div className="p-5 space-y-3.5">
@@ -251,12 +240,14 @@ export const DepartmentsPage: React.FC = () => {
                     <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4" />
                     </div>
-                    <div className="min-w-0">
-                      <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
-                        {isMr ? dept.nameMr : dept.nameEn}
-                      </h3>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        {isMr ? dept.impressionsMr : dept.impressions}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
+                          {isMr ? dept.nameMr : dept.nameEn}
+                        </h3>
+                      </div>
+                      <p className="text-xs font-semibold text-[#0F766E] mt-0.5">
+                        {dept.faculty} <span className="text-slate-400 font-normal">({dept.degree})</span>
                       </p>
                     </div>
                   </div>

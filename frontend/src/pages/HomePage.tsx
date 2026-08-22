@@ -21,6 +21,7 @@ import {
   Bed,
   Layers,
   Navigation,
+  AlertCircle,
 } from 'lucide-react';
 
 export const HomePage: React.FC = () => {
@@ -436,7 +437,7 @@ export const HomePage: React.FC = () => {
           {clinicalSpecialties.map((dept) => (
             <div
               key={dept.id}
-              className="card-clean overflow-hidden flex flex-col group"
+              className="card-clean overflow-hidden flex flex-col group border border-slate-100"
             >
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -444,16 +445,15 @@ export const HomePage: React.FC = () => {
                   alt={dept.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent"></div>
-                <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white">
-                  <span className="text-xs font-medium bg-slate-900/80 backdrop-blur-sm text-teal-300 px-2.5 py-1 rounded-md">
-                    {dept.doctor}
-                  </span>
-                </div>
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#0F766E]">
+                      {dept.doctor}
+                    </span>
+                  </div>
                   <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0F766E] transition-colors font-heading">
                     {isMr ? dept.titleMr : dept.title}
                   </h3>
@@ -675,6 +675,21 @@ export const HomePage: React.FC = () => {
               </div>
             </div>
 
+          </div>
+        </div>
+
+        {/* Government Scheme Compliance Notice Banner (Warm Amber Styling) */}
+        <div className="mt-4 card-notice-amber flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <h4 className="text-xs sm:text-sm font-bold text-amber-900">
+              {isMr ? 'शासकीय योजना व कॅशलेस उपचार नियमावली' : 'Government Scheme Compliance Notice'}
+            </h4>
+            <p className="text-[11px] sm:text-xs text-amber-800 leading-relaxed">
+              {isMr
+                ? 'शासकीय योजना, विमा पात्रता व कॅशलेस मंजुरी ही महाराष्ट्र शासन निकष आणि आरोग्य मित्र प्री-ऑथरायझेशन मान्यतेवर आधारित आहे.'
+                : 'Eligibility, coverage, and cashless treatment are subject to applicable government scheme rules and Arogya Mitra pre-authorization approval.'}
+            </p>
           </div>
         </div>
       </section>
