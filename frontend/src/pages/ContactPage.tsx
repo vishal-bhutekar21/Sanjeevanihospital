@@ -28,19 +28,19 @@ export const ContactPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-16">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-16">
       {/* ─── HEADER BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] text-white p-8 sm:p-14 rounded-3xl shadow-2xl space-y-4 border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
+      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] text-white p-6 sm:p-10 lg:p-14 rounded-3xl shadow-2xl space-y-4 border-3 border-amber-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
           <MapPin className="w-4 h-4 text-slate-950" />
           <span>{isMr ? 'हॉस्पिटल संपर्क व पत्ता' : 'Hospital Location & Direct Contact'}</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight font-heading">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight font-heading">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना'
             : 'Sanjeevani Multispeciality Hospital, Jalna'}
         </h1>
-        <p className="text-base sm:text-lg text-slate-100 font-medium max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-lg text-slate-100 font-medium max-w-3xl leading-relaxed">
           {isMr
             ? 'अंबड चौफुली, जालना येथे २४ तास आपत्कालीन सेवा, अतिदक्षता विभाग (ICU) आणि तज्ज्ञ डॉक्टरांचा सल्ला उपलब्ध आहे.'
             : 'Located conveniently at Ambad Choufuli, Jalna. Accessible 24 hours a day for emergency casualty, 21-bed ICU, and specialist outpatient consultations.'}
@@ -48,16 +48,16 @@ export const ContactPage: React.FC = () => {
       </div>
 
       {/* ─── 3-COLUMN CONTACT & HOURS GRID ──────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8">
         
         {/* Left Column: 24x7 Emergency & Contact Cards */}
         <div className="lg:col-span-5 space-y-6">
           
           {/* Solid Red 24x7 Casualty Card */}
-          <div className="bg-[#DC2626] text-white rounded-3xl p-7 shadow-2xl border-3 border-rose-400 space-y-4">
+          <div className="bg-[#DC2626] text-white rounded-3xl p-5 sm:p-7 shadow-2xl border-3 border-rose-400 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-white shadow-md">
-                <HeartPulse className="w-7 h-7 text-white" />
+              <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-white/20 flex items-center justify-center text-white shadow-md shrink-0">
+                <HeartPulse className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
               </div>
               <div>
                 <h3 className="text-xl font-black font-heading leading-tight">

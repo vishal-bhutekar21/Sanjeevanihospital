@@ -27,49 +27,49 @@ export const InsurancePage: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
       {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-8 sm:p-14 text-white space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
+      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
           <CreditCard className="w-4 h-4 text-slate-950" />
           <span>{isMr ? 'कॅशलेस मेडिक्लेम व इन्शुरन्स सेवा' : 'Cashless Mediclaim & Insurance Services'}</span>
         </div>
         
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
           {isMr ? 'कॅशलेस मेडिक्लेम आणि' : 'Cashless Mediclaim &'}<br />
           <span className="text-[#FDE047] font-black">
             {isMr ? 'इन्शुरन्स टीपीए (TPA) सहाय्यता कक्ष' : 'Insurance TPA Help Desk'}
           </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल भारतातील सर्व प्रमुख आरोग्य विमा कंपन्या आणि टीपीए भागीदारांशी संलग्न आहे. आमचा इन्शुरन्स डेस्क रुग्णांसाठी अखंड कॅशलेस पूर्व-मंजुरी व क्लेम सेटलमेंटची सुविधा देतो.'
             : 'Sanjeevani Multispeciality Hospital is empanelled with all major insurance companies and TPA partners across India. Our dedicated Insurance Desk coordinates seamless pre-authorization and claim settlement for insured patients.'}
         </p>
 
         {/* Action Helpline Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-3">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2 sm:pt-3">
           <a
             href="tel:+917507342222"
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-sm sm:text-base font-black transition shadow-xl border-2 border-rose-400"
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs sm:text-base font-black transition shadow-xl border-2 border-rose-400"
           >
-            <Phone className="w-5 h-5 text-white" />
+            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <span>Insurance Helpline: +91-75073-42222</span>
           </a>
 
-          <div className="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-white/20 border-2 border-amber-300/40 text-white text-xs sm:text-sm font-bold shadow-md">
-            <Clock className="w-5 h-5 text-amber-300" />
+          <div className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-2xl bg-white/20 border-2 border-amber-300/40 text-white text-xs sm:text-sm font-bold shadow-md">
+            <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-300" />
             <span>{info?.tpaDeskTimings || 'Mon–Sat: 09:00 AM – 06:00 PM | Emergency: 24x7'}</span>
           </div>
         </div>
       </div>
 
       {/* ─── SATURATED AMBER DISCLAIMER NOTICE ──────────────────────────────────── */}
-      <div className="p-6 bg-gradient-to-r from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] border-3 border-[#F59E0B] rounded-3xl flex items-start gap-4 text-sm text-[#92400E] shadow-xl">
-        <AlertCircle className="w-6 h-6 text-[#D97706] shrink-0 mt-0.5" />
+      <div className="p-5 sm:p-6 bg-gradient-to-r from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] border-3 border-[#F59E0B] rounded-3xl flex items-start gap-3 sm:gap-4 text-xs sm:text-sm text-[#92400E] shadow-xl">
+        <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#D97706] shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-black text-base text-[#78350F]">
+          <p className="font-black text-sm sm:text-base text-[#78350F]">
             {isMr ? 'विमा पॉलिसी मार्गदर्शक सूचना' : 'Insurance Policy & Approval Notice'}
           </p>
           <p className="leading-relaxed font-bold text-slate-900">
@@ -80,16 +80,16 @@ export const InsurancePage: React.FC = () => {
       </div>
 
       {/* ─── HIGH-CONTRAST TAB SWITCHER ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto gap-2 bg-white/80 p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-white/80 p-1.5 sm:p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md w-full">
         {([
-          { key: 'process', label: isMr ? 'कॅशलेस प्रक्रिया पायऱ्या' : 'Cashless Process' },
-          { key: 'documents', label: isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required' },
-          { key: 'insurers', label: isMr ? 'संलग्न विमा कंपन्या व TPA' : 'Panel Insurers & TPA Partners' },
+          { key: 'process', label: isMr ? 'कॅशलेस प्रक्रिया' : 'Cashless Process' },
+          { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Documents' },
+          { key: 'insurers', label: isMr ? 'संलग्न विमा कंपन्या' : 'Panel Insurers & TPA' },
         ] as const).map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-6 py-3.5 rounded-xl text-sm font-black whitespace-nowrap transition flex-1 ${
+            className={`px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition flex-1 ${
               activeTab === tab.key
                 ? 'bg-[#002B5B] text-amber-300 shadow-md border-2 border-amber-400'
                 : 'text-slate-800 hover:bg-[#FEF3C7] font-bold'

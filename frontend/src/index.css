@@ -20,18 +20,33 @@
   html, body {
     overflow-x: hidden;
     max-width: 100vw;
+    width: 100%;
     background: linear-gradient(160deg, #D5EFE3 0%, #C3E7DE 35%, #B4DEF5 70%, #A2D4F2 100%) !important;
     background-attachment: fixed !important;
     color: #0F172A;
     font-family: 'Manrope', 'Mukta', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
+    touch-action: manipulation;
   }
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Outfit', 'Mukta', 'Manrope', sans-serif;
     letter-spacing: -0.02em;
     color: inherit;
+    word-break: break-word;
+  }
+}
+
+/* Utilities for touch devices & responsive scrolling */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
 

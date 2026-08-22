@@ -109,42 +109,42 @@ export const DoctorsPage: React.FC = () => {
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
-      {/* ─── HERO BANNER (50-60% Saturated Medical Header) ─────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-8 sm:p-14 text-white space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
+      {/* ─── HERO BANNER ─────────────────────── */}
+      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
           <ShieldCheck className="w-4 h-4 text-slate-950" />
           <span>{isMr ? 'संजीवनी हॉस्पिटल वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Verified Hospital Medical Faculty & Consultants'}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
           {isMr ? 'तज्ज्ञ डॉक्टर व' : 'Specialist Doctors &'}<br />
           <span className="text-[#FDE047] font-black">
             {isMr ? 'वैद्यकीय सल्लागार सूची' : 'Medical Faculty Directory'}
           </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी अस्थिरोग सर्जन, बालरोगतज्ज्ञ, स्त्रीरोगतज्ज्ञ, भूलतज्ज्ञ आणि फिजिशियन ओपीडी व २४ तास सेवेसाठी उपलब्ध आहेत.'
             : 'Consult highly experienced surgeons, physicians, pediatricians, and intensivists with advanced surgical and critical care capabilities.'}
         </p>
 
         {/* Search Bar */}
-        <div className="relative max-w-lg pt-2">
-          <Search className="w-5 h-5 absolute left-4.5 top-5.5 text-slate-400" />
+        <div className="relative max-w-lg pt-2 w-full">
+          <Search className="w-5 h-5 absolute left-4 top-5.5 text-slate-400" />
           <input
             type="text"
-            placeholder={isMr ? 'डॉक्टरांचे नाव किंवा विशेष विभाग शोधा...' : 'Search by doctor name or specialty...'}
+            placeholder={isMr ? 'डॉक्टरांचे नाव किंवा विभाग शोधा...' : 'Search doctor or specialty...'}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3.5 bg-white text-slate-900 font-bold border-2 border-cyan-400 rounded-2xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-xl"
+            className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-white text-slate-900 font-bold border-2 border-cyan-400 rounded-2xl text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-xl"
           />
         </div>
       </div>
 
       {/* ─── DOCTOR CARDS GRID ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {filtered.map((doc) => (
           <div
             key={doc.id}

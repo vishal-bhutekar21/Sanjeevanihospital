@@ -70,65 +70,65 @@ export const MjpjayPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
       {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-8 sm:p-14 text-white space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
+      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
           <ShieldCheck className="w-4 h-4 text-slate-950" />
           <span>{isMr ? 'महाराष्ट्र शासन मान्यताप्राप्त मोफत आरोग्य योजना' : 'Government of Maharashtra Healthcare Scheme'}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight text-white font-heading">
+        <h1 className="text-2xl sm:text-4xl lg:text-6xl font-black tracking-tight leading-tight text-white font-heading">
           <span className="text-white drop-shadow-md">{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span><br />
           <span className="text-[#FDE047] drop-shadow-md font-black">
             {isMr ? 'जन आरोग्य योजना (MJPJAY)' : 'Jan Arogya Yojana (MJPJAY)'}
           </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
           {isMr
             ? 'महाराष्ट्रातील पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे मोफत शस्त्रक्रिया व प्रगत उपचार उपलब्ध आहेत. आमचा समर्पित आरोग्य मित्र कक्ष आपणास तत्पर सहाय्य करतो.'
             : 'Providing completely cashless advanced surgical care and tertiary healthcare to eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital, Jalna.'}
         </p>
 
         {/* Action Helpline & Scheme Details */}
-        <div className="flex flex-col sm:flex-row gap-4 pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
           <a
             href="tel:+917507342222"
-            className="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-sm sm:text-base font-black transition shadow-xl border-2 border-rose-400"
+            className="inline-flex items-center justify-center gap-2.5 px-6 py-3.5 sm:py-4 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs sm:text-base font-black transition shadow-xl border-2 border-rose-400"
           >
-            <Phone className="w-5 h-5 text-white" />
+            <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
             <span>Arogya Mitra Helpline: +91-75073-42222</span>
           </a>
 
-          <div className="inline-flex items-center justify-center gap-2.5 px-6 py-4 rounded-2xl bg-white/20 border-2 border-amber-300/40 text-white text-xs sm:text-sm font-bold shadow-md">
-            <span>Coverage: Up to ₹5,00,000 per family per year</span>
+          <div className="inline-flex items-center justify-center gap-2.5 px-6 py-3 sm:py-4 rounded-2xl bg-white/20 border-2 border-amber-300/40 text-white text-xs sm:text-sm font-bold shadow-md">
+            <span>Coverage: Up to ₹5,00,000 / family</span>
           </div>
         </div>
 
         {info?.schemeInfo && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-6 border-t-2 border-amber-300/30">
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-xs text-amber-300 font-extrabold uppercase">Coverage Limit</p>
-              <p className="font-black text-white text-lg mt-0.5">{info.schemeInfo.coverageLimit}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-5 pt-4 sm:pt-6 border-t-2 border-amber-300/30">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
+              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Coverage Limit</p>
+              <p className="font-black text-white text-base sm:text-lg mt-0.5">{info.schemeInfo.coverageLimit}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-xs text-amber-300 font-extrabold uppercase">Governing Authority</p>
-              <p className="font-black text-white text-base mt-0.5">{info.schemeInfo.governingAuthority}</p>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
+              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Governing Authority</p>
+              <p className="font-black text-white text-sm sm:text-base mt-0.5">{info.schemeInfo.governingAuthority}</p>
             </div>
-            <div className="p-4 rounded-2xl bg-white/10 border border-white/15">
-              <p className="text-xs text-amber-300 font-extrabold uppercase">Beneficiary Eligibility</p>
-              <p className="font-black text-white text-base mt-0.5">{info.schemeInfo.eligibility}</p>
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-white/10 border border-white/15">
+              <p className="text-[10px] sm:text-xs text-amber-300 font-extrabold uppercase">Beneficiary Eligibility</p>
+              <p className="font-black text-white text-sm sm:text-base mt-0.5">{info.schemeInfo.eligibility}</p>
             </div>
           </div>
         )}
       </div>
 
       {/* ─── SATURATED AMBER NOTICE CARD ────────────────────────────────────────── */}
-      <div className="p-6 bg-gradient-to-r from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] border-3 border-[#F59E0B] rounded-3xl flex items-start gap-4 text-sm text-[#92400E] shadow-xl">
-        <AlertCircle className="w-6 h-6 text-[#D97706] shrink-0 mt-0.5" />
+      <div className="p-5 sm:p-6 bg-gradient-to-r from-[#FEF3C7] via-[#FDE68A] to-[#FCD34D] border-3 border-[#F59E0B] rounded-3xl flex items-start gap-3 sm:gap-4 text-xs sm:text-sm text-[#92400E] shadow-xl">
+        <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-[#D97706] shrink-0 mt-0.5" />
         <div className="space-y-1">
-          <p className="font-black text-base text-[#78350F]">
+          <p className="font-black text-sm sm:text-base text-[#78350F]">
             {isMr ? 'शासकीय योजना मार्गदर्शक नियम' : 'Government Scheme Compliance Notice'}
           </p>
           <p className="leading-relaxed font-bold text-slate-900">
@@ -139,17 +139,17 @@ export const MjpjayPage: React.FC = () => {
       </div>
 
       {/* ─── HIGH-CONTRAST TAB SWITCHER ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto gap-2 bg-white/80 p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-white/80 p-1.5 sm:p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md w-full">
         {([
-          { key: 'procedures', label: isMr ? 'समाविष्ट शस्त्रक्रिया व उपचार' : 'Covered Procedures' },
-          { key: 'process', label: isMr ? 'योजना प्रक्रिया पायऱ्या' : 'Step-by-Step Process' },
-          { key: 'documents', label: isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required' },
-          { key: 'register', label: isMr ? 'मदतीसाठी अर्ज करा' : 'Register Claim Assistance' },
+          { key: 'procedures', label: isMr ? 'समाविष्ट उपचार' : 'Covered Procedures' },
+          { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step' },
+          { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Documents' },
+          { key: 'register', label: isMr ? 'मदतीसाठी अर्ज' : 'Register Claim' },
         ] as const).map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`px-6 py-3.5 rounded-xl text-sm font-black whitespace-nowrap transition flex-1 ${
+            className={`px-3.5 sm:px-6 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition flex-1 ${
               activeTab === tab.key
                 ? 'bg-[#002B5B] text-amber-300 shadow-md border-2 border-amber-400'
                 : 'text-slate-800 hover:bg-[#FEF3C7] font-bold'

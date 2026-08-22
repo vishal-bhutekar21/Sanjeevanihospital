@@ -78,22 +78,22 @@ export const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 space-y-12">
+    <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-16 space-y-8 sm:space-y-12">
       {/* ─── HERO BANNER ──────────────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-8 sm:p-14 text-white space-y-6 shadow-2xl border-3 border-amber-400">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
+      <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#0A4D68] rounded-3xl p-6 sm:p-10 lg:p-14 text-white space-y-5 sm:space-y-6 shadow-2xl border-3 border-amber-400">
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-amber-400 text-slate-950 font-black text-xs shadow-md">
           <HeartPulse className="w-4 h-4 text-slate-950" />
           <span>{isMr ? 'मोफत आरोग्य शिबिरे व रुग्ण अभिप्राय' : 'Community Health Camps & Patient Reviews'}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight font-heading">
+        <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black tracking-tight leading-tight font-heading">
           {isMr ? 'आरोग्य शिबिरे, उपक्रम आणि' : 'Health Camps, Events &'}<br />
           <span className="text-[#FDE047] font-black">
             {isMr ? 'रुग्णांचे खरे अनुभव व अभिप्राय' : 'Verified Patient Experiences'}
           </span>
         </h1>
 
-        <p className="text-base sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
+        <p className="text-sm sm:text-lg text-slate-100 max-w-3xl leading-relaxed font-medium">
           {isMr
             ? 'संजीवनी हॉस्पिटल, जालना तर्फे नियमित आयोजित केली जाणारी मोफत तपासणी शिबिरे, जनजागृती उपक्रम आणि उपचार घेतलेल्या रुग्णांचे अनुभव.'
             : 'Community health initiatives, free specialist checkup camps, and verified patient feedback from Sanjeevani Multispeciality Hospital, Jalna.'}
@@ -101,10 +101,10 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ─── HIGH-CONTRAST TAB SWITCHER ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto gap-2 bg-white/80 p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md max-w-md">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-white/80 p-1.5 sm:p-2 rounded-2xl border-2 border-[#FDE68A] shadow-md w-full sm:max-w-md">
         <button
           onClick={() => setActiveTab('events')}
-          className={`px-6 py-3.5 rounded-xl text-sm font-black whitespace-nowrap transition flex-1 ${
+          className={`px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition flex-1 ${
             activeTab === 'events'
               ? 'bg-[#002B5B] text-amber-300 shadow-md border-2 border-amber-400'
               : 'text-slate-800 hover:bg-[#FEF3C7] font-bold'
@@ -114,7 +114,7 @@ export const EventsPage: React.FC = () => {
         </button>
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`px-6 py-3.5 rounded-xl text-sm font-black whitespace-nowrap transition flex-1 ${
+          className={`px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-black whitespace-nowrap transition flex-1 ${
             activeTab === 'reviews'
               ? 'bg-[#002B5B] text-amber-300 shadow-md border-2 border-amber-400'
               : 'text-slate-800 hover:bg-[#FEF3C7] font-bold'

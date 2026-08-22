@@ -322,14 +322,14 @@ export const BookAppointmentPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-8">
+    <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-12 space-y-6 sm:space-y-8">
       {/* Top Header */}
       <div className="text-center space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-hospital-soft text-hospital-teal text-xs font-semibold">
           <Calendar className="w-3.5 h-3.5" />
           <span>Sanjeevani Multispeciality Hospital, Jalna</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h1 className="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
           Direct OPD Appointment Booking
         </h1>
         <p className="text-slate-500 text-xs sm:text-sm max-w-xl mx-auto">
@@ -338,17 +338,17 @@ export const BookAppointmentPage: React.FC = () => {
       </div>
 
       {/* Stepper Progress Bar */}
-      <div className="grid grid-cols-5 gap-2 text-center text-xs font-bold">
+      <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center text-[10px] sm:text-xs font-bold">
         {[
-          { num: 1, label: 'Phone OTP' },
-          { num: 2, label: 'Patient Info' },
-          { num: 3, label: 'Select Slot' },
-          { num: 4, label: 'Payment' },
-          { num: 5, label: 'Confirmed' },
+          { num: 1, label: 'Phone OTP', short: 'OTP' },
+          { num: 2, label: 'Patient Info', short: 'Info' },
+          { num: 3, label: 'Select Slot', short: 'Slot' },
+          { num: 4, label: 'Payment', short: 'Pay' },
+          { num: 5, label: 'Confirmed', short: 'Done' },
         ].map((s) => (
           <div
             key={s.num}
-            className={`p-2 rounded-xl border transition ${
+            className={`p-1.5 sm:p-2 rounded-xl border transition ${
               step === s.num
                 ? 'bg-hospital-teal text-white border-hospital-teal shadow-sm'
                 : step > s.num
@@ -356,8 +356,9 @@ export const BookAppointmentPage: React.FC = () => {
                 : 'bg-white text-slate-400 border-slate-200'
             }`}
           >
-            <span className="block text-[10px] uppercase tracking-wider">Step {s.num}</span>
-            <span className="truncate block mt-0.5">{s.label}</span>
+            <span className="block text-[9px] sm:text-[10px] uppercase tracking-wider">Step {s.num}</span>
+            <span className="truncate block mt-0.5 sm:inline hidden">{s.label}</span>
+            <span className="truncate block mt-0.5 sm:hidden">{s.short}</span>
           </div>
         ))}
       </div>
@@ -371,7 +372,7 @@ export const BookAppointmentPage: React.FC = () => {
 
       {/* STEP 1: Phone OTP Verification */}
       {step === 1 && (
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-card-subtle space-y-6">
+        <div className="bg-white rounded-3xl border border-slate-200 p-5 sm:p-8 shadow-card-subtle space-y-6">
           <div className="border-b border-slate-100 pb-4">
             <h2 className="text-lg font-bold text-slate-900">Step 1: Patient Mobile Verification</h2>
             <p className="text-xs text-slate-500">
