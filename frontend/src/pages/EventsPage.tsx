@@ -406,52 +406,57 @@ export const EventsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 2. TAB SWITCHER (CLEAN RESPONSIVE GRID - NO SLIDER) ─────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
-        <button
-          onClick={() => setActiveTab('events')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            activeTab === 'events'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Calendar className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
-          <span className="truncate">{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('awards')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            activeTab === 'awards'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Trophy className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-          <span className="truncate">{isMr ? 'पुरस्कार व सन्मान' : 'Awards & Honors'}</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('gallery')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            activeTab === 'gallery'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Camera className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
-          <span className="truncate">{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Gallery'}</span>
-        </button>
-        <button
-          onClick={() => setActiveTab('reviews')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            activeTab === 'reviews'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Star className="w-3.5 h-3.5 shrink-0 text-amber-500 fill-amber-500" />
-          <span className="truncate">{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
-        </button>
+      {/* ─── 2. TAB SWITCHER (COMPACT SEGMENTED PILLS) ────────────────────── */}
+      <div className="flex justify-start">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+          <button
+            onClick={() => setActiveTab('events')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'events'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Calendar className={`w-3.5 h-3.5 ${activeTab === 'events' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <span>{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('awards')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'awards'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Trophy className={`w-3.5 h-3.5 ${activeTab === 'awards' ? 'text-amber-500' : 'text-slate-400'}`} />
+            <span>{isMr ? 'पुरस्कार व सन्मान' : 'Awards & Honors'}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('gallery')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'gallery'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Camera className={`w-3.5 h-3.5 ${activeTab === 'gallery' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <span>{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Gallery'}</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('reviews')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              activeTab === 'reviews'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${activeTab === 'reviews' ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+            <span>{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
+          </button>
+        </div>
       </div>
 
       {/* ─── TAB 1: HEALTH CAMPS & EVENTS ────────────────────────────────────── */}

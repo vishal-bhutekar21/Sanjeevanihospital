@@ -378,30 +378,32 @@ export const MjpjayPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 3. TAB NAVIGATION (CLEAN RESPONSIVE GRID - NO SLIDER) ─────────────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
-        {([
-          { key: 'procedures', label: isMr ? 'समाविष्ट शस्त्रक्रिया' : 'Covered Procedures', icon: Activity },
-          { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step Process', icon: ArrowRight },
-          { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Required Documents', icon: FileText },
-          { key: 'register', label: isMr ? 'मदतीसाठी अर्ज' : 'Register / Inquire', icon: Send },
-        ] as const).map((tab) => {
-          const Icon = tab.icon;
-          return (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-                activeTab === tab.key
-                  ? 'bg-white text-slate-900 shadow-sm'
-                  : 'text-slate-600 hover:text-slate-900'
-              }`}
-            >
-              <Icon className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
-              <span className="truncate">{tab.label}</span>
-            </button>
-          );
-        })}
+      {/* ─── 3. TAB NAVIGATION (COMPACT SEGMENTED PILLS) ────────────────────── */}
+      <div className="flex justify-start">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+          {([
+            { key: 'procedures', label: isMr ? 'समाविष्ट शस्त्रक्रिया' : 'Covered Procedures', icon: Activity },
+            { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step Process', icon: ArrowRight },
+            { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Required Documents', icon: FileText },
+            { key: 'register', label: isMr ? 'मदतीसाठी अर्ज' : 'Register / Inquire', icon: Send },
+          ] as const).map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key)}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+                  activeTab === tab.key
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* ─── TAB 1: COVERED PROCEDURES (COMPREHENSIVE BILINGUAL INFOGRAPHIC) ───── */}
@@ -512,24 +514,32 @@ export const MjpjayPage: React.FC = () => {
             {processSteps.map((step) => (
               <div
                 key={step.step}
-                className="card-clean p-6 flex flex-col sm:flex-row items-start gap-4 sm:gap-6 hover:shadow-card-hover transition"
+                className="card-clean p-5 sm:p-6 space-y-3 hover:shadow-card-hover hover:border-teal-300 transition-all bg-white"
               >
-                <div className="w-12 h-12 rounded-xl bg-[#0F766E] text-white flex flex-col items-center justify-center shrink-0">
-                  <span className="text-[10px] font-medium opacity-80">STEP</span>
-                  <span className="text-base font-bold leading-none">{step.step}</span>
+                {/* Step Top Bar with Step Number and Timeframe */}
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2.5">
+                    <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#0F766E] font-bold text-xs flex items-center justify-center font-mono">
+                      0{step.step}
+                    </span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E]">
+                      {isMr ? `पायरी ०${step.step}` : `Step 0${step.step}`}
+                    </span>
+                  </div>
+
+                  {step.timeframe && (
+                    <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-teal-800 bg-teal-50/80 px-2.5 py-1 rounded-md border border-teal-100">
+                      <Clock className="w-3 h-3 text-teal-600" />
+                      <span>{step.timeframe}</span>
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-bold text-slate-900 font-heading">
-                      {isMr ? step.titleMr : step.titleEn}
-                    </h3>
-                    <span className="badge-teal text-[10px] py-0.5">
-                      <Clock className="w-3 h-3" />
-                      <span>{step.timeframe}</span>
-                    </span>
-                    <span className="badge-slate text-[10px] py-0.5">{step.badge}</span>
-                  </div>
+                {/* Step Content */}
+                <div className="space-y-1.5 pt-0.5">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading">
+                    {isMr ? step.titleMr : step.titleEn}
+                  </h3>
                   <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
                     {isMr ? step.descMr : step.descEn}
                   </p>

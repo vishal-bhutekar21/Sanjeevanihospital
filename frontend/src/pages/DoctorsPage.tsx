@@ -67,55 +67,57 @@ export const DoctorsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 4 CATEGORY FILTER TABS (CLEAN RESPONSIVE GRID - NO SLIDER) ───────── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
-        <button
-          onClick={() => setSelectedCategory('ALL')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            selectedCategory === 'ALL'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Users className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
-          <span className="truncate">{isMr ? `सर्व (${countAll})` : `All (${countAll})`}</span>
-        </button>
+      {/* ─── 4 CATEGORY FILTER TABS (COMPACT SEGMENTED PILLS) ───────────────── */}
+      <div className="flex justify-start">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+          <button
+            onClick={() => setSelectedCategory('ALL')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              selectedCategory === 'ALL'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Users className={`w-3.5 h-3.5 ${selectedCategory === 'ALL' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <span>{isMr ? `सर्व डॉक्टर्स (${countAll})` : `All Doctors (${countAll})`}</span>
+          </button>
 
-        <button
-          onClick={() => setSelectedCategory('DIRECTOR')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            selectedCategory === 'DIRECTOR'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Award className="w-3.5 h-3.5 shrink-0 text-amber-500" />
-          <span className="truncate">{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
-        </button>
+          <button
+            onClick={() => setSelectedCategory('DIRECTOR')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              selectedCategory === 'DIRECTOR'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Award className={`w-3.5 h-3.5 ${selectedCategory === 'DIRECTOR' ? 'text-amber-500' : 'text-slate-400'}`} />
+            <span>{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
+          </button>
 
-        <button
-          onClick={() => setSelectedCategory('INHOUSE')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            selectedCategory === 'INHOUSE'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Stethoscope className="w-3.5 h-3.5 shrink-0 text-teal-600" />
-          <span className="truncate">{isMr ? `इन-हाऊस (${countInhouse})` : `In-House (${countInhouse})`}</span>
-        </button>
+          <button
+            onClick={() => setSelectedCategory('INHOUSE')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              selectedCategory === 'INHOUSE'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Stethoscope className={`w-3.5 h-3.5 ${selectedCategory === 'INHOUSE' ? 'text-teal-600' : 'text-slate-400'}`} />
+            <span>{isMr ? `इन-हाऊस (${countInhouse})` : `In-House (${countInhouse})`}</span>
+          </button>
 
-        <button
-          onClick={() => setSelectedCategory('VISITING')}
-          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
-            selectedCategory === 'VISITING'
-              ? 'bg-white text-slate-900 shadow-sm'
-              : 'text-slate-600 hover:text-slate-900'
-          }`}
-        >
-          <Sparkles className="w-3.5 h-3.5 shrink-0 text-blue-600" />
-          <span className="truncate">{isMr ? `व्हिजिटिंग (${countVisiting})` : `Visiting (${countVisiting})`}</span>
-        </button>
+          <button
+            onClick={() => setSelectedCategory('VISITING')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
+              selectedCategory === 'VISITING'
+                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
+                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+            }`}
+          >
+            <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === 'VISITING' ? 'text-blue-600' : 'text-slate-400'}`} />
+            <span>{isMr ? `व्हिजिटिंग (${countVisiting})` : `Visiting (${countVisiting})`}</span>
+          </button>
+        </div>
       </div>
 
       {/* ─── DOCTOR CARDS GRID ─────────────────────────────────────────────────── */}
