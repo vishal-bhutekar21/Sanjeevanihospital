@@ -34,28 +34,28 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-[#D5EFE3] via-[#C8E8EB] to-[#BFE0F7] border-b-2 border-[#002B5B]/15 shadow-md backdrop-blur-md">
-      {/* ─── MAIN BRAND & SPACIOUS NAVIGATION BAR ─── */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-18 sm:h-22 lg:h-24">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-[#D3E4FE] shadow-[0_2px_12px_rgba(0,43,91,0.05)]">
+      {/* ─── MAIN BRAND & NAVIGATION BAR ─── */}
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-20 sm:h-22">
           
           {/* Hospital Brand Logo */}
-          <Link to="/" className="flex items-center space-x-2.5 sm:space-x-3.5 shrink-0 min-w-0">
-            <div className="w-10 h-10 sm:w-13 sm:h-13 rounded-2xl bg-gradient-to-br from-[#002B5B] via-[#003B73] to-[#00875A] flex items-center justify-center text-white shadow-md p-2.5 sm:p-3 border-2 border-emerald-400/60 shrink-0">
-              <HeartPulse className="w-6 h-6 sm:w-7 sm:h-7 text-emerald-300" />
+          <Link to="/" className="flex items-center space-x-3 shrink-0 min-w-0">
+            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-[#001736] to-[#002B5B] flex items-center justify-center text-white shadow-md p-2.5 border border-[#00875A]/40 shrink-0">
+              <HeartPulse className="w-6 h-6 sm:w-7 sm:h-7 text-[#8AF5BE]" />
             </div>
             <div className="space-y-0.5 min-w-0">
-              <span className="text-lg sm:text-2xl font-black text-[#002B5B] tracking-tight block leading-tight font-heading truncate">
+              <span className="text-xl sm:text-2xl font-bold text-[#001736] tracking-tight block leading-tight font-heading truncate">
                 SANJEEVANI
               </span>
-              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#003B73] font-black block truncate">
-                Hospital • Jalna
+              <span className="text-[10px] sm:text-xs uppercase tracking-wider text-[#00875A] font-bold block truncate">
+                Multispeciality Hospital • Jalna
               </span>
             </div>
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-2 text-[14px] xl:text-[15px] font-bold text-slate-800">
+          <nav className="hidden lg:flex items-center space-x-1 xl:space-x-1.5 text-[14px] font-medium text-[#43474F]">
             {navLinks.map((link) => {
               const isActive =
                 link.path === '/'
@@ -65,10 +65,10 @@ export const Header: React.FC = () => {
                 <Link
                   key={link.path}
                   to={link.path}
-                  className={`px-3 py-2 rounded-xl whitespace-nowrap transition-colors ${
+                  className={`px-3 py-2 rounded-lg whitespace-nowrap transition-all ${
                     isActive
-                      ? 'bg-[#002B5B] text-white font-black shadow-sm'
-                      : 'text-slate-800 hover:text-[#002B5B] hover:bg-white/60 font-bold'
+                      ? 'bg-[#002B5B] text-white font-semibold shadow-sm'
+                      : 'text-[#43474F] hover:text-[#001736] hover:bg-[#EFF4FF]'
                   }`}
                 >
                   {link.label}
@@ -79,19 +79,28 @@ export const Header: React.FC = () => {
             {/* Desktop Language Switcher Button */}
             <button
               onClick={toggleLanguage}
-              className="ml-2 px-3 py-1.5 rounded-xl bg-white/80 hover:bg-white text-[#002B5B] font-extrabold text-xs border border-[#002B5B]/30 flex items-center gap-1.5 shadow-sm transition-all"
+              className="ml-2 px-3 py-1.5 rounded-lg bg-[#F8F9FF] hover:bg-[#EFF4FF] text-[#002B5B] font-bold text-xs border border-[#D3E4FE] flex items-center gap-1.5 transition-all"
               title="Toggle Language"
             >
-              <Globe className="w-3.5 h-3.5 text-[#007791]" />
+              <Globe className="w-3.5 h-3.5 text-[#00875A]" />
               <span>{isMr ? 'EN' : 'मराठी'}</span>
             </button>
+
+            {/* Desktop Header Direct Book Button */}
+            <Link
+              to="/book"
+              className="ml-3 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#00875A] hover:bg-[#006C47] text-white text-xs font-semibold shadow-sm transition-all"
+            >
+              <Calendar className="w-3.5 h-3.5" />
+              <span>{isMr ? 'अपॉइंटमेंट' : 'Book OPD'}</span>
+            </Link>
           </nav>
 
-          {/* Mobile Right Controls: Language Switch + Menu Toggle */}
+          {/* Mobile Right Controls */}
           <div className="flex items-center space-x-2 lg:hidden">
             <button
               onClick={toggleLanguage}
-              className="px-2.5 py-1.5 rounded-xl bg-white text-[#002B5B] font-black text-xs border border-[#002B5B]/30 flex items-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-lg bg-[#EFF4FF] text-[#002B5B] font-bold text-xs border border-[#D3E4FE] flex items-center gap-1"
               title="Change Language / भाषा बदला"
             >
               <span>{isMr ? '🇮🇳 मराठी' : '🇬🇧 EN'}</span>
@@ -99,10 +108,10 @@ export const Header: React.FC = () => {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-[#002B5B] bg-white/70 hover:bg-white border-2 border-[#002B5B]/30 transition"
+              className="p-2 rounded-lg text-[#001736] bg-[#F8F9FF] hover:bg-[#EFF4FF] border border-[#D3E4FE] transition"
               aria-label="Toggle navigation menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
@@ -111,43 +120,43 @@ export const Header: React.FC = () => {
 
       {/* ─── MOBILE DRAWER NAVIGATION MENU ───────────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-gradient-to-b from-[#D5EFE3] via-[#C8E8EB] to-[#BFE0F7] border-b-2 border-[#002B5B]/20 px-4 py-5 space-y-4 shadow-2xl animate-fade-in">
+        <div className="lg:hidden bg-[#F8F9FF] border-b border-[#D3E4FE] px-4 py-5 space-y-4 shadow-xl animate-fade-in">
           
           {/* Quick Action Pills in Mobile Menu */}
           <div className="grid grid-cols-2 gap-2 pt-1 pb-2">
             <Link
               to="/book"
               onClick={() => setMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#002B5B] text-white text-xs font-black shadow-md border border-cyan-400/40"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#00875A] text-white text-xs font-bold shadow-sm"
             >
-              <Calendar className="w-4 h-4 text-emerald-300" />
+              <Calendar className="w-4 h-4" />
               <span>{isMr ? 'अपॉइंटमेंट' : 'Book OPD'}</span>
             </Link>
 
             <a
               href="tel:+917507342222"
-              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-[#DC2626] text-white text-xs font-black shadow-md border border-rose-400/40"
+              className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-[#DC2626] text-white text-xs font-bold shadow-sm"
             >
-              <Phone className="w-4 h-4 text-white" />
+              <Phone className="w-4 h-4" />
               <span>{isMr ? '२४x७ आपत्कालीन' : '24x7 Casualty'}</span>
             </a>
           </div>
 
-          <nav className="flex flex-col space-y-1 text-sm font-bold text-slate-900 border-t border-[#002B5B]/15 pt-3">
+          <nav className="flex flex-col space-y-1 text-sm font-medium text-[#0B1C30] border-t border-[#D3E4FE] pt-3">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`py-2.5 px-3.5 rounded-xl whitespace-nowrap transition-colors flex items-center justify-between ${
+                className={`py-2.5 px-3.5 rounded-lg whitespace-nowrap transition-colors flex items-center justify-between ${
                   location.pathname === link.path
-                    ? 'bg-[#002B5B] text-white font-black shadow-sm'
-                    : 'hover:bg-white/60'
+                    ? 'bg-[#002B5B] text-white font-semibold shadow-sm'
+                    : 'hover:bg-[#EFF4FF]'
                 }`}
               >
                 <span>{link.label}</span>
                 {location.pathname === link.path && (
-                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#8AF5BE]"></span>
                 )}
               </Link>
             ))}

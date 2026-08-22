@@ -216,47 +216,47 @@ export const HomePage: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-24 sm:space-y-32">
-      {/* ─── 1. HERO SECTION (30% Soothing Greenish-Sky Gradient) ───────────────── */}
-      <section className="relative bg-gradient-to-br from-[#EBF7F0] via-[#E2F1F8] to-[#D5EBF8] pt-14 sm:pt-20 pb-24 sm:pb-32 border-b-3 border-emerald-600/20 overflow-hidden shadow-inner">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+    <div className="space-y-16 sm:space-y-24">
+      {/* ─── 1. HERO SECTION ("The Breathable Interface") ───────────────────────── */}
+      <section className="relative bg-gradient-to-b from-[#F8F9FF] via-[#EFF4FF] to-[#EBF7F0]/40 pt-10 sm:pt-16 pb-16 sm:pb-24 border-b border-[#D3E4FE] overflow-hidden">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
             
             {/* Left Content Column */}
-            <div className="lg:col-span-7 space-y-8 text-left">
+            <div className="lg:col-span-7 space-y-6 text-left">
               
-              {/* Bold Highlighted Trust Badge */}
-              <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-2xl bg-[#002B5B] text-white text-xs sm:text-sm font-black shadow-xl border-2 border-emerald-400 tracking-wide">
-                <Sparkles className="w-4 h-4 text-emerald-300 shrink-0" />
-                <span className="text-white font-black">{t('hero.badge')}</span>
+              {/* Trust Badge */}
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#EBF7F0] text-[#006C47] text-xs sm:text-sm font-semibold border border-[#8AF5BE] tracking-wide">
+                <Sparkles className="w-4 h-4 text-[#00875A] shrink-0" />
+                <span>{t('hero.badge')}</span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black text-[#002B5B] tracking-tight leading-[1.12] font-heading">
+              <h1 className="text-3xl sm:text-5xl lg:text-[48px] font-bold text-[#001736] tracking-tight leading-[1.16] font-heading">
                 {t('hero.title')}
               </h1>
 
               {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-800 leading-relaxed font-bold max-w-2xl">
+              <p className="text-base sm:text-lg text-[#43474F] leading-relaxed font-normal max-w-2xl">
                 {t('hero.subtitle')}
               </p>
 
               {/* Primary Action CTAs */}
-              <div className="flex flex-col sm:flex-row gap-5 pt-4 pb-2">
+              <div className="flex flex-col sm:flex-row gap-4 pt-3 pb-1">
                 <Link
                   to="/book"
-                  className="inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-4.5 rounded-2xl bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#00875A] hover:from-[#003B73] hover:to-[#002B5B] text-white font-black shadow-2xl shadow-royal/40 hover:scale-105 transition-all text-base sm:text-lg border-2 border-emerald-400 tracking-wide"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-lg bg-[#00875A] hover:bg-[#006C47] text-white font-semibold shadow-[0_4px_16px_rgba(0,135,90,0.25)] hover:shadow-[0_6px_20px_rgba(0,108,71,0.35)] transition-all text-base"
                 >
-                  <Calendar className="w-5 h-5 text-emerald-300 shrink-0" />
-                  <span className="text-white font-black">{t('hero.bookCta')}</span>
+                  <Calendar className="w-5 h-5 text-white shrink-0" />
+                  <span>{t('hero.bookCta')}</span>
                 </Link>
 
                 <a
                   href="tel:+917507342222"
-                  className="inline-flex items-center justify-center gap-2.5 px-8 py-4.5 rounded-2xl bg-[#DC2626] hover:bg-[#B91C1C] text-white font-black transition text-base sm:text-lg shadow-2xl border-2 border-rose-400 hover:scale-105"
+                  className="inline-flex items-center justify-center gap-2.5 px-7 py-3.5 rounded-lg bg-[#DC2626] hover:bg-[#B91C1C] text-white font-semibold transition text-base shadow-[0_4px_16px_rgba(220,38,38,0.25)]"
                 >
                   <Phone className="w-5 h-5 text-white shrink-0" />
-                  <span className="text-white font-black">{t('hero.callEmergency')}</span>
+                  <span>{t('hero.callEmergency')}</span>
                 </a>
               </div>
 
@@ -264,18 +264,18 @@ export const HomePage: React.FC = () => {
 
             {/* Right Visual Column (Hospital Photography) */}
             <div className="lg:col-span-5 relative">
-              <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-[#F0FDF4] aspect-[4/3] sm:aspect-[16/11]">
+              <div className="relative rounded-2xl overflow-hidden shadow-vitality-card border border-[#D3E4FE] aspect-[4/3] sm:aspect-[16/11]">
                 <img
                   src="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1200&q=80"
                   alt="Sanjeevani Multispeciality Hospital Building Facade Jalna"
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-transparent to-transparent"></div>
-                <div className="absolute bottom-5 left-5 right-5 text-white space-y-1">
-                  <p className="text-xs font-black uppercase tracking-widest text-emerald-300">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#001736]/90 via-transparent to-transparent"></div>
+                <div className="absolute bottom-4 left-4 right-4 text-white space-y-0.5">
+                  <p className="text-xs font-bold uppercase tracking-wider text-[#8AF5BE]">
                     Sanjeevani Multispeciality Hospital
                   </p>
-                  <p className="text-xs text-slate-200 font-medium">
+                  <p className="text-xs text-slate-200">
                     Plot 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra
                   </p>
                 </div>
@@ -284,64 +284,64 @@ export const HomePage: React.FC = () => {
 
           </div>
 
-          {/* ─── 4 STANDALONE 30% SATURATED METRIC CARDS ───────────────────────── */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 pt-16">
+          {/* ─── 4 STANDALONE METRIC CARDS ───────────────────────────────────── */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-12">
             
             {/* Card 1: 21-Bed ICU */}
-            <div className="bg-gradient-to-br from-[#F4FBF7] to-[#EBF7F0] rounded-3xl p-6 border-2 border-[#86EFAC] shadow-lg flex items-start space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#002B5B] text-emerald-300 flex items-center justify-center shrink-0 shadow-md">
-                <Bed className="w-6 h-6" />
+            <div className="vitality-card p-5.5 rounded-xl flex items-start space-x-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#002B5B] text-[#8AF5BE] flex items-center justify-center shrink-0 shadow-sm">
+                <Bed className="w-5 h-5" />
               </div>
-              <div className="space-y-1 min-w-0">
-                <div className="text-xl sm:text-2xl font-black text-[#002B5B] font-heading leading-tight">
+              <div className="space-y-0.5 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-[#001736] font-heading leading-tight">
                   {t('hero.statIcu')}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-800 font-bold leading-snug">
+                <div className="text-xs text-[#43474F] font-medium leading-snug">
                   {t('hero.statIcuSub')}
                 </div>
               </div>
             </div>
 
             {/* Card 2: 19+ Specialties */}
-            <div className="bg-gradient-to-br from-[#F4FBF7] to-[#E6FFFA] rounded-3xl p-6 border-2 border-[#99F6E4] shadow-lg flex items-start space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#007791] text-emerald-300 flex items-center justify-center shrink-0 shadow-md">
-                <Layers className="w-6 h-6" />
+            <div className="vitality-card p-5.5 rounded-xl flex items-start space-x-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#00875A] text-white flex items-center justify-center shrink-0 shadow-sm">
+                <Layers className="w-5 h-5" />
               </div>
-              <div className="space-y-1 min-w-0">
-                <div className="text-xl sm:text-2xl font-black text-[#002B5B] font-heading leading-tight">
+              <div className="space-y-0.5 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-[#001736] font-heading leading-tight">
                   {t('hero.statDepts')}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-800 font-bold leading-snug">
+                <div className="text-xs text-[#43474F] font-medium leading-snug">
                   {t('hero.statDeptsSub')}
                 </div>
               </div>
             </div>
 
             {/* Card 3: 10,000+ Surgeries */}
-            <div className="bg-gradient-to-br from-[#F4FBF7] to-[#ECFDF5] rounded-3xl p-6 border-2 border-[#A7F3D0] shadow-lg flex items-start space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#047857] text-emerald-200 flex items-center justify-center shrink-0 shadow-md">
-                <Award className="w-6 h-6" />
+            <div className="vitality-card p-5.5 rounded-xl flex items-start space-x-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#006C47] text-[#8AF5BE] flex items-center justify-center shrink-0 shadow-sm">
+                <Award className="w-5 h-5" />
               </div>
-              <div className="space-y-1 min-w-0">
-                <div className="text-xl sm:text-2xl font-black text-[#002B5B] font-heading leading-tight">
+              <div className="space-y-0.5 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-[#001736] font-heading leading-tight">
                   {t('hero.statSurgeries')}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-800 font-bold leading-snug">
+                <div className="text-xs text-[#43474F] font-medium leading-snug">
                   {t('hero.statSurgeriesSub')}
                 </div>
               </div>
             </div>
 
             {/* Card 4: 24x7 Casualty */}
-            <div className="bg-gradient-to-br from-[#F4FBF7] to-[#FEF2F2] rounded-3xl p-6 border-2 border-[#FECACA] shadow-lg flex items-start space-x-4">
-              <div className="w-12 h-12 rounded-2xl bg-[#DC2626] text-white flex items-center justify-center shrink-0 shadow-md">
-                <HeartPulse className="w-6 h-6" />
+            <div className="vitality-card p-5.5 rounded-xl flex items-start space-x-3.5">
+              <div className="w-11 h-11 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shrink-0 shadow-sm">
+                <HeartPulse className="w-5 h-5" />
               </div>
-              <div className="space-y-1 min-w-0">
-                <div className="text-xl sm:text-2xl font-black text-[#DC2626] font-heading leading-tight">
+              <div className="space-y-0.5 min-w-0">
+                <div className="text-xl sm:text-2xl font-bold text-[#DC2626] font-heading leading-tight">
                   {t('hero.statService')}
                 </div>
-                <div className="text-xs sm:text-sm text-slate-800 font-bold leading-snug">
+                <div className="text-xs text-[#43474F] font-medium leading-snug">
                   {t('hero.statServiceSub')}
                 </div>
               </div>
@@ -352,79 +352,79 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 2. QUICK ACTION TILES (SOOTHING 30% MINT SURFACES) ─────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-7">
+      {/* ─── 2. QUICK ACTION TILES ────────────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           
           {/* Tile 1: Book OPD */}
           <Link
             to="/book"
-            className="bg-gradient-to-br from-[#F4FBF7] to-[#EFF6FF] rounded-3xl p-7 border-2 border-[#93C5FD] shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex flex-col justify-between space-y-5 group"
+            className="vitality-card p-6 flex flex-col justify-between space-y-4 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#002B5B] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-              <Calendar className="w-7 h-7 text-emerald-300" />
+            <div className="w-12 h-12 rounded-lg bg-[#002B5B] text-white flex items-center justify-center shadow-sm">
+              <Calendar className="w-6 h-6 text-[#8AF5BE]" />
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-[#002B5B] font-heading">{t('quickActions.book')}</h3>
-              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">{t('quickActions.bookDesc')}</p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#001736] font-heading">{t('quickActions.book')}</h3>
+              <p className="text-xs text-[#43474F] leading-relaxed">{t('quickActions.bookDesc')}</p>
             </div>
-            <span className="text-xs font-black text-[#002B5B] flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-[#00875A] flex items-center gap-1">
               <span>{isMr ? 'वेळ निवडा' : 'Select Time Slot'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
 
           {/* Tile 2: 24x7 Emergency */}
           <a
             href="tel:+917507342222"
-            className="bg-gradient-to-br from-[#F4FBF7] to-[#FEF2F2] rounded-3xl p-7 border-2 border-[#FECACA] shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex flex-col justify-between space-y-5 group"
+            className="vitality-card p-6 flex flex-col justify-between space-y-4 border-rose-200 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#DC2626] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-              <HeartPulse className="w-7 h-7 text-white" />
+            <div className="w-12 h-12 rounded-lg bg-[#DC2626] text-white flex items-center justify-center shadow-sm">
+              <HeartPulse className="w-6 h-6 text-white" />
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-rose-800 font-heading">{t('quickActions.emergency')}</h3>
-              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">{t('quickActions.emergencyDesc')}</p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#DC2626] font-heading">{t('quickActions.emergency')}</h3>
+              <p className="text-xs text-[#43474F] leading-relaxed">{t('quickActions.emergencyDesc')}</p>
             </div>
-            <span className="text-xs font-black text-rose-700 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-[#DC2626] flex items-center gap-1">
               <span>+91-75073-42222</span>
-              <Phone className="w-4 h-4" />
+              <Phone className="w-3.5 h-3.5" />
             </span>
           </a>
 
           {/* Tile 3: MJPJAY Scheme */}
           <Link
             to="/mjpjay"
-            className="bg-gradient-to-br from-[#F4FBF7] to-[#ECFDF5] rounded-3xl p-7 border-2 border-[#86EFAC] shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex flex-col justify-between space-y-5 group"
+            className="vitality-card p-6 flex flex-col justify-between space-y-4 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#047857] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-              <ShieldCheck className="w-7 h-7 text-emerald-200" />
+            <div className="w-12 h-12 rounded-lg bg-[#006C47] text-white flex items-center justify-center shadow-sm">
+              <ShieldCheck className="w-6 h-6 text-[#8AF5BE]" />
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-emerald-900 font-heading">{t('quickActions.mjpjay')}</h3>
-              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">{t('quickActions.mjpjayDesc')}</p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#001736] font-heading">{t('quickActions.mjpjay')}</h3>
+              <p className="text-xs text-[#43474F] leading-relaxed">{t('quickActions.mjpjayDesc')}</p>
             </div>
-            <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-[#00875A] flex items-center gap-1">
               <span>{isMr ? 'पात्रता तपासा' : 'Check Eligibility'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
 
           {/* Tile 4: Cashless Insurance */}
           <Link
             to="/insurance"
-            className="bg-gradient-to-br from-[#F4FBF7] to-[#F0FDFA] rounded-3xl p-7 border-2 border-[#99F6E4] shadow-lg hover:shadow-xl hover:scale-[1.02] transition-all flex flex-col justify-between space-y-5 group"
+            className="vitality-card p-6 flex flex-col justify-between space-y-4 group"
           >
-            <div className="w-14 h-14 rounded-2xl bg-[#007791] text-white flex items-center justify-center group-hover:scale-105 transition-transform shadow-md">
-              <CreditCard className="w-7 h-7 text-cyan-200" />
+            <div className="w-12 h-12 rounded-lg bg-[#007791] text-white flex items-center justify-center shadow-sm">
+              <CreditCard className="w-6 h-6 text-cyan-200" />
             </div>
-            <div className="space-y-1.5">
-              <h3 className="text-xl font-black text-[#004D61] font-heading">{t('quickActions.insurance')}</h3>
-              <p className="text-xs sm:text-sm text-slate-800 font-bold leading-relaxed">{t('quickActions.insuranceDesc')}</p>
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold text-[#001736] font-heading">{t('quickActions.insurance')}</h3>
+              <p className="text-xs text-[#43474F] leading-relaxed">{t('quickActions.insuranceDesc')}</p>
             </div>
-            <span className="text-xs font-black text-[#007791] flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-[#007791] flex items-center gap-1">
               <span>{isMr ? 'विमा यादी पहा' : 'View Insurance Panels'}</span>
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
             </span>
           </Link>
 
@@ -432,57 +432,57 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* ─── 3. CLINICAL SPECIALTIES GRID ────────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5">
+          <h2 className="text-2xl sm:text-4xl font-bold text-[#001736] tracking-tight font-heading">
             {t('sections.specialtiesHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-800 font-bold">
+          <p className="text-sm sm:text-base text-[#43474F]">
             {t('sections.specialtiesSub')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-9">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {clinicalSpecialties.map((dept) => (
             <div
               key={dept.id}
-              className="bg-gradient-to-br from-[#F4FBF7] via-[#EBF7F0] to-[#E3F1EB] rounded-3xl border-2 border-[#86EFAC] shadow-lg hover:shadow-2xl overflow-hidden transition-all duration-200 flex flex-col group"
+              className="vitality-card overflow-hidden flex flex-col group"
             >
-              <div className="relative h-56 overflow-hidden">
+              <div className="relative h-52 overflow-hidden">
                 <img
                   src={dept.image}
                   alt={dept.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#001529]/90 via-[#001529]/20 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white">
-                  <span className="text-xs font-black bg-[#002B5B] text-emerald-300 px-3.5 py-1.5 rounded-xl border border-emerald-400/60">
+                <div className="absolute inset-0 bg-gradient-to-t from-[#001736]/85 via-transparent to-transparent"></div>
+                <div className="absolute bottom-3.5 left-3.5 right-3.5 flex items-center justify-between text-white">
+                  <span className="text-xs font-semibold bg-[#001736] text-[#8AF5BE] px-3 py-1 rounded-full border border-white/20">
                     {dept.doctor}
                   </span>
                 </div>
               </div>
 
-              <div className="p-7 flex-1 flex flex-col justify-between space-y-5">
-                <div className="space-y-2.5">
-                  <h3 className="text-2xl font-black text-[#002B5B] group-hover:text-emerald-800 transition-colors font-heading">
+              <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                <div className="space-y-2">
+                  <h3 className="text-xl font-bold text-[#001736] group-hover:text-[#00875A] transition-colors font-heading">
                     {isMr ? dept.titleMr : dept.title}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-800 leading-relaxed font-semibold">
+                  <p className="text-xs sm:text-sm text-[#43474F] leading-relaxed">
                     {isMr ? dept.descMr : dept.desc}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t-2 border-emerald-200/80 flex items-center justify-between">
+                <div className="pt-4 border-t border-[#EFF4FF] flex items-center justify-between">
                   <Link
                     to={`/departments/${dept.slug}`}
-                    className="text-xs sm:text-sm font-black text-[#002B5B] hover:text-emerald-800 transition flex items-center gap-1"
+                    className="text-xs font-semibold text-[#002B5B] hover:text-[#00875A] transition flex items-center gap-1"
                   >
                     <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
-                    <ChevronRight className="w-4 h-4" />
+                    <ChevronRight className="w-3.5 h-3.5" />
                   </Link>
                   <Link
                     to="/book"
-                    className="px-5 py-2.5 rounded-xl bg-[#002B5B] text-white hover:bg-slate-900 font-black text-xs sm:text-sm transition shadow-md"
+                    className="px-4 py-2 rounded-lg bg-[#00875A] text-white hover:bg-[#006C47] font-semibold text-xs transition shadow-sm"
                   >
                     {t('common.bookSlot')}
                   </Link>
@@ -495,47 +495,45 @@ export const HomePage: React.FC = () => {
         <div className="text-center pt-2">
           <Link
             to="/departments"
-            className="inline-flex items-center gap-2 px-9 py-4 rounded-2xl bg-[#002B5B] text-white font-black text-base hover:bg-slate-900 transition shadow-xl"
+            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-lg bg-[#002B5B] hover:bg-[#001736] text-white font-semibold text-sm transition shadow-md"
           >
-            <span className="text-white font-black">{t('common.viewAll')}</span>
-            <ArrowRight className="w-4 h-4 text-white" />
+            <span>{t('common.viewAll')}</span>
+            <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </section>
 
-      {/* ─── 4. MEDICAL TECHNOLOGY & REAL EQUIPMENT SHOWCASE ─────────────────────── */}
-      <section className="bg-gradient-to-br from-[#002B5B] via-[#003B73] to-[#00875A] text-white py-24 sm:py-32 rounded-3xl shadow-2xl border-3 border-emerald-400/40 mx-4 sm:mx-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight font-heading">
+      {/* ─── 4. MEDICAL TECHNOLOGY & EQUIPMENT SHOWCASE ─────────────────────────── */}
+      <section className="bg-gradient-to-br from-[#001736] via-[#002B5B] to-[#0B1C30] text-white py-16 sm:py-24 rounded-2xl shadow-xl border border-[#D3E4FE]/20 mx-4 sm:mx-8">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          <div className="text-center max-w-3xl mx-auto space-y-2.5">
+            <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight font-heading">
               {t('sections.technologyHeading')}
             </h2>
-            <p className="text-base sm:text-lg text-slate-200 font-semibold">
+            <p className="text-sm sm:text-base text-[#DCE9FF]">
               {t('sections.technologySub')}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-7">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {hospitalEquipment.map((eq, idx) => (
               <div
                 key={idx}
-                className="bg-[#001529] rounded-3xl border-2 border-slate-700 overflow-hidden shadow-2xl flex flex-col group hover:border-emerald-400 transition-all"
+                className="bg-white/10 backdrop-blur-md rounded-xl border border-white/15 overflow-hidden shadow-lg flex flex-col group hover:border-[#8AF5BE] transition-all"
               >
-                <div className="h-52 overflow-hidden relative">
+                <div className="h-48 overflow-hidden relative">
                   <img
                     src={eq.image}
                     alt={eq.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 opacity-90"
                   />
-                  <div className="absolute top-3 left-3 bg-[#002B5B] text-emerald-300 text-xs font-black px-3 py-1 rounded-lg border border-emerald-400/50">
+                  <div className="absolute top-3 left-3 bg-[#001736] text-[#8AF5BE] text-[11px] font-semibold px-2.5 py-1 rounded-md border border-[#8AF5BE]/40">
                     {eq.category}
                   </div>
                 </div>
-                <div className="p-6 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    <h3 className="text-lg font-black text-white leading-snug font-heading">{eq.title}</h3>
-                    <p className="text-xs sm:text-sm text-slate-200 mt-2 leading-relaxed font-semibold">{eq.desc}</p>
-                  </div>
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-2">
+                  <h3 className="text-base font-bold text-white leading-snug font-heading">{eq.title}</h3>
+                  <p className="text-xs text-[#DCE9FF] leading-relaxed">{eq.desc}</p>
                 </div>
               </div>
             ))}
@@ -543,70 +541,70 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 5. SENIOR MEDICAL FACULTY & DOCTOR DIRECTORY ────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
+      {/* ─── 5. SENIOR MEDICAL FACULTY ─────────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5">
+          <h2 className="text-2xl sm:text-4xl font-bold text-[#001736] tracking-tight font-heading">
             {t('sections.doctorsHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-800 font-bold">
+          <p className="text-sm sm:text-base text-[#43474F]">
             {t('sections.doctorsSub')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
           {seniorDoctors.map((doc) => (
             <div
               key={doc.id}
-              className="bg-gradient-to-br from-[#F4FBF7] via-[#EBF7F0] to-[#E3F1EB] rounded-3xl border-2 border-[#86EFAC] shadow-lg hover:shadow-2xl p-7 flex flex-col justify-between space-y-6 group transition-all"
+              className="vitality-card p-6 flex flex-col justify-between space-y-5 group"
             >
               <div className="flex items-start space-x-4">
-                <div className="w-24 h-24 sm:w-26 sm:h-26 rounded-2xl overflow-hidden shrink-0 border-2 border-emerald-400 shadow-md">
+                <div className="w-22 h-22 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 border border-[#D3E4FE] shadow-sm">
                   <img
                     src={doc.image}
                     alt={doc.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 </div>
-                <div className="space-y-1.5 flex-1 min-w-0">
-                  <h3 className="text-xl font-black text-[#002B5B] truncate font-heading">
+                <div className="space-y-1 flex-1 min-w-0">
+                  <h3 className="text-lg font-bold text-[#001736] truncate font-heading">
                     {isMr ? doc.nameMr : doc.name}
                   </h3>
-                  <p className="text-xs sm:text-sm font-bold text-[#007791]">
+                  <p className="text-xs font-semibold text-[#00875A]">
                     {isMr ? doc.roleMr : doc.role}
                   </p>
-                  <p className="text-xs font-bold text-slate-600">
+                  <p className="text-xs text-[#43474F]">
                     {doc.degree}
                   </p>
-                  <p className="text-xs text-slate-500 font-medium truncate">
+                  <p className="text-[11px] text-slate-500 truncate">
                     {isMr ? doc.deptMr : doc.dept}
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-2 text-xs sm:text-sm bg-[#F0FDF4] p-4 rounded-2xl border-2 border-[#86EFAC]">
-                <div className="flex justify-between">
-                  <span className="text-slate-700 font-bold">{t('common.opdFee')}:</span>
-                  <span className="font-black text-[#002B5B] text-base">₹{doc.fee}</span>
+              <div className="space-y-1.5 text-xs bg-[#EFF4FF] p-3.5 rounded-lg border border-[#D3E4FE]">
+                <div className="flex justify-between items-center">
+                  <span className="text-[#43474F] font-medium">{t('common.opdFee')}:</span>
+                  <span className="font-bold text-[#001736] text-sm">₹{doc.fee}</span>
                 </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-slate-700 font-semibold">{t('common.timings')}:</span>
-                  <span className="font-extrabold text-slate-900">{doc.timings}</span>
+                <div className="flex justify-between items-center text-[11px]">
+                  <span className="text-[#43474F]">{t('common.timings')}:</span>
+                  <span className="font-medium text-[#0B1C30]">{doc.timings}</span>
                 </div>
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex gap-2.5 pt-1">
                 <Link
                   to={`/doctors/${doc.id}`}
-                  className="flex-1 py-3 px-3 rounded-xl bg-white hover:bg-slate-100 text-slate-900 text-xs sm:text-sm font-black text-center transition border border-slate-300"
+                  className="flex-1 py-2.5 px-3 rounded-lg bg-[#F8F9FF] hover:bg-[#EFF4FF] text-[#001736] text-xs font-semibold text-center transition border border-[#D3E4FE]"
                 >
                   {t('common.viewProfile')}
                 </Link>
                 <Link
                   to={`/book?doctorId=${doc.id}`}
-                  className="flex-1 py-3 px-3 rounded-xl bg-gradient-to-r from-[#002B5B] to-[#00875A] text-white text-xs sm:text-sm font-black text-center hover:opacity-95 transition shadow-md"
+                  className="flex-1 py-2.5 px-3 rounded-lg bg-[#00875A] hover:bg-[#006C47] text-white text-xs font-semibold text-center transition shadow-sm"
                 >
-                  <span className="text-white font-black">{t('common.bookSlot')}</span>
+                  <span>{t('common.bookSlot')}</span>
                 </Link>
               </div>
             </div>
@@ -614,94 +612,92 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 6. MJPJAY & CASHLESS SCHEMES SPOTLIGHT ──────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#00875A] rounded-3xl p-8 sm:p-14 text-white shadow-2xl space-y-8 border-3 border-emerald-400">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+      {/* ─── 6. MJPJAY SCHEME SPOTLIGHT ─────────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-gradient-to-r from-[#001736] via-[#002B5B] to-[#006C47] rounded-2xl p-7 sm:p-12 text-white shadow-xl space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             
-            {/* Left Column: Scheme Details */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 text-white font-black text-xs shadow-md border border-emerald-300">
-                <ShieldCheck className="w-4 h-4 text-white" />
-                <span className="text-white font-black">१००% मोफत व कॅशलेस उपचार</span>
+            {/* Left Column */}
+            <div className="lg:col-span-7 space-y-4">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#00875A] text-white font-semibold text-xs shadow-sm">
+                <ShieldCheck className="w-4 h-4 text-[#8AF5BE]" />
+                <span>१००% मोफत व कॅशलेस उपचार</span>
               </div>
 
-              <h2 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] text-white font-heading">
-                <span className="text-white drop-shadow-md">
-                  {isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}
-                </span>
+              <h2 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight leading-tight text-white font-heading">
+                <span>{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span>
                 <br />
-                <span className="text-emerald-300 drop-shadow-md font-black">
+                <span className="text-[#8AF5BE]">
                   {isMr ? 'जन आरोग्य योजना (MJPJAY)' : 'Jan Arogya Yojana (MJPJAY)'}
                 </span>
               </h2>
               
-              <p className="text-base sm:text-lg text-slate-100 leading-relaxed font-medium">
+              <p className="text-sm sm:text-base text-[#DCE9FF] leading-relaxed">
                 {isMr
                   ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि प्रगत उपचार. आमच्या समर्पित आरोग्य मित्र डेस्कवरून त्वरित मदत मिळवा.'
                   : 'Providing completely cashless advanced surgical care and tertiary healthcare to eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital Jalna.'}
               </p>
 
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-wrap gap-3 pt-2">
                 <Link
                   to="/mjpjay"
-                  className="px-7 py-3.5 rounded-2xl bg-[#059669] hover:bg-[#047857] text-white text-sm sm:text-base font-black transition shadow-lg border-2 border-emerald-300"
+                  className="px-6 py-3 rounded-lg bg-[#00875A] hover:bg-[#006C47] text-white text-xs sm:text-sm font-semibold transition shadow-sm"
                 >
-                  <span className="text-white font-black">{isMr ? 'योजना प्रक्रिया व कागदपत्रे' : 'MJPJAY Process & Documents'}</span>
+                  <span>{isMr ? 'योजना प्रक्रिया व कागदपत्रे' : 'MJPJAY Process & Documents'}</span>
                 </Link>
                 <Link
                   to="/insurance"
-                  className="px-7 py-3.5 rounded-2xl bg-white/20 hover:bg-white/30 text-white text-sm sm:text-base font-black transition border-2 border-white/40"
+                  className="px-6 py-3 rounded-lg bg-white/15 hover:bg-white/25 text-white text-xs sm:text-sm font-semibold transition border border-white/30"
                 >
-                  <span className="text-white font-black">{isMr ? 'कॅशलेस विमा कंपन्या' : 'Panel Insurance Companies'}</span>
+                  <span>{isMr ? 'कॅशलेस विमा कंपन्या' : 'Panel Insurance Companies'}</span>
                 </Link>
               </div>
             </div>
 
-            {/* Right Column: High-Contrast Document & Arogya Mitra Card */}
-            <div className="lg:col-span-5 bg-gradient-to-br from-[#F4FBF7] to-[#EBF7F0] rounded-3xl p-7 sm:p-8 text-slate-900 shadow-2xl border-3 border-emerald-400 space-y-5">
+            {/* Right Column: Document Checklist Card */}
+            <div className="lg:col-span-5 bg-white rounded-xl p-6 text-[#0B1C30] shadow-lg border border-[#8AF5BE] space-y-4">
               <div>
-                <p className="font-black text-[#002B5B] text-lg uppercase tracking-wide flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-600" />
+                <p className="font-bold text-[#001736] text-base flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[#00875A]" />
                   <span>{isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required'}</span>
                 </p>
-                <p className="text-xs text-slate-700 font-bold mt-0.5">
+                <p className="text-xs text-[#43474F] mt-0.5">
                   {isMr ? 'प्रवेशाच्या वेळी सोबत आणावयाची कागदपत्रे:' : 'Please carry original documents during admission:'}
                 </p>
               </div>
 
-              <ul className="space-y-3 text-sm font-bold text-slate-800">
-                <li className="flex items-center gap-3 p-2.5 rounded-xl bg-white border-2 border-emerald-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+              <ul className="space-y-2 text-xs sm:text-sm text-[#0B1C30]">
+                <li className="flex items-center gap-2.5 p-2 rounded-lg bg-[#F8F9FF] border border-[#D3E4FE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#00875A] shrink-0" />
                   <span>{isMr ? 'पिवळे किंवा केशरी रेशन कार्ड (Original)' : 'Yellow or Orange Ration Card (Original)'}</span>
                 </li>
-                <li className="flex items-center gap-3 p-2.5 rounded-xl bg-white border-2 border-emerald-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <li className="flex items-center gap-2.5 p-2 rounded-lg bg-[#F8F9FF] border border-[#D3E4FE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#00875A] shrink-0" />
                   <span>{isMr ? 'रुग्ण व कुटुंबप्रमुखांचे आधार कार्ड' : 'Patient & Family Head Aadhaar Card'}</span>
                 </li>
-                <li className="flex items-center gap-3 p-2.5 rounded-xl bg-white border-2 border-emerald-200">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <li className="flex items-center gap-2.5 p-2 rounded-lg bg-[#F8F9FF] border border-[#D3E4FE]">
+                  <CheckCircle2 className="w-4 h-4 text-[#00875A] shrink-0" />
                   <span>{isMr ? 'डॉक्टरांचे प्रिस्क्रिप्शन व तपासणी रिपोर्ट' : "Doctor's Prescription & Lab Reports"}</span>
                 </li>
               </ul>
 
-              {/* Dedicated High-Contrast Arogya Mitra Helpline Box */}
-              <div className="p-4 rounded-2xl bg-[#002B5B] text-white border-2 border-emerald-400 shadow-md">
-                <div className="text-xs font-bold text-emerald-300">
-                  {isMr ? 'आरोग्य मित्र थेट सहाय्यता कक्ष:' : 'Arogya Mitra Direct Desk:'}
-                </div>
-                <div className="flex items-center justify-between mt-1">
+              {/* Arogya Mitra Helpline */}
+              <div className="p-3.5 rounded-lg bg-[#001736] text-white flex items-center justify-between">
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-[#8AF5BE] font-semibold">
+                    {isMr ? 'आरोग्य मित्र कक्ष' : 'Arogya Mitra Desk'}
+                  </div>
                   <a
                     href="tel:+917507342222"
-                    className="text-base sm:text-lg font-black text-amber-300 hover:text-white transition flex items-center gap-2"
+                    className="text-sm font-bold text-white hover:underline flex items-center gap-1.5 mt-0.5"
                   >
-                    <Phone className="w-4 h-4 text-amber-400" />
+                    <Phone className="w-3.5 h-3.5 text-[#8AF5BE]" />
                     <span>+91-75073-42222</span>
                   </a>
-                  <span className="text-[11px] font-extrabold bg-emerald-600 text-white px-2.5 py-1 rounded-lg">
-                    24x7 Help
-                  </span>
                 </div>
+                <span className="text-[10px] font-semibold bg-[#00875A] text-white px-2 py-1 rounded">
+                  24x7
+                </span>
               </div>
             </div>
 
@@ -709,171 +705,142 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ─── 7. PATIENT TESTIMONIALS (REAL FEEDBACK & GOLD STARS) ────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-14">
-        <div className="text-center max-w-3xl mx-auto space-y-4">
-          <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
+      {/* ─── 7. PATIENT TESTIMONIALS ───────────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        <div className="text-center max-w-3xl mx-auto space-y-2.5">
+          <h2 className="text-2xl sm:text-4xl font-bold text-[#001736] tracking-tight font-heading">
             {t('sections.reviewsHeading')}
           </h2>
-          <p className="text-base sm:text-lg text-slate-800 font-bold">
+          <p className="text-sm sm:text-base text-[#43474F]">
             {t('sections.reviewsSub')}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[
             {
-              quote: 'Dr. Nishant Goyal operated on my mother’s complex knee fracture with immense precision. The post-operative ICU care and nursing staff was very attentive. MJPJAY cashless approval was completely hassle-free.',
-              quoteMr: 'डॉ. निशांत गोयल यांनी माझ्या आईच्या गुडघ्याची शस्त्रक्रिया अतिशय यशस्वीरीत्या केली. अतिदक्षता विभागातील नर्सिंग स्टाफ खूप काळजीपूर्वक होता आणि महात्मा फुले योजनेतून सर्व उपचार मोफत झाले.',
-              name: 'Sunil Jadhav',
-              loc: 'Jalna City',
-              locMr: 'जालना शहर',
-              treatment: 'Total Knee Replacement',
-              treatmentMr: 'गुडघे प्रत्यारोपण',
+              name: 'Gajanan Deshmukh',
+              location: 'Jalna City',
+              rating: 5,
+              text: 'Dr. Nishant Goyal performed total knee replacement surgery on my mother. She is walking without pain within 4 weeks. Exceptional ICU staff and cashless mediclaim support.',
+              treatment: 'Knee Arthroplasty',
+              badge: 'Verified Patient',
             },
             {
-              quote: 'Dr. Shivdas Mirkad is wonderful with children. He explained our child’s respiratory condition patiently and clearly. The pediatric ward and warmers are modern and clean. Best pediatric care in Jalna.',
-              quoteMr: 'डॉ. शिवदास मिरकड लहान मुलांसाठी अतिशय उत्तम डॉक्टर आहेत. त्यांनी माझ्या मुलीच्या दम्याचे निदान खूप समजावून सांगितले. बालरोग व नवजात शिशु विभाग खूप स्वच्छ व आधुनिक आहे.',
-              name: 'Pooja Kulkarni',
-              loc: 'Ambad Taluka',
-              locMr: 'अंबड तालुका',
-              treatment: 'Pediatric Care & Asthma',
-              treatmentMr: 'बालरोग उपचार',
+              name: 'Sunita Rathod',
+              location: 'Ambad Taluka',
+              rating: 5,
+              text: 'Dr. Shivdas Mirkad treated our premature baby in the NICU. The radiant warmers and pediatric nursing care are outstanding. Completely free under MJPJAY scheme.',
+              treatment: 'Neonatal NICU Care',
+              badge: 'MJPJAY Beneficiary',
             },
             {
-              quote: 'Prompt emergency response at 2 AM when my father had acute breathing distress. The 24x7 ICU facility and Dr. Bagal’s intensivist team saved his life. Transparent billing and supportive management.',
-              quoteMr: 'मध्यरात्री २ वाजता वडिलांना श्वास घेण्यास त्रास होत असताना तातडीने ICU मध्ये दाखल केले. डॉ. बागल यांच्या अतिदक्षता टीमने वडिलांचे प्राण वाचवले. जालना परिसरातील सर्वात विश्वासार्ह हॉस्पिटल.',
-              name: 'Anand Shinde',
-              loc: 'Partur Taluka',
-              locMr: 'परतूर तालुका',
-              treatment: 'Emergency ICU Resuscitation',
-              treatmentMr: 'अतिदक्षता जीवनरक्षक उपचार',
+              name: 'Pravin Kulkarni',
+              location: 'Partur, Jalna',
+              rating: 5,
+              text: 'Admitted my father with acute respiratory distress in ICU. Dr. Baliram Bagal managed his mechanical ventilation with precision. Truly grateful for 24x7 intensivist care.',
+              treatment: 'Critical Care (ICU)',
+              badge: 'Verified Patient',
             },
           ].map((rev, idx) => (
             <div
               key={idx}
-              className="bg-gradient-to-br from-[#F4FBF7] via-[#EBF7F0] to-[#E3F1EB] rounded-3xl border-2 border-[#86EFAC] p-8 shadow-lg hover:shadow-xl flex flex-col justify-between space-y-6"
+              className="vitality-card p-6 flex flex-col justify-between space-y-4"
             >
-              <div className="space-y-4">
-                <div className="flex text-amber-400">
-                  {[1, 2, 3, 4, 5].map((s) => (
-                    <Star key={s} className="w-5 h-5 fill-amber-400 text-amber-400" />
-                  ))}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex text-amber-400 gap-0.5">
+                    {[...Array(rev.rating)].map((_, i) => (
+                      <Star key={i} className="w-4 h-4 fill-amber-400" />
+                    ))}
+                  </div>
+                  <span className="text-[10px] font-semibold bg-[#EBF7F0] text-[#006C47] px-2.5 py-0.5 rounded-full border border-[#8AF5BE]">
+                    {rev.badge}
+                  </span>
                 </div>
-                <p className="text-sm sm:text-base text-slate-800 leading-relaxed italic font-medium">
-                  "{isMr ? rev.quoteMr : rev.quote}"
+                <p className="text-xs sm:text-sm text-[#43474F] italic leading-relaxed">
+                  "{rev.text}"
                 </p>
               </div>
 
-              <div className="pt-4 border-t-2 border-emerald-200 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 rounded-full bg-[#002B5B] text-white flex items-center justify-center font-bold text-sm border border-emerald-400">
-                    <UserCheck className="w-5 h-5 text-emerald-300" />
-                  </div>
-                  <div>
-                    <p className="text-base font-black text-[#002B5B]">{rev.name}</p>
-                    <p className="text-xs text-slate-600 font-bold">{isMr ? rev.locMr : rev.loc}</p>
-                  </div>
+              <div className="pt-3 border-t border-[#EFF4FF] flex items-center justify-between text-xs">
+                <div>
+                  <p className="font-bold text-[#001736]">{rev.name}</p>
+                  <p className="text-[11px] text-slate-500">{rev.location}</p>
                 </div>
-                <span className="text-xs font-black px-3 py-1.5 rounded-xl bg-white text-[#002B5B] border border-emerald-300 shadow-sm">
-                  {isMr ? rev.treatmentMr : rev.treatment}
-                </span>
+                <span className="text-[11px] font-medium text-[#00875A]">{rev.treatment}</span>
               </div>
             </div>
           ))}
         </div>
+
+        <div className="text-center pt-2">
+          <Link
+            to="/events"
+            className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-[#002B5B] hover:text-[#00875A] transition"
+          >
+            <span>{isMr ? 'सर्व रुग्ण अभिप्राय व शिबिरे पहा' : 'View All Patient Reviews & Health Camps'}</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </div>
       </section>
 
-      {/* ─── 8. LOCATION & CASUALTY DIRECT CONTACT WITH LIVE INTERACTIVE GOOGLE MAP ── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
-        <div className="bg-gradient-to-br from-[#F4FBF7] via-[#EBF7F0] to-[#E3F1EB] rounded-3xl border-2 border-[#86EFAC] p-8 sm:p-14 shadow-2xl grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-6">
-            <h2 className="text-3xl sm:text-5xl font-black text-[#002B5B] tracking-tight font-heading">
-              {t('sections.locationHeading')}
-            </h2>
-            <p className="text-sm sm:text-base text-slate-700 leading-relaxed font-semibold">
-              {t('sections.locationSub')}
-            </p>
-
-            <div className="space-y-4 text-sm text-slate-800 font-medium">
-              <div className="flex items-start gap-3.5">
-                <MapPin className="w-6 h-6 text-[#002B5B] shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-black text-[#002B5B] text-base block">Sanjeevani Multispeciality Hospital</span>
-                  <span className="text-slate-700">Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3.5">
-                <Phone className="w-6 h-6 text-rose-600 shrink-0" />
-                <div>
-                  <span className="font-black text-rose-700">24x7 Emergency Casualty: </span>
-                  <a href="tel:+917507342222" className="font-black text-slate-900 hover:underline">
-                    +91-75073-42222 | 02482-223322
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3.5">
-                <Clock className="w-6 h-6 text-emerald-600 shrink-0" />
-                <div>
-                  <span className="font-black text-[#002B5B]">OPD Timings: </span>
-                  <span>Mon–Sat: 09:00 AM – 03:00 PM & 05:00 PM – 08:00 PM</span>
-                </div>
-              </div>
+      {/* ─── 8. HOSPITAL LOCATION & REACH ──────────────────────────────────────── */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+        <div className="vitality-card p-6 sm:p-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+          
+          <div className="lg:col-span-6 space-y-4">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#EFF4FF] text-[#002B5B] text-xs font-semibold">
+              <MapPin className="w-3.5 h-3.5 text-[#00875A]" />
+              <span>{isMr ? 'हॉस्पिटल पत्ता व मार्ग' : 'Location & Directions'}</span>
             </div>
 
-            <div className="pt-2 flex flex-wrap gap-4">
-              <Link
-                to="/book"
-                className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl bg-gradient-to-r from-[#002B5B] via-[#003B73] to-[#00875A] text-white font-black text-base shadow-xl hover:scale-105 transition border-2 border-emerald-400"
-              >
-                <Calendar className="w-5 h-5 text-emerald-300" />
-                <span className="text-white font-black">{t('hero.bookCta')}</span>
-              </Link>
+            <h3 className="text-xl sm:text-3xl font-bold text-[#001736] font-heading">
+              {isMr ? 'संजीवनी हॉस्पिटल, जालना' : 'Sanjeevani Multispeciality Hospital'}
+            </h3>
 
+            <p className="text-xs sm:text-sm text-[#43474F] leading-relaxed">
+              Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203.<br />
+              <span className="text-xs text-slate-500 font-medium">Landmark: Ambad Choufuli Junction • 3.5 km from Jalna Railway Station.</span>
+            </p>
+
+            <div className="flex flex-wrap gap-3 pt-2">
               <a
                 href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-4 rounded-2xl bg-white border-2 border-[#002B5B] text-[#002B5B] text-sm font-black hover:bg-slate-50 transition shadow-md"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#002B5B] hover:bg-[#001736] text-white text-xs font-semibold transition shadow-sm"
               >
-                <Navigation className="w-4 h-4 text-emerald-600" />
-                <span>{isMr ? 'गुगल मॅप्सवर दिशा पहा' : 'Open in Google Maps'}</span>
+                <Navigation className="w-3.5 h-3.5 text-[#8AF5BE]" />
+                <span>{isMr ? 'गुगल मॅपवर दिशा' : 'Google Maps Directions'}</span>
+              </a>
+
+              <a
+                href="tel:+917507342222"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#DC2626] hover:bg-[#B91C1C] text-white text-xs font-semibold transition shadow-sm"
+              >
+                <Phone className="w-3.5 h-3.5" />
+                <span>+91-75073-42222</span>
               </a>
             </div>
           </div>
 
-          {/* Interactive Live Google Map Frame */}
-          <div className="bg-white rounded-3xl p-5 border-2 border-emerald-300 shadow-xl space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-black text-[#002B5B] font-heading">
-                  {isMr ? 'अंबड चौफुली लँडमार्क व नकाशा' : 'Ambad Choufuli Landmark & Map'}
-                </h3>
-                <p className="text-xs text-slate-600 font-bold">
-                  {isMr
-                    ? 'रेल्वे स्टेशन (३.५ किमी) व मुख्य बस स्थानक (२.८ किमी)'
-                    : 'Railway Station (3.5 km) & Central Bus Stand (2.8 km)'}
-                </p>
-              </div>
-              <span className="text-[11px] font-black bg-emerald-100 text-emerald-800 px-3 py-1 rounded-xl border border-emerald-300">
-                Live Location
-              </span>
-            </div>
-
-            <div className="w-full h-80 rounded-2xl overflow-hidden border-2 border-slate-200 relative shadow-inner">
-              <iframe
-                title="Sanjeevani Multispeciality Hospital Jalna Location Map"
-                src="https://maps.google.com/maps?q=Sanjeevani+Multispeciality+Hospital+Jalna+Rishi+Park&t=&z=15&ie=UTF8&iwloc=&output=embed"
-                className="w-full h-full border-0"
-                allowFullScreen
-                loading="lazy"
-              ></iframe>
-            </div>
+          <div className="lg:col-span-6 rounded-xl overflow-hidden border border-[#D3E4FE] shadow-sm h-64 sm:h-72">
+            <iframe
+              title="Sanjeevani Hospital Jalna Location"
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3752.482025734346!2d75.87321277598858!3d19.83965932757277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bda574d6cfa92ff%3A0x6b30c144577884ff!2sAmbad%20Choufuli%2C%20Jalna%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen={false}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            ></iframe>
           </div>
+
         </div>
       </section>
+
     </div>
   );
 };

@@ -4,27 +4,27 @@
 
 @layer base {
   :root {
-    --primary: 0 43 91;
-    --primary-foreground: 255 255 255;
-    --secondary: 0 119 145;
-    --secondary-foreground: 255 255 255;
-    --background: 213 239 227;
-    --foreground: 15 23 42;
-    --card: 244 251 247;
-    --card-foreground: 15 23 42;
-    --muted: 195 231 222;
-    --muted-foreground: 51 65 85;
-    --border: 134 239 172;
+    --primary: 0 23 54; /* #001736 */
+    --primary-container: 0 43 91; /* #002b5b */
+    --secondary: 0 108 71; /* #006c47 */
+    --secondary-teal: 0 135 90; /* #00875a */
+    --surface: 248 249 255; /* #f8f9ff */
+    --on-surface: 11 28 48; /* #0b1c30 */
+    --surface-container: 229 238 255; /* #e5eeff */
+    --emergency: 220 38 38; /* #dc2626 */
+    --mint: 235 247 240; /* #ebf7f0 */
   }
 
   html, body {
     overflow-x: hidden;
     max-width: 100vw;
     width: 100%;
-    background: linear-gradient(160deg, #D5EFE3 0%, #C3E7DE 35%, #B4DEF5 70%, #A2D4F2 100%) !important;
+    background-color: #F8F9FF !important;
+    background-image: radial-gradient(at 0% 0%, rgba(211, 228, 254, 0.4) 0px, transparent 50%),
+                      radial-gradient(at 100% 100%, rgba(235, 247, 240, 0.5) 0px, transparent 50%) !important;
     background-attachment: fixed !important;
-    color: #0F172A;
-    font-family: 'Manrope', 'Mukta', system-ui, sans-serif;
+    color: #0B1C30;
+    font-family: 'Inter', 'Mukta', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
@@ -32,10 +32,120 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Outfit', 'Mukta', 'Manrope', sans-serif;
+    font-family: 'Outfit', 'Mukta', 'Inter', sans-serif;
     letter-spacing: -0.02em;
-    color: inherit;
+    color: #001736;
     word-break: break-word;
+  }
+}
+
+/* Typography styles based on Sanjivani Vitality */
+@layer components {
+  .headline-xl {
+    font-family: 'Outfit', 'Mukta', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 56px;
+    letter-spacing: -0.02em;
+  }
+  @media (max-width: 640px) {
+    .headline-xl {
+      font-size: 32px;
+      line-height: 40px;
+    }
+  }
+
+  .headline-lg {
+    font-family: 'Outfit', 'Mukta', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    line-height: 40px;
+    letter-spacing: -0.01em;
+  }
+
+  .headline-md {
+    font-family: 'Outfit', 'Mukta', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    line-height: 32px;
+  }
+
+  .body-lg {
+    font-family: 'Inter', 'Mukta', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 28px;
+  }
+
+  .body-md {
+    font-family: 'Inter', 'Mukta', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+  }
+
+  .body-sm {
+    font-family: 'Inter', 'Mukta', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 20px;
+  }
+
+  .label-bold {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 20px;
+    letter-spacing: 0.01em;
+  }
+
+  .label-caps {
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 16px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Sanjivani Vitality Components */
+  .btn-primary {
+    background-color: #00875A;
+    color: #FFFFFF;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 135, 90, 0.2);
+  }
+  .btn-primary:hover {
+    background-color: #006C47;
+    box-shadow: 0 6px 16px rgba(0, 108, 71, 0.3);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    color: #002B5B;
+    border: 1.5px solid #002B5B;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.2s ease;
+  }
+  .btn-secondary:hover {
+    background-color: #EFF4FF;
+  }
+
+  .vitality-card {
+    background-color: #FFFFFF;
+    border: 1px solid rgba(211, 228, 254, 0.8);
+    border-radius: 1rem;
+    box-shadow: 0 4px 20px -2px rgba(0, 43, 91, 0.07), 0 2px 6px -1px rgba(0, 43, 91, 0.04);
+    transition: all 0.25s ease;
+  }
+  .vitality-card:hover {
+    box-shadow: 0 16px 36px -6px rgba(0, 43, 91, 0.12), 0 8px 16px -4px rgba(0, 43, 91, 0.06);
+    transform: translateY(-2px);
   }
 }
 
