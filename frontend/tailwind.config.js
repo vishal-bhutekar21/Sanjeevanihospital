@@ -37,9 +37,9 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'Mukta', 'system-ui', '-apple-system', 'sans-serif'],
-        heading: ['Plus Jakarta Sans', 'Inter', 'Mukta', 'sans-serif'],
-        marathi: ['Mukta', 'Inter', 'sans-serif'],
+        sans: ['Inter', 'Mukta', 'Noto Sans Devanagari', 'Yantramanav', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Plus Jakarta Sans', 'Mukta', 'Noto Sans Devanagari', 'Inter', 'sans-serif'],
+        marathi: ['Mukta', 'Noto Sans Devanagari', 'Yantramanav', 'Inter', 'sans-serif'],
       },
       boxShadow: {
         'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
