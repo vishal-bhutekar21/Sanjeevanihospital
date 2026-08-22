@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import {
   Calendar,
@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   AlertCircle,
   ChevronRight,
+  ChevronLeft,
   Printer,
   ShieldCheck,
   CreditCard,
@@ -17,10 +18,15 @@ import {
   ArrowLeft,
   Lock,
   HeartPulse,
+  Baby,
+  Activity,
+  Award,
+  Users,
+  Search,
 } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
-import { DOCTORS_DATA } from '../data/doctorsData';
+import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 
 interface DoctorOption {
   id: string;
@@ -29,6 +35,7 @@ interface DoctorOption {
   department: string;
   departmentMr: string;
   qualifications: string;
+  category: 'DIRECTOR' | 'INHOUSE' | 'VISITING';
   fee: number;
   timings: string;
   timingsMr: string;
@@ -42,6 +49,7 @@ const DOCTOR_OPTIONS: DoctorOption[] = DOCTORS_DATA.map((d) => ({
   department: d.dept,
   departmentMr: d.deptMr,
   qualifications: d.degree,
+  category: d.category,
   fee: d.fee,
   timings: d.timings,
   timingsMr: d.timingsMr,
@@ -67,21 +75,43 @@ export const BookAppointmentPage: React.FC = () => {
   const [, setPatientToken] = useState('');
 
   // Step 2: Patient Demographic State
+  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'DIRECTOR' | 'INHOUSE' | 'VISITING'>('ALL');
+  const [doctorSearch, setDoctorSearch] = useState('');
   const [selectedDoctorId, setSelectedDoctorId] = useState(initialDoctorId);
   const [patientName, setPatientName] = useState('Suresh Patil');
   const [patientAge, setPatientAge] = useState(42);
-  const [patientGender, setPatientGender] = useState('Male');
+  const [patientGender, setPatientGender] = useState<'Male' | 'Female' | 'Other'>('Male');
   const [patientAddress, setPatientAddress] = useState('Jalna City, Maharashtra');
   const [symptoms, setSymptoms] = useState('');
   const [bookingSessionId, setBookingSessionId] = useState('');
 
-  // Step 3: Slot Reservation State
+  // Step 3: 1-Month Calendar & Slot Reservation State
+  const [calendarViewDate, setCalendarViewDate] = useState(() => {
+    const d = new Date();
+    return new Date(d.getFullYear(), d.getMonth(), 1);
+  });
+
   const [selectedDate, setSelectedDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
     return d.toISOString().split('T')[0];
   });
-  const [availableSlots, setAvailableSlots] = useState<any[]>([]);
+
+  const [availableSlots, setAvailableSlots] = useState<any[]>([
+    { id: 's-1', startTime: '09:30 AM', endTime: '09:45 AM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-2', startTime: '10:00 AM', endTime: '10:15 AM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-3', startTime: '10:30 AM', endTime: '10:45 AM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-4', startTime: '11:00 AM', endTime: '11:15 AM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-5', startTime: '11:30 AM', endTime: '11:45 AM', session: 'morning', status: 'BOOKED' },
+    { id: 's-6', startTime: '12:00 PM', endTime: '12:15 PM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-7', startTime: '12:30 PM', endTime: '12:45 PM', session: 'morning', status: 'AVAILABLE' },
+    { id: 's-8', startTime: '05:00 PM', endTime: '05:15 PM', session: 'evening', status: 'AVAILABLE' },
+    { id: 's-9', startTime: '05:30 PM', endTime: '05:45 PM', session: 'evening', status: 'AVAILABLE' },
+    { id: 's-10', startTime: '06:00 PM', endTime: '06:15 PM', session: 'evening', status: 'AVAILABLE' },
+    { id: 's-11', startTime: '06:30 PM', endTime: '06:45 PM', session: 'evening', status: 'AVAILABLE' },
+    { id: 's-12', startTime: '07:00 PM', endTime: '07:15 PM', session: 'evening', status: 'AVAILABLE' },
+  ]);
+
   const [selectedSlot, setSelectedSlot] = useState<any>(null);
   const [, setReservedSlotId] = useState('');
 
@@ -99,21 +129,21 @@ export const BookAppointmentPage: React.FC = () => {
   const stepsList = [
     { num: 1, label: isMr ? 'मोबाईल OTP' : 'Phone OTP', sub: isMr ? 'पडताळणी' : 'Verify' },
     { num: 2, label: isMr ? 'रुग्ण व डॉक्टर' : 'Patient Info', sub: isMr ? 'माहिती' : 'Details' },
-    { num: 3, label: isMr ? 'वेळ व स्लॉट' : 'Select Slot', sub: isMr ? 'तारीख' : 'Time' },
+    { num: 3, label: isMr ? 'कॅलेंडर व स्लॉट' : 'Calendar Slot', sub: isMr ? 'तारीख' : 'Time' },
     { num: 4, label: isMr ? 'शुल्क पेमेंट' : 'OPD Payment', sub: isMr ? 'कन्फर्म' : 'Checkout' },
     { num: 5, label: isMr ? 'टोकन पावती' : 'Confirmed', sub: isMr ? 'पावती' : 'Token' },
   ];
 
-  // Quick Date Options (Today, Tomorrow, +2, +3, +4 days)
-  const quickDates = Array.from({ length: 5 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() + i);
-    const dateStr = d.toISOString().split('T')[0];
-    const dayName = d.toLocaleDateString(isMr ? 'mr-IN' : 'en-US', { weekday: 'short' });
-    const dayNum = d.getDate();
-    const month = d.toLocaleDateString(isMr ? 'mr-IN' : 'en-US', { month: 'short' });
-    return { dateStr, label: i === 0 ? (isMr ? 'आज' : 'Today') : i === 1 ? (isMr ? 'उद्या' : 'Tomorrow') : `${dayName}, ${dayNum} ${month}` };
-  });
+  // Quick Common Symptoms Presets
+  const quickSymptoms = [
+    { label: isMr ? 'सांधे व गुडघेदुखी' : 'Joint / Knee Pain' },
+    { label: isMr ? 'ताप, सर्दी व खोकला' : 'Fever & Cough' },
+    { label: isMr ? 'बालरोग नियमित तपासणी' : 'Pediatric Health Checkup' },
+    { label: isMr ? 'प्रसूती / गर्भावस्थेतील सल्ला' : 'Pregnancy / Maternity Care' },
+    { label: isMr ? 'पोटदुखी व पचन विकार' : 'Abdominal Pain & Digestion' },
+    { label: isMr ? 'उच्च रक्तदाब व मधुमेह' : 'BP & Diabetes Management' },
+    { label: isMr ? 'नियमित आरोग्य तपासणी' : 'General Routine Checkup' },
+  ];
 
   // 1. Send OTP (Resilient with instant Sandbox fallback)
   const handleSendOtp = async (e: React.FormEvent) => {
@@ -135,8 +165,7 @@ export const BookAppointmentPage: React.FC = () => {
         return;
       }
     } catch (err) {
-      // Backend not running or offline - proceed smoothly in sandbox demo mode
-      console.log('Backend not reachable, activating sandbox demo OTP mode...');
+      console.log('Backend offline, activating sandbox demo OTP mode...');
     }
 
     // Sandbox demo mode activation
@@ -227,27 +256,30 @@ export const BookAppointmentPage: React.FC = () => {
       } else {
         // Fallback realistic default slots
         setAvailableSlots([
-          { id: 's-1', startTime: '10:00 AM', endTime: '10:15 AM', status: 'AVAILABLE' },
-          { id: 's-2', startTime: '10:30 AM', endTime: '10:45 AM', status: 'AVAILABLE' },
-          { id: 's-3', startTime: '11:00 AM', endTime: '11:15 AM', status: 'AVAILABLE' },
-          { id: 's-4', startTime: '11:30 AM', endTime: '11:45 AM', status: 'BOOKED' },
-          { id: 's-5', startTime: '12:00 PM', endTime: '12:15 PM', status: 'AVAILABLE' },
-          { id: 's-6', startTime: '12:30 PM', endTime: '12:45 PM', status: 'AVAILABLE' },
-          { id: 's-7', startTime: '05:30 PM', endTime: '05:45 PM', status: 'AVAILABLE' },
-          { id: 's-8', startTime: '06:00 PM', endTime: '06:15 PM', status: 'AVAILABLE' },
-          { id: 's-9', startTime: '06:30 PM', endTime: '06:45 PM', status: 'AVAILABLE' },
-          { id: 's-10', startTime: '07:00 PM', endTime: '07:15 PM', status: 'AVAILABLE' },
+          { id: 's-1', startTime: '09:30 AM', endTime: '09:45 AM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-2', startTime: '10:00 AM', endTime: '10:15 AM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-3', startTime: '10:30 AM', endTime: '10:45 AM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-4', startTime: '11:00 AM', endTime: '11:15 AM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-5', startTime: '11:30 AM', endTime: '11:45 AM', session: 'morning', status: 'BOOKED' },
+          { id: 's-6', startTime: '12:00 PM', endTime: '12:15 PM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-7', startTime: '12:30 PM', endTime: '12:45 PM', session: 'morning', status: 'AVAILABLE' },
+          { id: 's-8', startTime: '05:00 PM', endTime: '05:15 PM', session: 'evening', status: 'AVAILABLE' },
+          { id: 's-9', startTime: '05:30 PM', endTime: '05:45 PM', session: 'evening', status: 'AVAILABLE' },
+          { id: 's-10', startTime: '06:00 PM', endTime: '06:15 PM', session: 'evening', status: 'AVAILABLE' },
+          { id: 's-11', startTime: '06:30 PM', endTime: '06:45 PM', session: 'evening', status: 'AVAILABLE' },
+          { id: 's-12', startTime: '07:00 PM', endTime: '07:15 PM', session: 'evening', status: 'AVAILABLE' },
         ]);
       }
     } catch (err) {
       setAvailableSlots([
-        { id: 's-1', startTime: '10:00 AM', endTime: '10:15 AM', status: 'AVAILABLE' },
-        { id: 's-2', startTime: '10:30 AM', endTime: '10:45 AM', status: 'AVAILABLE' },
-        { id: 's-3', startTime: '11:00 AM', endTime: '11:15 AM', status: 'AVAILABLE' },
-        { id: 's-4', startTime: '12:00 PM', endTime: '12:15 PM', status: 'AVAILABLE' },
-        { id: 's-5', startTime: '05:30 PM', endTime: '05:45 PM', status: 'AVAILABLE' },
-        { id: 's-6', startTime: '06:00 PM', endTime: '06:15 PM', status: 'AVAILABLE' },
-        { id: 's-7', startTime: '06:30 PM', endTime: '06:45 PM', status: 'AVAILABLE' },
+        { id: 's-1', startTime: '09:30 AM', endTime: '09:45 AM', session: 'morning', status: 'AVAILABLE' },
+        { id: 's-2', startTime: '10:00 AM', endTime: '10:15 AM', session: 'morning', status: 'AVAILABLE' },
+        { id: 's-3', startTime: '10:30 AM', endTime: '10:45 AM', session: 'morning', status: 'AVAILABLE' },
+        { id: 's-4', startTime: '11:00 AM', endTime: '11:15 AM', session: 'morning', status: 'AVAILABLE' },
+        { id: 's-5', startTime: '12:00 PM', endTime: '12:15 PM', session: 'morning', status: 'AVAILABLE' },
+        { id: 's-6', startTime: '05:30 PM', endTime: '05:45 PM', session: 'evening', status: 'AVAILABLE' },
+        { id: 's-7', startTime: '06:00 PM', endTime: '06:15 PM', session: 'evening', status: 'AVAILABLE' },
+        { id: 's-8', startTime: '06:30 PM', endTime: '06:45 PM', session: 'evening', status: 'AVAILABLE' },
       ]);
     }
   };
@@ -355,6 +387,8 @@ export const BookAppointmentPage: React.FC = () => {
         appointmentCode: `SNH-2026-${Math.floor(1000 + Math.random() * 9000)}`,
         appointment: {
           patientName,
+          patientAge,
+          patientGender,
           patientPhone: `+91-${phone}`,
           doctorName: isMr ? selectedDoctor.nameMr : selectedDoctor.name,
           department: isMr ? selectedDoctor.departmentMr : selectedDoctor.department,
@@ -375,12 +409,70 @@ export const BookAppointmentPage: React.FC = () => {
     }
   };
 
+  // Calendar Helpers (1 Full Month Grid)
+  const daysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+  const firstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+
+  const currentYear = calendarViewDate.getFullYear();
+  const currentMonth = calendarViewDate.getMonth();
+  const totalDays = daysInMonth(currentYear, currentMonth);
+  const startDay = firstDayOfMonth(currentYear, currentMonth);
+
+  const prevMonth = () => {
+    const today = new Date();
+    const minMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const prev = new Date(currentYear, currentMonth - 1, 1);
+    if (prev >= minMonth) {
+      setCalendarViewDate(prev);
+    }
+  };
+
+  const nextMonth = () => {
+    setCalendarViewDate(new Date(currentYear, currentMonth + 1, 1));
+  };
+
+  const isToday = (year: number, month: number, day: number) => {
+    const t = new Date();
+    return t.getFullYear() === year && t.getMonth() === month && t.getDate() === day;
+  };
+
+  const isPast = (year: number, month: number, day: number) => {
+    const t = new Date();
+    t.setHours(0, 0, 0, 0);
+    const d = new Date(year, month, day);
+    return d < t;
+  };
+
+  const formatDateStr = (year: number, month: number, day: number) => {
+    const m = String(month + 1).padStart(2, '0');
+    const d = String(day).padStart(2, '0');
+    return `${year}-${m}-${d}`;
+  };
+
+  const monthNamesEn = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const monthNamesMr = ['जानेवारी', 'फेब्रुवारी', 'मार्च', 'एप्रिल', 'मे', 'जून', 'जुलै', 'ऑगस्ट', 'सप्टेंबर', 'ऑक्टोबर', 'नोव्हेंबर', 'डिसेंबर'];
+  const weekDaysEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const weekDaysMr = ['रवि', 'सोम', 'मंगळ', 'बुध', 'गुरु', 'शुक्र', 'शनि'];
+
+  // Doctor Filter for Step 2
+  const filteredDoctors = DOCTOR_OPTIONS.filter((d) => {
+    const matchesCategory = selectedCategory === 'ALL' || d.category === selectedCategory;
+    const q = doctorSearch.toLowerCase().trim();
+    const matchesSearch =
+      !q ||
+      d.name.toLowerCase().includes(q) ||
+      d.nameMr.toLowerCase().includes(q) ||
+      d.department.toLowerCase().includes(q) ||
+      d.departmentMr.toLowerCase().includes(q);
+    return matchesCategory && matchesSearch;
+  });
+
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
+    <div className="max-w-[1040px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* ─── 1. PAGE HEADER & TRUST BADGE ──────────────────────────────────── */}
       <div className="text-center space-y-3">
         <div className="badge-teal text-xs py-1 px-3">
-          <ShieldCheck className="w-4 h-4 text-teal-400" />
+          <ShieldCheck className="w-4 h-4 text-teal-600" />
           <span>{isMr ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना • थेट ओपीडी नोंदणी' : 'Sanjeevani Multispeciality Hospital, Jalna • Direct OPD Scheduling'}</span>
         </div>
         <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-slate-900 tracking-tight font-heading">
@@ -388,16 +480,16 @@ export const BookAppointmentPage: React.FC = () => {
         </h1>
         <p className="text-slate-600 text-xs sm:text-sm max-w-xl mx-auto font-normal">
           {isMr
-            ? '५ सोप्या टप्प्यांत तज्ज्ञ डॉक्टरांचा वेळ निवडा, रिअल-टाइम कन्फर्मेशन मिळवा आणि हॉस्पिटल टोकन मिळवा.'
-            : 'Instant 5-step online booking with verified specialist doctors, live time-slot reservation, and instant hospital token.'}
+            ? '५ सोप्या टप्प्यांत तज्ज्ञ डॉक्टरांचा वेळ निवडा, १ महिन्याच्या कॅलेंडरमधून तारीख ठरवा आणि टोकन पावती मिळवा.'
+            : 'Instant 5-step online booking with verified specialist doctors, full 1-month interactive calendar, and instant hospital token.'}
         </p>
       </div>
 
       {/* ─── 2. MODERN PROGRESS TRACKER (STEPPER) ─────────────────────────── */}
-      <div className="card-clean p-4 sm:p-6 bg-white">
+      <div className="card-clean p-4 sm:p-6 bg-white shadow-xs border border-slate-200">
         {/* Desktop Stepper */}
         <div className="hidden sm:grid grid-cols-5 gap-2 relative">
-          {stepsList.map((s, idx) => {
+          {stepsList.map((s) => {
             const isCompleted = step > s.num;
             const isCurrent = step === s.num;
             return (
@@ -406,9 +498,9 @@ export const BookAppointmentPage: React.FC = () => {
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                     isCompleted
-                      ? 'bg-teal-600 text-white shadow-sm'
+                      ? 'bg-[#0F766E] text-white shadow-xs'
                       : isCurrent
-                      ? 'bg-[#0F766E] text-white ring-4 ring-teal-100 shadow-sm'
+                      ? 'bg-[#0F766E] text-white ring-4 ring-teal-100 shadow-xs'
                       : 'bg-slate-100 text-slate-400'
                   }`}
                 >
@@ -418,7 +510,7 @@ export const BookAppointmentPage: React.FC = () => {
                 {/* Step Label */}
                 <div className="mt-2 space-y-0.5">
                   <span
-                    className={`text-xs font-semibold block ${
+                    className={`text-xs font-bold block ${
                       isCurrent ? 'text-[#0F766E]' : isCompleted ? 'text-slate-800' : 'text-slate-400'
                     }`}
                   >
@@ -458,7 +550,7 @@ export const BookAppointmentPage: React.FC = () => {
 
       {/* ─── STEP 1: MOBILE OTP VERIFICATION ───────────────────────────────── */}
       {step === 1 && (
-        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-lg mx-auto bg-white">
+        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-lg mx-auto bg-white border border-slate-200">
           <div className="text-center space-y-1.5 border-b border-slate-100 pb-4">
             <div className="w-12 h-12 rounded-xl bg-teal-50 text-[#0F766E] flex items-center justify-center mx-auto mb-2">
               <Phone className="w-6 h-6" />
@@ -503,21 +595,23 @@ export const BookAppointmentPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary text-xs w-full py-3 font-semibold shadow-sm"
+                className="btn-primary text-xs w-full py-3 font-semibold shadow-xs"
               >
                 {loading ? (isMr ? 'OTP पाठवत आहे...' : 'Sending OTP...') : (isMr ? 'पडताळणी OTP पाठवा' : 'Send Verification OTP')}
               </button>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-4">
-              <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-800 space-y-0.5">
-                <p className="font-semibold">{isMr ? `OTP पाठवला: +९१-${phone}` : `OTP Sent to +91-${phone}`}</p>
-                <p className="text-[11px] text-teal-700">{isMr ? 'डेमो व्हेरिफिकेशन कोड:' : 'Sandbox Demo Code:'} <span className="font-bold font-mono">123456</span></p>
+              <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-800 space-y-0.5 border border-teal-100">
+                <p className="font-semibold">{isMr ? `OTP +91-${phone} वर पाठवला गेला आहे` : `OTP sent to +91-${phone}`}</p>
+                <p className="text-[11px] text-teal-700">
+                  {isMr ? 'डेमोसाठी "123456" हा कोड वापरा.' : 'For sandbox demo, enter code: 123456'}
+                </p>
               </div>
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-slate-700">
-                  {isMr ? '६-अंकी पडताळणी कोड प्रविष्ट करा' : 'Enter 6-Digit Verification Code'}
+                  {isMr ? '६-अंकी पडताळणी कोड' : '6-Digit Verification Code'}
                 </label>
                 <input
                   type="text"
@@ -525,72 +619,115 @@ export const BookAppointmentPage: React.FC = () => {
                   maxLength={6}
                   value={otpCode}
                   onChange={(e) => setOtpCode(e.target.value)}
-                  className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg text-lg font-bold text-center tracking-widest text-slate-900 focus:border-[#0F766E] focus:outline-none"
+                  className="w-full px-4 py-2.5 text-center tracking-widest text-lg font-mono font-bold bg-slate-50 border border-slate-200 rounded-lg focus:border-[#0F766E] focus:bg-white focus:outline-none"
                   placeholder="123456"
                 />
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setOtpSent(false)}
-                  className="btn-secondary text-xs flex-1 py-2.5"
-                >
-                  {isMr ? 'नंबर बदला' : 'Change No.'}
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="btn-primary text-xs flex-2 py-2.5 font-semibold"
-                >
-                  {loading ? (isMr ? 'पडताळणी होत आहे...' : 'Verifying...') : (isMr ? 'सत्यापित करा व पुढे जा' : 'Verify & Continue')}
-                </button>
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="btn-primary text-xs w-full py-3 font-semibold shadow-xs"
+              >
+                {loading ? (isMr ? 'पडताळणी करत आहे...' : 'Verifying...') : (isMr ? 'OTP सत्यापित करा व पुढे जा' : 'Verify OTP & Continue')}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setOtpSent(false)}
+                className="text-xs text-slate-500 hover:text-slate-800 text-center w-full block pt-1"
+              >
+                {isMr ? 'मोबाईल नंबर बदला' : 'Change mobile number'}
+              </button>
             </form>
           )}
         </div>
       )}
 
-      {/* ─── STEP 2: PATIENT DEMOGRAPHICS & DOCTOR SELECTION ────────────────── */}
+      {/* ─── STEP 2: DOCTOR SELECTION & PATIENT DEMOGRAPHICS (ENHANCED AGE SECTION) ── */}
       {step === 2 && (
-        <div className="card-clean p-6 sm:p-10 space-y-6 bg-white">
+        <div className="card-clean p-6 sm:p-10 space-y-6 bg-white border border-slate-200">
           <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <h2 className="text-lg font-bold text-slate-900 font-heading">
-                {isMr ? 'टप्पा २: डॉक्टर आणि रुग्णाची माहिती' : 'Step 2: Doctor Selection & Patient Demographics'}
+                {isMr ? 'टप्पा २: डॉक्टर आणि रुग्णाची सविस्तर माहिती' : 'Step 2: Doctor Selection & Patient Demographics'}
               </h2>
               <p className="text-xs text-slate-500">
-                {isMr ? 'ओपीडी नोंदणीसाठी अचूक माहिती भरा:' : 'Provide accurate details for Sanjeevani OPD patient records:'}
+                {isMr ? 'ओपीडी नोंदणीसाठी रुग्णाचे वय, लिंग व लक्षणे अचूक भरा:' : 'Provide accurate patient age, gender, and clinical symptoms:'}
               </p>
             </div>
-            <span className="badge-teal text-xs py-1">
+            <span className="badge-teal text-xs py-1 px-3">
               ✓ +91-{phone} {isMr ? 'सत्यापित' : 'Verified'}
             </span>
           </div>
 
           <form onSubmit={handleInitBooking} className="space-y-6">
-            {/* 1. Doctor Selection Cards */}
-            <div className="space-y-2">
-              <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
-                {isMr ? 'तज्ज्ञ डॉक्टर निवडा *' : 'Select Specialist Doctor *'}
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                {DOCTOR_OPTIONS.map((doc) => {
+            {/* 1. Doctor Selection & Filters */}
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <label className="block text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  {isMr ? 'तज्ज्ञ डॉक्टर निवडा *' : 'Select Specialist Doctor *'}
+                </label>
+
+                {/* Category Pills */}
+                <div className="inline-flex flex-wrap gap-1 p-1 bg-slate-100 rounded-lg text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('ALL')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                      selectedCategory === 'ALL' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    }`}
+                  >
+                    {isMr ? 'सर्व (14)' : 'All (14)'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('DIRECTOR')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                      selectedCategory === 'DIRECTOR' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    }`}
+                  >
+                    {isMr ? 'संचालक' : 'Directors'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('INHOUSE')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                      selectedCategory === 'INHOUSE' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    }`}
+                  >
+                    {isMr ? 'इन-हाऊस' : 'In-House'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedCategory('VISITING')}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition ${
+                      selectedCategory === 'VISITING' ? 'bg-white text-slate-900 shadow-xs' : 'text-slate-600'
+                    }`}
+                  >
+                    {isMr ? 'व्हिजिटिंग' : 'Visiting'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Doctor Card Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-72 overflow-y-auto pr-1 no-scrollbar">
+                {filteredDoctors.map((doc) => {
                   const isSelected = selectedDoctorId === doc.id;
                   return (
                     <div
                       key={doc.id}
                       onClick={() => setSelectedDoctorId(doc.id)}
-                      className={`p-3.5 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
+                      className={`p-3 rounded-xl border transition-all cursor-pointer flex items-start gap-3 ${
                         isSelected
-                          ? 'bg-teal-50/50 border-[#0F766E] shadow-sm ring-1 ring-[#0F766E]'
-                          : 'bg-slate-50/60 border-slate-200 hover:bg-slate-100/70'
+                          ? 'bg-teal-50/60 border-[#0F766E] shadow-sm ring-2 ring-[#0F766E]'
+                          : 'bg-slate-50/60 border-slate-200 hover:bg-slate-100/80'
                       }`}
                     >
                       <img
                         src={doc.image}
                         alt={doc.name}
-                        className="w-12 h-12 rounded-lg object-cover shrink-0"
+                        className="w-12 h-12 rounded-lg object-cover shrink-0 border border-slate-200"
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between">
@@ -599,7 +736,7 @@ export const BookAppointmentPage: React.FC = () => {
                           </h4>
                           <span className="text-xs font-bold text-[#0F766E]">₹{doc.fee}</span>
                         </div>
-                        <p className="text-[11px] text-[#0F766E] font-medium truncate">
+                        <p className="text-[11px] text-[#0F766E] font-semibold truncate">
                           {isMr ? doc.departmentMr : doc.department}
                         </p>
                         <p className="text-[10px] text-slate-400 truncate mt-0.5">
@@ -612,83 +749,175 @@ export const BookAppointmentPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 2. Patient Form Fields */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-slate-100">
-              <div className="sm:col-span-2 space-y-1">
+            {/* 2. Patient Demographics & Age Section */}
+            <div className="space-y-4 pt-4 border-t border-slate-100">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                <User className="w-3.5 h-3.5 text-[#0F766E]" />
+                <span>{isMr ? 'रुग्ण माहिती व वय' : 'Patient Information & Age'}</span>
+              </h3>
+
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                {/* Full Name */}
+                <div className="sm:col-span-7 space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient Full Name *'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={patientName}
+                    onChange={(e) => setPatientName(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:bg-white focus:outline-none transition"
+                    placeholder={isMr ? 'उदा. ज्ञानेश्वर जाधव' : 'e.g. Dnyaneshwar Jadhav'}
+                  />
+                </div>
+
+                {/* Patient Age with Stepper Controls & Presets */}
+                <div className="sm:col-span-5 space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="block text-xs font-semibold text-slate-700">
+                      {isMr ? 'रुग्णाचे वय (वर्षे) *' : 'Patient Age (Years) *'}
+                    </label>
+                    <span className="text-[11px] text-slate-400">
+                      {patientAge <= 12 ? (isMr ? 'बालक' : 'Child') : patientAge >= 60 ? (isMr ? 'ज्येष्ठ' : 'Senior') : (isMr ? 'प्रौढ' : 'Adult')}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setPatientAge(Math.max(1, patientAge - 1))}
+                      className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center transition shrink-0"
+                    >
+                      -
+                    </button>
+                    <input
+                      type="number"
+                      required
+                      min={1}
+                      max={120}
+                      value={patientAge}
+                      onChange={(e) => setPatientAge(Math.max(1, Number(e.target.value)))}
+                      className="w-full px-3 py-2 text-center font-bold text-sm bg-slate-50 border border-slate-200 rounded-lg focus:border-[#0F766E] focus:bg-white focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPatientAge(Math.min(120, patientAge + 1))}
+                      className="w-9 h-9 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm flex items-center justify-center transition shrink-0"
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  {/* Quick Age Presets */}
+                  <div className="flex gap-1 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setPatientAge(5)}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition ${
+                        patientAge <= 12 ? 'bg-teal-50 text-teal-800 border-teal-200 font-bold' : 'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      👶 {isMr ? 'बालक (५)' : 'Child (5)'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPatientAge(35)}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition ${
+                        patientAge > 12 && patientAge < 60 ? 'bg-teal-50 text-teal-800 border-teal-200 font-bold' : 'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      🧑 {isMr ? 'तरुण (३५)' : 'Adult (35)'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPatientAge(65)}
+                      className={`text-[10px] px-2 py-0.5 rounded border transition ${
+                        patientAge >= 60 ? 'bg-teal-50 text-teal-800 border-teal-200 font-bold' : 'bg-slate-50 text-slate-500 border-slate-200'
+                      }`}
+                    >
+                      👴 {isMr ? 'ज्येष्ठ (६५)' : 'Senior (65)'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gender & City/Address */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4">
+                {/* Gender Selector Cards */}
+                <div className="sm:col-span-5 space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    {isMr ? 'लिंग (Gender) *' : 'Gender *'}
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {[
+                      { key: 'Male', label: isMr ? 'पुरुष' : 'Male' },
+                      { key: 'Female', label: isMr ? 'स्त्री' : 'Female' },
+                      { key: 'Other', label: isMr ? 'इतर' : 'Other' },
+                    ].map((g) => (
+                      <button
+                        key={g.key}
+                        type="button"
+                        onClick={() => setPatientGender(g.key as any)}
+                        className={`py-2 px-2 rounded-lg text-xs font-semibold border text-center transition ${
+                          patientGender === g.key
+                            ? 'bg-[#0F766E] text-white border-[#0F766E] shadow-xs'
+                            : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                        }`}
+                      >
+                        {g.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* City / Taluka */}
+                <div className="sm:col-span-7 space-y-1">
+                  <label className="block text-xs font-semibold text-slate-700">
+                    {isMr ? 'गाव / शहर / तालुका *' : 'City / Town / Taluka *'}
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={patientAddress}
+                    onChange={(e) => setPatientAddress(e.target.value)}
+                    className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:bg-white focus:outline-none transition"
+                    placeholder={isMr ? 'उदा. जालना शहर / अंबड' : 'e.g. Jalna City / Ambad'}
+                  />
+                </div>
+              </div>
+
+              {/* Symptoms Input & Quick Chips */}
+              <div className="space-y-1.5">
                 <label className="block text-xs font-semibold text-slate-700">
-                  {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient Full Name *'}
+                  {isMr ? 'आजाराचे मुख्य लक्षण किंवा तपासणीचे कारण:' : 'Primary Health Concern / Consultation Reason:'}
                 </label>
                 <input
                   type="text"
-                  required
-                  value={patientName}
-                  onChange={(e) => setPatientName(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  placeholder={isMr ? 'उदा. ज्ञानेश्वर जाधव' : 'e.g. Dnyaneshwar Jadhav'}
+                  value={symptoms}
+                  onChange={(e) => setSymptoms(e.target.value)}
+                  placeholder={isMr ? 'उदा. गुडघेदुखी, ताप, खोकला, नियमित तपासणी...' : 'e.g. Knee pain, fever, regular blood pressure checkup...'}
+                  className="w-full px-3.5 py-2.5 bg-slate-50/70 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:bg-white focus:outline-none transition"
                 />
-              </div>
 
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  {isMr ? 'वय (वर्षे) *' : 'Patient Age *'}
-                </label>
-                <input
-                  type="number"
-                  required
-                  min={0}
-                  max={120}
-                  value={patientAge}
-                  onChange={(e) => setPatientAge(Number(e.target.value))}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                />
+                {/* Clickable Quick Symptom Chips */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  <span className="text-[11px] text-slate-400 self-center mr-1">{isMr ? 'जलद निवडा:' : 'Quick select:'}</span>
+                  {quickSymptoms.map((qs, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSymptoms(qs.label)}
+                      className="text-[11px] px-2.5 py-1 rounded-full bg-slate-100 hover:bg-teal-50 hover:text-[#0F766E] border border-slate-200 text-slate-600 transition"
+                    >
+                      + {qs.label}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  {isMr ? 'लिंग *' : 'Gender *'}
-                </label>
-                <select
-                  value={patientGender}
-                  onChange={(e) => setPatientGender(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                >
-                  <option value="Male">{isMr ? 'पुरुष (Male)' : 'Male'}</option>
-                  <option value="Female">{isMr ? 'स्त्री (Female)' : 'Female'}</option>
-                  <option value="Other">{isMr ? 'इतर (Other)' : 'Other'}</option>
-                </select>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
-                  {isMr ? 'गाव / शहर / तालुका *' : 'City / Town / Taluka *'}
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={patientAddress}
-                  onChange={(e) => setPatientAddress(e.target.value)}
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  placeholder={isMr ? 'उदा. जालना शहर' : 'e.g. Jalna City / Ambad'}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <label className="block text-xs font-semibold text-slate-700">
-                {isMr ? 'आजाराचे मुख्य लक्षण / कारण (पर्यायी)' : 'Primary Symptoms / Reason for Consultation (Optional)'}
-              </label>
-              <input
-                type="text"
-                value={symptoms}
-                onChange={(e) => setSymptoms(e.target.value)}
-                placeholder={isMr ? 'उदा. गुडघेदुखी, ताप, खोकला, नियमित तपासणी...' : 'e.g. Joint pain, fever, pediatric routine checkup...'}
-                className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-              />
-            </div>
-
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
               <button
                 type="button"
                 onClick={() => setStep(1)}
@@ -701,9 +930,9 @@ export const BookAppointmentPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="btn-primary text-xs py-2.5 px-6 font-semibold"
+                className="btn-primary text-xs py-2.5 px-6 font-semibold shadow-xs"
               >
-                <span>{loading ? (isMr ? 'जतन करत आहे...' : 'Saving...') : (isMr ? 'वेळ व स्लॉट निवडा' : 'Proceed to Live Slots')}</span>
+                <span>{loading ? (isMr ? 'जतन करत आहे...' : 'Saving...') : (isMr ? 'कॅलेंडर व स्लॉट निवडा' : 'Proceed to Calendar & Slots')}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
             </div>
@@ -711,87 +940,216 @@ export const BookAppointmentPage: React.FC = () => {
         </div>
       )}
 
-      {/* ─── STEP 3: INTERACTIVE DATE & TIME-SLOT PICKER ─────────────────────── */}
+      {/* ─── STEP 3: FULL 1-MONTH INTERACTIVE CALENDAR & TIME-SLOT PICKER ────── */}
       {step === 3 && (
-        <div className="card-clean p-6 sm:p-10 space-y-6 bg-white">
+        <div className="card-clean p-6 sm:p-10 space-y-8 bg-white border border-slate-200">
           <div className="border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-bold text-slate-900 font-heading">
-                {isMr ? 'टप्पा ३: ओपीडी तारीख व वेळ स्लॉट निवडा' : 'Step 3: Select Consultation Date & Time-Slot'}
+                {isMr ? 'टप्पा ३: ओपीडी तारीख कॅलेंडर व वेळ स्लॉट' : 'Step 3: 1-Month Calendar & Time-Slot Reservation'}
               </h2>
               <p className="text-xs text-slate-500">
                 {isMr ? 'तपासणी डॉक्टर:' : 'Consulting:'} <span className="font-bold text-slate-800">{isMr ? selectedDoctor.nameMr : selectedDoctor.name}</span> ({isMr ? selectedDoctor.departmentMr : selectedDoctor.department})
               </p>
             </div>
             <span className="badge-teal text-xs py-1 px-3">
-              {isMr ? `ओपीडी शुल्क: ₹${selectedDoctor.fee}` : `OPD Fee: ₹${selectedDoctor.fee}`}
+              {isMr ? `ओपीडी सल्ला शुल्क: ₹${selectedDoctor.fee}` : `OPD Consultation: ₹${selectedDoctor.fee}`}
             </span>
           </div>
 
-          {/* Quick Date Pills */}
-          <div className="space-y-2">
-            <label className="block text-xs font-semibold text-slate-700">
-              {isMr ? 'अपॉइंटमेंट तारीख निवडा:' : 'Select Appointment Date:'}
-            </label>
-            <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
-              {quickDates.map((qd) => {
-                const isSelected = selectedDate === qd.dateStr;
-                return (
-                  <button
-                    key={qd.dateStr}
-                    type="button"
-                    onClick={() => {
-                      setSelectedDate(qd.dateStr);
-                      fetchDoctorAvailability(selectedDoctorId, qd.dateStr);
-                    }}
-                    className={`p-2.5 rounded-lg border text-center transition-all ${
-                      isSelected
-                        ? 'bg-[#0F766E] text-white border-[#0F766E] shadow-sm font-semibold'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                    }`}
-                  >
-                    <span className="text-xs block truncate">{qd.label}</span>
-                    <span className="text-[10px] opacity-80 block font-mono">{qd.dateStr}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Available Slots */}
-          <div className="space-y-3 pt-2">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                {isMr ? 'उपलब्ध ओपीडी वेळ-स्लॉट:' : 'Available OPD Time-Slots:'}
-              </span>
-              <span className="text-[11px] text-slate-400">
-                {isMr ? '१० मिनिटांसाठी स्लॉट होल्ड केला जातो' : 'Slot held for 10 minutes'}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
-              {availableSlots.map((slot) => {
-                const isAvailable = slot.status === 'AVAILABLE';
-                return (
-                  <button
-                    key={slot.id}
-                    disabled={!isAvailable || loading}
-                    onClick={() => handleReserveSlot(slot)}
-                    className={`p-3 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-1 ${
-                      isAvailable
-                        ? 'bg-white hover:bg-[#0F766E] hover:text-white border-slate-200 hover:border-[#0F766E] shadow-xs cursor-pointer group'
-                        : 'bg-slate-100/80 text-slate-400 border-slate-200 cursor-not-allowed'
-                    }`}
-                  >
-                    <Clock className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-bold">{slot.startTime}</span>
-                    <span className="text-[10px] uppercase font-semibold">
-                      {isAvailable ? (isMr ? 'उपलब्ध' : 'AVAILABLE') : (isMr ? 'बुक' : 'BOOKED')}
+          {/* 2-Column Calendar & Slots Layout */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            {/* Left Column: Full 1-Month Interactive Calendar */}
+            <div className="lg:col-span-6 space-y-4">
+              <div className="card-clean p-4 sm:p-5 bg-slate-50/70 border border-slate-200 rounded-xl space-y-4">
+                
+                {/* Calendar Header with Navigation Controls */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#0F766E] block">
+                      {isMr ? '१ महिन्याचे कॅलेंडर' : 'Interactive Calendar'}
                     </span>
-                  </button>
-                );
-              })}
+                    <h3 className="text-base font-bold text-slate-900 font-heading">
+                      {isMr ? monthNamesMr[currentMonth] : monthNamesEn[currentMonth]} {currentYear}
+                    </h3>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={prevMonth}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-2xs"
+                      title="Previous Month"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={nextMonth}
+                      className="p-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 transition shadow-2xs"
+                      title="Next Month"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Day of Week Headers */}
+                <div className="grid grid-cols-7 gap-1 text-center">
+                  {(isMr ? weekDaysMr : weekDaysEn).map((day, idx) => (
+                    <span key={idx} className="text-[11px] font-bold text-slate-500 py-1">
+                      {day}
+                    </span>
+                  ))}
+                </div>
+
+                {/* 1-Month Date Grid */}
+                <div className="grid grid-cols-7 gap-1">
+                  {/* Empty cells before month start */}
+                  {Array.from({ length: startDay }, (_, i) => (
+                    <div key={`empty-${i}`} className="h-9" />
+                  ))}
+
+                  {/* Days of current month */}
+                  {Array.from({ length: totalDays }, (_, i) => {
+                    const dayNumber = i + 1;
+                    const dateStr = formatDateStr(currentYear, currentMonth, dayNumber);
+                    const isSelected = selectedDate === dateStr;
+                    const past = isPast(currentYear, currentMonth, dayNumber);
+                    const today = isToday(currentYear, currentMonth, dayNumber);
+
+                    return (
+                      <button
+                        key={dayNumber}
+                        type="button"
+                        disabled={past}
+                        onClick={() => {
+                          setSelectedDate(dateStr);
+                          fetchDoctorAvailability(selectedDoctorId, dateStr);
+                        }}
+                        className={`h-9 rounded-lg text-xs font-semibold flex flex-col items-center justify-center relative transition-all ${
+                          isSelected
+                            ? 'bg-[#0F766E] text-white shadow-xs font-bold'
+                            : past
+                            ? 'text-slate-300 cursor-not-allowed'
+                            : today
+                            ? 'bg-teal-50 text-[#0F766E] border border-teal-300 font-bold hover:bg-teal-100'
+                            : 'bg-white text-slate-800 hover:bg-slate-100 border border-slate-100'
+                        }`}
+                      >
+                        <span>{dayNumber}</span>
+                        {today && !isSelected && (
+                          <span className="w-1 h-1 rounded-full bg-[#0F766E] absolute bottom-1" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Legend */}
+                <div className="pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-[#0F766E]" />
+                    <span>{isMr ? 'निवडलेली तारीख' : 'Selected'}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-teal-100 border border-teal-300" />
+                    <span>{isMr ? 'आजचा दिवस' : 'Today'}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-200" />
+                    <span>{isMr ? 'अनुपलब्ध' : 'Past'}</span>
+                  </span>
+                </div>
+              </div>
             </div>
+
+            {/* Right Column: Time-Slot Selection (Morning & Evening Sessions) */}
+            <div className="lg:col-span-6 space-y-5">
+              <div className="p-3.5 bg-teal-50/70 border border-teal-200 rounded-xl flex items-center justify-between text-xs">
+                <div>
+                  <span className="text-teal-800 block text-[11px] font-semibold">{isMr ? 'निवडलेली ओपीडी तारीख:' : 'Selected OPD Date:'}</span>
+                  <span className="font-bold text-slate-900 text-sm">{selectedDate}</span>
+                </div>
+                <span className="badge-teal text-[11px] py-1">
+                  {isMr ? 'थेट हॉस्पिटल टोकन' : 'Instant Token'}
+                </span>
+              </div>
+
+              {/* Morning OPD Slots */}
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-amber-500" />
+                  <span>{isMr ? 'सकाळचे ओपीडी स्लॉट (09:00 AM – 01:00 PM)' : 'Morning OPD Slots (09:00 AM – 01:00 PM)'}</span>
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {availableSlots
+                    .filter((s) => s.session === 'morning' || s.startTime.includes('AM'))
+                    .map((slot) => {
+                      const isAvailable = slot.status === 'AVAILABLE';
+                      const isChosen = selectedSlot?.id === slot.id;
+                      return (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          disabled={!isAvailable || loading}
+                          onClick={() => handleReserveSlot(slot)}
+                          className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-0.5 ${
+                            isChosen
+                              ? 'bg-[#0F766E] text-white border-[#0F766E] shadow-sm font-bold ring-2 ring-teal-200'
+                              : isAvailable
+                              ? 'bg-white hover:border-[#0F766E] hover:bg-teal-50/50 border-slate-200 shadow-2xs group'
+                              : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                          }`}
+                        >
+                          <span className="text-xs font-bold">{slot.startTime}</span>
+                          <span className={`text-[10px] uppercase font-semibold ${isChosen ? 'text-teal-100' : isAvailable ? 'text-[#0F766E]' : 'text-slate-400'}`}>
+                            {isAvailable ? (isMr ? 'उपलब्ध' : 'Available') : (isMr ? 'फुल' : 'Booked')}
+                          </span>
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+
+              {/* Evening OPD Slots */}
+              <div className="space-y-2.5 pt-2">
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-teal-600" />
+                  <span>{isMr ? 'संध्याकाळचे ओपीडी स्लॉट (05:00 PM – 08:00 PM)' : 'Evening OPD Slots (05:00 PM – 08:00 PM)'}</span>
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  {availableSlots
+                    .filter((s) => s.session === 'evening' || s.startTime.includes('PM'))
+                    .map((slot) => {
+                      const isAvailable = slot.status === 'AVAILABLE';
+                      const isChosen = selectedSlot?.id === slot.id;
+                      return (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          disabled={!isAvailable || loading}
+                          onClick={() => handleReserveSlot(slot)}
+                          className={`p-2.5 rounded-xl border text-center transition-all flex flex-col items-center justify-center space-y-0.5 ${
+                            isChosen
+                              ? 'bg-[#0F766E] text-white border-[#0F766E] shadow-sm font-bold ring-2 ring-teal-200'
+                              : isAvailable
+                              ? 'bg-white hover:border-[#0F766E] hover:bg-teal-50/50 border-slate-200 shadow-2xs group'
+                              : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60'
+                          }`}
+                        >
+                          <span className="text-xs font-bold">{slot.startTime}</span>
+                          <span className={`text-[10px] uppercase font-semibold ${isChosen ? 'text-teal-100' : isAvailable ? 'text-[#0F766E]' : 'text-slate-400'}`}>
+                            {isAvailable ? (isMr ? 'उपलब्ध' : 'Available') : (isMr ? 'फुल' : 'Booked')}
+                          </span>
+                        </button>
+                      );
+                    })}
+                </div>
+              </div>
+            </div>
+
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
@@ -809,7 +1167,7 @@ export const BookAppointmentPage: React.FC = () => {
 
       {/* ─── STEP 4: FEE SUMMARY & RAZORPAY PAYMENT ──────────────────────────── */}
       {step === 4 && (
-        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-xl mx-auto bg-white">
+        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-xl mx-auto bg-white border border-slate-200">
           <div className="border-b border-slate-100 pb-4">
             <h2 className="text-lg font-bold text-slate-900 font-heading">
               {isMr ? 'टप्पा ४: ओपीडी सल्ला शुल्क पेमेंट' : 'Step 4: Consultation Fee Payment'}
@@ -825,7 +1183,7 @@ export const BookAppointmentPage: React.FC = () => {
           <div className="bg-slate-50 rounded-xl p-4.5 border border-slate-200 space-y-2.5 text-xs">
             <div className="flex justify-between">
               <span className="text-slate-500">{isMr ? 'रुग्णाचे नाव:' : 'Patient Name:'}</span>
-              <span className="font-bold text-slate-900">{patientName} ({patientAge} Yrs)</span>
+              <span className="font-bold text-slate-900">{patientName} ({patientAge} Yrs • {patientGender})</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">{isMr ? 'तपासणी डॉक्टर:' : 'Specialist Doctor:'}</span>
@@ -852,18 +1210,18 @@ export const BookAppointmentPage: React.FC = () => {
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { key: 'upi', label: 'UPI / GPay / PhonePe' },
-                { key: 'card', label: 'Debit / Credit Card' },
+                { key: 'upi', label: 'UPI / GPay' },
+                { key: 'card', label: 'Debit / Card' },
                 { key: 'netbanking', label: 'NetBanking' },
               ].map((m) => (
                 <button
                   key={m.key}
                   type="button"
                   onClick={() => setPaymentMethod(m.key as any)}
-                  className={`p-2.5 rounded-lg border text-center text-xs font-semibold transition ${
+                  className={`p-3 rounded-lg border text-xs font-bold text-center transition ${
                     paymentMethod === m.key
-                      ? 'bg-teal-50 text-[#0F766E] border-[#0F766E]'
-                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      ? 'bg-[#0F766E] text-white border-[#0F766E] shadow-xs'
+                      : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                   }`}
                 >
                   {m.label}
@@ -872,118 +1230,123 @@ export const BookAppointmentPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="p-3 bg-teal-50 rounded-lg text-xs text-teal-800 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-teal-600 shrink-0" />
-            <span>{isMr ? '२५६-बिट सुरक्षित पेमेंट गेटवे (Sandbox Verified)' : '256-Bit Razorpay Secure Payment (Sandbox Active)'}</span>
+          <div className="space-y-3 pt-2">
+            <button
+              onClick={handleCompletePayment}
+              disabled={loading}
+              className="btn-primary text-xs w-full py-3.5 font-bold shadow-sm flex items-center justify-center gap-2"
+            >
+              <CreditCard className="w-4 h-4" />
+              <span>{loading ? (isMr ? 'पेमेंट प्रक्रिया चालू आहे...' : 'Processing Payment...') : (isMr ? `₹${selectedDoctor.fee} शुल्क भरा व टोकन मिळवा` : `Pay ₹${selectedDoctor.fee} & Confirm Token`)}</span>
+            </button>
+
+            <div className="flex items-center justify-center gap-1 text-[11px] text-slate-400">
+              <Lock className="w-3 h-3" />
+              <span>100% Secure 256-Bit Encrypted Healthcare Gateway</span>
+            </div>
           </div>
 
-          <button
-            onClick={handleCompletePayment}
-            disabled={loading}
-            className="btn-primary w-full py-3 text-xs font-semibold shadow-md"
-          >
-            <CreditCard className="w-4 h-4" />
-            <span>{loading ? (isMr ? 'पेमेंट पडताळणी होत आहे...' : 'Verifying Payment...') : (isMr ? `₹${selectedDoctor.fee} भरा व टोकन मिळवा` : `Pay ₹${selectedDoctor.fee} & Confirm Appointment`)}</span>
-          </button>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+            <button
+              type="button"
+              onClick={() => setStep(3)}
+              className="btn-secondary text-xs py-1.5 px-3"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>{isMr ? 'मागे' : 'Back'}</span>
+            </button>
+          </div>
         </div>
       )}
 
-      {/* ─── STEP 5: OFFICIAL APPOINTMENT TOKEN RECEIPT ──────────────────────── */}
+      {/* ─── STEP 5: CONFIRMED HOSPITAL APPOINTMENT TOKEN ───────────────────── */}
       {step === 5 && confirmedApt && (
-        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-xl mx-auto bg-white">
-          <div className="text-center space-y-2 border-b border-slate-100 pb-5">
-            <div className="w-14 h-14 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
+        <div className="card-clean p-6 sm:p-10 space-y-6 max-w-xl mx-auto bg-white border border-slate-200">
+          <div className="text-center space-y-2 border-b border-slate-100 pb-6">
+            <div className="w-16 h-16 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto ring-8 ring-emerald-50/50">
               <CheckCircle2 className="w-8 h-8" />
             </div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
-              {isMr ? 'अपॉइंटमेंट यशस्वीरीत्या नोंदवली गेली!' : 'OPD Appointment Confirmed!'}
+              {isMr ? 'अपॉइंटमेंट यशस्वीरीत्या कन्फर्म झाली!' : 'Appointment Successfully Confirmed!'}
             </h2>
             <p className="text-xs text-slate-500">
               {isMr
-                ? 'आपली अपॉइंटमेंट संजीवनी हॉस्पिटलच्या ओपीडी प्रणालीमध्ये नोंदवली गेली आहे.'
-                : 'Your appointment has been registered in the Sanjeevani Hospital OPD queue.'}
+                ? 'आपला डिजिटल ओपीडी टोकन क्रमांक जनरेट झाला आहे. कृपया खालील पावती सेव्ह करा.'
+                : 'Your OPD appointment token has been issued. Please retain this receipt for hospital check-in.'}
             </p>
           </div>
 
-          {/* Official Pass / Token Box */}
-          <div className="bg-slate-50 rounded-2xl p-6 border border-slate-200 space-y-4">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-b border-slate-200 pb-3">
+          {/* Official Token Slip */}
+          <div className="bg-slate-50 p-6 rounded-2xl border-2 border-dashed border-teal-300 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 block">
-                  {isMr ? 'हॉस्पिटल टोकन क्रमांक' : 'Hospital Token ID'}
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#0F766E] block">
+                  OPD Token Number
                 </span>
-                <span className="text-2xl font-bold text-slate-900 font-mono">
+                <span className="text-xl font-bold font-mono text-slate-900">
                   {confirmedApt.appointmentCode}
                 </span>
               </div>
-              <span className="badge-teal text-xs py-1 px-3">
-                {isMr ? `सत्यापित व भरणा पूर्ण (₹${confirmedApt.appointment.fee})` : `PAID & VERIFIED (₹${confirmedApt.appointment.fee})`}
+              <span className="badge-teal text-xs py-1 px-2.5">
+                {isMr ? 'कन्फर्म' : 'CONFIRMED'}
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+            <div className="grid grid-cols-2 gap-3 text-xs">
               <div>
-                <span className="text-slate-500 block">{isMr ? 'रुग्णाचे नाव:' : 'Patient Name:'}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'रुग्ण:' : 'Patient:'}</span>
                 <span className="font-bold text-slate-900">{confirmedApt.appointment.patientName}</span>
+                <span className="text-slate-500 block text-[10px]">({confirmedApt.appointment.patientAge || patientAge} Yrs • {patientGender})</span>
               </div>
               <div>
-                <span className="text-slate-500 block">{isMr ? 'मोबाईल नंबर:' : 'Contact Phone:'}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'मोबाईल:' : 'Mobile:'}</span>
                 <span className="font-bold text-slate-900">{confirmedApt.appointment.patientPhone}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">{isMr ? 'तपासणी डॉक्टर:' : 'Consultant Doctor:'}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'तपासणी डॉक्टर:' : 'Specialist Doctor:'}</span>
                 <span className="font-bold text-slate-900">{confirmedApt.appointment.doctorName}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">{isMr ? 'वैद्यकीय विभाग:' : 'Clinical Department:'}</span>
-                <span className="font-bold text-slate-900">{confirmedApt.appointment.department}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'विभाग:' : 'Department:'}</span>
+                <span className="font-bold text-[#0F766E]">{confirmedApt.appointment.department}</span>
               </div>
               <div>
-                <span className="text-slate-500 block">{isMr ? 'तारीख:' : 'Appointment Date:'}</span>
-                <span className="font-bold text-[#0F766E]">{confirmedApt.appointment.appointmentDate}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'तारीख व वेळ:' : 'Date & Time Slot:'}</span>
+                <span className="font-bold text-slate-900">
+                  {confirmedApt.appointment.appointmentDate} ({confirmedApt.appointment.startTime})
+                </span>
               </div>
               <div>
-                <span className="text-slate-500 block">{isMr ? 'उपस्थिती वेळ:' : 'Reporting Time:'}</span>
-                <span className="font-bold text-[#0F766E]">{confirmedApt.appointment.startTime}</span>
+                <span className="text-slate-500 block text-[11px]">{isMr ? 'शुल्क भरले:' : 'Consultation Paid:'}</span>
+                <span className="font-bold text-emerald-700">₹{confirmedApt.appointment.fee} (PAID)</span>
               </div>
             </div>
 
-            <div className="p-3.5 bg-white rounded-xl border border-slate-200 text-xs text-slate-600 space-y-1">
-              <p className="font-bold text-slate-800">{isMr ? 'हॉस्पिटल सूचना:' : 'Hospital Reporting Instructions:'}</p>
-              <p className="text-[11px] leading-relaxed">{confirmedApt.reportingInstructions}</p>
-              <p className="text-[11px] text-slate-500 pt-1">
-                📍 {confirmedApt.hospitalAddress} • 📞 {confirmedApt.emergencyHelpline}
+            <div className="pt-3 border-t border-slate-200 text-[11px] text-slate-500 space-y-1">
+              <p className="font-semibold text-slate-700">
+                🏥 Sanjeevani Multispeciality Hospital, Jalna
+              </p>
+              <p>Plot 17, Rishi Park, Near Ambad Choufuli, Jalna – 431203</p>
+              <p className="text-slate-600 font-medium pt-1">
+                📌 {confirmedApt.reportingInstructions}
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+          <div className="flex gap-3">
             <button
               onClick={() => window.print()}
-              className="btn-secondary text-xs w-full sm:w-auto"
+              className="btn-secondary text-xs flex-1 py-2.5 flex items-center justify-center gap-1.5"
             >
               <Printer className="w-4 h-4" />
-              <span>{isMr ? 'पावती प्रिंट करा' : 'Print Token Slip'}</span>
+              <span>{isMr ? 'पावती प्रिंट करा' : 'Print Token'}</span>
             </button>
-
-            <div className="flex space-x-2 w-full sm:w-auto">
-              <button
-                onClick={() => {
-                  setStep(1);
-                  setOtpSent(false);
-                  setConfirmedApt(null);
-                }}
-                className="btn-secondary text-xs flex-1 sm:flex-none"
-              >
-                {isMr ? 'दुसरी बुकिंग' : 'Book Another'}
-              </button>
-              <Link
-                to="/"
-                className="btn-primary text-xs flex-1 sm:flex-none"
-              >
-                {isMr ? 'मुख्यपृष्ठ' : 'Home Page'}
-              </Link>
-            </div>
+            <Link
+              to="/"
+              className="btn-primary text-xs flex-1 py-2.5 text-center flex items-center justify-center"
+            >
+              <span>{isMr ? 'मुख्य पानावर जा' : 'Back to Home'}</span>
+            </Link>
           </div>
         </div>
       )}
