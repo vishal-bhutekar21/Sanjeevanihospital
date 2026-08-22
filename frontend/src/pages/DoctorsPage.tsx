@@ -67,54 +67,54 @@ export const DoctorsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 4 CATEGORY FILTER TABS ─────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl">
+      {/* ─── 4 CATEGORY FILTER TABS (CLEAN RESPONSIVE GRID - NO SLIDER) ───────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
         <button
           onClick={() => setSelectedCategory('ALL')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             selectedCategory === 'ALL'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Users className="w-3.5 h-3.5 text-[#0F766E]" />
-          <span>{isMr ? `सर्व डॉक्टर्स (${countAll})` : `All Doctors (${countAll})`}</span>
+          <Users className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
+          <span className="truncate">{isMr ? `सर्व (${countAll})` : `All (${countAll})`}</span>
         </button>
 
         <button
           onClick={() => setSelectedCategory('DIRECTOR')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             selectedCategory === 'DIRECTOR'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Award className="w-3.5 h-3.5 text-amber-500" />
-          <span>{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
+          <Award className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+          <span className="truncate">{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
         </button>
 
         <button
           onClick={() => setSelectedCategory('INHOUSE')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             selectedCategory === 'INHOUSE'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Stethoscope className="w-3.5 h-3.5 text-teal-600" />
-          <span>{isMr ? `इन-हाऊस कन्सल्टंट (${countInhouse})` : `In-House Faculty (${countInhouse})`}</span>
+          <Stethoscope className="w-3.5 h-3.5 shrink-0 text-teal-600" />
+          <span className="truncate">{isMr ? `इन-हाऊस (${countInhouse})` : `In-House (${countInhouse})`}</span>
         </button>
 
         <button
           onClick={() => setSelectedCategory('VISITING')}
-          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             selectedCategory === 'VISITING'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-          <span>{isMr ? `व्हिजिटिंग कन्सल्टंट (${countVisiting})` : `Visiting Specialists (${countVisiting})`}</span>
+          <Sparkles className="w-3.5 h-3.5 shrink-0 text-blue-600" />
+          <span className="truncate">{isMr ? `व्हिजिटिंग (${countVisiting})` : `Visiting (${countVisiting})`}</span>
         </button>
       </div>
 

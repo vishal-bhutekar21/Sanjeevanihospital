@@ -406,51 +406,51 @@ export const EventsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 2. TAB SWITCHER ─────────────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-2xl">
+      {/* ─── 2. TAB SWITCHER (CLEAN RESPONSIVE GRID - NO SLIDER) ─────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             activeTab === 'events'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Calendar className="w-3.5 h-3.5" />
-          <span>{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
+          <Calendar className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
+          <span className="truncate">{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
         </button>
         <button
           onClick={() => setActiveTab('awards')}
-          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             activeTab === 'awards'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Trophy className="w-3.5 h-3.5 text-amber-500" />
-          <span>{isMr ? 'पुरस्कार व सन्मान (१६)' : 'Awards & Honors (16)'}</span>
+          <Trophy className="w-3.5 h-3.5 shrink-0 text-amber-500" />
+          <span className="truncate">{isMr ? 'पुरस्कार व सन्मान' : 'Awards & Honors'}</span>
         </button>
         <button
           onClick={() => setActiveTab('gallery')}
-          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             activeTab === 'gallery'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Camera className="w-3.5 h-3.5 text-[#0F766E]" />
-          <span>{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Photo Gallery'}</span>
+          <Camera className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
+          <span className="truncate">{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Gallery'}</span>
         </button>
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
             activeTab === 'reviews'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
-          <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-          <span>{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
+          <Star className="w-3.5 h-3.5 shrink-0 text-amber-500 fill-amber-500" />
+          <span className="truncate">{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
         </button>
       </div>
 

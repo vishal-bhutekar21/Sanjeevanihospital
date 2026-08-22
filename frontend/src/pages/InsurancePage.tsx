@@ -340,27 +340,27 @@ export const InsurancePage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 3. TAB NAVIGATION WITH GENEROUS SPACING ────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-2xl">
+      {/* ─── 3. TAB NAVIGATION (CLEAN RESPONSIVE GRID - NO SLIDER) ─────────────── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 bg-slate-100 p-1.5 rounded-xl w-full max-w-4xl">
         {([
-          { key: 'process', label: isMr ? 'कॅशलेस प्रक्रिया (Step-by-Step)' : 'Cashless Process', icon: ArrowRight },
+          { key: 'process', label: isMr ? 'कॅशलेस प्रक्रिया' : 'Cashless Process', icon: ArrowRight },
           { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Required Documents', icon: FileText },
-          { key: 'insurers', label: isMr ? 'संलग्न विमा कंपन्या व टीपीए' : 'Panel Insurers & TPAs', icon: Building2 },
-          { key: 'inquiry', label: isMr ? 'विमा पूर्व-तपासणी अर्ज' : 'Check Eligibility / Inquire', icon: Send },
+          { key: 'insurers', label: isMr ? 'संलग्न विमा कंपन्या' : 'Panel Insurers & TPAs', icon: Building2 },
+          { key: 'inquiry', label: isMr ? 'विमा पूर्व-तपासणी' : 'Eligibility / Inquire', icon: Send },
         ] as const).map((tab) => {
           const Icon = tab.icon;
           return (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+              className={`flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-xs font-semibold transition-all text-center ${
                 activeTab === tab.key
                   ? 'bg-white text-slate-900 shadow-sm'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Icon className="w-3.5 h-3.5" />
-              <span>{tab.label}</span>
+              <Icon className="w-3.5 h-3.5 shrink-0 text-[#0F766E]" />
+              <span className="truncate">{tab.label}</span>
             </button>
           );
         })}
