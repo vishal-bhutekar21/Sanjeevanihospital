@@ -40,10 +40,11 @@ export const HomePage: React.FC = () => {
       title: 'Orthopedics & Joint Replacement',
       titleMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
       doctor: 'Dr. Nishant Goyal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Nishant-Goyal-1.webp',
       degree: 'MBBS, DNB, D. Ortho',
       desc: 'Complex trauma care, total knee & hip replacement, arthroscopy, and spine stabilization with digital C-Arm fluoroscopy.',
       descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
-      image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
       icon: Activity,
       slug: 'orthopedics',
     },
@@ -52,6 +53,7 @@ export const HomePage: React.FC = () => {
       title: 'Pediatrics & Neonatal Care (NICU)',
       titleMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
       doctor: 'Dr. Shivdas Mirkad',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, MD, DCH',
       desc: 'Comprehensive child healthcare, 24x7 neonatal intensive care with phototherapy warmers, and pediatric asthma management.',
       descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
@@ -64,10 +66,11 @@ export const HomePage: React.FC = () => {
       title: '21-Bed ICU & Critical Care',
       titleMr: '२१ खाटांचा अतिदक्षता विभाग (ICU)',
       doctor: 'Dr. Baliram Bagal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, DA, FICM, CCCS',
       desc: 'Computerized hemodynamic monitoring, mechanical ventilation, renal dialysis support, and 24x7 dedicated intensivist care.',
       descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
-      image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.55-PM-1.webp',
       icon: HeartPulse,
       slug: 'icu-critical-care',
     },
@@ -76,6 +79,7 @@ export const HomePage: React.FC = () => {
       title: 'Obstetrics & Gynecology (Maternity)',
       titleMr: 'प्रसूती आणि स्त्रीरोग विभाग',
       doctor: 'Dr. Anshul Goyal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Anshul-pahawa-goyal-1.webp',
       degree: 'MBBS, DNB, DGO',
       desc: 'Safe motherhood, high-risk pregnancy management, painless normal delivery, cesarean section, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
@@ -88,10 +92,11 @@ export const HomePage: React.FC = () => {
       title: 'General & Laparoscopic Surgery',
       titleMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
       doctor: 'Dr. Millind Katole',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-millind-katole-1.webp',
       degree: 'MBBS, MS General Surgery',
       desc: 'Karl Storz HD Laparoscopic cholecystectomy, hernia repair, appendectomy, and laser anorectal surgeries.',
       descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
-      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-21-at-4.28.59-PM.webp',
       icon: Scissors,
       slug: 'general-surgery',
     },
@@ -100,10 +105,11 @@ export const HomePage: React.FC = () => {
       title: 'Internal Medicine & Cardiology Consult',
       titleMr: 'इंटरनल मेडिसिन व फिजिशियन',
       doctor: 'Dr. Kailash Rajguru',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/IMG-1153-1.webp',
       degree: 'MBBS, MD Medicine',
       desc: 'Hypertension, diabetes management, infectious diseases, cardiac evaluation with 3D color Doppler, and preventive wellness.',
       descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
-      image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.54-PM-1.webp',
       icon: Stethoscope,
       slug: 'internal-medicine',
     },
@@ -360,7 +366,7 @@ export const HomePage: React.FC = () => {
           {clinicalSpecialties.map((dept) => (
             <div
               key={dept.id}
-              className="card-clean overflow-hidden flex flex-col group border border-slate-100"
+              className="card-clean overflow-hidden flex flex-col group border border-slate-200 bg-white shadow-2xs hover:shadow-md transition-shadow"
             >
               <div className="relative h-48 overflow-hidden">
                 <img
@@ -368,15 +374,31 @@ export const HomePage: React.FC = () => {
                   alt={dept.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                
+                {/* Floating Doctor Headshot Avatar */}
+                <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-white/95 backdrop-blur-xs p-1.5 pr-3 rounded-full shadow-md border border-white/60">
+                  <img
+                    src={dept.facultyImg}
+                    alt={dept.doctor}
+                    className="w-8 h-8 rounded-full object-cover border border-teal-500 shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <span className="text-[11px] font-bold text-slate-900 block truncate max-w-[120px]">
+                      {dept.doctor}
+                    </span>
+                    <span className="text-[9px] text-teal-700 block truncate max-w-[120px] font-medium">
+                      {dept.degree}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
                 <div className="space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-[#0F766E]">
-                      {dept.doctor}
-                    </span>
-                  </div>
+                  <span className="text-xs font-semibold text-[#0F766E]">
+                    {dept.doctor} <span className="text-slate-400 font-normal">({dept.degree})</span>
+                  </span>
                   <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0F766E] transition-colors font-heading">
                     {isMr ? dept.titleMr : dept.title}
                   </h3>
@@ -395,9 +417,9 @@ export const HomePage: React.FC = () => {
                   </Link>
                   <Link
                     to="/book"
-                    className="btn-primary text-xs py-1.5 px-3 min-h-[36px]"
+                    className="btn-primary text-xs py-1.5 px-3.5 min-h-[36px] shadow-2xs"
                   >
-                    {t('common.bookSlot')}
+                    {isMr ? 'अपॉइंटमेंट घ्या' : 'Book Consultation'}
                   </Link>
                 </div>
               </div>

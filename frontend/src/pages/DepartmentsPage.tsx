@@ -29,6 +29,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Advanced surgical care for complex fractures, total knee replacement, total hip arthroplasty, and spine stabilization.',
       descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
       faculty: 'Dr. Nishant Goyal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Nishant-Goyal-1.webp',
       degree: 'MBBS, DNB, D. Ortho',
       patientsCount: '12,500+',
       patientsLabel: isMr ? 'रुग्ण उपचार' : 'Patients Treated',
@@ -41,7 +42,7 @@ export const DepartmentsPage: React.FC = () => {
         isMr ? 'गुडघे व खुबा प्रत्यारोपण' : 'Total Knee & Hip Arthroplasty',
         isMr ? 'फ्रॅक्चर व मणक्याच्या शस्त्रक्रिया' : 'Trauma & Spine Stabilization',
       ],
-      image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=800&q=80',
+      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
       icon: Activity,
     },
     {
@@ -51,6 +52,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Compassionate pediatric medicine, 24x7 neonatal resuscitation, radiant warmers, phototherapy, and growth monitoring.',
       descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
       faculty: 'Dr. Shivdas Mirkad',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, MD, DCH',
       patientsCount: '18,000+',
       patientsLabel: isMr ? 'लहान मुले व नवजात बालके' : 'Children Healed',
@@ -73,6 +75,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Round-the-clock intensivist monitoring, mechanical ventilation, telemetry, arterial blood gas analyzers, and dialysis.',
       descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
       faculty: 'Dr. Baliram Bagal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, DA, FICM, CCCS',
       patientsCount: '8,200+',
       patientsLabel: isMr ? 'गंभीर रुग्ण उपचार' : 'Critical Lives Rescued',
@@ -95,6 +98,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Holistic women health, painless normal delivery, cesarean sections, fertility evaluation, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
       faculty: 'Dr. Anshul Goyal',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Anshul-pahawa-goyal-1.webp',
       degree: 'MBBS, DNB, DGO',
       patientsCount: '9,500+',
       patientsLabel: isMr ? 'प्रसूती व महिला रुग्ण' : 'Mothers & Women Cared',
@@ -117,6 +121,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Minimally invasive keyhole surgery for gallstones, hernia repairs, appendix, and advanced laser anorectal procedures.',
       descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
       faculty: 'Dr. Millind Katole',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-millind-katole-1.webp',
       degree: 'MBBS, MS General Surgery',
       patientsCount: '7,800+',
       patientsLabel: isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Conducted',
@@ -139,6 +144,7 @@ export const DepartmentsPage: React.FC = () => {
       desc: 'Holistic diagnosis and management of chronic diabetes, hypertension, cardiovascular risks, and infectious diseases.',
       descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
       faculty: 'Dr. Kailash Rajguru',
+      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/IMG-1153-1.webp',
       degree: 'MBBS, MD Medicine',
       patientsCount: '25,000+',
       patientsLabel: isMr ? 'रुग्णांचे यशस्वी निदान' : 'Patients Treated',
@@ -151,7 +157,7 @@ export const DepartmentsPage: React.FC = () => {
         isMr ? 'हृदयविकार व छातीचे आजार' : 'Cardiovascular & Chest Diseases',
         isMr ? '२४ तास आपत्कालीन फिजिशियन' : '24x7 Physician Emergency Triage',
       ],
-      image: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.54-PM-1.webp',
       icon: Stethoscope,
     },
   ];
@@ -224,28 +230,45 @@ export const DepartmentsPage: React.FC = () => {
           return (
             <div
               key={dept.slug}
-              className="card-clean overflow-hidden flex flex-col justify-between group"
+              className="card-clean overflow-hidden flex flex-col justify-between group bg-white border border-slate-200 shadow-2xs hover:shadow-md transition-shadow"
             >
               <div>
+                {/* Department Image with In-Set Doctor Headshot Badge */}
                 <div className="relative h-48 overflow-hidden">
                   <img
                     src={dept.image}
                     alt={dept.nameEn}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  
+                  {/* Floating Doctor Headshot Avatar */}
+                  <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-white/95 backdrop-blur-xs p-1.5 pr-3 rounded-full shadow-md border border-white/60">
+                    <img
+                      src={dept.facultyImg}
+                      alt={dept.faculty}
+                      className="w-8 h-8 rounded-full object-cover border border-teal-500 shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className="text-[11px] font-bold text-slate-900 block truncate max-w-[120px]">
+                        {dept.faculty}
+                      </span>
+                      <span className="text-[9px] text-teal-700 block truncate max-w-[120px] font-medium">
+                        {dept.degree}
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 <div className="p-5 space-y-3.5">
                   <div className="flex items-start gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
+                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0 border border-teal-100">
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
-                          {isMr ? dept.nameMr : dept.nameEn}
-                        </h3>
-                      </div>
+                      <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
+                        {isMr ? dept.nameMr : dept.nameEn}
+                      </h3>
                       <p className="text-xs font-semibold text-[#0F766E] mt-0.5">
                         {dept.faculty} <span className="text-slate-400 font-normal">({dept.degree})</span>
                       </p>
@@ -273,7 +296,7 @@ export const DepartmentsPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-5 pt-0 flex items-center justify-between gap-3">
+              <div className="p-5 pt-0 flex items-center justify-between gap-3 border-t border-slate-100/60 mt-2">
                 <Link
                   to={`/departments/${dept.slug}`}
                   className="text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition flex items-center gap-1"
@@ -283,7 +306,7 @@ export const DepartmentsPage: React.FC = () => {
                 </Link>
                 <Link
                   to="/book"
-                  className="btn-primary text-xs py-1.5 px-3 min-h-[36px]"
+                  className="btn-primary text-xs py-1.5 px-3.5 min-h-[36px] shadow-2xs"
                 >
                   {isMr ? 'अपॉइंटमेंट घ्या' : 'Book Consultation'}
                 </Link>
