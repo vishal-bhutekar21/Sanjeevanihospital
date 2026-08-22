@@ -15,7 +15,7 @@ The **Sanjeevani Multispeciality Hospital Platform** is a multi-tier, production
 4. **End-to-End Razorpay & MSG91 Integration**: Instant digital consultations with Razorpay order creation, cryptographic SHA-256 verification, and SMS token dispatches.
 5. **Government Healthcare Schemes**: Integrated workflows for **MJPJAY** (Mahatma Jyotirao Phule Jan Arogya Yojana), **Ayushman Bharat** (PM-JAY), and **Cashless TPA Mediclaim** pre-authorizations.
 6. **Community Events & Review Moderation**: Moderation engine for patient reviews and public listings for free health camps, pediatric vaccination drives, and BMD screenings.
-7. **Production & Cloud Ready**: Full Docker multi-stage containerization, Nginx SPA reverse-proxy configuration, Vercel SPA routing rules, and Supabase / Render deployment blueprints.
+7. **Production & Cloud Ready**: Full Docker multi-stage containerization, Nginx SPA reverse-proxy configuration, Netlify & Vercel SPA routing rules, and Supabase / Render deployment blueprints.
 
 ---
 
@@ -60,7 +60,7 @@ The **Sanjeevani Multispeciality Hospital Platform** is a multi-tier, production
 * **Database**: PostgreSQL 16 / Supabase PostgreSQL with PgBouncer connection pooling.
 * **Payment Gateway**: Razorpay REST API & Webhook HMAC Verification.
 * **SMS Gateway**: MSG91 SMS & OTP Service (Sandbox & Live).
-* **Containerization & Hosting**: Docker, Docker Compose, Nginx Alpine, Vercel, Render / Railway.
+* **Containerization & Hosting**: Docker, Docker Compose, Nginx Alpine, Netlify, Vercel, Render / Railway.
 
 ---
 
@@ -170,7 +170,20 @@ docker-compose up -d --build
 
 ## 🌐 Production Cloud Hosting Walkthrough
 
-### Hosting Frontend on Vercel (Recommended)
+### Hosting Frontend on Netlify (Recommended)
+1. Push your repository to GitHub / GitLab.
+2. Log in to [Netlify](https://app.netlify.com/) and click **Add new site ➔ Import an existing project**.
+3. Select your repository and configure the build settings (or let `netlify.toml` detect them):
+   * **Base directory**: `frontend`
+   * **Build command**: `npm run build`
+   * **Publish directory**: `dist` (or `frontend/dist`)
+4. Add Environment Variables in Netlify (**Site configuration ➔ Environment variables**):
+   * `VITE_API_URL`: `https://your-backend-api.onrender.com/api`
+   * `VITE_RAZORPAY_KEY_ID`: `rzp_test_TRlp6qdfVyCHyQ`
+5. Click **Deploy**. Netlify uses `netlify.toml` and `_redirects` to handle client-side SPA routing and cache headers automatically.
+6. 📖 **For full instructions, custom domains, CLI commands & troubleshooting, see the [Netlify Deployment Guide](docs/deployment/netlify-deployment-guide.md).**
+
+### Hosting Frontend on Vercel
 1. Push your repository to GitHub.
 2. Log in to [Vercel](https://vercel.com) and click **Add New Project**.
 3. Select your repository and set the **Root Directory** to `frontend`.
