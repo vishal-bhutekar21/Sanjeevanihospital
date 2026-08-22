@@ -105,6 +105,37 @@ export const ContactPage: React.FC = () => {
             </a>
           </div>
 
+          {/* Official Department Helpline Numbers (From Live Website) */}
+          <div className="card-clean p-6 space-y-3">
+            <h3 className="text-sm font-bold text-slate-900 font-heading border-b border-slate-100 pb-2 flex items-center gap-2">
+              <Phone className="w-4 h-4 text-[#0F766E]" />
+              <span>{isMr ? 'विभागनिहाय थेट संपर्क क्रमांक' : 'Direct Department Hotlines'}</span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              <a href="tel:+918830518080" className="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-800 flex items-center justify-between hover:bg-red-100 transition">
+                <span className="font-semibold">{isMr ? '🚑 अ‍ॅम्ब्युलन्स' : '🚑 Ambulance'}</span>
+                <span className="font-bold">+91-88305-18080</span>
+              </a>
+              <a href="tel:+917507342222" className="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 flex items-center justify-between hover:bg-teal-100 transition">
+                <span className="font-semibold">{isMr ? '🏥 रिसेप्शन' : '🏥 Reception'}</span>
+                <span className="font-bold">+91-75073-42222</span>
+              </a>
+              <a href="tel:+918208965820" className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 flex items-center justify-between hover:bg-amber-100 transition">
+                <span className="font-semibold">{isMr ? '🛡️ MJPJAY कक्ष' : '🛡️ MJPJAY Help'}</span>
+                <span className="font-bold">+91-82089-65820</span>
+              </a>
+              <a href="tel:+919146022490" className="p-2.5 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 flex items-center justify-between hover:bg-blue-100 transition">
+                <span className="font-semibold">{isMr ? '💳 विमा टीपीए' : '💳 Insurance/TPA'}</span>
+                <span className="font-bold">+91-91460-22490</span>
+              </a>
+              <a href="tel:+919687609046" className="p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-slate-800 flex items-center justify-between hover:bg-slate-100 transition sm:col-span-2">
+                <span className="font-semibold">{isMr ? '🏢 अ‍ॅडमिनिस्ट्रेशन' : '🏢 Hospital Admin'}</span>
+                <span className="font-bold">+91-96876-09046</span>
+              </a>
+            </div>
+          </div>
+
           {/* Reception & OPD Timings */}
           <div className="card-clean p-6 space-y-3">
             <h3 className="text-sm font-bold text-slate-900 font-heading border-b border-slate-100 pb-2 flex items-center gap-2">

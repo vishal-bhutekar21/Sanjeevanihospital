@@ -261,21 +261,21 @@ export const HomePage: React.FC = () => {
 
             </div>
 
-            {/* Right Column: Hospital Media */}
+            {/* Right Column: Real Hospital Exterior Photo */}
             <div className="lg:col-span-5">
               <div className="card-clean overflow-hidden aspect-[16/11] relative">
                 <img
-                  src="https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=1200&q=80"
-                  alt="Sanjeevani Multispeciality Hospital Jalna"
+                  src="https://sanjeevanihosp.in/wp-content/uploads/2023/03/FrontPic.webp"
+                  alt="Sanjeevani Multispeciality Hospital Building Jalna"
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
                 <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <p className="text-xs font-semibold text-teal-300">
+                  <p className="text-xs font-bold text-amber-300">
                     Sanjeevani Multispeciality Hospital
                   </p>
-                  <p className="text-xs text-slate-200">
-                    Plot 17, Rishi Park, Ambad Choufuli, Jalna
+                  <p className="text-[11px] text-slate-200">
+                    Plot 17, Rishi Park, Ambad Choufuli, Jalna • Healing Body, Mind & Spirit
                   </p>
                 </div>
               </div>

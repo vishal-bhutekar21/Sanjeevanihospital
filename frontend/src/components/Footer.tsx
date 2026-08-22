@@ -15,15 +15,17 @@ export const Footer: React.FC = () => {
           {/* Column 1: Hospital Profile */}
           <div className="space-y-3.5">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl bg-[#0F766E] flex items-center justify-center text-white shrink-0 shadow-sm">
-                <HeartPulse className="w-5 h-5 text-white" />
-              </div>
+              <img
+                src="/logo.png"
+                alt="Sanjeevani Multispeciality Hospital Logo"
+                className="w-12 h-12 object-contain bg-white/10 rounded-xl p-1 shrink-0"
+              />
               <div>
                 <span className="text-lg font-bold text-white tracking-tight block font-heading">
                   SANJEEVANI
                 </span>
                 <span className="text-[10px] uppercase tracking-wider text-amber-400 font-semibold block">
-                  Hospital • Jalna
+                  Healing Body, Mind & Spirit • Jalna
                 </span>
               </div>
             </div>

@@ -16,6 +16,7 @@ import {
   Building2,
   Sparkles,
   ArrowRight,
+  Camera,
 } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
@@ -190,9 +191,92 @@ export const EventsPage: React.FC = () => {
     },
   ];
 
+  const campGallery = [
+    {
+      id: 'gal-1',
+      title: 'Free Diagnostic & Blood Sugar Screening Camp',
+      titleMr: 'मोफत सर्वोपचार व रक्त शर्करा तपासणी शिबिर',
+      location: 'Sanjeevani Hospital Jalna Campus',
+      locationMr: 'संजीवनी हॉस्पिटल परिसर, अंबड चौफुली, जालना',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.07-AM-2.webp',
+      desc: 'Free clinical checkups, random blood sugar testing, and vital organ monitoring for 500+ attendees.',
+      descMr: '५०० हून अधिक नागरिकांची मोफत आरोग्य तपासणी, रक्तातील साखर व रक्तदाब चाचणी.'
+    },
+    {
+      id: 'gal-2',
+      title: 'Free Orthopedic Joint & Bone Mineral Density Screening',
+      titleMr: 'मोफत सांधेदुखी व हाडांची घनता (BMD) तपासणी शिबिर',
+      location: 'Orthopedic OPD Wing',
+      locationMr: 'अस्थिरोग विभाग, जालना',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.06-AM.webp',
+      desc: 'Specialist spine and knee examination for elderly patients with chronic osteoarthritis.',
+      descMr: 'ज्येष्ठ नागरिकांसाठी मणके व गुडघेदुखीवर तज्ज्ञ डॉक्टरांचा मोफत सल्ला.'
+    },
+    {
+      id: 'gal-3',
+      title: 'Pediatric Growth & Maternal Wellness Drive',
+      titleMr: 'बालरोग विकास व माता संगोपन तपासणी मोहीम',
+      location: 'Rural Outreach Jalna',
+      locationMr: 'ग्रामीण आरोग्य मोहीम, जालना',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.09-AM-1.webp',
+      desc: 'Nutritional evaluation and child growth milestone checkups conducted by senior pediatricians.',
+      descMr: 'लहान मुलांची मोफत शारीरिक वाढ व पोषण तपासणी आणि मोफत औषधोपचार.'
+    },
+    {
+      id: 'gal-4',
+      title: 'Cardiac Awareness & Free ECG Checkup Camp',
+      titleMr: 'हृदयविकार प्रतिबंध व मोफत ईसीजी चाचणी शिबिर',
+      location: 'Community Diagnostic Center',
+      locationMr: 'आरोग्य केंद्र, जालना',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.08-AM-1.webp',
+      desc: 'Early cardiovascular risk screening and lifestyle counseling by internal medicine experts.',
+      descMr: 'तज्ज्ञ डॉक्टरांकडून मोफत ईसीजी तपासणी आणि हृदयविकार प्रतिबंधात्मक मार्गदर्शन.'
+    },
+    {
+      id: 'gal-5',
+      title: 'MJPJAY Cashless Health Scheme Registration Camp',
+      titleMr: 'महात्मा फुले जन आरोग्य योजना मोफत नोंदणी कक्ष',
+      location: 'Arogya Mitra Helpdesk',
+      locationMr: 'आरोग्य मित्र कक्ष, संजीवनी हॉस्पिटल',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.09-AM.webp',
+      desc: 'Assisting yellow and orange ration card families with instant cashless surgery authorizations.',
+      descMr: 'पिवळे व केशरी रेशन कार्डधारकांसाठी मोफत शस्त्रक्रिया मार्गदर्शन व ऑनलाइन नोंदणी.'
+    },
+    {
+      id: 'gal-6',
+      title: 'Senior Citizen General Health & Eye Checkup Camp',
+      titleMr: 'ज्येष्ठ नागरिक सर्वोपचार व नेत्र तपासणी शिबिर',
+      location: 'Jalna Community Hall',
+      locationMr: 'जालना कम्युनिटी हॉल',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.10-AM-1.webp',
+      desc: 'Full body vitals, vision screening, and health evaluation conducted by medical team.',
+      descMr: 'संपूर्ण शारीरिक तपासणी व मोफत औषधोपचार वाटप.'
+    },
+    {
+      id: 'gal-7',
+      title: 'Women Wellness & Antenatal Care Camp',
+      titleMr: 'महिला आरोग्य व सुरक्षित प्रसूती मार्गदर्शन शिबिर',
+      location: 'Maternity Wing',
+      locationMr: 'प्रसूती व स्त्रीरोग विभाग',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.10-AM.webp',
+      desc: 'Gynecological screening and antenatal counseling for expectant mothers.',
+      descMr: 'स्त्रीरोगतज्ज्ञांकडून मोफत तपासणी आणि सुरक्षित मातृत्व मार्गदर्शन.'
+    },
+    {
+      id: 'gal-8',
+      title: 'Free Medicine Distribution & Health Camp',
+      titleMr: 'मोफत औषध वाटप व आरोग्य तपासणी मोहीम',
+      location: 'Jalna District',
+      locationMr: 'जालना जिल्हा',
+      image: 'https://sanjeevanihosp.in/wp-content/uploads/2024/01/WhatsApp-Image-2024-01-06-at-11.52.11-AM.webp',
+      desc: 'Providing prescribed essential medicines at zero cost to underprivileged patients.',
+      descMr: 'गरजू रुग्णांना आवश्यक औषधांचे मोफत वाटप.'
+    },
+  ];
+
   const [events, setEvents] = useState<any[]>(defaultEvents);
   const [reviews, setReviews] = useState<any[]>(defaultReviews);
-  const [activeTab, setActiveTab] = useState<'events' | 'reviews'>('events');
+  const [activeTab, setActiveTab] = useState<'events' | 'reviews' | 'gallery'>('events');
 
   const [reviewForm, setReviewForm] = useState({
     patientName: '',
@@ -321,28 +405,39 @@ export const EventsPage: React.FC = () => {
       </div>
 
       {/* ─── 2. TAB SWITCHER ─────────────────────────────────────────────────── */}
-      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-lg">
+      <div className="flex overflow-x-auto no-scrollbar gap-2 bg-slate-100 p-1.5 rounded-xl max-w-xl">
         <button
           onClick={() => setActiveTab('events')}
-          className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
             activeTab === 'events'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Calendar className="w-3.5 h-3.5" />
-          <span>{isMr ? 'आरोग्य शिबिरे व उपक्रम' : 'Health Camps & Events'}</span>
+          <span>{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('gallery')}
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+            activeTab === 'gallery'
+              ? 'bg-white text-slate-900 shadow-sm'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
+        >
+          <Camera className="w-3.5 h-3.5 text-[#0F766E]" />
+          <span>{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Photo Gallery'}</span>
         </button>
         <button
           onClick={() => setActiveTab('reviews')}
-          className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
+          className={`flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all flex-1 ${
             activeTab === 'reviews'
               ? 'bg-white text-slate-900 shadow-sm'
               : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
-          <span>{isMr ? 'रुग्णांचे अभिप्राय व अनुभव' : 'Patient Reviews & Stories'}</span>
+          <span>{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
         </button>
       </div>
 
@@ -651,6 +746,92 @@ export const EventsPage: React.FC = () => {
                 </button>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── TAB 3: REAL HEALTH CAMPS PHOTO GALLERY & NEWS ───────────────────── */}
+      {activeTab === 'gallery' && (
+        <div className="space-y-8">
+          <div className="space-y-1">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+              {isMr ? 'संजीवनी हॉस्पिटल मोफत आरोग्य शिबिर छायाचित्रे व वृत्त' : 'Real Community Health Camps Photo Gallery & News'}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-500">
+              {isMr
+                ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना द्वारे आयोजित केलेल्या मोफत आरोग्य तपासणी, औषध वाटप व निदान शिबिरांची छायाचित्रे:'
+                : 'Direct on-ground photographs from free diagnostic camps and medical checkup drives conducted by Sanjeevani Hospital across Jalna:'}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {campGallery.map((item) => (
+              <div
+                key={item.id}
+                className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition"
+              >
+                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div className="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                    <span>{isMr ? item.locationMr : item.location}</span>
+                  </div>
+                </div>
+
+                <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading">
+                      {isMr ? item.titleMr : item.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                      {isMr ? item.descMr : item.desc}
+                    </p>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                    <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>{isMr ? 'मोफत शिबिर' : 'Free Camp'}</span>
+                    </span>
+                    <a
+                      href="tel:+917507342222"
+                      className="text-slate-700 hover:text-[#0F766E] font-semibold flex items-center gap-1"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>+91-75073-42222</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Hospital Building & Facilities Banner */}
+          <div className="card-clean p-6 sm:p-8 bg-gradient-to-r from-teal-50 via-white to-amber-50/50 border border-teal-200 flex flex-col lg:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 max-w-2xl">
+              <span className="badge-teal text-xs">Sanjeevani Multispeciality Hospital, Jalna</span>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-heading">
+                {isMr
+                  ? '२४ तास आपत्कालीन सेवा, २१ खाटांचा ICU व प्रगत शस्त्रक्रिया सुविधा'
+                  : '24x7 Emergency Trauma Care, 21-Bed ICU & Advanced Modular Surgical Suites'}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                {isMr
+                  ? 'अंबड चौफुली, जालना येथे अनुभवी तज्ज्ञ डॉक्टरांची अखंड सेवा उपलब्ध आहे. महात्मा फुले जन आरोग्य योजना (MJPJAY) व सर्व मेडिक्लेम कॅशलेस सुविधा उपलब्ध.'
+                  : 'Located at Ambad Choufuli, Jalna. Empanelled for 100% cashless treatment under MJPJAY and 35+ major health insurance companies.'}
+              </p>
+            </div>
+            <a
+              href="tel:+917507342222"
+              className="btn-emergency text-xs py-3 px-6 whitespace-nowrap shadow-sm shrink-0"
+            >
+              <Phone className="w-4 h-4" />
+              <span>{isMr ? 'आपत्कालीन कक्ष: +91-75073-42222' : 'Emergency Desk: +91-75073-42222'}</span>
+            </a>
           </div>
         </div>
       )}
