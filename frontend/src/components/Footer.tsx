@@ -8,78 +8,78 @@ export const Footer: React.FC = () => {
   const isMr = i18n.language === 'mr';
 
   return (
-    <footer className="bg-slate-900 text-slate-400 pt-14 pb-10 border-t border-slate-800">
+    <footer className="bg-[#0B132B] text-slate-300 pt-12 pb-8 border-t-2 border-amber-400">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-10">
           
           {/* Column 1: Hospital Profile */}
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-[#0F766E] flex items-center justify-center text-white shrink-0 shadow-sm">
+              <div className="w-10 h-10 rounded-xl bg-[#0F766E] flex items-center justify-center text-white shrink-0 shadow-sm">
                 <HeartPulse className="w-5 h-5 text-white" />
               </div>
               <div>
-                <span className="text-xl font-bold text-white tracking-tight block font-heading">
+                <span className="text-lg font-bold text-white tracking-tight block font-heading">
                   SANJEEVANI
                 </span>
-                <span className="text-[11px] uppercase tracking-wider text-teal-400 font-medium block">
+                <span className="text-[10px] uppercase tracking-wider text-amber-400 font-semibold block">
                   Hospital • Jalna
                 </span>
               </div>
             </div>
 
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="text-xs text-slate-300 leading-relaxed">
               {isMr
-                ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना — २४ तास आपत्कालीन सेवा, २१ खाटांचा ICU, मॉड्युलर शस्त्रक्रिया गृह आणि अनुभवी तज्ज्ञ डॉक्टरांची सेवा.'
-                : 'Sanjeevani Multispeciality Hospital is Jalna’s trusted tertiary healthcare center with 24x7 emergency resuscitation, advanced surgical suites, and a 21-bed ICU.'}
+                ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना — २४ तास आपत्कालीन सेवा, २१ खाटांचा संगणकीकृत ICU, मॉड्युलर शस्त्रक्रिया गृह आणि अनुभवी तज्ज्ञ डॉक्टरांची अखंड सेवा.'
+                : 'Jalna’s premier multispeciality hospital providing 24x7 emergency trauma care, 21-bed ICU, modern modular operation theatres, and dedicated senior specialist doctors.'}
             </p>
 
-            <div className="inline-flex items-center space-x-2 text-xs text-teal-300 bg-teal-950/60 border border-teal-800/50 px-3 py-1.5 rounded-md font-medium">
-              <ShieldCheck className="w-4 h-4 shrink-0 text-teal-400" />
+            <div className="inline-flex items-center space-x-2 text-xs text-amber-300 bg-amber-950/40 border border-amber-500/30 px-3 py-1.5 rounded-lg font-medium">
+              <ShieldCheck className="w-4 h-4 shrink-0 text-amber-400" />
               <span>{isMr ? '२०१६ पासून अविरत रुग्णसेवा' : 'Serving Patients Since 2016'}</span>
             </div>
           </div>
 
           {/* Column 2: Quick Navigation */}
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
-              {isMr ? 'महत्त्वाचे दुवे' : 'Quick Links'}
+            <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3.5">
+              {isMr ? 'महत्त्वाचे विभाग' : 'Clinical Portals'}
             </h3>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2 text-xs text-slate-300">
               <li>
                 <Link to="/doctors" className="hover:text-white transition flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <span>{isMr ? 'तज्ज्ञ डॉक्टर यादी' : 'Specialist Doctors'}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/departments" className="hover:text-white transition flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span>{isMr ? 'वैद्यकीय विभाग' : 'Clinical Departments'}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{isMr ? 'वैद्यकीय विभाग' : 'Specialty Departments'}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/facilities" className="hover:text-white transition flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span>{isMr ? '२१ खाटांचा ICU व शस्त्रक्रिया गृह' : '21-Bed ICU & Diagnostics'}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{isMr ? '२१ खाटांचा ICU व सुविधा' : '21-Bed ICU & Facilities'}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/mjpjay" className="hover:text-white transition flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                   <span>{isMr ? 'महात्मा फुले जन आरोग्य योजना' : 'MJPJAY Scheme'}</span>
                 </Link>
               </li>
               <li>
                 <Link to="/insurance" className="hover:text-white transition flex items-center gap-1.5">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span>{isMr ? 'कॅशलेस मेडिक्लेम व टीपीए' : 'Cashless Mediclaim'}</span>
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{isMr ? 'कॅशलेस मेडिक्लेम व टीपीए' : 'Cashless Insurance'}</span>
                 </Link>
               </li>
               <li>
-                <Link to="/book" className="text-teal-400 font-medium hover:underline flex items-center gap-1.5 pt-1">
-                  <ChevronRight className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-                  <span>{isMr ? 'ऑनलाइन अपॉइंटमेंट बुक करा' : 'Book OPD Appointment'}</span>
+                <Link to="/events" className="hover:text-white transition flex items-center gap-1.5">
+                  <ChevronRight className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span>{isMr ? 'आरोग्य शिबिरे व अभिप्राय' : 'Health Camps & Reviews'}</span>
                 </Link>
               </li>
             </ul>
@@ -87,75 +87,75 @@ export const Footer: React.FC = () => {
 
           {/* Column 3: Contact & Casualty */}
           <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
+            <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider mb-3.5">
               {isMr ? 'संपर्क व आपत्कालीन' : 'Emergency & Contact'}
             </h3>
-            <ul className="space-y-3 text-sm">
+            <ul className="space-y-2.5 text-xs">
               <li className="flex items-start space-x-2.5">
-                <MapPin className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                <span className="text-slate-400 leading-relaxed">
+                <MapPin className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <span className="text-slate-300 leading-relaxed">
                   Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203
                 </span>
               </li>
               <li className="flex items-center space-x-2.5">
                 <Phone className="w-4 h-4 text-red-400 shrink-0" />
                 <div>
-                  <a href="tel:+917507342222" className="text-white font-semibold hover:underline block">
+                  <span className="text-slate-400 block text-[10px]">{isMr ? '२४x७ आपत्कालीन / आयसीयू:' : '24x7 Casualty & ICU:'}</span>
+                  <a href="tel:+917507342222" className="text-white font-bold hover:text-amber-300 transition">
                     +91-75073-42222
                   </a>
-                  <span className="text-xs text-red-400">24x7 Casualty & Emergency</span>
                 </div>
               </li>
               <li className="flex items-center space-x-2.5">
-                <Phone className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>02482-223322 (Reception)</span>
-              </li>
-              <li className="flex items-center space-x-2.5">
-                <Mail className="w-4 h-4 text-teal-400 shrink-0" />
-                <span>admin@sanjeevanihosp.in</span>
+                <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="text-slate-300">sanjeevanijalna@gmail.com</span>
               </li>
             </ul>
           </div>
 
-          {/* Column 4: OPD Hours */}
-          <div>
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider mb-4">
-              {isMr ? 'ओपीडी व भेटण्याची वेळ' : 'OPD & Visiting Hours'}
+          {/* Column 4: OPD Hours & Direct Booking */}
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
+              {isMr ? 'ओपीडी वेळ व अपॉइंटमेंट' : 'OPD Hours & Booking'}
             </h3>
-            <ul className="space-y-2.5 text-sm">
-              <li className="flex items-start space-x-2">
-                <Clock className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-white font-medium block">{isMr ? 'सकाळची ओपीडी:' : 'Morning OPD:'}</span>
-                  <span className="text-slate-400 text-xs">09:00 AM – 03:00 PM</span>
-                </div>
-              </li>
-              <li className="flex items-start space-x-2">
-                <Clock className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-white font-medium block">{isMr ? 'संध्याकाळची ओपीडी:' : 'Evening OPD:'}</span>
-                  <span className="text-slate-400 text-xs">05:00 PM – 08:00 PM</span>
-                </div>
-              </li>
-              <li className="flex items-start space-x-2">
-                <Clock className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
-                <div>
-                  <span className="text-white font-medium block">{isMr ? 'आपत्कालीन व अतिदक्षता (ICU):' : 'Emergency & ICU:'}</span>
-                  <span className="text-red-400 font-semibold text-xs">24 Hours / 7 Days</span>
-                </div>
-              </li>
-            </ul>
+            
+            <div className="bg-slate-900/80 rounded-xl p-3.5 border border-slate-800 space-y-2 text-xs">
+              <div className="flex items-center gap-1.5 text-amber-300 font-semibold">
+                <Clock className="w-3.5 h-3.5" />
+                <span>{isMr ? 'दररोज नियमित ओपीडी:' : 'Regular OPD Timings:'}</span>
+              </div>
+              <p className="text-[11px] text-slate-300">
+                {isMr ? 'सकाळी: ०९:०० AM – ०१:०० PM' : 'Morning: 09:00 AM – 01:00 PM'}
+                <br />
+                {isMr ? 'सायंकाळी: ०५:०० PM – ०८:०० PM' : 'Evening: 05:00 PM – 08:00 PM'}
+              </p>
+              <p className="text-[10px] text-emerald-400 font-semibold border-t border-slate-800 pt-1">
+                {isMr ? '• २४ तास आपत्कालीन सेवा अविरत चालू' : '• 24x7 Emergency Casualty Always Open'}
+              </p>
+            </div>
+
+            <Link
+              to="/book"
+              className="btn-primary w-full py-2.5 text-xs justify-center shadow-xs"
+            >
+              <span>{isMr ? 'ऑनलाइन अपॉइंटमेंट बुक करा' : 'Book OPD Appointment'}</span>
+            </Link>
           </div>
 
         </div>
 
-        {/* Bottom Copyright */}
-        <div className="pt-6 border-t border-slate-800 text-xs text-slate-500 flex flex-col sm:flex-row justify-between items-center gap-3">
-          <p>© {new Date().getFullYear()} Sanjeevani Multispeciality Hospital, Jalna. All Rights Reserved.</p>
-          <div className="flex items-center space-x-6">
-            <span className="text-teal-400">MJPJAY Empanelled</span>
-            <Link to="/admin/login" className="hover:text-white transition">
-              Admin Portal
+        {/* Sub-Footer Divider */}
+        <div className="pt-6 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-slate-400">
+          <p>
+            © 2026 Sanjeevani Multispeciality Hospital, Jalna. All Rights Reserved.
+          </p>
+          <div className="flex items-center space-x-4">
+            <span className="text-amber-400/90 font-medium">
+              {isMr ? 'महाराष्ट्र शासन MJPJAY संलग्न रुग्णालय' : 'MJPJAY Empanelled Hospital'}
+            </span>
+            <span>•</span>
+            <Link to="/admin/login" className="text-slate-400 hover:text-white transition">
+              {isMr ? 'अ‍ॅडमिन पोर्टल' : 'Admin Portal'}
             </Link>
           </div>
         </div>

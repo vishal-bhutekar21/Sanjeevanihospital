@@ -37,33 +37,33 @@ export const Header: React.FC = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
-      {/* ─── 1. TOP UTILITY BAR (DESKTOP) ────────────────────────────────────── */}
-      <div className="hidden xl:block bg-slate-900 text-white text-[11px] font-medium py-1 px-4 lg:px-6 border-b border-slate-800">
+    <header className="sticky top-0 z-50 bg-[#FFFDF5]/95 backdrop-blur-md border-b border-amber-200/80 shadow-xs">
+      {/* ─── 1. TOP UTILITY BAR (WARM YELLOW/AMBER STYLING) ─────────────────── */}
+      <div className="hidden xl:block bg-gradient-to-r from-amber-200/90 via-amber-100 to-amber-200/80 text-amber-950 text-[11px] font-semibold py-1 px-4 lg:px-6 border-b border-amber-300/80">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-5">
             <a
               href="tel:+917507342222"
-              className="flex items-center gap-1.5 text-teal-300 hover:text-white transition"
+              className="flex items-center gap-1.5 text-red-700 hover:text-red-800 transition"
             >
-              <Phone className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+              <Phone className="w-3.5 h-3.5 text-red-600 animate-pulse" />
               <span>{isMr ? '२४x७ आपत्कालीन: +91-75073-42222' : '24x7 Casualty: +91-75073-42222'}</span>
             </a>
 
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <MapPin className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-1.5 text-amber-900">
+              <MapPin className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'अंबड चौफुली, जालना' : 'Ambad Choufuli, Jalna'}</span>
             </div>
 
-            <div className="flex items-center gap-1.5 text-slate-300">
-              <Clock className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-1.5 text-amber-900">
+              <Clock className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'ओपीडी: ०९:०० AM – ०८:०० PM' : 'OPD: 09:00 AM – 08:00 PM'}</span>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
-            <span className="flex items-center gap-1 text-teal-300">
-              <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+            <span className="flex items-center gap-1 text-[#0F766E] font-bold">
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0F766E]" />
               <span>{isMr ? 'महात्मा फुले व कॅशलेस विमा कक्ष' : 'MJPJAY & Cashless Insurance Desk'}</span>
             </span>
           </div>
@@ -90,7 +90,7 @@ export const Header: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 text-xs xl:text-[13px] font-medium text-slate-600">
+          <nav className="hidden lg:flex items-center space-x-0.5 xl:space-x-1 text-xs xl:text-[13px] font-medium text-slate-700">
             {navLinks.map((link) => {
               const isActive =
                 link.path === '/'
@@ -102,8 +102,8 @@ export const Header: React.FC = () => {
                   to={link.path}
                   className={`px-2 xl:px-2.5 py-1.5 rounded-md transition-colors whitespace-nowrap ${
                     isActive
-                      ? 'text-[#0F766E] font-semibold bg-teal-50 shadow-2xs'
-                      : 'hover:text-slate-900 hover:bg-slate-50'
+                      ? 'text-amber-950 font-bold bg-amber-100/90 border border-amber-300/80 shadow-2xs'
+                      : 'hover:text-slate-900 hover:bg-amber-50/70'
                   }`}
                 >
                   {link.label}
@@ -114,14 +114,14 @@ export const Header: React.FC = () => {
             {/* Language Switcher */}
             <button
               onClick={toggleLanguage}
-              className="ml-1 px-2 py-1.5 rounded-md text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1 transition-colors border border-slate-200 shrink-0"
+              className="ml-1 px-2 py-1.5 rounded-md text-xs font-bold text-slate-800 hover:text-slate-900 hover:bg-amber-100/60 flex items-center gap-1 transition-colors border border-amber-200 shrink-0 bg-white"
               title="Change Language"
             >
               <Globe className="w-3.5 h-3.5 text-[#0F766E]" />
               <span>{isMr ? 'EN' : 'मराठी'}</span>
             </button>
 
-            {/* Direct Book CTA (Guaranteed not to overflow) */}
+            {/* Direct Book CTA */}
             <Link
               to="/book"
               className="ml-1.5 btn-primary text-xs py-1.5 px-3 whitespace-nowrap shrink-0 shadow-xs flex items-center gap-1.5 min-h-[36px]"
@@ -135,7 +135,7 @@ export const Header: React.FC = () => {
           <div className="flex items-center space-x-2 lg:hidden">
             <button
               onClick={toggleLanguage}
-              className="px-2 py-1.5 rounded-lg text-xs font-semibold text-slate-700 bg-slate-100 border border-slate-200 flex items-center gap-1"
+              className="px-2 py-1.5 rounded-lg text-xs font-semibold text-slate-800 bg-amber-50 border border-amber-200 flex items-center gap-1"
             >
               <Globe className="w-3 h-3 text-[#0F766E]" />
               <span>{isMr ? 'EN' : 'मराठी'}</span>
@@ -143,7 +143,7 @@ export const Header: React.FC = () => {
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-lg text-slate-700 hover:bg-slate-100 transition"
+              className="p-2 rounded-lg text-slate-700 hover:bg-amber-100/50 transition"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -155,7 +155,7 @@ export const Header: React.FC = () => {
 
       {/* ─── 3. MOBILE DRAWER MENU ──────────────────────────────────────────── */}
       {mobileMenuOpen && (
-        <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3 shadow-lg">
+        <div className="lg:hidden bg-[#FFFDF5] border-b border-amber-200 px-4 py-4 space-y-3 shadow-lg">
           <div className="grid grid-cols-2 gap-2 pb-2">
             <Link
               to="/book"
@@ -175,7 +175,7 @@ export const Header: React.FC = () => {
             </a>
           </div>
 
-          <div className="space-y-1 pt-1 border-t border-slate-100">
+          <div className="space-y-1 pt-1 border-t border-amber-100">
             {navLinks.map((link) => {
               const isActive =
                 link.path === '/'
@@ -188,8 +188,8 @@ export const Header: React.FC = () => {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`block px-3 py-2.5 rounded-lg text-xs font-semibold transition ${
                     isActive
-                      ? 'bg-teal-50 text-[#0F766E]'
-                      : 'text-slate-700 hover:bg-slate-50'
+                      ? 'bg-amber-100 text-amber-950 font-bold'
+                      : 'text-slate-700 hover:bg-amber-50'
                   }`}
                 >
                   {link.label}
