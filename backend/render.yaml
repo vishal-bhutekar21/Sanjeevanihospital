@@ -18,9 +18,12 @@ services:
         sync: false
       - key: JWT_SECRET
         generateValue: true
+      # Set these in the Render dashboard. Never commit payment or SMS keys.
       - key: RAZORPAY_KEY_ID
-        value: rzp_test_TRlp6qdfVyCHyQ
+        sync: false
       - key: RAZORPAY_KEY_SECRET
-        value: Mg9ra16kSOpZfdlr2DqYTCks
+        sync: false
       - key: MSG91_AUTH_KEY
+        sync: false
+      - key: MSG91_TEMPLATE_ID
         sync: false

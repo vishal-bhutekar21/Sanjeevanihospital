@@ -35,21 +35,51 @@ Database models, API routes, field names and IDs are **not** changed by any item
 | Payments | "Razorpay Test Mode Active" | removed |
 | Schedules | "The backend automatically generates bookable slots… Concurrency locks…" | "Patients can book any free time within these hours." |
 
-## Needs a decision (logic, not just UI)
-These still behave like a demo. I left the behaviour alone because it touches booking and login.
+## Booking, payment and login fixes (round 2)
 
-1. **Staff login fallback was removed.** Before, if the server didn't answer, *any* email containing "admin" with a 4+ character password got into the admin screens. Now the login shows an error instead. Confirm the backend `/auth/admin/login` is reachable in production.
-2. **The booking OTP still accepts any 6 digits** when the server doesn't confirm (`handleVerifyOtp` in `BookAppointmentPage.tsx`). Once SMS is live, remove the fallback so only the real code works.
-3. **Payment uses a fake signature** (`demo_verified_signature`) in `handleCompletePayment`. Wire up the real Razorpay Checkout before taking money.
-4. **Token key mismatch:** the admin pages read `localStorage.getItem('token')`, but login saves `sanjeevani_admin_token`. Authenticated admin API calls probably go out without a token.
+### Booking flow (patient onboarding), rebuilt
+The new flow has 4 steps: **Doctor → Date & time → Details & phone check → Confirm**, plus a "You're booked" page.
+- A summary card shows the doctor, time and fee on every step.
+- Patients can browse doctors and times *before* verifying their phone.
+- The date strip shows the next 14 days, and times are grouped into morning, afternoon and evening. Booked times are greyed out.
+- The OTP is entered on the details screen. Resend unlocks after 30 seconds, the number can be changed, and the phone autofills the code.
+- The chosen time is held for 10 minutes, with a visible countdown.
+- Payment: **pay now** (Razorpay: UPI, card, net banking) or **pay at the OPD counter**.
+- The "You're booked" page has the token number, a "before you come" checklist, print, and "Add to calendar".
+- Every failure shows a real message: no fake slots, no fake receipts. A doctor who isn't set up for online booking shows "call reception".
+
+### Fixed
+| Issue | Before | Now |
+|---|---|---|
+| OTP | The server always used `123456` and accepted it for any number; the page accepted any 6 digits | Random code sent by SMS (MSG91). Only that code works. `123456` is used only in local development and printed in the server log |
+| Booking without OTP | `session/init` was public | Requires the token issued after OTP; the phone number is taken from the verified token |
+| Payment | Fake order IDs; the server accepted `demo_verified_signature`; the browser sent the amount | Real Razorpay order; amount = doctor's fee from the server; only a genuine HMAC signature passes |
+| Booking confirm | Page called a non-existent endpoint and showed a made-up receipt | Calls `confirm-slot`; the slot must be held by this patient and paid (or "pay at counter" chosen) |
+| Staff token | Admin pages read `token`, login saved `sanjeevani_admin_token` | One `getAdminToken()` helper; expired login returns to sign-in |
+| Admin appointments & payments | Hard-coded sample patients | Live list from the server, refreshes every 30 s; status changes are saved |
+| Patient data exposure | `GET /appointments` and `GET /payments` were public | Staff login required |
+| Built-in admin accounts | `admin@…` / `Admin@123` worked on the live server | Only in local development; production uses database accounts only |
+| Committed keys | Razorpay test key and secret in `render.yaml`, `docker-compose.yml`, `.env.example` and the docs | Removed; set them in the hosting dashboard |
+
+### To switch it on (hospital / developer)
+1. **MSG91**: set `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID` (a DLT-approved OTP template) on the backend. Until then, the live site asks patients to call reception instead of booking online.
+2. **Razorpay**: set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (live keys when ready). Without them, only "pay at the hospital" is offered.
+3. **Rotate the old Razorpay test secret.** It was public in the repo.
+4. **Change the database admin password.** `prisma/seed.ts` creates `admin@sanjeevanihosp.in` with `Admin@123`, which was also printed on the old login page.
+5. **Make sure `JWT_SECRET` is set** on the server. The code falls back to a fixed value if it's missing.
+
+### Still to do (not changed this round)
+- **Appointments, booking sessions and payments are kept in server memory**, not in PostgreSQL, so a server restart loses them. Move them to Prisma tables next. This needs new tables, which is why I didn't do it without asking.
+- **Online booking covers 6 doctors** (the list in `appointments.service.ts`). Other doctors show "call reception" until they're added there or moved to the database.
+- **Send the token number by SMS** after booking (needs a second MSG91 template).
+- **Razorpay webhook** for payments that succeed after the patient closes the page.
 
 ## Suggested next steps (in priority order)
-1. **Booking flow, 5 steps → 3:** (1) doctor and time, (2) patient name and phone with the OTP on the same screen, (3) confirm (and pay, if needed). Show the doctor, date and fee in a sticky summary on every step.
-2. **Real photos everywhere:** replace the Unsplash stock images (departments, equipment) with photos of the actual wards, OT, ICU and staff. This is the biggest single "not AI" signal.
-3. **One department page template:** what we treat, who treats it (with photos), OPD days, a sample cost range or "covered under MJPJAY", and a book button.
-4. **Doctor profile:** large photo, plain-language "Sees patients for…", weekly OPD timetable grid, languages spoken, and a book button pinned on mobile.
-5. **Marathi first for Jalna:** consider Marathi as the default language, and check every page in Marathi. Several sections still have English-only text.
-6. **Admin "Today" screen:** a queue list ordered by token, with big status buttons (Waiting → With doctor → Done), so reception can work it on a tablet.
-7. **Accessibility:** labels on every form field, visible focus (added globally), colour contrast ≥ 4.5:1 and alt text on doctor photos.
-8. **Performance:** lazy-load the map, compress hero images to WebP under 200 KB, and code-split the admin routes (the bundle is over 500 KB).
-9. **Trust content:** NABH or other accreditation (if any), MJPJAY empanelment number, the registered name of the hospital, and a short "About us" with the founders' story.
+1. **Real photos everywhere:** replace the Unsplash stock images (departments, equipment) with photos of the actual wards, OT, ICU and staff. This is the biggest single "not AI" signal.
+2. **One department page template:** what we treat, who treats it (with photos), OPD days, a sample cost range or "covered under MJPJAY", and a book button.
+3. **Doctor profile:** large photo, plain-language "Sees patients for…", weekly OPD timetable grid, languages spoken, and a book button pinned on mobile.
+4. **Marathi first for Jalna:** consider Marathi as the default language, and check every page in Marathi. Several sections still have English-only text.
+5. **Admin "Today" screen:** a queue list ordered by token, with big status buttons (Waiting → With doctor → Done), so reception can work it on a tablet.
+6. **Accessibility:** labels on every form field, visible focus (added globally), colour contrast ≥ 4.5:1 and alt text on doctor photos.
+7. **Performance:** lazy-load the map, compress hero images to WebP under 200 KB, and code-split the admin routes (the bundle is over 500 KB).
+8. **Trust content:** NABH or other accreditation (if any), MJPJAY empanelment number, the registered name of the hospital, and a short "About us" with the founders' story.

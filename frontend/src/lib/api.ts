@@ -11,8 +11,14 @@ export const apiUrl = (endpoint: string): string => {
   return `${API_BASE_URL}/${cleanEndpoint}`;
 };
 
+// Must match the keys AdminAuthContext writes on login
+export const ADMIN_TOKEN_KEY = 'sanjeevani_admin_token';
+export const ADMIN_USER_KEY = 'sanjeevani_admin_user';
+
+export const getAdminToken = (): string | null => localStorage.getItem(ADMIN_TOKEN_KEY);
+
 export const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem('token');
+  const token = getAdminToken();
   return {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -26,9 +32,7 @@ export async function apiFetch<T = any>(
   const url = apiUrl(endpoint);
   const headers = {
     'Content-Type': 'application/json',
-    ...(localStorage.getItem('token')
-      ? { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      : {}),
+    ...(getAdminToken() ? { Authorization: `Bearer ${getAdminToken()}` } : {}),
     ...(options.headers || {}),
   };
 
@@ -37,7 +41,14 @@ export async function apiFetch<T = any>(
     headers,
   });
 
-  const json = await response.json();
+  if (response.status === 401 && getAdminToken()) {
+    // Staff login expired: clear it and go back to sign-in
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_USER_KEY);
+    window.location.assign('/admin/login?expired=1');
+  }
+
+  const json = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(json.error?.message || json.message || `API Error: ${response.status}`);
   }

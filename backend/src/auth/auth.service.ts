@@ -3,9 +3,12 @@ import {
   UnauthorizedException,
   BadRequestException,
   ConflictException,
+  ServiceUnavailableException,
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
+import { randomInt } from 'crypto';
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { AdminRole } from '@prisma/client';
@@ -70,7 +73,39 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly configService: ConfigService,
   ) {}
+
+  private get isProduction() {
+    return this.configService.get<string>('NODE_ENV') === 'production';
+  }
+
+  // MSG91 is "configured" only when a real auth key and OTP template are set
+  private get msg91() {
+    const authKey = this.configService.get<string>('MSG91_AUTH_KEY', '');
+    const templateId = this.configService.get<string>('MSG91_TEMPLATE_ID', '');
+    const configured = !!authKey && !authKey.startsWith('your_') && !!templateId;
+    return { configured, authKey, templateId };
+  }
+
+  private async sendOtpSms(phone: string, otp: string) {
+    const { authKey, templateId } = this.msg91;
+    const url =
+      `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(templateId)}` +
+      `&mobile=91${phone}&otp=${otp}`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { authkey: authKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    });
+    const body: any = await res.json().catch(() => ({}));
+    if (!res.ok || body?.type === 'error') {
+      this.logger.error(`MSG91 OTP send failed for +91-${phone}: ${JSON.stringify(body)}`);
+      throw new ServiceUnavailableException(
+        'We could not send the SMS right now. Please try again in a minute or call reception.',
+      );
+    }
+  }
 
   /**
    * 1. Send OTP to Patient Mobile Number
@@ -97,7 +132,17 @@ export class AuthService {
     }
 
     const sessionId = uuidv4();
-    const generatedOtp = '123456'; // Standard sandbox OTP code for demo/dev
+    const smsReady = this.msg91.configured;
+
+    if (!smsReady && this.isProduction) {
+      this.logger.error('MSG91_AUTH_KEY / MSG91_TEMPLATE_ID are not set; cannot send booking OTPs.');
+      throw new ServiceUnavailableException(
+        'Online booking is temporarily unavailable. Please call reception on +91 75073 42222.',
+      );
+    }
+
+    // Real random code when SMS is set up; fixed code only for local development
+    const generatedOtp = smsReady ? String(randomInt(0, 1_000_000)).padStart(6, '0') : '123456';
 
     const session: EphemeralSession = {
       sessionId,
@@ -109,15 +154,19 @@ export class AuthService {
       expiresAt: now + 10 * 60 * 1000, // 10-minute session TTL
     };
 
+    if (smsReady) {
+      await this.sendOtpSms(phone, generatedOtp);
+    } else {
+      this.logger.warn(`[dev] SMS not configured. OTP for +91-${phone} is ${generatedOtp}`);
+    }
+
     this.sessions.set(sessionId, session);
-    this.logger.log(`[MSG91 Sandbox] Sent OTP to +91-${phone} for Session ID: ${sessionId}`);
 
     return {
       sessionId,
       phone: `+91-${phone}`,
       expiresInSeconds: 600,
-      sandboxHint: 'In Sandbox / Dev mode, use OTP code: 123456',
-      message: 'OTP sent successfully via SMS gateway',
+      message: 'OTP sent by SMS',
     };
   }
 
@@ -143,8 +192,7 @@ export class AuthService {
       throw new BadRequestException('Too many invalid attempts. Session terminated for security.');
     }
 
-    // In sandbox, accept '123456' or any valid 6-digit match
-    const isValid = otp === session.otpCode || otp === '123456';
+    const isValid = otp === session.otpCode;
     if (!isValid) {
       throw new UnauthorizedException('Invalid OTP. Please check the code and retry.');
     }
@@ -178,12 +226,9 @@ export class AuthService {
   async adminLogin(dto: AdminLoginDto) {
     const { email, password } = dto;
 
-    // Search in-memory admin first, or database if connected
-    let admin: AdminUserRecord | undefined = this.inMemoryAdmins.find(
-      (a) => a.email.toLowerCase() === email.toLowerCase(),
-    );
+    let admin: AdminUserRecord | undefined;
 
-    if (!admin && this.prisma && typeof this.prisma.hospitalAdmin?.findUnique === 'function') {
+    if (this.prisma && typeof this.prisma.hospitalAdmin?.findUnique === 'function') {
       try {
         const dbAdmin = await this.prisma.hospitalAdmin.findUnique({
           where: { email: email.toLowerCase() },
@@ -201,8 +246,13 @@ export class AuthService {
           };
         }
       } catch (err) {
-        // Fall back to in-memory
+        this.logger.error(`Admin lookup failed: ${(err as Error).message}`);
       }
+    }
+
+    // Built-in accounts are for local development only, never in production
+    if (!admin && !this.isProduction) {
+      admin = this.inMemoryAdmins.find((a) => a.email.toLowerCase() === email.toLowerCase());
     }
 
     if (!admin || !admin.isActive) {

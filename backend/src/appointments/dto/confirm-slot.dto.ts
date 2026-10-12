@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class ConfirmSlotDto {
   @IsString()
@@ -9,7 +9,8 @@ export class ConfirmSlotDto {
   @IsNotEmpty()
   slotId: string;
 
-  @IsString()
+  // Patient chose to pay the consultation fee at the OPD counter
+  @IsBoolean()
   @IsOptional()
-  paymentId?: string;
+  payAtHospital?: boolean;
 }

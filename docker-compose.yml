@@ -38,8 +38,10 @@ services:
       DATABASE_URL: "postgresql://sanjeevani_admin:SanjeevaniSecureDbPassword2026!@postgres:5432/sanjeevani_hospital_db?schema=public"
       JWT_SECRET: "sanjeevani_multispeciality_production_jwt_secret_key_2026_super_secure_entropy_key"
       JWT_EXPIRES_IN: "7d"
-      RAZORPAY_KEY_ID: "rzp_test_TRlp6qdfVyCHyQ"
-      RAZORPAY_KEY_SECRET: "Mg9ra16kSOpZfdlr2DqYTCks"
+      RAZORPAY_KEY_ID: "${RAZORPAY_KEY_ID:-}"
+      RAZORPAY_KEY_SECRET: "${RAZORPAY_KEY_SECRET:-}"
+      MSG91_AUTH_KEY: "${MSG91_AUTH_KEY:-}"
+      MSG91_TEMPLATE_ID: "${MSG91_TEMPLATE_ID:-}"
     ports:
       - "3000:3000"
     healthcheck:

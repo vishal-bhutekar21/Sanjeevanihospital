@@ -14,7 +14,7 @@ import {
   MapPin,
   Stethoscope,
 } from 'lucide-react';
-import { apiUrl } from '../../lib/api';
+import { apiUrl, getAdminToken } from '../../lib/api';
 
 const statusMeta = {
   PENDING:  { label: 'Pending',   color: 'bg-amber-100 text-amber-800 border-amber-200',   icon: Clock        },
@@ -47,7 +47,7 @@ export const AdminReviewsEventsPage: React.FC = () => {
   });
   const [creatingEvent, setCreatingEvent] = useState(false);
 
-  const token = () => localStorage.getItem('token');
+  const token = () => getAdminToken();
   const authHeaders = () => ({ Authorization: `Bearer ${token()}`, 'Content-Type': 'application/json' });
 
   const fetchData = async () => {

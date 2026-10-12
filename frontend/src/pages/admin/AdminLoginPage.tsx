@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { apiUrl } from '../../lib/api';
@@ -7,7 +7,10 @@ import { apiUrl } from '../../lib/api';
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState(
+    searchParams.get('expired') ? 'You were signed out. Please sign in again.' : '',
+  );
   const [loading, setLoading] = useState(false);
 
   const { login } = useAdminAuth();

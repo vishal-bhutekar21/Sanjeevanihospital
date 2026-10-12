@@ -12,7 +12,7 @@ import {
   TrendingUp,
   DollarSign,
 } from 'lucide-react';
-import { apiUrl } from '../../lib/api';
+import { apiUrl, getAdminToken } from '../../lib/api';
 
 const statusMeta: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   PENDING:        { label: 'Pending',         color: 'bg-amber-100 text-amber-800 border-amber-200',   icon: Clock         },
@@ -41,7 +41,7 @@ export const AdminSchemesPage: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = getAdminToken();
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const [claimsRes, statsRes] = await Promise.all([
@@ -64,7 +64,7 @@ export const AdminSchemesPage: React.FC = () => {
     if (!selectedClaim || !statusUpdate.status) return;
     setUpdating(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = getAdminToken();
       await fetch(apiUrl(`/schemes/claims/${selectedClaim.id}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },

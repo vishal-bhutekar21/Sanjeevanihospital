@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { apiFetch } from '../../lib/api';
 import {
   CalendarCheck,
   Search,
@@ -27,7 +28,7 @@ interface AppointmentItem {
   department: string;
   appointmentDate: string;
   startTime: string;
-  status: 'CONFIRMED' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED';
+  status: 'CONFIRMED' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
   paymentStatus: 'PAID' | 'PENDING';
   fee: number;
 }
@@ -37,88 +38,42 @@ export const AdminAppointmentsPage: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentItem | null>(null);
 
-  const [appointments, setAppointments] = useState<AppointmentItem[]>([
-    {
-      id: 'apt-001',
-      appointmentCode: 'SNH-8492',
-      patientName: 'Suresh Patil',
-      patientPhone: '+91 98765 43210',
-      patientAge: 42,
-      patientGender: 'Male',
-      doctorName: 'Dr. Nishant Goyal',
-      department: 'Orthopedics',
-      appointmentDate: '2026-08-25',
-      startTime: '11:00 AM',
-      status: 'CONFIRMED',
-      paymentStatus: 'PAID',
-      fee: 500,
-    },
-    {
-      id: 'apt-002',
-      appointmentCode: 'SNH-4129',
-      patientName: 'Pooja Deshmukh',
-      patientPhone: '+91 98223 11445',
-      patientAge: 28,
-      patientGender: 'Female',
-      doctorName: 'Dr. Anshul Goyal',
-      department: 'Gynecology',
-      appointmentDate: '2026-08-25',
-      startTime: '11:30 AM',
-      status: 'IN_CONSULTATION',
-      paymentStatus: 'PAID',
-      fee: 500,
-    },
-    {
-      id: 'apt-003',
-      appointmentCode: 'SNH-9031',
-      patientName: 'Aryan Kale',
-      patientPhone: '+91 94231 88990',
-      patientAge: 6,
-      patientGender: 'Male',
-      doctorName: 'Dr. Shivdas Mirkad',
-      department: 'Pediatrics',
-      appointmentDate: '2026-08-25',
-      startTime: '12:00 PM',
-      status: 'CONFIRMED',
-      paymentStatus: 'PAID',
-      fee: 500,
-    },
-    {
-      id: 'apt-004',
-      appointmentCode: 'SNH-7712',
-      patientName: 'Rameshwar Shinde',
-      patientPhone: '+91 97665 23411',
-      patientAge: 54,
-      patientGender: 'Male',
-      doctorName: 'Dr. Kailash Rajguru',
-      department: 'Medicine',
-      appointmentDate: '2026-08-25',
-      startTime: '12:30 PM',
-      status: 'COMPLETED',
-      paymentStatus: 'PAID',
-      fee: 400,
-    },
-    {
-      id: 'apt-005',
-      appointmentCode: 'SNH-6281',
-      patientName: 'Sunita Gaikwad',
-      patientPhone: '+91 98901 77882',
-      patientAge: 39,
-      patientGender: 'Female',
-      doctorName: 'Dr. Millind Katole',
-      department: 'Surgery',
-      appointmentDate: '2026-08-25',
-      startTime: '01:00 PM',
-      status: 'CONFIRMED',
-      paymentStatus: 'PAID',
-      fee: 500,
-    },
-  ]);
+  const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
 
-  const updateStatus = (id: string, newStatus: AppointmentItem['status']) => {
-    setAppointments(
-      appointments.map((a) => (a.id === id ? { ...a, status: newStatus } : a)),
-    );
+  const loadAppointments = async () => {
+    setLoadError('');
+    try {
+      const res = await apiFetch<AppointmentItem[]>('/appointments');
+      setAppointments(Array.isArray(res.data) ? res.data : []);
+    } catch (err: any) {
+      setLoadError(err?.message || 'Could not load appointments.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadAppointments();
+    // New online bookings appear without a manual refresh
+    const timer = setInterval(loadAppointments, 30000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const updateStatus = async (id: string, newStatus: AppointmentItem['status']) => {
+    const previous = appointments;
+    setAppointments(appointments.map((a) => (a.id === id ? { ...a, status: newStatus } : a)));
+    try {
+      const res = await apiFetch<AppointmentItem>(`/appointments/${id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status: newStatus }),
+      });
+      setAppointments((list) => list.map((a) => (a.id === id ? { ...a, ...res.data } : a)));
+    } catch (err: any) {
+      setAppointments(previous);
+      setLoadError(err?.message || 'Could not update the status. Please try again.');
+    }
   };
 
   const filtered = appointments.filter((a) => {
@@ -137,13 +92,22 @@ export const AdminAppointmentsPage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
-            Live Appointments Queue
+            Appointments
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-normal">
             Today's OPD tokens. Update a patient's status or print their token slip.
           </p>
         </div>
       </div>
+
+      {loadError && (
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex items-center justify-between gap-3">
+          <span>{loadError}</span>
+          <button type="button" onClick={loadAppointments} className="font-semibold underline">
+            Try again
+          </button>
+        </div>
+      )}
 
       {/* ─── 2. SEARCH & FILTER CONTROLS ────────────────────────────────────── */}
       <div className="card-clean p-4 bg-white border border-stone-200 rounded-lg shadow-2xs">
@@ -172,7 +136,7 @@ export const AdminAppointmentsPage: React.FC = () => {
                     : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                {st === 'ALL' ? 'All Queue' : st.replace('_', ' ')}
+                {({ ALL: 'All', CONFIRMED: 'Waiting', IN_CONSULTATION: 'With doctor', COMPLETED: 'Done' } as Record<string, string>)[st]}
               </button>
             ))}
           </div>
@@ -195,6 +159,20 @@ export const AdminAppointmentsPage: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
+              {loading && (
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-sm text-stone-500">Loading appointments…</td>
+                </tr>
+              )}
+              {!loading && filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="py-10 text-center text-sm text-stone-500">
+                    {appointments.length === 0
+                      ? 'No online bookings yet. New bookings appear here automatically.'
+                      : 'No appointments match this search.'}
+                  </td>
+                </tr>
+              )}
               {filtered.map((apt) => (
                 <tr key={apt.id} className="hover:bg-stone-50/60 transition">
                   {/* Token */}
@@ -226,10 +204,12 @@ export const AdminAppointmentsPage: React.FC = () => {
 
                   {/* Fee */}
                   <td className="py-3 px-4">
-                    <span className="font-bold text-stone-900">{apt.fee}</span>
-                    <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded ml-1.5">
-                      PAID
-                    </span>
+                    <span className="font-bold text-stone-900">₹{apt.fee}</span>
+                    {apt.paymentStatus === 'PAID' ? (
+                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded ml-1.5">Paid</span>
+                    ) : (
+                      <span className="text-[10px] text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded ml-1.5">Collect at counter</span>
+                    )}
                   </td>
 
                   {/* Status Toggle Button */}
@@ -247,10 +227,11 @@ export const AdminAppointmentsPage: React.FC = () => {
                           : 'bg-stone-100 text-stone-600 border-stone-200'
                       }`}
                     >
-                      <option value="CONFIRMED">CONFIRMED</option>
-                      <option value="IN_CONSULTATION">IN CONSULTATION</option>
-                      <option value="COMPLETED">COMPLETED</option>
-                      <option value="CANCELLED">CANCELLED</option>
+                      <option value="CONFIRMED">Waiting</option>
+                      <option value="IN_CONSULTATION">With doctor</option>
+                      <option value="COMPLETED">Done</option>
+                      <option value="NO_SHOW">Did not come</option>
+                      <option value="CANCELLED">Cancelled</option>
                     </select>
                   </td>
 
@@ -305,7 +286,7 @@ export const AdminAppointmentsPage: React.FC = () => {
                 <p><span className="text-stone-500">Doctor:</span> <span className="font-bold text-stone-900">{selectedAppointment.doctorName}</span></p>
                 <p><span className="text-stone-500">Department:</span> <span className="font-semibold text-[#0F766E]">{selectedAppointment.department}</span></p>
                 <p><span className="text-stone-500">Slot:</span> <span className="font-bold text-stone-900">{selectedAppointment.appointmentDate} at {selectedAppointment.startTime}</span></p>
-                <p><span className="text-stone-500">Consultation Fee:</span> <span className="font-bold text-emerald-700">₹{selectedAppointment.fee} (PAID)</span></p>
+                <p><span className="text-stone-500">Consultation Fee:</span> <span className="font-bold text-stone-900">₹{selectedAppointment.fee} ({selectedAppointment.paymentStatus === 'PAID' ? 'paid online' : 'to pay at counter'})</span></p>
               </div>
             </div>
 

@@ -1,15 +1,16 @@
-import { IsString, IsNotEmpty, IsNumber, Min } from 'class-validator';
+import { IsString, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
 
 export class CreateOrderDto {
   @IsString()
   @IsNotEmpty()
   bookingSessionId: string;
 
+  // Optional and ignored: the fee is looked up on the server
   @IsString()
-  @IsNotEmpty()
-  doctorId: string;
+  @IsOptional()
+  doctorId?: string;
 
   @IsNumber()
-  @Min(100)
-  amount: number;
+  @IsOptional()
+  amount?: number;
 }

@@ -136,12 +136,12 @@ docker-compose up -d --build
 3. Set your keys in `backend/.env` and `frontend/.env`:
    ```env
    # backend/.env
-   RAZORPAY_KEY_ID="rzp_test_TRlp6qdfVyCHyQ"
-   RAZORPAY_KEY_SECRET="Mg9ra16kSOpZfdlr2DqYTCks"
+   RAZORPAY_KEY_ID="rzp_test_XXXXXXXXXXXXXX"
+   RAZORPAY_KEY_SECRET="your_razorpay_key_secret"
    RAZORPAY_WEBHOOK_SECRET="your_webhook_secret"
 
    # frontend/.env
-   VITE_RAZORPAY_KEY_ID="rzp_test_TRlp6qdfVyCHyQ"
+   VITE_RAZORPAY_KEY_ID="rzp_test_XXXXXXXXXXXXXX"
    ```
 4. Set up the webhook URL in Razorpay Dashboard to `https://your-api-domain.com/api/payments/webhook` with `payment.captured` event.
 
@@ -179,7 +179,7 @@ docker-compose up -d --build
    * **Publish directory**: `dist` (or `frontend/dist`)
 4. Add Environment Variables in Netlify (**Site configuration ➔ Environment variables**):
    * `VITE_API_URL`: `https://your-backend-api.onrender.com/api`
-   * `VITE_RAZORPAY_KEY_ID`: `rzp_test_TRlp6qdfVyCHyQ`
+   * `VITE_RAZORPAY_KEY_ID`: `rzp_test_XXXXXXXXXXXXXX`
 5. Click **Deploy**. Netlify uses `netlify.toml` and `_redirects` to handle client-side SPA routing and cache headers automatically.
 6. 📖 **For full instructions, custom domains, CLI commands & troubleshooting, see the [Netlify Deployment Guide](docs/deployment/netlify-deployment-guide.md).**
 
@@ -193,7 +193,7 @@ docker-compose up -d --build
    * **Output Directory**: `dist`
 5. Add Environment Variables:
    * `VITE_API_URL`: `https://your-backend-api.onrender.com/api`
-   * `VITE_RAZORPAY_KEY_ID`: `rzp_test_TRlp6qdfVyCHyQ`
+   * `VITE_RAZORPAY_KEY_ID`: `rzp_test_XXXXXXXXXXXXXX`
 6. Click **Deploy**. Vercel uses `frontend/vercel.json` to handle client-side SPA routing automatically.
 
 ### Hosting Backend on Render / Railway
