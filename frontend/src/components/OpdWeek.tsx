@@ -49,12 +49,14 @@ export const OpdWeek: React.FC<{ doctorId: string; fallback: string; isMr: boole
     return (
       <div className="text-[15px] text-stone-700">
         <p>{fallback}</p>
+        {!/reception|रिसेप्शन/i.test(fallback) && (
         <p className="mt-2 text-sm text-stone-600">
           {isMr ? 'वेळ ठरवण्यासाठी रिसेप्शनला कॉल करा: ' : 'Call reception to fix a time: '}
           <a href="tel:+917507342222" className="font-semibold text-[#1C2321] underline underline-offset-4">
             75073 42222
           </a>
         </p>
+        )}
       </div>
     );
   }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { feeLabel } from '../lib/fee';
 import { Link } from 'react-router-dom';
 import { Search, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -44,7 +45,7 @@ const DoctorRow: React.FC<{ doc: DoctorItem; isMr: boolean }> = ({ doc, isMr }) 
         <p className="mt-2 text-sm text-stone-600">{isMr ? doc.deptMr : doc.dept}</p>
         <p className="text-sm text-stone-600">{isMr ? doc.timingsMr || doc.timings : doc.timings}</p>
         <p className="text-sm text-stone-600">
-          {isMr ? 'तपासणी फी' : 'Consultation fee'} ₹{doc.fee}
+          {isMr ? 'तपासणी फी' : 'Consultation fee'} {feeLabel(doc.fee, isMr)}
         </p>
       </div>
     </div>

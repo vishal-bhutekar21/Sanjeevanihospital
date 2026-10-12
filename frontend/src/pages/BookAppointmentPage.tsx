@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download } from 'lucide-react';
 import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
 import { DoctorPhoto } from '../components/ui';
+import { feeLabel, hasFee } from '../lib/fee';
 import { DateCalendar } from '../components/DateCalendar';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
@@ -784,7 +785,7 @@ export const BookAppointmentPage: React.FC = () => {
                   checked={payMode === 'counter'}
                   onSelect={() => setPayMode('counter')}
                   title={L('Pay at the hospital', 'हॉस्पिटलमध्ये भरा')}
-                  sub={L(`Pay ₹${doctor.fee} at the OPD counter when you arrive.`, `येताना OPD काउंटरवर ₹${doctor.fee} भरा.`)}
+                  sub={L(`Pay ${hasFee(doctor.fee) ? `₹${doctor.fee}` : 'the consultation fee'} at the OPD counter when you arrive.`, `येताना OPD काउंटरवर ${hasFee(doctor.fee) ? `₹${doctor.fee}` : 'सल्ला शुल्क'} भरा.`)}
                 />
               </div>
 
@@ -853,7 +854,7 @@ export const BookAppointmentPage: React.FC = () => {
                 )}
                 <div className="flex justify-between gap-4">
                   <dt className="text-stone-500">{L('Consultation fee', 'सल्ला शुल्क')}</dt>
-                  <dd className="text-right font-medium">₹{doctor.fee}</dd>
+                  <dd className="text-right font-medium">{feeLabel(doctor.fee, isMr)}</dd>
                 </div>
               </dl>
             </div>
@@ -969,7 +970,7 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
                 <span className="block text-xs text-stone-500 mt-0.5 truncate">{isMr ? d.timingsMr : d.timings}</span>
               </span>
               <span className="text-right shrink-0">
-                <span className="block font-semibold">₹{d.fee}</span>
+                <span className="block font-semibold">{feeLabel(d.fee, isMr)}</span>
                 <span className="block text-sm text-[#0F766E]">{isMr ? 'निवडा' : 'Select'} →</span>
               </span>
             </button>
@@ -1048,7 +1049,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
           <dd>{a.patientName}</dd>
           <dt className="text-stone-500">{L('Fee', 'शुल्क')}</dt>
           <dd>
-            ₹{a.fee} · {a.paymentStatus === 'PAID' ? L('paid online', 'ऑनलाइन भरले') : L('pay at the OPD counter', 'OPD काउंटरवर भरा')}
+            {feeLabel(a.fee, isMr)} · {a.paymentStatus === 'PAID' ? L('paid online', 'ऑनलाइन भरले') : L('pay at the OPD counter', 'OPD काउंटरवर भरा')}
           </dd>
           <dt className="text-stone-500">{L('Where', 'कुठे')}</dt>
           <dd>Plot 17, Rishi Park, Ambad Choufuli, Jalna</dd>
@@ -1059,7 +1060,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
       <ul className="mt-3 space-y-2 text-[15px] text-stone-700 list-disc pl-5">
         <li>{L('Arrive 15 minutes early and show this token number at reception.', '१५ मिनिटे आधी या व रिसेप्शनला हा टोकन क्रमांक दाखवा.')}</li>
         <li>{L('Bring old prescriptions and test reports, if any.', 'जुनी प्रिस्क्रिप्शन व रिपोर्ट असल्यास सोबत आणा.')}</li>
-        {a.paymentStatus !== 'PAID' && <li>{L(`Keep ₹${a.fee} ready for the consultation fee.`, `सल्ला शुल्क ₹${a.fee} सोबत ठेवा.`)}</li>}
+        {a.paymentStatus !== 'PAID' && hasFee(a.fee) && <li>{L(`Keep ₹${a.fee} ready for the consultation fee.`, `सल्ला शुल्क ₹${a.fee} सोबत ठेवा.`)}</li>}
         <li>{L('To change or cancel, call 75073 42222.', 'बदल किंवा रद्द करण्यासाठी ७५०७३ ४२२२२ वर कॉल करा.')}</li>
       </ul>
 

@@ -56,7 +56,8 @@ export class PaymentsService {
     const { bookingSessionId } = dto;
     const { fee, doctorName } = this.appointmentsService.getSessionForPayment(bookingSessionId);
 
-    if (!this.onlinePaymentsEnabled) {
+    // No online payment when keys are missing or the doctor's fee isn't set yet
+    if (!this.onlinePaymentsEnabled || !fee || fee <= 0) {
       return { paymentsEnabled: false, amountInRupees: fee };
     }
 

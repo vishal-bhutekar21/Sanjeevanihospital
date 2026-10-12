@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { feeLabel } from '../lib/fee';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Phone, ArrowRight, Star, MapPin } from 'lucide-react';
@@ -329,7 +330,7 @@ export const HomePage: React.FC = () => {
                   <p className="text-sm text-stone-600">{isMr ? doc.roleMr : doc.role}</p>
                   <p className="text-xs text-stone-500 mt-0.5">{doc.degree}</p>
                   <p className="mt-2 text-sm text-stone-700">
-                    ₹{doc.fee} · {isMr ? doc.timingsMr || doc.timings : doc.timings}
+                    {feeLabel(doc.fee, isMr)} · {isMr ? doc.timingsMr || doc.timings : doc.timings}
                   </p>
                   <Link to={`/book?doctorId=${doc.id}`} className="mt-2 inline-block text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4">
                     {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'} →
