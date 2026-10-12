@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiUrl } from '../lib/api';
 import { toDateKey } from './DateCalendar';
+import { HOSPITAL } from '../config/hospital';
 
 interface Session {
   start: string;
@@ -52,8 +53,8 @@ export const OpdWeek: React.FC<{ doctorId: string; fallback: string; isMr: boole
         {!/reception|रिसेप्शन/i.test(fallback) && (
         <p className="mt-2 text-sm text-stone-600">
           {isMr ? 'वेळ ठरवण्यासाठी रिसेप्शनला कॉल करा: ' : 'Call reception to fix a time: '}
-          <a href="tel:+917507342222" className="font-semibold text-[#1C2321] underline underline-offset-4">
-            75073 42222
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
+            {HOSPITAL.phones.reception.short}
           </a>
         </p>
         )}

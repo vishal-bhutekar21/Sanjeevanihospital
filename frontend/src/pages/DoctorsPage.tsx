@@ -5,6 +5,7 @@ import { Search, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 import { PageIntro, SectionTitle, DoctorPhoto } from '../components/ui';
+import { HOSPITAL } from '../config/hospital';
 
 const GROUPS: { key: DoctorItem['category']; en: string; mr: string; subEn: string; subMr: string }[] = [
   {
@@ -81,8 +82,8 @@ export const DoctorsPage: React.FC = () => {
         title={isMr ? 'आमचे डॉक्टर' : 'Our doctors'}
         intro={
           isMr
-            ? 'संजीवनी हॉस्पिटल, जालना येथील सर्व डॉक्टर, त्यांचे ओपीडी दिवस, वेळ आणि फी. अपॉइंटमेंटसाठी डॉक्टर निवडा किंवा रिसेप्शनला फोन करा.'
-            : 'All doctors at Sanjeevani Hospital, Jalna, with their OPD days, times and fees. Pick a doctor to book, or call reception.'
+            ? `${HOSPITAL.shortNameMr}, ${HOSPITAL.cityMr} येथील सर्व डॉक्टर, त्यांचे ओपीडी दिवस, वेळ आणि फी. अपॉइंटमेंटसाठी डॉक्टर निवडा किंवा रिसेप्शनला फोन करा.`
+            : `All doctors at ${HOSPITAL.shortName}, ${HOSPITAL.city}, with their OPD days, times and fees. Pick a doctor to book, or call reception.`
         }
       >
         <label htmlFor="doctor-search" className="block text-sm text-stone-600 mb-2">
@@ -101,8 +102,8 @@ export const DoctorsPage: React.FC = () => {
         </div>
         <p className="mt-4 text-sm text-stone-500">
           {isMr ? 'रिसेप्शन: ' : 'Reception: '}
-          <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline underline-offset-4">
-            +91 75073 42222
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline underline-offset-4">
+            {HOSPITAL.phones.reception.display}
           </a>
         </p>
       </PageIntro>
@@ -122,9 +123,9 @@ export const DoctorsPage: React.FC = () => {
               <button type="button" onClick={() => setSearch('')} className="btn-secondary">
                 {isMr ? 'सर्व डॉक्टर दाखवा' : 'Show all doctors'}
               </button>
-              <a href="tel:+917507342222" className="btn-secondary">
+              <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
                 <Phone className="w-4 h-4" />
-                +91 75073 42222
+                {HOSPITAL.phones.reception.display}
               </a>
             </div>
           </div>

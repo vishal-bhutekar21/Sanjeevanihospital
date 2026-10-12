@@ -1,19 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { HOSPITAL } from '../config/hospital.config';
 
 @Injectable()
 export class HospitalsService {
   getHospitalProfile() {
     return {
-      id: 'hosp-sanjeevani-jalna',
-      name: 'Sanjeevani Multispeciality Hospital',
-      slug: 'sanjeevani-jalna',
-      tagline: 'Comprehensive healthcare, closer to you.',
-      establishedYear: 2016,
+      id: HOSPITAL.id,
+      name: HOSPITAL.name,
+      slug: HOSPITAL.slug,
+      tagline: HOSPITAL.tagline,
+      establishedYear: HOSPITAL.establishedYear,
       address: {
-        line: 'Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli',
-        city: 'Jalna',
-        state: 'Maharashtra',
-        pincode: '431203',
+        line: HOSPITAL.addressLine,
+        city: HOSPITAL.city,
+        state: HOSPITAL.state,
+        pincode: HOSPITAL.pincode,
         country: 'India',
         coordinates: {
           latitude: 19.8295,
@@ -21,10 +22,10 @@ export class HospitalsService {
         },
       },
       contacts: {
-        reception: '+91-75073-42222',
-        landline: '02482-223322',
-        emergency: '+91-75073-42222',
-        email: 'admin@sanjeevanihosp.in',
+        reception: HOSPITAL.helpline,
+        landline: HOSPITAL.landline,
+        emergency: HOSPITAL.helpline,
+        email: HOSPITAL.email,
       },
       timings: {
         opdMorning: '09:00 AM – 03:00 PM',

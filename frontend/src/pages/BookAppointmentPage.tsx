@@ -9,6 +9,7 @@ import { DateCalendar } from '../components/DateCalendar';
 import { offlineSlots, parseOpdHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
+import { HOSPITAL } from '../config/hospital';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -419,7 +420,7 @@ export const BookAppointmentPage: React.FC = () => {
           order_id: order.orderId,
           amount: order.amount,
           currency: 'INR',
-          name: 'Sanjeevani Hospital',
+          name: HOSPITAL.shortName,
           description: `OPD consultation · ${doctor?.name}`,
           prefill: { name, contact: `+91${phone}` },
           theme: { color: '#0F766E' },
@@ -496,8 +497,8 @@ export const BookAppointmentPage: React.FC = () => {
           <h1 className="text-3xl sm:text-4xl">{L('Book an appointment', 'अपॉइंटमेंट बुक करा')}</h1>
           <p className="mt-2 text-stone-600">
             {L('Takes about 2 minutes. Need help? Call', 'सुमारे २ मिनिटे लागतात. मदत हवी? कॉल करा')}{' '}
-            <a href="tel:+917507342222" className="font-semibold text-[#1C2321] underline underline-offset-4">
-              75073 42222
+            <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
+              {HOSPITAL.phones.reception.short}
             </a>
           </p>
 
@@ -642,8 +643,8 @@ export const BookAppointmentPage: React.FC = () => {
                     {L('Call reception and we’ll book a time for you.', 'रिसेप्शनला कॉल करा, आम्ही वेळ बुक करून देऊ.')}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <a href="tel:+917507342222" className="btn-primary">
-                      <Phone className="w-4 h-4" /> {L('Call 75073 42222', '७५०७३ ४२२२२ वर कॉल करा')}
+                    <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-primary">
+                      <Phone className="w-4 h-4" /> {L(`Call ${HOSPITAL.phones.reception.short}`, `${HOSPITAL.phones.reception.shortMr} वर कॉल करा`)}
                     </a>
                     <button type="button" onClick={loadSlots} className="btn-secondary">
                       {L('Try again', 'पुन्हा प्रयत्न करा')}
@@ -670,8 +671,8 @@ export const BookAppointmentPage: React.FC = () => {
                     {L('Please call reception and we’ll book a time for you.', 'कृपया रिसेप्शनला कॉल करा, आम्ही वेळ बुक करून देऊ.')}
                   </p>
                   <div className="mt-4 flex flex-wrap gap-3">
-                    <a href="tel:+917507342222" className="btn-primary">
-                      <Phone className="w-4 h-4" /> 75073 42222
+                    <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-primary">
+                      <Phone className="w-4 h-4" /> {HOSPITAL.phones.reception.short}
                     </a>
                     <button type="button" className="btn-secondary" onClick={() => go('doctor')}>
                       {L('Choose another doctor', 'दुसरे डॉक्टर निवडा')}
@@ -873,7 +874,7 @@ export const BookAppointmentPage: React.FC = () => {
           {step === 'confirm' && offline && doctor && slot && (() => {
             const when = `${dateLabel(date, { weekday: 'long', day: 'numeric', month: 'long' })}, ${slot.startTime.replace(/^0/, '')}`;
             const message = [
-              'Appointment request – Sanjeevani Hospital',
+              `Appointment request – ${HOSPITAL.shortName}`,
               `Doctor: ${doctor.name}`,
               `Date and time: ${when}`,
               `Patient: ${name.trim()}, ${age} yrs, ${gender}`,
@@ -920,8 +921,8 @@ export const BookAppointmentPage: React.FC = () => {
                   >
                     {L('Send request on WhatsApp', 'व्हॉट्सॲपवर विनंती पाठवा')}
                   </a>
-                  <a href="tel:+917507342222" className="btn-secondary">
-                    <Phone className="w-4 h-4" /> {L('Call 75073 42222 instead', 'त्याऐवजी ७५०७३ ४२२२२ वर कॉल करा')}
+                  <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
+                    <Phone className="w-4 h-4" /> {L(`Call ${HOSPITAL.phones.reception.short} instead`, `त्याऐवजी ${HOSPITAL.phones.reception.shortMr} वर कॉल करा`)}
                   </a>
                 </div>
                 <button type="button" onClick={() => go('details')} className="mt-6 inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
@@ -1171,7 +1172,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
     if (!slipRef.current) return;
     setPdfState('working');
     try {
-      await downloadSlipPdf(slipRef.current, `Sanjeevani-OPD-${c.appointmentCode}.pdf`);
+      await downloadSlipPdf(slipRef.current, `${HOSPITAL.brand}-OPD-${c.appointmentCode}.pdf`);
       setPdfState('idle');
     } catch {
       setPdfState('error');
@@ -1190,7 +1191,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
       text: `OPD: ${a.doctorName} (${c.appointmentCode})`,
       dates: `${fmt(start)}/${fmt(end)}`,
       details: `Token ${c.appointmentCode}. Please arrive 15 minutes early.`,
-      location: 'Sanjeevani Multispeciality Hospital, Ambad Choufuli, Jalna',
+      location: `${HOSPITAL.name}, ${HOSPITAL.locality.en}`,
     });
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   })();
@@ -1223,7 +1224,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
             {feeLabel(a.fee, isMr)} · {a.paymentStatus === 'PAID' ? L('paid online', 'ऑनलाइन भरले') : L('pay at the OPD counter', 'OPD काउंटरवर भरा')}
           </dd>
           <dt className="text-stone-500">{L('Where', 'कुठे')}</dt>
-          <dd>Plot 17, Rishi Park, Ambad Choufuli, Jalna</dd>
+          <dd>{HOSPITAL.address.short}</dd>
         </dl>
       </div>
 
@@ -1232,7 +1233,7 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
         <li>{L('Arrive 15 minutes early and show this token number at reception.', '१५ मिनिटे आधी या व रिसेप्शनला हा टोकन क्रमांक दाखवा.')}</li>
         <li>{L('Bring old prescriptions and test reports, if any.', 'जुनी प्रिस्क्रिप्शन व रिपोर्ट असल्यास सोबत आणा.')}</li>
         {a.paymentStatus !== 'PAID' && hasFee(a.fee) && <li>{L(`Keep ₹${a.fee} ready for the consultation fee.`, `सल्ला शुल्क ₹${a.fee} सोबत ठेवा.`)}</li>}
-        <li>{L('To change or cancel, call 75073 42222.', 'बदल किंवा रद्द करण्यासाठी ७५०७३ ४२२२२ वर कॉल करा.')}</li>
+        <li>{L(`To change or cancel, call ${HOSPITAL.phones.reception.short}.`, `बदल किंवा रद्द करण्यासाठी ${HOSPITAL.phones.reception.shortMr} वर कॉल करा.`)}</li>
       </ul>
 
       <div className="mt-8 flex flex-wrap gap-3 print:hidden">

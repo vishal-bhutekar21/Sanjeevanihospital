@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { DEVELOPER } from '../data/developer';
+import { HOSPITAL } from '../config/hospital';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -59,9 +60,9 @@ export const AdminLayout: React.FC = () => {
     <>
       <div className="p-5 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <img src="/logo.png" alt="" className="w-9 h-9 object-contain bg-white rounded-md p-0.5 shrink-0" />
+          <img src={HOSPITAL.logo} alt="" className="w-9 h-9 object-contain bg-white rounded-md p-0.5 shrink-0" />
           <div className="leading-tight">
-            <span className="font-heading text-base text-white block">Sanjeevani</span>
+            <span className="font-heading text-base text-white block">{HOSPITAL.brand}</span>
             <span className="text-xs text-stone-400">Hospital office</span>
           </div>
         </div>
@@ -164,7 +165,7 @@ export const AdminLayout: React.FC = () => {
 
         <div className="px-3 py-2 bg-white/5 rounded-md space-y-1">
           <p className="text-white font-bold text-xs">{admin?.name || 'Administrator'}</p>
-          <p className="text-[11px] text-stone-400 truncate">{admin?.email || 'admin@sanjeevanihosp.in'}</p>
+          <p className="text-[11px] text-stone-400 truncate">{admin?.email || `admin@${HOSPITAL.website}`}</p>
           <p className="text-[11px] text-stone-400">{roleLabel(admin?.role)}</p>
         </div>
 

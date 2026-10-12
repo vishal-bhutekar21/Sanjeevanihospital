@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Phone } from 'lucide-react';
 import { PageIntro, SectionTitle, Photo } from '../components/ui';
 import { PHOTOS, GALLERY } from '../data/photos';
+import { HOSPITAL } from '../config/hospital';
 
 interface Facility {
   photo: string;
@@ -142,11 +143,11 @@ export const FacilitiesPage: React.FC = () => {
             : 'Emergency, ICU, operation theatres, NICU, lab and pharmacy, all in one building. The photos on this page are of our own hospital.'
         }
         image={PHOTOS.building}
-        imageAlt={isMr ? 'संजीवनी हॉस्पिटल इमारत, जालना' : 'Sanjeevani Hospital building, Jalna'}
+        imageAlt={isMr ? `${HOSPITAL.shortNameMr} इमारत, ${HOSPITAL.cityMr}` : `${HOSPITAL.shortName} building, ${HOSPITAL.city}`}
       >
-        <a href="tel:+917507342222" className="btn-secondary">
+        <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="btn-secondary">
           <Phone className="w-4 h-4 text-[#C62828]" />
-          {isMr ? 'आपत्कालीन: ' : 'Emergency: '}+91 75073 42222
+          {isMr ? 'आपत्कालीन: ' : 'Emergency: '}{HOSPITAL.phones.emergency.display}
         </a>
       </PageIntro>
 

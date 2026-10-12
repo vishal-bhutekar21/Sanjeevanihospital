@@ -8,6 +8,7 @@ import { AWARDS_DATA } from '../data/awardsData';
 import { apiUrl } from '../lib/api';
 import { PHOTOS } from '../data/photos';
 import { Photo, DoctorPhoto } from '../components/ui';
+import { HOSPITAL } from '../config/hospital';
 
 interface HomeReview {
   id?: string;
@@ -206,9 +207,9 @@ export const HomePage: React.FC = () => {
               <Link to="/book" className="btn-primary">
                 {t('hero.bookCta')}
               </Link>
-              <a href="tel:+917507342222" className="btn-secondary">
+              <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="btn-secondary">
                 <Phone className="w-4 h-4 text-[#C62828]" />
-                {t('hero.callEmergency')}
+                {t('hero.callEmergency', { phone: isMr ? HOSPITAL.phones.emergency.shortMr : HOSPITAL.phones.emergency.short })}
               </a>
             </div>
 
@@ -222,12 +223,12 @@ export const HomePage: React.FC = () => {
           <figure className="lg:col-span-6">
             <img
               src={PHOTOS.building}
-              alt={isMr ? 'संजीवनी हॉस्पिटल इमारत, जालना' : 'Sanjeevani Hospital building, Jalna'}
+              alt={isMr ? `${HOSPITAL.shortNameMr} इमारत, ${HOSPITAL.cityMr}` : `${HOSPITAL.shortName} building, ${HOSPITAL.city}`}
               className="w-full aspect-[4/3] object-cover rounded-lg"
             />
             <figcaption className="mt-2 text-xs text-stone-500 flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5" />
-              {isMr ? 'प्लॉट १७, ऋषी पार्क, अंबड चौफुली, जालना' : 'Plot 17, Rishi Park, Ambad Choufuli, Jalna'}
+              {isMr ? HOSPITAL.address.shortMr : HOSPITAL.address.short}
             </figcaption>
           </figure>
         </div>
@@ -253,9 +254,9 @@ export const HomePage: React.FC = () => {
             <div className="mt-6 p-5 rounded-lg bg-[#FDF1F0] border border-[#F3D3CF]">
               <p className="font-semibold text-[#8E1C1C]">{t('quickActions.emergency')}</p>
               <p className="mt-1 text-sm text-[#6B2A2A]">{t('quickActions.emergencyDesc')}</p>
-              <a href="tel:+917507342222" className="btn-emergency mt-4 w-full sm:w-auto">
+              <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="btn-emergency mt-4 w-full sm:w-auto">
                 <Phone className="w-4 h-4" />
-                +91 75073 42222
+                {HOSPITAL.phones.emergency.display}
               </a>
             </div>
           </div>
@@ -351,8 +352,8 @@ export const HomePage: React.FC = () => {
             </h2>
             <p className="mt-4 text-stone-600 leading-relaxed">
               {isMr
-                ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि उपचार. आमच्या आरोग्य मित्र कक्षात कागदपत्रे आणि मंजुरीसाठी मदत मिळते.'
-                : 'Families with a yellow or orange ration card can get operations and hospital treatment free of cost at Sanjeevani. Our Arogya Mitra desk helps with the paperwork and approval.'}
+                ? `पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी ${HOSPITAL.shortNameMr}मध्ये मोफत शस्त्रक्रिया आणि उपचार. आमच्या आरोग्य मित्र कक्षात कागदपत्रे आणि मंजुरीसाठी मदत मिळते.`
+                : `Families with a yellow or orange ration card can get operations and hospital treatment free of cost at ${HOSPITAL.brand}. Our Arogya Mitra desk helps with the paperwork and approval.`}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link to="/mjpjay" className="btn-primary">
@@ -380,8 +381,8 @@ export const HomePage: React.FC = () => {
             </ol>
             <p className="mt-6 pt-4 border-t border-[#E7E3DA] text-sm text-stone-600">
               {isMr ? 'आरोग्य मित्र कक्ष:' : 'Arogya Mitra desk:'}{' '}
-              <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline">
-                +91 75073 42222
+              <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline">
+                {HOSPITAL.phones.reception.display}
               </a>
             </p>
           </div>
@@ -464,34 +465,34 @@ export const HomePage: React.FC = () => {
           <div className="lg:col-span-5">
             <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">{t('sections.locationHeading')}</h2>
             <address className="not-italic mt-4 text-stone-700 leading-relaxed">
-              Sanjeevani Multispeciality Hospital
+              {HOSPITAL.name}
               <br />
-              Plot No. 17, Rishi Park, Ambad Road
+              {HOSPITAL.address.homeLines[0]}
               <br />
-              Ambad Choufuli, Jalna, Maharashtra 431203
+              {HOSPITAL.address.homeLines[1]}
             </address>
             <p className="mt-3 text-sm text-stone-500">
               {isMr ? 'जालना रेल्वे स्टेशनपासून सुमारे ३.५ किमी.' : 'About 3.5 km from Jalna railway station.'}
             </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <a
-                href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
+                href={HOSPITAL.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-secondary"
               >
                 {isMr ? 'गुगल मॅपवर दिशा' : 'Get directions'}
               </a>
-              <a href="tel:+917507342222" className="btn-secondary">
+              <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
                 <Phone className="w-4 h-4" />
-                +91 75073 42222
+                {HOSPITAL.phones.reception.display}
               </a>
             </div>
           </div>
           <div className="lg:col-span-7 rounded-lg overflow-hidden h-72 bg-stone-100 border border-[#E7E3DA]">
             <iframe
-              title="Sanjeevani Hospital Jalna Location"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3752.482025734346!2d75.87321277598858!3d19.83965932757277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bda574d6cfa92ff%3A0x6b30c144577884ff!2sAmbad%20Choufuli%2C%20Jalna%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              title={`${HOSPITAL.shortName} ${HOSPITAL.city} Location`}
+              src={HOSPITAL.mapEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}

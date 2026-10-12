@@ -1,29 +1,33 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdminAuth } from '../../context/AdminAuthContext';
+import { HOSPITAL } from '../../config/hospital';
 
-// What the public website currently shows. Taken from ContactPage, Header and Footer.
+// What the public website currently shows. All of it comes from src/config/hospital.ts.
+const H = HOSPITAL;
 const PHONES = [
-  { label: 'Emergency (24 hours) and reception', num: '+91 75073 42222', where: 'Header, footer, contact page' },
-  { label: 'Ambulance', num: '+91 88305 18080', where: 'Contact page' },
-  { label: 'MJPJAY (Arogya Mitra)', num: '+91 82089 65820', where: 'Contact page' },
-  { label: 'Cashless insurance (TPA)', num: '+91 91460 22490', where: 'Contact page' },
-  { label: 'Administration', num: '+91 96876 09046', where: 'Contact page' },
+  { label: 'Emergency (24 hours) and reception', num: H.phones.emergency.display, where: 'Header, footer, contact page' },
+  { label: 'Ambulance', num: H.phones.ambulance.display, where: 'Contact page' },
+  { label: 'MJPJAY (Arogya Mitra)', num: H.phones.mjpjay.display, where: 'Contact page' },
+  { label: 'Cashless insurance (TPA)', num: H.phones.tpa.display, where: 'Contact page' },
+  { label: 'Administration', num: H.phones.admin.display, where: 'Contact page' },
 ];
 
 const EMAILS = [
-  { email: 'sanjeevanihospjalna@gmail.com', where: 'Contact page' },
-  { email: 'sanjeevanijalna@gmail.com', where: 'Footer' },
+  { email: H.emails.main, where: 'Contact page' },
+  { email: H.emails.footer, where: 'Footer' },
 ];
 
 const HOURS = [
-  { what: 'Emergency and ICU', when: '24 hours, every day', where: 'Everywhere' },
-  { what: 'Morning OPD', when: '9 am – 3 pm', where: 'Contact page' },
-  { what: 'Morning OPD', when: '9 am – 1 pm', where: 'Header and footer' },
-  { what: 'Evening OPD', when: '5 pm – 8 pm', where: 'Everywhere' },
+  { what: 'Emergency and ICU', when: H.opdHours.emergency.en, where: 'Everywhere' },
+  { what: 'Morning OPD', when: H.opdHours.contactMorning.replace(/:00/g, ''), where: 'Contact page' },
+  { what: 'Morning OPD', when: H.opdHours.morning.en, where: 'Header and footer' },
+  { what: 'Evening OPD', when: H.opdHours.evening.en, where: 'Everywhere' },
 ];
 
-const ADDRESS = 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203';
+const ADDRESS = H.address.en;
+const MORNING_CONFLICT = HOURS[1].when !== HOURS[2].when;
+const EMAIL_CONFLICT = H.emails.main !== H.emails.footer;
 
 const humanRole = (role?: string) =>
   role
@@ -60,16 +64,22 @@ export const AdminSettingsPage: React.FC = () => {
         </p>
       </div>
 
+      {(MORNING_CONFLICT || EMAIL_CONFLICT) && (
       <div role="note" className="p-4 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-900 space-y-1.5">
         <p className="font-semibold">The website shows two different versions of some details. Please confirm which is right.</p>
+        {MORNING_CONFLICT && (
         <p>
-          Morning OPD: the contact page says 9 am – 3 pm, but the header and footer say 9 am – 1 pm.
+          Morning OPD: the contact page says {HOURS[1].when}, but the header and footer say {HOURS[2].when}.
         </p>
+        )}
+        {EMAIL_CONFLICT && (
         <p>
-          Email: the contact page shows sanjeevanihospjalna@gmail.com, but the footer shows sanjeevanijalna@gmail.com.
+          Email: the contact page shows {H.emails.main}, but the footer shows {H.emails.footer}.
         </p>
+        )}
         <p>Tell your developer the correct ones and they will make every page match.</p>
       </div>
+      )}
 
       <section className="bg-white border border-[#E7E3DA] rounded-lg">
         <div className="px-5 py-4 border-b border-[#E7E3DA]">
@@ -98,11 +108,11 @@ export const AdminSettingsPage: React.FC = () => {
         <ul className="divide-y divide-[#E7E3DA]">
           {EMAILS.map((e) => (
             <Row
-              key={e.email}
+              key={e.where}
               label="Email"
               value={
                 <span className="flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" aria-hidden />
+                  {EMAIL_CONFLICT && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" aria-hidden />}
                   {e.email}
                 </span>
               }
@@ -119,7 +129,7 @@ export const AdminSettingsPage: React.FC = () => {
         </div>
         <ul className="divide-y divide-[#E7E3DA]">
           {HOURS.map((h) => {
-            const conflict = h.what === 'Morning OPD';
+            const conflict = MORNING_CONFLICT && h.what === 'Morning OPD';
             return (
               <Row
                 key={h.what + h.when}

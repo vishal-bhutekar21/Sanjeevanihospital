@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException, Logger } from '@nes
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { HOSPITAL } from '../config/hospital.config';
 
 export type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 export type EventStatus = 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
@@ -57,7 +58,7 @@ export class ReviewsEventsService {
   private reviews: PatientReviewRecord[] = [
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Sunil Jadhav',
       patientLocation: 'Jalna City',
       rating: 5,
@@ -75,7 +76,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Pooja Kulkarni',
       patientLocation: 'Ambad Taluka',
       rating: 5,
@@ -93,7 +94,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Anand Shinde',
       patientLocation: 'Partur Taluka',
       rating: 5,
@@ -111,7 +112,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Meena Patil',
       patientLocation: 'Jalna District',
       rating: 5,
@@ -129,7 +130,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Ramesh Pawar',
       patientLocation: 'Badnapur',
       rating: 4,
@@ -147,7 +148,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: 'Sanjay Deshmukh',
       patientLocation: 'Mantha Taluka',
       rating: 5,
@@ -168,7 +169,7 @@ export class ReviewsEventsService {
   private events: HospitalEventRecord[] = [
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: 'Free Orthopedic & Bone Mineral Density (BMD) Screening Camp',
       titleMr: 'मोफत हाडे व सांधे तपासणी शिबिर',
       description: 'Free clinical consultations with Dr. Nishant Goyal and complimentary digital BMD (Bone Mineral Density) testing for joint disorders and osteoporosis screening for Jalna residents.',
@@ -180,7 +181,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital Orthopedics Department',
       featuredDoctor: 'Dr. Nishant Goyal (MBBS, DNB, D. Ortho)',
       registrationRequired: false,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -188,7 +189,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: 'Pediatric Growth & Free Immunization Drive',
       titleMr: 'बालकांची वाढ व मोफत लसीकरण मोहीम',
       description: 'Comprehensive developmental screening, pediatric asthma consultation, and complete government-approved immunization schedule review by Dr. Shivdas Mirkad, Pediatrician & Neonatologist.',
@@ -200,7 +201,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital Pediatrics Department',
       featuredDoctor: 'Dr. Shivdas Mirkad (MBBS, MD, DCH)',
       registrationRequired: false,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -208,7 +209,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: "Women's Health & Safe Motherhood Awareness Seminar",
       titleMr: 'महिला आरोग्य व सुरक्षित मातृत्व जनजागृती शिबिर',
       description: 'Interactive educational workshop on high-risk pregnancy management, signs of complications, nutritional guidance, laparoscopic gynecological surgical advances and PCOD/PCOS awareness by Dr. Anshul Goyal.',
@@ -220,7 +221,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital Obstetrics & Gynecology Department',
       featuredDoctor: 'Dr. Anshul Goyal (MBBS, DNB, DGO)',
       registrationRequired: true,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -228,7 +229,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: 'Diabetes, Blood Pressure & Cardiac Risk Free Diagnostic Camp',
       titleMr: 'मधुमेह, रक्तदाब व हृदयविकार मोफत तपासणी शिबिर',
       description: 'Free blood glucose (HbA1c), blood pressure, BMI, and ECG screening for early detection of diabetes, hypertension, and cardiac risk factors. Conducted by Dr. Kailash Rajguru, Internal Medicine specialist.',
@@ -240,7 +241,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital Internal Medicine Department & Jalna Municipal Corporation',
       featuredDoctor: 'Dr. Kailash Rajguru (MBBS, MD Medicine)',
       registrationRequired: false,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -248,7 +249,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: 'MJPJAY Patient Awareness & Eligibility Registration Drive',
       titleMr: 'महात्मा फुले जन आरोग्य योजना जनजागृती व नोंदणी',
       description: 'Arogya Mitra team will assist eligible patients in verifying MJPJAY eligibility, registering yellow/orange ration card holders, and explaining covered procedures for cashless surgery at Sanjeevani Hospital.',
@@ -260,7 +261,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital MJPJAY Arogya Mitra Cell',
       featuredDoctor: undefined,
       registrationRequired: false,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -268,7 +269,7 @@ export class ReviewsEventsService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: 'Neonatal Resuscitation & Safe Delivery CME Program',
       titleMr: 'नवजात शिशु पुनर्जीवन व सुरक्षित प्रसूती CME कार्यक्रम',
       description: 'Continuing Medical Education (CME) event for nursing staff, MBBS doctors, and paramedics on advanced neonatal resuscitation protocols, ventilator settings, and safe delivery techniques.',
@@ -280,7 +281,7 @@ export class ReviewsEventsService {
       organizer: 'Sanjeevani Hospital Medical Education Committee',
       featuredDoctor: 'Dr. Shivdas Mirkad & Dr. Anshul Goyal',
       registrationRequired: true,
-      registrationPhone: '+91-75073-42222',
+      registrationPhone: HOSPITAL.helpline,
       isFree: false,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -326,7 +327,7 @@ export class ReviewsEventsService {
 
     const review: PatientReviewRecord = {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       patientName: dto.patientName,
       patientLocation: dto.patientLocation,
       rating: dto.rating,
@@ -361,7 +362,7 @@ export class ReviewsEventsService {
     review.updatedAt = new Date().toISOString();
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: `REVIEW_${status}`,
       entity: 'PATIENT_REVIEW',
       entityId: reviewId,
@@ -414,7 +415,7 @@ export class ReviewsEventsService {
   async createEvent(dto: Partial<HospitalEventRecord>) {
     const event: HospitalEventRecord = {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       title: dto.title || '',
       titleMr: dto.titleMr || '',
       description: dto.description || '',
@@ -423,10 +424,10 @@ export class ReviewsEventsService {
       eventTime: dto.eventTime || '',
       venue: dto.venue || '',
       category: dto.category || 'HEALTH_CAMP',
-      organizer: dto.organizer || 'Sanjeevani Hospital',
+      organizer: dto.organizer || HOSPITAL.shortName,
       featuredDoctor: dto.featuredDoctor,
       registrationRequired: dto.registrationRequired ?? false,
-      registrationPhone: dto.registrationPhone || '+91-75073-42222',
+      registrationPhone: dto.registrationPhone || HOSPITAL.helpline,
       isFree: dto.isFree ?? true,
       status: 'UPCOMING',
       attendeesCount: 0,
@@ -437,7 +438,7 @@ export class ReviewsEventsService {
     this.logger.log(`New hospital event created: ${event.title} on ${event.eventDate}`);
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: 'EVENT_CREATED',
       entity: 'HOSPITAL_EVENT',
       entityId: event.id,

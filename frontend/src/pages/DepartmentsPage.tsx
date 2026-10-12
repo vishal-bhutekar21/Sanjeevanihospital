@@ -5,6 +5,7 @@ import { Phone } from 'lucide-react';
 import { PageIntro, Photo } from '../components/ui';
 import { PHOTOS } from '../data/photos';
 import { DOCTORS_DATA, type DoctorItem } from '../data/doctorsData';
+import { HOSPITAL } from '../config/hospital';
 
 export interface Department {
   slug: string;
@@ -205,9 +206,9 @@ export const DepartmentsPage: React.FC = () => {
           <Link to="/book" className="btn-primary">
             {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
           </Link>
-          <a href="tel:+917507342222" className="btn-secondary">
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
             <Phone className="w-4 h-4" />
-            +91 75073 42222
+            {HOSPITAL.phones.reception.display}
           </a>
         </div>
       </PageIntro>

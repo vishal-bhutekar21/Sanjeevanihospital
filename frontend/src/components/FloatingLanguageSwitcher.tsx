@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Phone } from 'lucide-react';
+import { HOSPITAL } from '../config/hospital';
 
 // Bottom action bar on phones: call or book, always within thumb reach.
 export const FloatingLanguageSwitcher: React.FC = () => {
@@ -18,7 +19,7 @@ export const FloatingLanguageSwitcher: React.FC = () => {
       style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
     >
       <a
-        href="tel:+917507342222"
+        href={`tel:${HOSPITAL.phones.emergency.tel}`}
         className="flex-1 flex items-center justify-center gap-2 min-h-[44px] rounded-md bg-[#C62828] text-white text-sm font-semibold"
       >
         <Phone className="w-4 h-4" />
@@ -27,7 +28,7 @@ export const FloatingLanguageSwitcher: React.FC = () => {
 
       {isBookingPage ? (
         <a
-          href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
+          href={HOSPITAL.mapsUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="flex-1 flex items-center justify-center min-h-[44px] rounded-md border border-[#D8D3C8] text-sm font-semibold text-[#1C2321]"

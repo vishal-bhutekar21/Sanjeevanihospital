@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { DoctorPhoto, SectionTitle } from '../components/ui';
 import { OpdWeek } from '../components/OpdWeek';
+import { HOSPITAL } from '../config/hospital';
 
 const BackLink: React.FC<{ isMr: boolean }> = ({ isMr }) => (
   <Link
@@ -38,9 +39,9 @@ export const DoctorDetailPage: React.FC = () => {
           <Link to="/doctors" className="btn-primary">
             {isMr ? 'डॉक्टरांची यादी' : 'See all doctors'}
           </Link>
-          <a href="tel:+917507342222" className="btn-secondary">
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
             <Phone className="w-4 h-4" />
-            +91 75073 42222
+            {HOSPITAL.phones.reception.display}
           </a>
         </div>
       </div>
@@ -55,8 +56,8 @@ export const DoctorDetailPage: React.FC = () => {
   // Plain-language summary built from the doctor's details.
   const about = isMr
     ? doc.aboutMr ||
-      `${doc.nameMr} हे संजीवनी हॉस्पिटल, जालना येथे ${doc.roleMr} आहेत.`
-    : `${doc.name} is ${doc.role} at Sanjeevani Hospital, Jalna${
+      `${doc.nameMr} हे ${HOSPITAL.shortNameMr}, ${HOSPITAL.cityMr} येथे ${doc.roleMr} आहेत.`
+    : `${doc.name} is ${doc.role} at ${HOSPITAL.shortName}, ${HOSPITAL.city}${
         doc.experienceYears ? `, with ${doc.experienceYears} years of experience` : ''
       }. Main areas of work: ${doc.specialty}.`;
 
@@ -91,9 +92,9 @@ export const DoctorDetailPage: React.FC = () => {
                 <Link to={`/book?doctorId=${doc.id}`} className="btn-primary">
                   {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
                 </Link>
-                <a href="tel:+917507342222" className="btn-secondary">
+                <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
                   <Phone className="w-4 h-4" />
-                  +91 75073 42222
+                  {HOSPITAL.phones.reception.display}
                 </a>
               </div>
             </div>

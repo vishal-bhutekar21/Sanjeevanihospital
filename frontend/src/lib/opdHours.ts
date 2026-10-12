@@ -5,6 +5,8 @@
  * Patients can then pick a time and send it to reception as a request.
  */
 
+import { HOSPITAL } from '../config/hospital';
+
 export interface OfflineSlot {
   id: string;
   startTime: string; // "09:30 AM"
@@ -76,4 +78,5 @@ export function offlineSlots(text: string, dateKey: string, slotMinutes = 15): O
   return out;
 }
 
-export const HOSPITAL_WHATSAPP = '917507342222';
+/** WhatsApp number for offline booking requests. Change it in config/hospital.ts. */
+export const HOSPITAL_WHATSAPP = HOSPITAL.phones.whatsapp;

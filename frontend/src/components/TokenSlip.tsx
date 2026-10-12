@@ -1,4 +1,5 @@
 import React, { forwardRef } from 'react';
+import { HOSPITAL } from '../config/hospital';
 
 export interface SlipData {
   appointmentCode: string;
@@ -43,13 +44,13 @@ export const TokenSlip = forwardRef<HTMLDivElement, { d: SlipData }>(({ d }, ref
     >
       {/* Letterhead */}
       <div style={{ padding: '26px 32px 18px', borderBottom: '3px solid #0F766E', display: 'flex', alignItems: 'center', gap: 14 }}>
-        <img src="/logo.png" alt="" style={{ width: 46, height: 46, objectFit: 'contain' }} crossOrigin="anonymous" />
+        <img src={HOSPITAL.logo} alt="" style={{ width: 46, height: 46, objectFit: 'contain' }} crossOrigin="anonymous" />
         <div style={{ flex: 1 }}>
           <div style={{ fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 19, fontWeight: 600, lineHeight: 1.2 }}>
-            Sanjeevani Multispeciality Hospital
+            {HOSPITAL.name}
           </div>
           <div style={{ fontSize: 11, color: '#6B6459', marginTop: 2 }}>
-            Plot 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203
+            {HOSPITAL.address.letterhead}
           </div>
         </div>
       </div>
@@ -114,7 +115,7 @@ export const TokenSlip = forwardRef<HTMLDivElement, { d: SlipData }>(({ d }, ref
             'Arrive 15 minutes early and show this slip at OPD reception.',
             'Bring old prescriptions and test reports, if any.',
             ...(d.paid ? [] : [d.fee > 0 ? `Pay the consultation fee of ₹${d.fee} at the counter.` : 'Pay the consultation fee at the counter.']),
-            'To change or cancel, call +91 75073 42222.',
+            `To change or cancel, call ${HOSPITAL.phones.reception.display}.`,
           ].map((t, i) => (
             <div key={t} style={{ display: 'flex', gap: 8, color: '#3F3A33', marginBottom: 3 }}>
               <span style={{ width: 14, flexShrink: 0, color: '#6B6459' }}>{i + 1}.</span>
@@ -143,8 +144,8 @@ export const TokenSlip = forwardRef<HTMLDivElement, { d: SlipData }>(({ d }, ref
           color: '#6B6459',
         }}
       >
-        <span>Emergency (24 hours): <b style={{ color: '#C62828' }}>+91 75073 42222</b></span>
-        <span>OPD 9 am–1 pm, 5–8 pm</span>
+        <span>Emergency (24 hours): <b style={{ color: '#C62828' }}>{HOSPITAL.phones.emergency.display}</b></span>
+        <span>{HOSPITAL.opdHours.short}</span>
       </div>
     </div>
   );
@@ -157,7 +158,7 @@ export async function downloadSlipPdf(el: HTMLElement, fileName: string) {
   if (document.fonts?.ready) await document.fonts.ready;
   const canvas = await html2canvas(el, { scale: 3, backgroundColor: '#FFFFFF', useCORS: true, logging: false });
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-  pdf.setProperties({ title: fileName.replace(/\.pdf$/, ''), author: 'Sanjeevani Multispeciality Hospital' });
+  pdf.setProperties({ title: fileName.replace(/\.pdf$/, ''), author: HOSPITAL.name });
   pdf.addImage(canvas.toDataURL('image/jpeg', 0.95), 'JPEG', 0, 0, 148, 210);
   pdf.save(fileName);
 }

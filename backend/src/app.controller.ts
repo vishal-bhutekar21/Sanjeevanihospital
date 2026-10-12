@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { HOSPITAL } from './config/hospital.config';
 
 @Controller()
 export class AppController {
@@ -6,7 +7,7 @@ export class AppController {
   getHealth() {
     return {
       status: 'UP',
-      service: 'Sanjeevani Multispeciality Hospital Backend API',
+      service: `${HOSPITAL.name} Backend API`,
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       mode: process.env.NODE_ENV || 'development',
