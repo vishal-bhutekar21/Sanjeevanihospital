@@ -1,268 +1,405 @@
-import React, { useEffect, useState } from 'react';
-import {
-  ShieldCheck,
-  Filter,
-  RefreshCcw,
-  CheckCircle2,
-  XCircle,
-  Clock,
-  AlertCircle,
-  BarChart2,
-  ChevronDown,
-  TrendingUp,
-  DollarSign,
-} from 'lucide-react';
-import { apiUrl, getAdminToken } from '../../lib/api';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { X } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
 
-const statusMeta: Record<string, { label: string; color: string; icon: React.ElementType }> = {
-  PENDING:        { label: 'Pending',         color: 'bg-amber-100 text-amber-800 border-amber-200',   icon: Clock         },
-  PRE_AUTHORIZED: { label: 'Pre-Authorized',  color: 'bg-blue-100 text-blue-800 border-blue-200',     icon: CheckCircle2  },
-  IN_TREATMENT:   { label: 'In Treatment',    color: 'bg-purple-100 text-purple-800 border-purple-200', icon: AlertCircle   },
-  SUBMITTED:      { label: 'Claim Submitted', color: 'bg-sky-100 text-sky-800 border-sky-200',         icon: TrendingUp    },
-  SETTLED:        { label: 'Settled',         color: 'bg-emerald-100 text-emerald-800 border-emerald-200', icon: CheckCircle2 },
-  REJECTED:       { label: 'Rejected',        color: 'bg-rose-100 text-rose-800 border-rose-200',      icon: XCircle       },
+type SchemeType = 'MJPJAY' | 'AYUSHMAN_BHARAT' | 'EMPLOYEE_STATE_INSURANCE' | 'CASHLESS_TPA';
+type ClaimStatus = 'PENDING' | 'PRE_AUTHORIZED' | 'IN_TREATMENT' | 'SUBMITTED' | 'SETTLED' | 'REJECTED';
+
+interface Claim {
+  id: string;
+  schemeType: SchemeType;
+  patientName: string;
+  patientPhone: string;
+  patientAge: number;
+  rationCardNumber?: string;
+  ayushmanCardNumber?: string;
+  insurerName?: string;
+  tpaName?: string;
+  diagnosisDescription: string;
+  estimatedAmount: number;
+  status: ClaimStatus;
+  arogyaMitraId?: string;
+  preAuthorizationId?: string;
+  remarks?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Stats {
+  total: number;
+  pending: number;
+  preAuthorized: number;
+  inTreatment: number;
+  settled: number;
+  rejected: number;
+  mjpjayClaims: number;
+  ayushmanClaims: number;
+  tpaClaims: number;
+  totalEstimatedAmount: number;
+}
+
+const STATUS_LABEL: Record<ClaimStatus, string> = {
+  PENDING: 'Pre-auth pending',
+  PRE_AUTHORIZED: 'Pre-auth approved',
+  IN_TREATMENT: 'In treatment',
+  SUBMITTED: 'Claim submitted',
+  SETTLED: 'Settled',
+  REJECTED: 'Rejected',
 };
 
-const schemeMeta: Record<string, { label: string; color: string }> = {
-  MJPJAY:            { label: 'MJPJAY',           color: 'bg-teal-100 text-teal-800 border-teal-200' },
-  AYUSHMAN_BHARAT:   { label: 'Ayushman Bharat',  color: 'bg-orange-100 text-orange-800 border-orange-200' },
-  CASHLESS_TPA:      { label: 'Cashless TPA',     color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-  EMPLOYEE_STATE_INSURANCE: { label: 'ESI',       color: 'bg-stone-100 text-stone-700 border-stone-200' },
+const STATUS_DOT: Record<ClaimStatus, string> = {
+  PENDING: 'bg-amber-500',
+  PRE_AUTHORIZED: 'bg-[#0F766E]',
+  IN_TREATMENT: 'bg-sky-500',
+  SUBMITTED: 'bg-indigo-400',
+  SETTLED: 'bg-stone-400',
+  REJECTED: 'bg-red-400',
 };
+
+const SCHEME_LABEL: Record<SchemeType, string> = {
+  MJPJAY: 'MJPJAY',
+  AYUSHMAN_BHARAT: 'Ayushman Bharat',
+  CASHLESS_TPA: 'Cashless insurance (TPA)',
+  EMPLOYEE_STATE_INSURANCE: 'ESI',
+};
+
+const inputClass =
+  'w-full px-3 py-2.5 bg-white border border-[#D8D3C8] rounded-md text-[15px] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
+
+const rupees = (n?: number) => `₹${(n ?? 0).toLocaleString('en-IN')}`;
+const shortDate = (iso: string) => new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+const StatusText: React.FC<{ status: ClaimStatus }> = ({ status }) => (
+  <span className="inline-flex items-center gap-1.5 text-sm text-stone-700">
+    <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_DOT[status] || 'bg-stone-300'}`} />
+    {STATUS_LABEL[status] || 'Unknown'}
+  </span>
+);
 
 export const AdminSchemesPage: React.FC = () => {
-  const [claims, setClaims] = useState<any[]>([]);
-  const [stats, setStats] = useState<any>(null);
+  const [claims, setClaims] = useState<Claim[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [filterScheme, setFilterScheme] = useState('');
-  const [selectedClaim, setSelectedClaim] = useState<any>(null);
+  const [loadError, setLoadError] = useState('');
+  const [filterScheme, setFilterScheme] = useState<'' | SchemeType>('');
+  const [filterStatus, setFilterStatus] = useState<'' | ClaimStatus>('');
+  const [search, setSearch] = useState('');
+
+  const [selected, setSelected] = useState<Claim | null>(null);
   const [statusUpdate, setStatusUpdate] = useState({ status: '', remarks: '', preAuthorizationId: '' });
   const [updating, setUpdating] = useState(false);
+  const [formError, setFormError] = useState('');
+  const [notice, setNotice] = useState('');
+  const panelRef = useRef<HTMLElement>(null);
+
+  // On narrow screens the panel sits below the list, so bring it into view
+  useEffect(() => {
+    if (selected && window.innerWidth < 1024) panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [selected?.id]);
 
   const fetchData = async () => {
     setLoading(true);
-    const token = getAdminToken();
-    const headers = { Authorization: `Bearer ${token}` };
+    setLoadError('');
     try {
       const [claimsRes, statsRes] = await Promise.all([
-        fetch(apiUrl(`/schemes/claims${filterScheme ? `?schemeType=${filterScheme}` : ''}`), { headers }),
-        fetch(apiUrl('/schemes/stats'), { headers }),
+        apiFetch<Claim[]>(`/schemes/claims${filterScheme ? `?schemeType=${filterScheme}` : ''}`),
+        apiFetch<Stats>('/schemes/stats'),
       ]);
-      const [claimsData, statsData] = await Promise.all([claimsRes.json(), statsRes.json()]);
-      setClaims(claimsData.data || []);
-      setStats(statsData.data || null);
-    } catch {
-      // silently handle in admin panel
+      setClaims(Array.isArray(claimsRes.data) ? claimsRes.data : []);
+      setStats(statsRes.data || null);
+    } catch (e: any) {
+      setLoadError(e?.message || 'Could not load scheme claims.');
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { fetchData(); }, [filterScheme]);
+  useEffect(() => {
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterScheme]);
 
-  const handleUpdateStatus = async () => {
-    if (!selectedClaim || !statusUpdate.status) return;
-    setUpdating(true);
-    try {
-      const token = getAdminToken();
-      await fetch(apiUrl(`/schemes/claims/${selectedClaim.id}/status`), {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify(statusUpdate),
-      });
-      setSelectedClaim(null);
-      setStatusUpdate({ status: '', remarks: '', preAuthorizationId: '' });
-      await fetchData();
-    } catch {}
-    setUpdating(false);
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return claims
+      .filter((c) => !filterStatus || c.status === filterStatus)
+      .filter(
+        (c) =>
+          !q ||
+          [c.patientName, c.patientPhone, c.arogyaMitraId, c.preAuthorizationId]
+            .filter(Boolean)
+            .some((v) => String(v).toLowerCase().includes(q)),
+      )
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [claims, filterStatus, search]);
+
+  const open = (c: Claim) => {
+    setSelected(c);
+    setStatusUpdate({ status: c.status, remarks: c.remarks || '', preAuthorizationId: c.preAuthorizationId || '' });
+    setFormError('');
+    setNotice('');
   };
 
-  const statCards = stats
+  const handleUpdateStatus = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selected || !statusUpdate.status) return;
+    setUpdating(true);
+    setFormError('');
+    try {
+      await apiFetch(`/schemes/claims/${selected.id}/status`, {
+        method: 'PATCH',
+        body: JSON.stringify(statusUpdate),
+      });
+      setNotice(`${selected.patientName}’s claim is now “${STATUS_LABEL[statusUpdate.status as ClaimStatus]}”.`);
+      setSelected(null);
+      setStatusUpdate({ status: '', remarks: '', preAuthorizationId: '' });
+      await fetchData();
+    } catch (err: any) {
+      setFormError(err?.message || 'Could not save. Please try again.');
+    } finally {
+      setUpdating(false);
+    }
+  };
+
+  const figures = stats
     ? [
-        { label: 'Total Claims', value: stats.total, color: 'text-stone-900' },
-        { label: 'Pending', value: stats.pending, color: 'text-amber-600' },
-        { label: 'Pre-Authorized', value: stats.preAuthorized, color: 'text-blue-600' },
-        { label: 'In Treatment', value: stats.inTreatment, color: 'text-purple-600' },
-        { label: 'Settled', value: stats.settled, color: 'text-emerald-600' },
-        { label: 'Rejected', value: stats.rejected, color: 'text-rose-600' },
+        { label: 'Claims in total', value: String(stats.total) },
+        { label: 'Waiting for pre-auth', value: String(stats.pending) },
+        { label: 'In treatment', value: String(stats.inTreatment) },
+        { label: 'Estimated value', value: rupees(stats.totalEstimatedAmount) },
       ]
     : [];
 
+  const cardNo = (c: Claim) => c.rationCardNumber || c.ayushmanCardNumber || '';
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl text-stone-900">Government Scheme Claims</h1>
-          <p className="text-xs text-stone-500 mt-0.5">MJPJAY · Ayushman Bharat · Cashless TPA — Claim Management</p>
-        </div>
-        <button onClick={fetchData} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 transition">
-          <RefreshCcw className="w-3.5 h-3.5" /> Refresh
-        </button>
+    <div className="max-w-[1200px] mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl">Scheme claims</h1>
+        <p className="mt-1 text-stone-600">
+          MJPJAY, Ayushman Bharat and cashless insurance claims. Update each claim as it moves from pre-auth to settlement.
+        </p>
       </div>
 
-      {/* Stats */}
-      {stats && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {statCards.map((s) => (
-            <div key={s.label} className="bg-white rounded-lg border border-stone-200 p-4 text-center shadow-card-subtle">
-              <p className={`text-2xl font-extrabold ${s.color}`}>{s.value}</p>
-              <p className="text-[11px] text-stone-500 mt-1 font-medium">{s.label}</p>
-            </div>
-          ))}
-        </div>
-      )}
-
-      {/* Financial Summary */}
-      {stats && (
-        <div className="bg-[#1C2321] rounded-lg p-5 text-white flex items-center justify-between">
-          <div>
-            <p className="text-xs text-stone-300 font-medium">Total Estimated Claim Value</p>
-            <p className="text-2xl font-extrabold mt-0.5">
-              ₹{stats.totalEstimatedAmount?.toLocaleString('en-IN')}
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-6 text-center">
-            <div>
-              <p className="text-lg font-bold text-teal-300">{stats.mjpjayClaims}</p>
-              <p className="text-[10px] text-stone-400">MJPJAY</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-orange-300">{stats.ayushmanClaims}</p>
-              <p className="text-[10px] text-stone-400">Ayushman</p>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-indigo-300">{stats.tpaClaims}</p>
-              <p className="text-[10px] text-stone-400">TPA</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Filter */}
-      <div className="flex items-center gap-3">
-        <Filter className="w-4 h-4 text-stone-400" />
-        <span className="text-xs font-bold text-stone-600">Filter by scheme:</span>
-        {['', 'MJPJAY', 'AYUSHMAN_BHARAT', 'CASHLESS_TPA'].map((s) => (
-          <button key={s} onClick={() => setFilterScheme(s)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${
-              filterScheme === s ? 'bg-hospital-teal text-white border-hospital-teal' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
-            }`}>
-            {s === '' ? 'All' : schemeMeta[s]?.label}
+      {loadError && (
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex justify-between gap-3">
+          <span>{loadError}</span>
+          <button type="button" className="font-semibold underline shrink-0" onClick={fetchData}>
+            Try again
           </button>
-        ))}
-      </div>
+        </div>
+      )}
 
-      {/* Claims Table */}
-      <div className="bg-white rounded-lg border border-stone-200 shadow-card-subtle overflow-hidden">
-        {loading ? (
-          <div className="text-center py-12 text-stone-400 text-sm">Loading claims...</div>
-        ) : claims.length === 0 ? (
-          <div className="text-center py-12 text-stone-400 text-sm">No claims found.</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="bg-stone-50 border-b border-stone-200">
-                  {['Patient', 'Scheme', 'Diagnosis', 'Est. Amount', 'Pre-Auth ID', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left font-bold text-stone-700">{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {claims.map((claim) => {
-                  const sm = statusMeta[claim.status] || statusMeta['PENDING'];
-                  const Icon = sm.icon;
-                  return (
-                    <tr key={claim.id} className="hover:bg-stone-50/50 transition">
-                      <td className="px-4 py-3">
-                        <p className="font-bold text-stone-900">{claim.patientName}</p>
-                        <p className="text-stone-400">{claim.patientPhone} · Age {claim.patientAge}</p>
-                        {claim.arogyaMitraId && <p className="text-hospital-teal font-semibold">{claim.arogyaMitraId}</p>}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full font-bold border ${schemeMeta[claim.schemeType]?.color || 'bg-stone-100 text-stone-700'}`}>
-                          {schemeMeta[claim.schemeType]?.label || claim.schemeType}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 max-w-[180px]">
-                        <p className="text-stone-700 leading-relaxed">{claim.diagnosisDescription}</p>
-                      </td>
-                      <td className="px-4 py-3 font-bold text-stone-900">
-                        ₹{claim.estimatedAmount?.toLocaleString('en-IN')}
-                      </td>
-                      <td className="px-4 py-3">
-                        {claim.preAuthorizationId ? (
-                          <span className="font-mono text-[10px] bg-stone-100 px-2 py-1 rounded border border-stone-200">{claim.preAuthorizationId}</span>
-                        ) : (
-                          <span className="text-stone-400">—</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-bold border ${sm.color}`}>
-                          <Icon className="w-3 h-3" />
-                          {sm.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3">
-                        <button onClick={() => { setSelectedClaim(claim); setStatusUpdate({ status: claim.status, remarks: claim.remarks || '', preAuthorizationId: claim.preAuthorizationId || '' }); }}
-                          className="px-3 py-1.5 rounded-lg bg-hospital-teal/10 text-hospital-teal hover:bg-hospital-teal/20 font-bold text-[11px] transition border border-hospital-teal/20">
-                          Update
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+      {notice && (
+        <p role="status" className="text-sm p-3 rounded-md bg-[#E8F3F1] text-[#0B5D57] flex justify-between gap-3">
+          <span>{notice}</span>
+          <button type="button" className="shrink-0 underline" onClick={() => setNotice('')}>
+            Dismiss
+          </button>
+        </p>
+      )}
+
+      {/* Totals from /schemes/stats */}
+      <dl className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-[#E7E3DA] rounded-lg divide-x divide-y lg:divide-y-0 divide-[#E7E3DA]">
+        {(figures.length ? figures : [{ label: 'Claims in total', value: '–' }, { label: 'Waiting for pre-auth', value: '–' }, { label: 'In treatment', value: '–' }, { label: 'Estimated value', value: '–' }]).map((f) => (
+          <div key={f.label} className="p-5 flex flex-col-reverse min-w-0">
+            <dt className="text-sm text-stone-500 mt-1">{f.label}</dt>
+            <dd className="font-heading text-2xl sm:text-3xl text-[#1C2321] truncate">{f.value}</dd>
           </div>
-        )}
-      </div>
+        ))}
+      </dl>
+      {stats && (
+        <p className="-mt-3 text-sm text-stone-500">
+          By scheme: MJPJAY {stats.mjpjayClaims} · Ayushman Bharat {stats.ayushmanClaims} · Cashless insurance {stats.tpaClaims}.
+          {' '}Settled {stats.settled}, rejected {stats.rejected}, pre-auth approved {stats.preAuthorized}.
+        </p>
+      )}
 
-      {/* Status Update Modal */}
-      {selectedClaim && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 space-y-4">
-            <h3 className="text-sm text-stone-900">Update Claim — {selectedClaim.patientName}</h3>
-            <p className="text-[11px] text-stone-500">{selectedClaim.diagnosisDescription}</p>
-
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">New Status</label>
-              <select value={statusUpdate.status} onChange={e => setStatusUpdate({...statusUpdate, status: e.target.value})}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none">
-                {Object.entries(statusMeta).map(([key, val]) => (
-                  <option key={key} value={key}>{val.label}</option>
+      <div className="grid lg:grid-cols-12 gap-6 items-start">
+        <section className={`${selected ? 'lg:col-span-8' : 'lg:col-span-12'} bg-white border border-[#E7E3DA] rounded-lg min-w-0`}>
+          {/* Filters */}
+          <div className="p-4 sm:p-5 border-b border-[#E7E3DA] grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <label className="text-sm">
+              <span className="block text-stone-600 mb-1">Scheme</span>
+              <select value={filterScheme} onChange={(e) => setFilterScheme(e.target.value as SchemeType | '')} className={inputClass}>
+                <option value="">All schemes</option>
+                {(Object.keys(SCHEME_LABEL) as SchemeType[]).map((s) => (
+                  <option key={s} value={s}>
+                    {SCHEME_LABEL[s]}
+                  </option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Pre-Authorization ID</label>
-              <input value={statusUpdate.preAuthorizationId} onChange={e => setStatusUpdate({...statusUpdate, preAuthorizationId: e.target.value})}
-                placeholder="e.g. MJPJAY/PREAUTH/2026/..."
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Remarks / Notes</label>
-              <textarea rows={3} value={statusUpdate.remarks} onChange={e => setStatusUpdate({...statusUpdate, remarks: e.target.value})}
-                placeholder="Internal notes on this claim update..."
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <button onClick={() => setSelectedClaim(null)}
-                className="flex-1 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 transition">
-                Cancel
-              </button>
-              <button onClick={handleUpdateStatus} disabled={updating}
-                className="flex-1 py-2 rounded-lg bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 transition disabled:bg-stone-300">
-                {updating ? 'Saving...' : 'Save Update'}
-              </button>
-            </div>
+            </label>
+            <label className="text-sm">
+              <span className="block text-stone-600 mb-1">Status</span>
+              <select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value as ClaimStatus | '')} className={inputClass}>
+                <option value="">Any status</option>
+                {(Object.keys(STATUS_LABEL) as ClaimStatus[]).map((s) => (
+                  <option key={s} value={s}>
+                    {STATUS_LABEL[s]}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm">
+              <span className="block text-stone-600 mb-1">Search</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Patient, phone or claim no."
+                className={inputClass}
+              />
+            </label>
           </div>
-        </div>
-      )}
+
+          {loading && claims.length === 0 ? (
+            <p className="px-5 py-10 text-center text-stone-500">Loading claims…</p>
+          ) : loadError && claims.length === 0 ? (
+            <p className="px-5 py-10 text-center text-stone-500">Claims could not be shown.</p>
+          ) : visible.length === 0 ? (
+            <p className="px-5 py-10 text-center text-stone-500">
+              {claims.length === 0 ? 'No claims registered yet.' : 'No claims match these filters.'}
+            </p>
+          ) : (
+            <ul className="divide-y divide-[#E7E3DA]">
+              {visible.map((c) => (
+                <li key={c.id}>
+                  <button
+                    type="button"
+                    onClick={() => open(c)}
+                    aria-current={selected?.id === c.id ? 'true' : undefined}
+                    className={`w-full text-left px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-4 ${
+                      selected?.id === c.id ? 'bg-[#E8F3F1]' : 'hover:bg-stone-50'
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-[#1C2321]">
+                        {c.patientName}
+                        <span className="text-stone-500 font-normal"> · {c.patientAge} yrs</span>
+                      </p>
+                      <p className="text-sm text-stone-700 mt-0.5">{c.diagnosisDescription}</p>
+                      <p className="text-sm text-stone-500 mt-0.5 break-words">
+                        {SCHEME_LABEL[c.schemeType] || c.schemeType}
+                        {c.tpaName ? ` · ${c.tpaName}` : ''}
+                        {c.preAuthorizationId ? (
+                          <>
+                            {' · '}
+                            <span className="font-mono text-xs">{c.preAuthorizationId}</span>
+                          </>
+                        ) : c.arogyaMitraId ? (
+                          <>
+                            {' · '}
+                            <span className="font-mono text-xs">{c.arogyaMitraId}</span>
+                          </>
+                        ) : null}
+                      </p>
+                    </div>
+                    <div className="flex sm:flex-col sm:items-end justify-between gap-1 shrink-0 sm:w-[170px]">
+                      <span className="font-semibold text-[#1C2321]">{rupees(c.estimatedAmount)}</span>
+                      <StatusText status={c.status} />
+                      <span className="hidden sm:block text-xs text-stone-500">Submitted {shortDate(c.createdAt)}</span>
+                    </div>
+                    <span className="sm:hidden text-xs text-stone-500">Submitted {shortDate(c.createdAt)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        {/* Update panel */}
+        {selected && (
+          <section ref={panelRef} className="lg:col-span-4 bg-white border border-[#E7E3DA] rounded-lg lg:sticky lg:top-6">
+            <div className="px-5 py-4 border-b border-[#E7E3DA] flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <h2 className="text-lg">Update claim</h2>
+                <p className="text-sm text-stone-500 truncate">{selected.patientName}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelected(null)}
+                className="p-2 -m-1 rounded-md text-stone-500 hover:bg-stone-100 hover:text-[#1C2321]"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <dl className="px-5 py-4 border-b border-[#E7E3DA] space-y-1.5 text-sm">
+              {[
+                ['Scheme', SCHEME_LABEL[selected.schemeType] || selected.schemeType],
+                ['Procedure', selected.diagnosisDescription],
+                ['Estimate', rupees(selected.estimatedAmount)],
+                ['Phone', selected.patientPhone],
+                ['Arogya Mitra', selected.arogyaMitraId],
+                ['Card no.', cardNo(selected)],
+                ['Insurer', selected.insurerName],
+                ['Submitted', shortDate(selected.createdAt)],
+                ['Current status', STATUS_LABEL[selected.status]],
+              ]
+                .filter(([, v]) => v)
+                .map(([k, v]) => (
+                  <div key={k} className="flex gap-3">
+                    <dt className="w-28 shrink-0 text-stone-500">{k}</dt>
+                    <dd className="min-w-0 break-words text-[#1C2321]">{v}</dd>
+                  </div>
+                ))}
+            </dl>
+
+            <form onSubmit={handleUpdateStatus} className="p-5 space-y-4">
+              <label className="block text-sm">
+                <span className="block text-stone-600 mb-1">New status</span>
+                <select
+                  value={statusUpdate.status}
+                  onChange={(e) => setStatusUpdate({ ...statusUpdate, status: e.target.value })}
+                  className={inputClass}
+                >
+                  {(Object.keys(STATUS_LABEL) as ClaimStatus[]).map((s) => (
+                    <option key={s} value={s}>
+                      {STATUS_LABEL[s]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="block text-sm">
+                <span className="block text-stone-600 mb-1">Pre-authorisation ID</span>
+                <input
+                  value={statusUpdate.preAuthorizationId}
+                  onChange={(e) => setStatusUpdate({ ...statusUpdate, preAuthorizationId: e.target.value })}
+                  placeholder="e.g. MJPJAY/PREAUTH/2026/…"
+                  className={`${inputClass} font-mono`}
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="block text-stone-600 mb-1">Remarks</span>
+                <textarea
+                  rows={3}
+                  value={statusUpdate.remarks}
+                  onChange={(e) => setStatusUpdate({ ...statusUpdate, remarks: e.target.value })}
+                  placeholder="Internal note for the scheme desk"
+                  className={inputClass}
+                />
+              </label>
+
+              {formError && (
+                <p role="alert" className="text-sm p-3 rounded-md bg-red-50 text-red-800">
+                  {formError}
+                </p>
+              )}
+
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setSelected(null)} className="btn-secondary text-sm flex-1">
+                  Cancel
+                </button>
+                <button type="submit" disabled={updating} className="btn-primary text-sm flex-1 disabled:opacity-50">
+                  {updating ? 'Saving…' : 'Save update'}
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { apiFetch } from '../../lib/api';
+import { DateCalendar, toDateKey } from '../../components/DateCalendar';
 import {
   CalendarCheck,
   Search,
@@ -33,9 +34,22 @@ interface AppointmentItem {
   fee: number;
 }
 
+// "09:30 AM" -> "0570" so times sort correctly as text
+const toMins = (t: string) => {
+  const [hm, p] = (t || '').split(' ');
+  let [h, m] = (hm || '0:0').split(':').map(Number);
+  if (p === 'PM' && h !== 12) h += 12;
+  if (p === 'AM' && h === 12) h = 0;
+  return String(h * 60 + m).padStart(4, '0');
+};
+
 export const AdminAppointmentsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
+  // Which day(s) to show: a YYYY-MM-DD date, 'UPCOMING' (today onwards) or 'ALL'
+  const todayKey = toDateKey(new Date());
+  const [dayFilter, setDayFilter] = useState<string>(todayKey);
+  const [showCalendar, setShowCalendar] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentItem | null>(null);
 
   const [appointments, setAppointments] = useState<AppointmentItem[]>([]);
@@ -83,8 +97,24 @@ export const AdminAppointmentsPage: React.FC = () => {
       a.doctorName.toLowerCase().includes(search.toLowerCase()) ||
       a.department.toLowerCase().includes(search.toLowerCase());
     const matchesStatus = statusFilter === 'ALL' || a.status === statusFilter;
-    return matchesSearch && matchesStatus;
-  });
+    const matchesDay =
+      dayFilter === 'ALL' || (dayFilter === 'UPCOMING' ? a.appointmentDate >= todayKey : a.appointmentDate === dayFilter);
+    return matchesSearch && matchesStatus && matchesDay;
+  }).sort((a, b) => (a.appointmentDate + toMins(a.startTime)).localeCompare(b.appointmentDate + toMins(b.startTime)));
+
+  const tomorrowKey = (() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return toDateKey(d);
+  })();
+  const countOn = (key: string) => appointments.filter((a) => a.appointmentDate === key && a.status !== 'CANCELLED').length;
+  const bookedDates = new Set(appointments.map((a) => a.appointmentDate));
+  const dayLabel =
+    dayFilter === 'ALL'
+      ? 'All dates'
+      : dayFilter === 'UPCOMING'
+      ? 'Today and later'
+      : new Date(`${dayFilter}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' });
 
   return (
     <div className="space-y-6 max-w-[1400px] mx-auto">
@@ -108,6 +138,69 @@ export const AdminAppointmentsPage: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Day picker */}
+      <div className="bg-white border border-[#E7E3DA] rounded-lg p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          {[
+            { key: todayKey, label: `Today (${countOn(todayKey)})` },
+            { key: tomorrowKey, label: `Tomorrow (${countOn(tomorrowKey)})` },
+            { key: 'UPCOMING', label: 'Upcoming' },
+            { key: 'ALL', label: 'All' },
+          ].map((o) => (
+            <button
+              key={o.key}
+              type="button"
+              aria-pressed={dayFilter === o.key}
+              onClick={() => {
+                setDayFilter(o.key);
+                setShowCalendar(false);
+              }}
+              className={`px-3.5 py-2 rounded-md border text-sm ${
+                dayFilter === o.key ? 'bg-[#0F766E] border-[#0F766E] text-white font-semibold' : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+          <button
+            type="button"
+            aria-expanded={showCalendar}
+            onClick={() => setShowCalendar((v) => !v)}
+            className="px-3.5 py-2 rounded-md border border-[#D8D3C8] text-sm hover:border-[#0F766E]"
+          >
+            Pick a date…
+          </button>
+          <span className="ml-auto text-sm text-stone-600">
+            Showing: <span className="font-semibold text-[#1C2321]">{dayLabel}</span> · {filtered.length}
+          </span>
+        </div>
+        {showCalendar && (
+          <div className="mt-4">
+            <DateCalendar
+              value={/^\d{4}-/.test(dayFilter) ? dayFilter : todayKey}
+              minDate={(() => {
+                const d = new Date();
+                d.setMonth(d.getMonth() - 3);
+                return toDateKey(d);
+              })()}
+              maxDate={(() => {
+                const d = new Date();
+                d.setMonth(d.getMonth() + 3);
+                return toDateKey(d);
+              })()}
+              note={null}
+              onChange={(k) => {
+                setDayFilter(k);
+                setShowCalendar(false);
+              }}
+            />
+            <p className="mt-2 text-xs text-stone-500">
+              {bookedDates.size} date{bookedDates.size === 1 ? '' : 's'} have bookings.
+            </p>
+          </div>
+        )}
+      </div>
 
       {/* ─── 2. SEARCH & FILTER CONTROLS ────────────────────────────────────── */}
       <div className="card-clean p-4 bg-white border border-stone-200 rounded-lg shadow-2xs">
@@ -148,14 +241,14 @@ export const AdminAppointmentsPage: React.FC = () => {
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="bg-stone-50/80 border-b border-stone-200 text-stone-400 uppercase tracking-wider text-[10px]">
+              <tr className="bg-stone-50/80 border-b border-[#E7E3DA] text-stone-500 text-sm">
                 <th className="py-3 px-4 font-semibold">Token</th>
                 <th className="py-3 px-4 font-semibold">Patient</th>
-                <th className="py-3 px-4 font-semibold">Doctor & Specialty</th>
-                <th className="py-3 px-4 font-semibold">Slot Time</th>
+                <th className="py-3 px-4 font-semibold">Doctor</th>
+                <th className="py-3 px-4 font-semibold">Time</th>
                 <th className="py-3 px-4 font-semibold">Fee</th>
                 <th className="py-3 px-4 font-semibold text-center">Status</th>
-                <th className="py-3 px-4 font-semibold text-right">Action</th>
+                <th className="py-3 px-4 font-semibold text-right"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-stone-100">
@@ -169,7 +262,9 @@ export const AdminAppointmentsPage: React.FC = () => {
                   <td colSpan={7} className="py-10 text-center text-sm text-stone-500">
                     {appointments.length === 0
                       ? 'No online bookings yet. New bookings appear here automatically.'
-                      : 'No appointments match this search.'}
+                      : search || statusFilter !== 'ALL'
+                      ? 'No appointments match this search.'
+                      : `No appointments for ${dayLabel.toLowerCase().startsWith('all') ? 'these dates' : dayLabel}.`}
                   </td>
                 </tr>
               )}

@@ -1,150 +1,166 @@
-import React, { useState } from 'react';
-import { Settings, Save, CheckCircle2, Phone, MapPin, Building2, Bell } from 'lucide-react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAdminAuth } from '../../context/AdminAuthContext';
+
+// What the public website currently shows. Taken from ContactPage, Header and Footer.
+const PHONES = [
+  { label: 'Emergency (24 hours) and reception', num: '+91 75073 42222', where: 'Header, footer, contact page' },
+  { label: 'Ambulance', num: '+91 88305 18080', where: 'Contact page' },
+  { label: 'MJPJAY (Arogya Mitra)', num: '+91 82089 65820', where: 'Contact page' },
+  { label: 'Cashless insurance (TPA)', num: '+91 91460 22490', where: 'Contact page' },
+  { label: 'Administration', num: '+91 96876 09046', where: 'Contact page' },
+];
+
+const EMAILS = [
+  { email: 'sanjeevanihospjalna@gmail.com', where: 'Contact page' },
+  { email: 'sanjeevanijalna@gmail.com', where: 'Footer' },
+];
+
+const HOURS = [
+  { what: 'Emergency and ICU', when: '24 hours, every day', where: 'Everywhere' },
+  { what: 'Morning OPD', when: '9 am – 3 pm', where: 'Contact page' },
+  { what: 'Morning OPD', when: '9 am – 1 pm', where: 'Header and footer' },
+  { what: 'Evening OPD', when: '5 pm – 8 pm', where: 'Everywhere' },
+];
+
+const ADDRESS = 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203';
+
+const humanRole = (role?: string) =>
+  role
+    ? role
+        .toLowerCase()
+        .split('_')
+        .map((w, i) => (i === 0 ? w.charAt(0).toUpperCase() + w.slice(1) : w))
+        .join(' ')
+    : 'Hospital admin';
+
+const Row: React.FC<{ label: React.ReactNode; value: React.ReactNode; note?: React.ReactNode }> = ({ label, value, note }) => (
+  <li className="px-5 py-3.5 grid grid-cols-1 sm:grid-cols-12 gap-0.5 sm:gap-4">
+    <span className="sm:col-span-4 text-sm text-stone-500">{label}</span>
+    <span className="sm:col-span-5 text-[#1C2321] break-words">{value}</span>
+    <span className="sm:col-span-3 text-sm text-stone-500 sm:text-right">{note}</span>
+  </li>
+);
 
 export const AdminSettingsPage: React.FC = () => {
-  const [formData, setFormData] = useState({
-    hospitalName: 'Sanjeevani Multispeciality Hospital',
-    tagline: 'Comprehensive healthcare, closer to you.',
-    address: 'Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna – 431203',
-    emergencyPhone: '+91-75073-42222',
-    receptionPhone: '02482-223322',
-    email: 'admin@sanjeevanihosp.in',
-    mjpjayActive: true,
-    ambulanceActive: true,
-    announcement: '24x7 Emergency Resuscitation & Critical Care ICU fully operational in Jalna.',
-  });
+  const { admin, logout } = useAdminAuth();
+  const navigate = useNavigate();
 
-  const [saved, setSaved] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const signOut = () => {
+    logout();
+    navigate('/admin/login');
   };
 
   return (
-    <div className="space-y-6 max-w-4xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl text-stone-900">Hospital Configuration</h2>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Phone numbers, hours and notices shown on the website.
-          </p>
-        </div>
-
-        {saved && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
-            <CheckCircle2 className="w-4 h-4" />
-            <span>Hospital settings updated!</span>
-          </div>
-        )}
+    <div className="max-w-[1200px] mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl">Hospital details</h1>
+        <p className="mt-1 text-stone-600">
+          The phone numbers, email, address and hours patients currently see on the website.
+        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Core Profile */}
-        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-hospital-teal" />
-            <span>General Hospital Profile</span>
-          </h3>
+      <div role="note" className="p-4 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-900 space-y-1.5">
+        <p className="font-semibold">The website shows two different versions of some details. Please confirm which is right.</p>
+        <p>
+          Morning OPD: the contact page says 9 am – 3 pm, but the header and footer say 9 am – 1 pm.
+        </p>
+        <p>
+          Email: the contact page shows sanjeevanihospjalna@gmail.com, but the footer shows sanjeevanijalna@gmail.com.
+        </p>
+        <p>Tell your developer the correct ones and they will make every page match.</p>
+      </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Hospital Name</label>
-              <input
-                type="text"
-                value={formData.hospitalName}
-                onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Tagline</label>
-              <input
-                type="text"
-                value={formData.tagline}
-                onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-stone-700 mb-1">Physical Address</label>
-            <input
-              type="text"
-              value={formData.address}
-              onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+      <section className="bg-white border border-[#E7E3DA] rounded-lg">
+        <div className="px-5 py-4 border-b border-[#E7E3DA]">
+          <h2 className="text-lg">Phone numbers</h2>
+        </div>
+        <ul className="divide-y divide-[#E7E3DA]">
+          {PHONES.map((p) => (
+            <Row
+              key={p.num}
+              label={p.label}
+              value={
+                <a href={`tel:${p.num.replace(/\s/g, '')}`} className="font-medium hover:text-[#0F766E]">
+                  {p.num}
+                </a>
+              }
+              note={p.where}
             />
-          </div>
+          ))}
+        </ul>
+      </section>
+
+      <section className="bg-white border border-[#E7E3DA] rounded-lg">
+        <div className="px-5 py-4 border-b border-[#E7E3DA]">
+          <h2 className="text-lg">Email and address</h2>
         </div>
-
-        {/* Helplines */}
-        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
-            <Phone className="w-4 h-4 text-hospital-teal" />
-            <span>Emergency & Reception Helplines</span>
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">24x7 Emergency Hotline</label>
-              <input
-                type="text"
-                value={formData.emergencyPhone}
-                onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Reception Landline</label>
-              <input
-                type="text"
-                value={formData.receptionPhone}
-                onChange={(e) => setFormData({ ...formData, receptionPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">Official Email</label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Announcements Banner */}
-        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
-            <Bell className="w-4 h-4 text-hospital-teal" />
-            <span>Patient Portal Announcement Notice</span>
-          </h3>
-
-          <div>
-            <textarea
-              rows={2}
-              value={formData.announcement}
-              onChange={(e) => setFormData({ ...formData, announcement: e.target.value })}
-              className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+        <ul className="divide-y divide-[#E7E3DA]">
+          {EMAILS.map((e) => (
+            <Row
+              key={e.email}
+              label="Email"
+              value={
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" aria-hidden />
+                  {e.email}
+                </span>
+              }
+              note={e.where}
             />
-          </div>
-        </div>
+          ))}
+          <Row label="Address" value={ADDRESS} note="Contact page and footer" />
+        </ul>
+      </section>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-hospital-teal text-white text-xs font-bold rounded-lg shadow-sm hover:bg-hospital-teal/90 transition"
-          >
-            <Save className="w-4 h-4" />
-            <span>Save Hospital Settings</span>
+      <section className="bg-white border border-[#E7E3DA] rounded-lg">
+        <div className="px-5 py-4 border-b border-[#E7E3DA]">
+          <h2 className="text-lg">Opening hours</h2>
+        </div>
+        <ul className="divide-y divide-[#E7E3DA]">
+          {HOURS.map((h) => {
+            const conflict = h.what === 'Morning OPD';
+            return (
+              <Row
+                key={h.what + h.when}
+                label={h.what}
+                value={
+                  <span className="flex items-center gap-1.5">
+                    {conflict && <span className="w-2 h-2 rounded-full bg-amber-500 shrink-0" aria-hidden />}
+                    {h.when}
+                  </span>
+                }
+                note={h.where}
+              />
+            );
+          })}
+        </ul>
+        <p className="px-5 py-3 border-t border-[#E7E3DA] text-sm text-stone-500">
+          Each doctor’s own booking hours are set separately under OPD timings.
+        </p>
+      </section>
+
+      <section className="bg-white border border-[#E7E3DA] rounded-lg">
+        <div className="px-5 py-4 border-b border-[#E7E3DA]">
+          <h2 className="text-lg">Your account</h2>
+        </div>
+        <ul className="divide-y divide-[#E7E3DA]">
+          <Row label="Name" value={admin?.name || 'Not known'} />
+          <Row label="Email" value={admin?.email || 'Not known'} />
+          <Row label="Role" value={humanRole(admin?.role)} />
+        </ul>
+        <div className="px-5 py-4 border-t border-[#E7E3DA] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-sm text-stone-500">Sign out when you leave a shared computer.</p>
+          <button type="button" onClick={signOut} className="btn-secondary text-sm self-start sm:self-auto">
+            Sign out
           </button>
         </div>
-      </form>
+      </section>
+
+      <p className="text-sm text-stone-600 max-w-3xl">
+        These details are part of the website’s pages and cannot be edited from here. To change a number, email,
+        address or hours, ask your developer.
+      </p>
     </div>
   );
 };

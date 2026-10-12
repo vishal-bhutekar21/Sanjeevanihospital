@@ -4,6 +4,7 @@ import { ArrowLeft, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { DoctorPhoto, SectionTitle } from '../components/ui';
+import { OpdWeek } from '../components/OpdWeek';
 
 const BackLink: React.FC<{ isMr: boolean }> = ({ isMr }) => (
   <Link
@@ -60,7 +61,6 @@ export const DoctorDetailPage: React.FC = () => {
 
   const details: { label: string; value: React.ReactNode }[] = [
     { label: isMr ? 'विभाग' : 'Department', value: dept },
-    { label: isMr ? 'ओपीडी वेळ' : 'OPD timings', value: timings },
     { label: isMr ? 'तपासणी फी' : 'Consultation fee', value: `₹${doc.fee}` },
   ];
   if (doc.experienceYears) {
@@ -120,8 +120,10 @@ export const DoctorDetailPage: React.FC = () => {
         </div>
 
         <aside className="lg:col-span-5">
-          <SectionTitle title={isMr ? 'ओपीडी व फी' : 'OPD and fees'} />
-          <dl className="divide-y divide-[#E7E3DA] border-y border-[#E7E3DA]">
+          <SectionTitle title={isMr ? 'ओपीडी वेळ' : 'OPD timings'} />
+          <OpdWeek doctorId={doc.id} fallback={timings} isMr={isMr} />
+
+          <dl className="mt-8 divide-y divide-[#E7E3DA] border-y border-[#E7E3DA]">
             {details.map((row) => (
               <div key={row.label} className="py-4 sm:grid sm:grid-cols-3 sm:gap-4">
                 <dt className="text-sm text-stone-500">{row.label}</dt>

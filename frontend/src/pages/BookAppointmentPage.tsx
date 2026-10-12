@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download } from 'lucide-react';
 import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
 import { DoctorPhoto } from '../components/ui';
+import { DateCalendar } from '../components/DateCalendar';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 
@@ -116,11 +117,18 @@ export const BookAppointmentPage: React.FC = () => {
   const topRef = useRef<HTMLDivElement>(null);
 
   // Time
-  const days = useMemo(() => nextDays(14), []);
-  const [date, setDate] = useState(toDateKey(days[0]));
+  // Bookable range: today plus about two months
+  const days = useMemo(() => nextDays(61), []);
+  const minDateKey = toDateKey(days[0]);
+  const maxDateKey = toDateKey(days[days.length - 1]);
+  const urlDate = searchParams.get('date');
+  const [date, setDate] = useState(
+    urlDate && /^\d{4}-\d{2}-\d{2}$/.test(urlDate) && urlDate >= minDateKey && urlDate <= maxDateKey ? urlDate : minDateKey,
+  );
   const [slots, setSlots] = useState<Slot[]>([]);
   const [slotsState, setSlotsState] = useState<'loading' | 'ready' | 'error' | 'not-bookable' | 'day-off'>('loading');
   const [slot, setSlot] = useState<Slot | null>(null);
+  const userPickedDate = useRef(false);
   // Weekdays (0 = Sunday) on which the selected doctor holds OPD; null = not known yet
   const [opdWeekdays, setOpdWeekdays] = useState<number[] | null>(null);
 
@@ -166,7 +174,16 @@ export const BookAppointmentPage: React.FC = () => {
         setSlotsState('day-off');
         setSlots([]);
       } else {
-        setSlots(data.slots || []);
+        const list = data.slots || [];
+        // Today is fully past or booked and the patient hasn't chosen a date: move on to the next open day
+        if (date === minDateKey && !userPickedDate.current && !list.some((x) => x.status === 'AVAILABLE')) {
+          const next = days.slice(1).find((d) => !opdWeekdays || opdWeekdays.length === 0 || opdWeekdays.includes(d.getDay()));
+          if (next) {
+            setDate(toDateKey(next));
+            return;
+          }
+        }
+        setSlots(list);
         setSlotsState('ready');
       }
     } catch {
@@ -449,45 +466,60 @@ export const BookAppointmentPage: React.FC = () => {
           {/* ── Step 2: Time ───────────────────────────────────────────── */}
           {step === 'time' && doctor && (
             <section>
-              <h2 className="text-xl mb-4">{L('Which day?', 'कोणता दिवस?')}</h2>
-              <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1">
-                {days.map((d, i) => {
-                  const key = toDateKey(d);
-                  const active = key === date;
-                  const off = !!opdWeekdays && opdWeekdays.length > 0 && !opdWeekdays.includes(d.getDay());
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      aria-pressed={active}
-                      disabled={off}
-                      title={off ? L('No OPD on this day', 'या दिवशी OPD नाही') : undefined}
-                      onClick={() => {
-                        setDate(key);
-                        setSlot(null);
-                      }}
-                      className={`shrink-0 w-[68px] py-2.5 rounded-md border text-center transition-colors ${
-                        active
-                          ? 'bg-[#0F766E] border-[#0F766E] text-white'
-                          : off
-                          ? 'bg-stone-100 border-stone-100 text-stone-400 cursor-not-allowed'
-                          : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
-                      }`}
-                    >
-                      <span className={`block text-xs ${active ? 'text-teal-100' : 'text-stone-500'}`}>
-                        {i === 0 ? L('Today', 'आज') : i === 1 ? L('Tmrw', 'उद्या') : dateLabel(key, { weekday: 'short' })}
-                      </span>
-                      <span className="block text-lg font-semibold leading-tight">{d.getDate()}</span>
-                      <span className={`block text-xs ${active ? 'text-teal-100' : 'text-stone-500'}`}>{dateLabel(key, { month: 'short' })}</span>
-                    </button>
-                  );
-                })}
-              </div>
+              <h2 className="text-xl mb-3">{L('Which day?', 'कोणता दिवस?')}</h2>
 
-              <h2 className="text-xl mt-8 mb-4">{L('What time?', 'किती वाजता?')}</h2>
+              {/* Quick picks: the next few days this doctor holds OPD */}
+              {(() => {
+                const open = days
+                  .filter((d) => !opdWeekdays || opdWeekdays.length === 0 || opdWeekdays.includes(d.getDay()))
+                  .slice(0, 5);
+                return (
+                  <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1 mb-4" aria-label={L('Next available days', 'पुढील उपलब्ध दिवस')}>
+                    {open.map((d) => {
+                      const key = toDateKey(d);
+                      const active = key === date;
+                      const idx = days.indexOf(d);
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          aria-pressed={active}
+                          onClick={() => {
+                            userPickedDate.current = true;
+                            setDate(key);
+                            setSlot(null);
+                          }}
+                          className={`shrink-0 px-3.5 py-2 rounded-md border text-sm transition-colors ${
+                            active ? 'bg-[#0F766E] border-[#0F766E] text-white font-semibold' : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
+                          }`}
+                        >
+                          {idx === 0 ? L('Today', 'आज') : idx === 1 ? L('Tomorrow', 'उद्या') : dateLabel(key)}
+                        </button>
+                      );
+                    })}
+                  </div>
+                );
+              })()}
+
+              <div className="grid md:grid-cols-2 gap-6 items-start">
+                <DateCalendar
+                  value={date}
+                  minDate={minDateKey}
+                  maxDate={maxDateKey}
+                  isMr={isMr}
+                  isUnavailable={(d) => !!opdWeekdays && opdWeekdays.length > 0 && !opdWeekdays.includes(d.getDay())}
+                  onChange={(key) => {
+                    userPickedDate.current = true;
+                    setDate(key);
+                    setSlot(null);
+                  }}
+                />
+                <div>
+              <h2 className="text-xl mb-1">{L('What time?', 'किती वाजता?')}</h2>
+              <p className="text-sm text-stone-500 mb-4">{dateLabel(date, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
 
               {slotsState === 'loading' && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2" aria-busy="true">
+                <div className="grid grid-cols-3 gap-2" aria-busy="true">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="h-12 rounded-md bg-stone-200/60 animate-pulse" />
                   ))}
@@ -550,7 +582,7 @@ export const BookAppointmentPage: React.FC = () => {
                 groupedSlots.map((g) => (
                   <div key={g.key} className="mb-6">
                     <p className="text-sm text-stone-500 mb-2">{g.label}</p>
-                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-3 gap-2">
                       {g.items.map((s) => {
                         const free = s.status === 'AVAILABLE';
                         const active = slot?.id === s.id;
@@ -577,6 +609,9 @@ export const BookAppointmentPage: React.FC = () => {
                     </div>
                   </div>
                 ))}
+
+                </div>
+              </div>
 
               <StepNav isMr={isMr} onBack={() => go('doctor')} nextLabel={L('Continue', 'पुढे')} nextDisabled={!slot} onNext={() => go('details')} />
             </section>

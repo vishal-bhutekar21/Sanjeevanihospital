@@ -1,329 +1,75 @@
-import React, { useState } from 'react';
-import {
-  Building2,
-  Plus,
-  Edit2,
-  CheckCircle2,
-  XCircle,
-  Activity,
-  Stethoscope,
-  HeartPulse,
-  Award,
-  Users,
-  X,
-  Sparkles,
-} from 'lucide-react';
+import React from 'react';
 import { DOCTORS_DATA } from '../../data/doctorsData';
+import { DEPARTMENTS, type Department } from '../DepartmentsPage';
 
-interface DeptItem {
-  id: string;
-  slug: string;
-  nameEn: string;
-  nameMr: string;
-  descriptionEn: string;
-  descriptionMr: string;
-  leadDoctor: string;
-  doctorCount: number;
-  isActive: boolean;
-}
+// Words in a slug that are too general to match a doctor's department on their own
+const GENERIC = new Set(['care', 'surgery', 'medicine', 'and']);
 
-export const AdminDepartmentsPage: React.FC = () => {
-  const [departments, setDepartments] = useState<DeptItem[]>([
-    {
-      id: 'dept-ortho',
-      slug: 'orthopedics',
-      nameEn: 'Orthopedics & Joint Replacement',
-      nameMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
-      descriptionEn: 'Advanced arthroplasty, trauma fixation, arthroscopy, and spine care with digital C-Arm.',
-      descriptionMr: 'सांधे प्रत्यारोपण, फ्रॅक्चर उपचार, आणि मणक्याचे आधुनिक उपचार.',
-      leadDoctor: 'Dr. Nishant Goyal (MBBS, DNB, D. Ortho)',
-      doctorCount: 2,
-      isActive: true,
-    },
-    {
-      id: 'dept-peds',
-      slug: 'pediatrics',
-      nameEn: 'Pediatrics & Neonatology (NICU)',
-      nameMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
-      descriptionEn: '24x7 Neonatal ICU (NICU), pediatric critical care, radiant warmers, and child health clinics.',
-      descriptionMr: 'नवजात शिशु अतिदक्षता विभाग आणि लहान मुलांचे सर्व आजार व लसीकरण.',
-      leadDoctor: 'Dr. Shivdas Mirkad (MBBS, MD, DCH)',
-      doctorCount: 2,
-      isActive: true,
-    },
-    {
-      id: 'dept-icu',
-      slug: 'icu-critical-care',
-      nameEn: '21-Bed ICU & Critical Care Unit',
-      nameMr: '२१ खाटांचा अतिदक्षता विभाग (ICU)',
-      descriptionEn: 'Computerized multi-organ intensive care, mechanical ventilation, and 24x7 on-call intensivists.',
-      descriptionMr: '२४ तास व्हेंटिलेटर, डायलिसिस सपोर्ट व भूलतज्ज्ञ डॉक्टर.',
-      leadDoctor: 'Dr. Baliram Bagal (MBBS, DA, FICM, CCCS)',
-      doctorCount: 3,
-      isActive: true,
-    },
-    {
-      id: 'dept-gyn',
-      slug: 'obstetrics-gynecology',
-      nameEn: 'Obstetrics & Gynecology (Maternity)',
-      nameMr: 'प्रसूती आणि स्त्रीरोग विभाग',
-      descriptionEn: 'Safe motherhood, painless normal deliveries, cesarean sections, and gynecological laparoscopy.',
-      descriptionMr: 'सुरक्षित प्रसूती, सिझेरियन आणि दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
-      leadDoctor: 'Dr. Anshul Goyal (MBBS, DNB, DGO)',
-      doctorCount: 2,
-      isActive: true,
-    },
-    {
-      id: 'dept-surg',
-      slug: 'general-surgery',
-      nameEn: 'General & Laparoscopic Surgery',
-      nameMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
-      descriptionEn: 'Karl Storz HD laparoscopic keyhole surgery for appendix, hernia, and laser anorectal care.',
-      descriptionMr: 'हर्निया, अपेंडिक्स व पित्ताशयाची दुर्बिणीद्वारे शस्त्रक्रिया.',
-      leadDoctor: 'Dr. Millind Katole (MBBS, MS General Surgery)',
-      doctorCount: 2,
-      isActive: true,
-    },
-    {
-      id: 'dept-med',
-      slug: 'internal-medicine',
-      nameEn: 'Internal Medicine & Physician',
-      nameMr: 'इंटरनल मेडिसिन व फिजिशियन',
-      descriptionEn: 'Management of chronic diabetes, hypertension, cardiovascular risks, and infectious ailments.',
-      descriptionMr: 'मधुमेह, उच्च रक्तदाब व इतर सर्वसाधारण आजारांचे निदान व उपचार.',
-      leadDoctor: 'Dr. Kailash Rajguru (MBBS, MD Medicine)',
-      doctorCount: 3,
-      isActive: true,
-    },
-  ]);
-
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    nameEn: '',
-    nameMr: '',
-    slug: '',
-    leadDoctor: '',
-    descriptionEn: '',
-    descriptionMr: '',
-  });
-
-  const toggleStatus = (id: string) => {
-    setDepartments(
-      departments.map((d) => (d.id === id ? { ...d, isActive: !d.isActive } : d)),
-    );
-  };
-
-  const handleAddDept = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newDept: DeptItem = {
-      id: `dept-${Date.now()}`,
-      slug: formData.slug || formData.nameEn.toLowerCase().replace(/\s+/g, '-'),
-      nameEn: formData.nameEn,
-      nameMr: formData.nameMr || formData.nameEn,
-      descriptionEn: formData.descriptionEn,
-      descriptionMr: formData.descriptionMr || formData.descriptionEn,
-      leadDoctor: formData.leadDoctor || 'Senior Consultant',
-      doctorCount: 1,
-      isActive: true,
-    };
-    setDepartments([...departments, newDept]);
-    setShowModal(false);
-    setFormData({ nameEn: '', nameMr: '', slug: '', leadDoctor: '', descriptionEn: '', descriptionMr: '' });
-  };
-
-  return (
-    <div className="space-y-8 max-w-[1400px] mx-auto">
-      {/* ─── 1. PAGE HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
-            Departments
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-500 font-normal">
-            Department names and descriptions shown on the website, in English and Marathi.
-          </p>
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowModal(true)}
-          className="btn-primary text-xs py-2 px-4 shadow-2xs flex items-center gap-1.5 shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Department</span>
-        </button>
-      </div>
-
-      {/* ─── 2. DEPARTMENTS GRID (SPACIOUS & MINIMAL) ───────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {departments.map((dept) => (
-          <div
-            key={dept.id}
-            className="card-clean bg-white border border-stone-200 rounded-lg p-6 shadow-2xs flex flex-col justify-between space-y-5 hover:shadow-md transition-shadow"
-          >
-            <div className="space-y-4">
-              <div className="flex items-start justify-between">
-                <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center border border-teal-100 shrink-0">
-                  <Building2 className="w-5 h-5" />
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                      dept.isActive
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-stone-100 text-stone-500 border-stone-200'
-                    }`}
-                  >
-                    {dept.isActive ? 'Active on Portal' : 'Draft / Inactive'}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => toggleStatus(dept.id)}
-                    className="text-xs text-stone-400 hover:text-stone-700 p-1"
-                    title="Toggle Status"
-                  >
-                    <CheckCircle2 className={`w-4 h-4 ${dept.isActive ? 'text-emerald-600' : 'text-stone-300'}`} />
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <h3 className="text-base text-stone-900 font-heading">
-                  {dept.nameEn}
-                </h3>
-                <p className="text-xs font-semibold text-[#0F766E]">
-                  {dept.nameMr}
-                </p>
-              </div>
-
-              <div className="space-y-1 text-xs text-stone-600 leading-relaxed bg-stone-50 p-3 rounded-lg border border-stone-100">
-                <p>{dept.descriptionEn}</p>
-                <p className="text-[11px] text-stone-500 pt-1 border-t border-stone-200/60 font-medium">
-                  {dept.descriptionMr}
-                </p>
-              </div>
-
-              <div className="space-y-1 pt-1 text-xs">
-                <span className="text-[11px] text-stone-400 block font-semibold uppercase tracking-wider">
-                  Department In-Charge / Faculty
-                </span>
-                <p className="font-bold text-stone-800 flex items-center gap-1.5">
-                  <Stethoscope className="w-3.5 h-3.5 text-[#0F766E]" />
-                  <span>{dept.leadDoctor}</span>
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
-              <span className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-stone-400" />
-                <span className="font-semibold text-stone-700">{dept.doctorCount} Doctors Linked</span>
-              </span>
-              <span className="text-[11px] text-stone-400 font-mono">
-                /departments/{dept.slug}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* ─── 3. ADD DEPARTMENT MODAL ────────────────────────────────────────── */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-lg w-full p-6 space-y-5 shadow-lg border border-stone-200">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="text-base text-stone-900 font-heading flex items-center gap-2">
-                <Plus className="w-4 h-4 text-[#0F766E]" />
-                <span>Add Clinical Department</span>
-              </h3>
-              <button
-                type="button"
-                onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddDept} className="space-y-4">
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">Department Name (English) *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nameEn}
-                  onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                  placeholder="e.g. Cardiology & Cath Lab"
-                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">Department Name (Marathi) *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.nameMr}
-                  onChange={(e) => setFormData({ ...formData, nameMr: e.target.value })}
-                  placeholder="उदा. हृदयरोग व कॅथ लॅब विभाग"
-                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">Lead Specialist Doctor *</label>
-                <input
-                  type="text"
-                  required
-                  value={formData.leadDoctor}
-                  onChange={(e) => setFormData({ ...formData, leadDoctor: e.target.value })}
-                  placeholder="e.g. Dr. Kailash Rajguru (MD Medicine)"
-                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">Short Description (English)</label>
-                <textarea
-                  rows={2}
-                  value={formData.descriptionEn}
-                  onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
-                  placeholder="Clinical scope, diagnostic equipment, and surgical specialties..."
-                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">Short Description (Marathi)</label>
-                <textarea
-                  rows={2}
-                  value={formData.descriptionMr}
-                  onChange={(e) => setFormData({ ...formData, descriptionMr: e.target.value })}
-                  placeholder="तपासणी सुविधा, निदान व विशेषोपचार..."
-                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-stone-100 flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="btn-secondary text-xs py-2 px-4"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="btn-primary text-xs py-2 px-5"
-                >
-                  Save Department
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+/** Doctors linked to this department, plus any whose department name loosely matches it. */
+const doctorsIn = (dept: Department) => {
+  const stems = dept.slug
+    .split('-')
+    .filter((w) => w.length >= 3 && !GENERIC.has(w))
+    .map((w) => w.slice(0, 6));
+  return DOCTORS_DATA.filter(
+    (d) => dept.doctorIds.includes(d.id) || stems.some((s) => new RegExp(`\\b${s}`, 'i').test(d.dept)),
   );
 };
+
+export const AdminDepartmentsPage: React.FC = () => (
+  <div className="max-w-[1200px] mx-auto space-y-6">
+    <div>
+      <h1 className="text-2xl sm:text-3xl">Departments</h1>
+      <p className="mt-1 text-stone-600">The {DEPARTMENTS.length} departments shown on the website’s Departments page.</p>
+    </div>
+
+    <section className="bg-white border border-[#E7E3DA] rounded-lg">
+      <div className="hidden md:grid grid-cols-12 gap-4 px-5 py-3 border-b border-[#E7E3DA] text-sm text-stone-500">
+        <span className="col-span-4">Department</span>
+        <span className="col-span-3">Lead doctor</span>
+        <span className="col-span-3">Doctors</span>
+        <span className="col-span-2 text-right">Website</span>
+      </div>
+      <ul className="divide-y divide-[#E7E3DA]">
+        {DEPARTMENTS.map((dept) => {
+          const lead = DOCTORS_DATA.find((d) => d.id === dept.doctorIds[0]);
+          const docs = doctorsIn(dept);
+          return (
+            <li key={dept.slug} className="px-5 py-4 grid grid-cols-1 md:grid-cols-12 gap-1 md:gap-4 md:items-start">
+              <div className="md:col-span-4 min-w-0">
+                <p className="font-medium text-[#1C2321]">{dept.nameEn}</p>
+                {dept.nameMr && <p className="text-sm text-stone-500">{dept.nameMr}</p>}
+                <p className="text-sm text-stone-500 mt-0.5">{dept.hoursEn}</p>
+              </div>
+              <div className="md:col-span-3 text-sm text-stone-700">
+                <span className="md:hidden text-stone-500">Lead doctor: </span>
+                {lead ? lead.name : 'Not set'}
+              </div>
+              <div className="md:col-span-3 text-sm text-stone-700">
+                <span className="md:hidden text-stone-500">Doctors: </span>
+                {docs.length} {docs.length === 1 ? 'doctor' : 'doctors'}
+                <span className="block text-stone-500">{docs.map((d) => d.name.replace(/^Dr\.\s*/, 'Dr ')).join(', ')}</span>
+              </div>
+              <div className="md:col-span-2 md:text-right text-sm pt-1 md:pt-0">
+                <a
+                  href={`/departments/${dept.slug}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#0F766E] font-semibold hover:underline underline-offset-4"
+                >
+                  View on website
+                </a>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+
+    <p className="text-sm text-stone-600 max-w-3xl">
+      This page is for checking only. Department names, descriptions, OPD hours and which doctors belong to each
+      department are part of the website’s pages, so to change them, ask your developer. Doctor counts include doctors
+      whose own department title matches, so a doctor can appear under more than one department.
+    </p>
+  </div>
+);
