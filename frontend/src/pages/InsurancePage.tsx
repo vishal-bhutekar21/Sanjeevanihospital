@@ -4,6 +4,7 @@ import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { PageIntro, SectionTitle } from '../components/ui';
 import { PHOTOS } from '../data/photos';
+import { HOSPITAL } from '../config/hospital';
 
 const inputClass =
   'w-full px-3.5 py-3 bg-white border border-[#D8D3C8] rounded-md text-[15px] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
@@ -88,7 +89,7 @@ export const InsurancePage: React.FC = () => {
     { en: 'Policy schedule showing sum insured and family members covered', mr: 'विमा रक्कम व समाविष्ट सदस्य दर्शवणारे पॉलिसी शेड्यूल' },
     { en: 'Patient’s original photo ID (Aadhaar, Voter ID or passport)', mr: 'रुग्णाचे मूळ सरकारी ओळखपत्र (आधार / मतदान कार्ड / पासपोर्ट)' },
     { en: 'PAN and Aadhaar of the main policyholder (needed for claims over ₹50,000, as per IRDAI)', mr: 'मुख्य विमाधारकाचे पॅन व आधार कार्ड (₹५०,००० पेक्षा जास्त क्लेमसाठी, IRDAI नियम)' },
-    { en: 'Sanjeevani OPD paper or doctor’s prescription advising admission', mr: 'संजीवनी ओपीडी कागद / दाखल होण्याचा सल्ला देणारे प्रिस्क्रिप्शन' },
+    { en: `${HOSPITAL.brand} OPD paper or doctor’s prescription advising admission`, mr: `${HOSPITAL.brandMr} ओपीडी कागद / दाखल होण्याचा सल्ला देणारे प्रिस्क्रिप्शन` },
     { en: 'Test reports (blood, X-ray, CT, sonography)', mr: 'तपासणी अहवाल (रक्त, एक्स-रे, सीटी, सोनोग्राफी)' },
   ];
 
@@ -152,16 +153,16 @@ export const InsurancePage: React.FC = () => {
         title={isMr ? 'कॅशलेस विमा' : 'Cashless insurance'}
         intro={
           isMr
-            ? 'संजीवनी हॉस्पिटल बहुतेक शासकीय व खाजगी आरोग्य विमा कंपन्या आणि टीपीएसोबत कॅशलेस उपचार देते. मंजूर रकमेसाठी आगाऊ डिपॉझिट भरावे लागत नाही. आमचा इन्शुरन्स डेस्क कागदपत्रे व मंजुरीसाठी मदत करतो.'
-            : 'Sanjeevani Hospital works with most public and private health insurers and TPAs. For the approved amount you don’t pay a deposit upfront. Our insurance desk handles the forms and approval for you.'
+            ? `${HOSPITAL.shortNameMr} बहुतेक शासकीय व खाजगी आरोग्य विमा कंपन्या आणि टीपीएसोबत कॅशलेस उपचार देते. मंजूर रकमेसाठी आगाऊ डिपॉझिट भरावे लागत नाही. आमचा इन्शुरन्स डेस्क कागदपत्रे व मंजुरीसाठी मदत करतो.`
+            : `${HOSPITAL.shortName} works with most public and private health insurers and TPAs. For the approved amount you don’t pay a deposit upfront. Our insurance desk handles the forms and approval for you.`
         }
         image={PHOTOS.billing}
         imageAlt={isMr ? 'हॉस्पिटल बिलिंग काउंटर' : 'Hospital billing counter'}
       >
         <div className="flex flex-col sm:flex-row gap-3">
-          <a href="tel:+917507342222" className="btn-primary">
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-primary">
             <Phone className="w-4 h-4" />
-            {isMr ? 'इन्शुरन्स डेस्क: +91 75073 42222' : 'Insurance desk: +91 75073 42222'}
+            {isMr ? `इन्शुरन्स डेस्क: ${HOSPITAL.phones.reception.display}` : `Insurance desk: ${HOSPITAL.phones.reception.display}`}
           </a>
           <a href="#check-policy" className="btn-secondary">
             {isMr ? 'पॉलिसी तपासून घ्या' : 'Check your policy'}
@@ -343,8 +344,8 @@ export const InsurancePage: React.FC = () => {
             />
             <p className="text-sm text-stone-600">
               {isMr ? 'थेट बोलायचे आहे?' : 'Prefer to talk?'}{' '}
-              <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline">
-                +91 75073 42222
+              <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline">
+                {HOSPITAL.phones.reception.display}
               </a>
             </p>
           </div>

@@ -27,7 +27,7 @@
     "subtitle": "Emergency doctors on duty around the clock, a 21-bed ICU, and senior specialists in orthopaedics, child care, maternity, surgery and medicine — under one roof.",
     "bookCta": "Book an appointment",
     "exploreCare": "See our departments",
-    "callEmergency": "Emergency: 75073 42222",
+    "callEmergency": "Emergency: {{phone}}",
     "statIcu": "21 beds",
     "statIcuSub": "Intensive care unit",
     "statDepts": "19",

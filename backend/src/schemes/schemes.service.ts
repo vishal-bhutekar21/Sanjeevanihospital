@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { HOSPITAL } from '../config/hospital.config';
 
 export type SchemeType = 'MJPJAY' | 'AYUSHMAN_BHARAT' | 'EMPLOYEE_STATE_INSURANCE' | 'CASHLESS_TPA';
 export type ClaimStatus = 'PENDING' | 'PRE_AUTHORIZED' | 'IN_TREATMENT' | 'SUBMITTED' | 'SETTLED' | 'REJECTED';
@@ -35,7 +36,7 @@ export class SchemesService {
   private claims: SchemeClaimRecord[] = [
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       schemeType: 'MJPJAY',
       patientName: 'Ramabai Shinde',
       patientPhone: '9823001122',
@@ -56,7 +57,7 @@ export class SchemesService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       schemeType: 'AYUSHMAN_BHARAT',
       patientName: 'Pandurang Jadhav',
       patientPhone: '9011334455',
@@ -75,7 +76,7 @@ export class SchemesService {
     },
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       schemeType: 'CASHLESS_TPA',
       patientName: 'Suresh Kulkarni',
       patientPhone: '9834112233',
@@ -126,7 +127,7 @@ export class SchemesService {
   }) {
     const claim: SchemeClaimRecord = {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       ...dto,
       status: 'PENDING',
       arogyaMitraId: `ARMT/JLN/${Math.floor(1000 + Math.random() * 9000)}`,
@@ -138,7 +139,7 @@ export class SchemesService {
     this.logger.log(`New ${dto.schemeType} claim registered for ${dto.patientName}: ${claim.id}`);
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: 'SCHEME_CLAIM_REGISTERED',
       entity: 'SCHEME_CLAIM',
       entityId: claim.id,
@@ -166,7 +167,7 @@ export class SchemesService {
     if (preAuthorizationId) claim.preAuthorizationId = preAuthorizationId;
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: 'SCHEME_CLAIM_STATUS_UPDATED',
       entity: 'SCHEME_CLAIM',
       entityId: claimId,
@@ -242,11 +243,11 @@ export class SchemesService {
         { item: 'Income Certificate below ₹1 Lakh per annum', required: false },
       ],
       process: [
-        { step: 1, title: 'Visit Arogya Mitra Desk', description: 'Report to the Sanjeevani Hospital MJPJAY Arogya Mitra desk on the ground floor near main reception with all documents.' },
+        { step: 1, title: 'Visit Arogya Mitra Desk', description: `Report to the ${HOSPITAL.shortName} MJPJAY Arogya Mitra desk on the ground floor near main reception with all documents.` },
         { step: 2, title: 'Eligibility Verification', description: 'Arogya Mitra verifies ration card, Aadhaar, and scheme eligibility using the NIC government portal.' },
         { step: 3, title: 'Online Pre-Authorization', description: 'Treating doctor submits pre-authorization request with diagnosis and procedure codes via the MJPJAY government portal.' },
         { step: 4, title: 'Pre-Auth Approval', description: 'Government insurance company approves pre-authorization (typically within 2–4 hours for emergencies, 1 working day for planned procedures).' },
-        { step: 5, title: 'Cashless Treatment', description: 'Patient receives complete cashless treatment at Sanjeevani Hospital at no cost up to the approved limit.' },
+        { step: 5, title: 'Cashless Treatment', description: `Patient receives complete cashless treatment at ${HOSPITAL.shortName} at no cost up to the approved limit.` },
         { step: 6, title: 'Claim Settlement', description: 'Hospital submits claim to the insurer post-discharge. Settlement directly to hospital account within 30 days.' },
       ],
     };
@@ -284,7 +285,7 @@ export class SchemesService {
         { step: 3, title: 'TPA Approval (2–8 Hours)', description: 'The TPA/insurer reviews and approves the cashless request. Emergency approvals are typically fast-tracked within 2 hours.' },
         { step: 4, title: 'Cashless Treatment Begins', description: 'Once approved, you receive complete treatment without upfront payment up to the approved authorization limit.' },
         { step: 5, title: 'Discharge Formalities', description: 'Hospital raises the final claim with treatment summary and bills to the TPA. You only pay for non-covered items (if any).' },
-        { step: 6, title: 'Direct Claim Settlement', description: 'The insurer settles the approved claim amount directly to Sanjeevani Hospital within the statutory claim period.' },
+        { step: 6, title: 'Direct Claim Settlement', description: `The insurer settles the approved claim amount directly to ${HOSPITAL.shortName} within the statutory claim period.` },
       ],
       documentsRequired: [
         'Health Insurance Policy Card / Health Insurance Policy Document',
@@ -295,8 +296,8 @@ export class SchemesService {
         'TPA / Insurance Company Pre-Authorization Letter',
       ],
       tpaDeskTimings: 'Monday to Saturday: 09:00 AM to 06:00 PM. Emergency submissions: 24x7 on-call.',
-      helpline: '+91-75073-42222 | 02482-223322',
-      disclaimer: 'Coverage eligibility, sum insured limits, co-payment clauses, and exclusions are governed solely by your health insurance policy terms. Sanjeevani Hospital facilitates the cashless process but does not guarantee insurer approval.',
+      helpline: `${HOSPITAL.helpline} | ${HOSPITAL.landline}`,
+      disclaimer: `Coverage eligibility, sum insured limits, co-payment clauses, and exclusions are governed solely by your health insurance policy terms. ${HOSPITAL.shortName} facilitates the cashless process but does not guarantee insurer approval.`,
     };
   }
 }

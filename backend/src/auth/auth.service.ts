@@ -18,6 +18,7 @@ import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
 import { AdminRegisterDto } from './dto/admin-register.dto';
+import { HOSPITAL } from '../config/hospital.config';
 
 interface EphemeralSession {
   sessionId: string;
@@ -51,7 +52,7 @@ export class AuthService {
   private inMemoryAdmins: AdminUserRecord[] = [
     {
       id: 'admin-sanjeevani-01',
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       name: 'Dr. Bagal / Hospital Administrator',
       email: 'admin@sanjeevanihosp.in',
       passwordHash: bcrypt.hashSync('Admin@123', 10),
@@ -60,7 +61,7 @@ export class AuthService {
     },
     {
       id: 'super-admin-01',
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       name: 'Platform Super Admin',
       email: 'superadmin@sanjeevanihosp.in',
       passwordHash: bcrypt.hashSync('SuperAdmin@123', 10),
@@ -137,7 +138,7 @@ export class AuthService {
     if (!smsReady && this.isProduction) {
       this.logger.error('MSG91_AUTH_KEY / MSG91_TEMPLATE_ID are not set; cannot send booking OTPs.');
       throw new ServiceUnavailableException(
-        'Online booking is temporarily unavailable. Please call reception on +91 75073 42222.',
+        `Online booking is temporarily unavailable. Please call reception on ${HOSPITAL.helpline}.`,
       );
     }
 
@@ -292,7 +293,7 @@ export class AuthService {
         name: admin.name,
         email: admin.email,
         role: admin.role,
-        hospitalName: 'Sanjeevani Multispeciality Hospital',
+        hospitalName: HOSPITAL.name,
       },
       message: 'Admin authenticated successfully',
     };

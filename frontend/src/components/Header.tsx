@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Phone } from 'lucide-react';
+import { HOSPITAL } from '../config/hospital';
 
 export const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -38,20 +39,20 @@ export const Header: React.FC = () => {
       <div className="hidden md:block bg-[#1C2321] text-[13px] text-stone-300">
         <div className="max-w-[1280px] mx-auto px-6 lg:px-8 h-9 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <a href="tel:+917507342222" className="flex items-center gap-2 text-white hover:text-red-200">
+            <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="flex items-center gap-2 text-white hover:text-red-200">
               <span className="inline-block w-1.5 h-1.5 rounded-full bg-red-500" aria-hidden />
               <span>
                 {isMr ? 'आपत्कालीन (२४ तास):' : 'Emergency, 24 hours:'}{' '}
-                <span className="font-semibold">75073 42222</span>
+                <span className="font-semibold">{HOSPITAL.phones.emergency.short}</span>
               </span>
             </a>
             <span className="hidden lg:inline">
-              {isMr ? 'ओपीडी: सकाळी ९–१, संध्या. ५–८' : 'OPD: 9 am – 1 pm, 5 – 8 pm'}
+              {isMr ? HOSPITAL.opdHours.mr : HOSPITAL.opdHours.en}
             </span>
           </div>
           <div className="flex items-center gap-6">
             <span className="hidden lg:inline">
-              {isMr ? 'अंबड चौफुली, जालना' : 'Ambad Choufuli, Jalna'}
+              {isMr ? HOSPITAL.locality.mr : HOSPITAL.locality.en}
             </span>
             <button
               onClick={toggleLanguage}
@@ -68,13 +69,13 @@ export const Header: React.FC = () => {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 lg:h-[72px] gap-4">
           <Link to="/" className="flex items-center gap-3 shrink-0">
-            <img src="/logo.png" alt="" className="w-10 h-10 object-contain" />
+            <img src={HOSPITAL.logo} alt="" className="w-10 h-10 object-contain" />
             <span className="leading-tight">
               <span className="block font-heading text-lg font-semibold text-[#1C2321]">
-                {isMr ? 'संजीवनी हॉस्पिटल' : 'Sanjeevani Hospital'}
+                {isMr ? HOSPITAL.shortNameMr : HOSPITAL.shortName}
               </span>
               <span className="block text-xs text-stone-500">
-                {isMr ? 'मल्टिस्पेशालिटी · जालना' : 'Multispeciality · Jalna'}
+                {isMr ? `${HOSPITAL.kind.mr} · ${HOSPITAL.cityMr}` : `${HOSPITAL.kind.en} · ${HOSPITAL.city}`}
               </span>
             </span>
           </Link>
@@ -102,7 +103,7 @@ export const Header: React.FC = () => {
             </Link>
 
             <a
-              href="tel:+917507342222"
+              href={`tel:${HOSPITAL.phones.emergency.tel}`}
               className="md:hidden p-2.5 rounded-md text-red-700 hover:bg-red-50"
               aria-label={isMr ? 'आपत्कालीन कॉल करा' : 'Call emergency'}
             >

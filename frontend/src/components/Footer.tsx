@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEVELOPER } from '../data/developer';
 import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight } from 'lucide-react';
+import { HOSPITAL } from '../config/hospital';
 
 export const Footer: React.FC = () => {
   const { i18n } = useTranslation();
@@ -23,24 +24,22 @@ export const Footer: React.FC = () => {
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-10">
         <div className="lg:col-span-4 space-y-4">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="" className="w-11 h-11 object-contain bg-white rounded-md p-1" />
+            <img src={HOSPITAL.logo} alt="" className="w-11 h-11 object-contain bg-white rounded-md p-1" />
             <div className="leading-tight">
               <p className="font-heading text-lg text-white">
-                {isMr ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल' : 'Sanjeevani Multispeciality Hospital'}
+                {isMr ? HOSPITAL.nameMr : HOSPITAL.name}
               </p>
-              <p className="text-xs text-stone-400">Healing body, mind & spirit</p>
+              <p className="text-xs text-stone-400">{HOSPITAL.tagline}</p>
             </div>
           </div>
           <p className="flex gap-3 text-stone-300 leading-relaxed max-w-sm">
             <MapPin className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
             <span>
-              {isMr
-                ? 'प्लॉट नं. १७, ऋषी पार्क, अंबड चौफुली, जालना, महाराष्ट्र ४३१२०३'
-                : 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203'}
+              {isMr ? HOSPITAL.address.mr : HOSPITAL.address.en}
             </span>
           </p>
           <a
-            href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
+            href={HOSPITAL.mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 text-white hover:underline underline-offset-4"
@@ -73,11 +72,11 @@ export const Footer: React.FC = () => {
           <p className="flex gap-3 leading-relaxed">
             <Clock className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
             <span>
-              {isMr ? 'सोम–शनि' : 'Mon – Sat'}
+              {isMr ? HOSPITAL.opdHours.days.mr : HOSPITAL.opdHours.days.en}
               <br />
-              {isMr ? 'सकाळी ९ ते १' : '9 am – 1 pm'}
+              {isMr ? HOSPITAL.opdHours.morning.mr : HOSPITAL.opdHours.morning.en}
               <br />
-              {isMr ? 'संध्याकाळी ५ ते ८' : '5 pm – 8 pm'}
+              {isMr ? HOSPITAL.opdHours.evening.mr : HOSPITAL.opdHours.evening.en}
             </span>
           </p>
           <p className="mt-3 flex gap-3 text-stone-300">
@@ -90,16 +89,16 @@ export const Footer: React.FC = () => {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">
             {isMr ? 'संपर्क' : 'Contact'}
           </h2>
-          <a href="tel:+917507342222" className="flex gap-3 group">
+          <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="flex gap-3 group">
             <Phone className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
             <span>
               <span className="block text-stone-400">{isMr ? 'आपत्कालीन व रिसेप्शन' : 'Emergency & reception'}</span>
-              <span className="block text-white text-lg font-semibold group-hover:underline">+91 75073 42222</span>
+              <span className="block text-white text-lg font-semibold group-hover:underline">{HOSPITAL.phones.emergency.display}</span>
             </span>
           </a>
-          <a href="mailto:sanjeevanijalna@gmail.com" className="mt-3 flex gap-3 hover:text-white break-all">
+          <a href={`mailto:${HOSPITAL.emails.footer}`} className="mt-3 flex gap-3 hover:text-white break-all">
             <Mail className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
-            <span>sanjeevanijalna@gmail.com</span>
+            <span>{HOSPITAL.emails.footer}</span>
           </a>
           <Link to="/book" className="btn-primary mt-5 w-full sm:w-auto">
             <CalendarCheck className="w-4 h-4" aria-hidden />
@@ -111,7 +110,7 @@ export const Footer: React.FC = () => {
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row gap-2 justify-between text-xs text-stone-500">
           <div className="space-y-1">
-            <p>© {new Date().getFullYear()} Sanjeevani Multispeciality Hospital, Jalna</p>
+            <p>© {new Date().getFullYear()} {HOSPITAL.name}, {HOSPITAL.city}</p>
             <p>
               {isMr ? 'वेबसाइट विकसक: ' : 'Website by '}
               <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="text-stone-300 hover:text-white underline underline-offset-2">
@@ -124,7 +123,7 @@ export const Footer: React.FC = () => {
             </p>
           </div>
           <div className="flex gap-4 sm:self-end">
-            <span>{isMr ? 'MJPJAY संलग्न रुग्णालय' : 'MJPJAY empanelled hospital'}</span>
+            <span>{isMr ? `${HOSPITAL.empanelments[0].code} संलग्न रुग्णालय` : `${HOSPITAL.empanelments[0].code} empanelled hospital`}</span>
             <Link to="/admin/login" className="hover:text-stone-300">
               {isMr ? 'कर्मचारी लॉगिन' : 'Staff login'}
             </Link>

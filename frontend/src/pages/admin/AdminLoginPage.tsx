@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { apiUrl } from '../../lib/api';
+import { HOSPITAL } from '../../config/hospital';
 
 export const AdminLoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -51,9 +52,9 @@ export const AdminLoginPage: React.FC = () => {
     <div className="min-h-screen bg-[#FAF8F4] flex flex-col justify-center py-12 px-4">
       <div className="w-full max-w-sm mx-auto">
         <div className="flex items-center gap-3 mb-8">
-          <img src="/logo.png" alt="" className="w-11 h-11 object-contain" />
+          <img src={HOSPITAL.logo} alt="" className="w-11 h-11 object-contain" />
           <div className="leading-tight">
-            <p className="font-heading text-lg text-[#1C2321]">Sanjeevani Hospital</p>
+            <p className="font-heading text-lg text-[#1C2321]">{HOSPITAL.shortName}</p>
             <p className="text-xs text-stone-500">Staff login</p>
           </div>
         </div>

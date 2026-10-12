@@ -5,6 +5,7 @@ import { ArrowLeft, Phone } from 'lucide-react';
 import { PageIntro, SectionTitle, DoctorPhoto } from '../components/ui';
 import { DEPARTMENTS, findDoctor } from './DepartmentsPage';
 import type { DoctorItem } from '../data/doctorsData';
+import { HOSPITAL } from '../config/hospital';
 
 const wrap = 'max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8';
 
@@ -44,9 +45,9 @@ export const DepartmentDetailPage: React.FC = () => {
             <Link to="/departments" className="btn-primary">
               {isMr ? 'सर्व विभाग पहा' : 'See all departments'}
             </Link>
-            <a href="tel:+917507342222" className="btn-secondary">
+            <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
               <Phone className="w-4 h-4" />
-              +91 75073 42222
+              {HOSPITAL.phones.reception.display}
             </a>
           </div>
         </PageIntro>
@@ -82,9 +83,9 @@ export const DepartmentDetailPage: React.FC = () => {
           <Link to={bookHref} className="btn-primary">
             {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
           </Link>
-          <a href="tel:+917507342222" className="btn-secondary">
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary">
             <Phone className="w-4 h-4" />
-            +91 75073 42222
+            {HOSPITAL.phones.reception.display}
           </a>
         </div>
       </PageIntro>
@@ -118,9 +119,9 @@ export const DepartmentDetailPage: React.FC = () => {
               <p className="mt-1 text-sm text-[#6B2A2A]">
                 {isMr ? 'थेट कॅज्युअल्टीमध्ये या किंवा फोन करा.' : 'Come straight to casualty, or call us now.'}
               </p>
-              <a href="tel:+917507342222" className="btn-emergency mt-4 w-full sm:w-auto">
+              <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="btn-emergency mt-4 w-full sm:w-auto">
                 <Phone className="w-4 h-4" />
-                +91 75073 42222
+                {HOSPITAL.phones.emergency.display}
               </a>
             </div>
           </div>

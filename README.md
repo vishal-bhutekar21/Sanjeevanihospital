@@ -4,6 +4,21 @@
 
 ---
 
+## Documentation
+
+Current docs live in [`documentation/`](documentation/README.md):
+
+- [Product overview](documentation/01-product-overview.md): features, tech stack, folder map
+- [Rebrand checklist](documentation/02-rebrand-checklist.md): launch this site for a new hospital
+- [Data reference](documentation/03-data-reference.md): every config and data field
+- [Architecture](documentation/04-architecture.md): booking flow, auth, where data is stored
+- [Deployment and config](documentation/05-deployment-and-config.md): env vars, Netlify, Render, MSG91, Razorpay, common problems
+- [Design system](documentation/06-design-system.md) · [Roadmap](documentation/07-roadmap.md) · [AI agent guide](documentation/AI_AGENT_GUIDE.md)
+
+Hospital details (name, phones, address, hours) are set in `frontend/src/config/hospital.ts` and `backend/src/config/hospital.config.ts`.
+
+---
+
 ## 🌟 Executive Overview & Architectural Highlights
 
 The **Sanjeevani Multispeciality Hospital Platform** is a multi-tier, production-grade digital healthcare operating system engineered to replace legacy static hospital landing pages with a high-throughput, secure, bilingual (English & Marathi), and HIPAA/NABH-aligned healthcare platform.

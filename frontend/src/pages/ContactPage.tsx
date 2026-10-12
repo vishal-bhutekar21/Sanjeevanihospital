@@ -3,12 +3,13 @@ import { useTranslation } from 'react-i18next';
 import { Phone } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PageIntro, SectionTitle } from '../components/ui';
+import { HOSPITAL } from '../config/hospital';
 
 const WRAP = 'max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8';
 const INPUT =
   'w-full min-h-[44px] px-3.5 py-2.5 bg-white border border-[#D8D3C8] rounded-lg text-[15px] text-[#1C2321] placeholder:text-stone-400 focus:border-[#0F766E] focus:outline-none';
 const LABEL = 'block text-sm font-semibold text-stone-700 mb-1.5';
-const MAP_URL = 'https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna';
+const MAP_URL = HOSPITAL.mapsUrl;
 
 export const ContactPage: React.FC = () => {
   const { i18n } = useTranslation();
@@ -28,17 +29,17 @@ export const ContactPage: React.FC = () => {
   };
 
   const phones = [
-    { label: isMr ? 'मुख्य स्वागत कक्ष' : 'Reception', num: '+91 75073 42222', tel: '+917507342222' },
-    { label: isMr ? 'अ‍ॅम्ब्युलन्स' : 'Ambulance', num: '+91 88305 18080', tel: '+918830518080' },
-    { label: isMr ? 'MJPJAY (आरोग्य मित्र)' : 'MJPJAY (Arogya Mitra)', num: '+91 82089 65820', tel: '+918208965820' },
-    { label: isMr ? 'कॅशलेस विमा (TPA)' : 'Cashless insurance (TPA)', num: '+91 91460 22490', tel: '+919146022490' },
-    { label: isMr ? 'प्रशासन' : 'Administration', num: '+91 96876 09046', tel: '+919687609046' },
+    { label: isMr ? 'मुख्य स्वागत कक्ष' : 'Reception', num: HOSPITAL.phones.reception.display, tel: HOSPITAL.phones.reception.tel },
+    { label: isMr ? 'अ‍ॅम्ब्युलन्स' : 'Ambulance', num: HOSPITAL.phones.ambulance.display, tel: HOSPITAL.phones.ambulance.tel },
+    { label: isMr ? 'MJPJAY (आरोग्य मित्र)' : 'MJPJAY (Arogya Mitra)', num: HOSPITAL.phones.mjpjay.display, tel: HOSPITAL.phones.mjpjay.tel },
+    { label: isMr ? 'कॅशलेस विमा (TPA)' : 'Cashless insurance (TPA)', num: HOSPITAL.phones.tpa.display, tel: HOSPITAL.phones.tpa.tel },
+    { label: isMr ? 'प्रशासन' : 'Administration', num: HOSPITAL.phones.admin.display, tel: HOSPITAL.phones.admin.tel },
   ];
 
   const hours = [
-    { what: isMr ? 'आपत्कालीन विभाग व ICU' : 'Emergency and ICU', when: isMr ? '२४ तास, दररोज' : '24 hours, every day' },
-    { what: isMr ? 'सकाळची ओपीडी' : 'Morning OPD', when: '9:00 am – 3:00 pm' },
-    { what: isMr ? 'संध्याकाळची ओपीडी' : 'Evening OPD', when: '5:00 pm – 8:00 pm' },
+    { what: isMr ? 'आपत्कालीन विभाग व ICU' : 'Emergency and ICU', when: isMr ? HOSPITAL.opdHours.emergency.mr : HOSPITAL.opdHours.emergency.en },
+    { what: isMr ? 'सकाळची ओपीडी' : 'Morning OPD', when: HOSPITAL.opdHours.contactMorning },
+    { what: isMr ? 'संध्याकाळची ओपीडी' : 'Evening OPD', when: HOSPITAL.opdHours.contactEvening },
   ];
 
   return (
@@ -47,20 +48,20 @@ export const ContactPage: React.FC = () => {
         title={isMr ? 'संपर्क' : 'Contact us'}
         intro={
           isMr
-            ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, अंबड चौफुली, जालना. आपत्कालीन विभाग २४ तास सुरू असतो.'
-            : 'Sanjeevani Multispeciality Hospital, Ambad Choufuli, Jalna. The emergency department is open 24 hours.'
+            ? `${HOSPITAL.nameMr}, ${HOSPITAL.locality.mr}. आपत्कालीन विभाग २४ तास सुरू असतो.`
+            : `${HOSPITAL.name}, ${HOSPITAL.locality.en}. The emergency department is open 24 hours.`
         }
       >
         <p className="text-sm font-semibold text-[#8E1C1C]">{isMr ? 'आपत्कालीन स्थितीत' : 'In an emergency'}</p>
         <a
-          href="tel:+917507342222"
+          href={`tel:${HOSPITAL.phones.emergency.tel}`}
           className="mt-1 inline-flex items-center gap-2 min-h-[44px] font-heading text-3xl sm:text-4xl text-[#C62828] hover:underline underline-offset-4"
         >
           <Phone className="w-7 h-7" />
-          +91 75073 42222
+          {HOSPITAL.phones.emergency.display}
         </a>
         <div className="mt-5 flex flex-col sm:flex-row gap-3">
-          <a href="tel:+917507342222" className="btn-emergency">
+          <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="btn-emergency">
             <Phone className="w-4 h-4" />
             {isMr ? 'आत्ता फोन करा' : 'Call now'}
           </a>
@@ -90,10 +91,10 @@ export const ContactPage: React.FC = () => {
               <li className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 py-3">
                 <span className="text-stone-600">{isMr ? 'ईमेल' : 'Email'}</span>
                 <a
-                  href="mailto:sanjeevanihospjalna@gmail.com"
+                  href={`mailto:${HOSPITAL.emails.main}`}
                   className="inline-flex items-center min-h-[44px] font-semibold text-[#1C2321] hover:text-[#0F766E] hover:underline underline-offset-4 break-all"
                 >
-                  sanjeevanihospjalna@gmail.com
+                  {HOSPITAL.emails.main}
                 </a>
               </li>
             </ul>
@@ -128,11 +129,11 @@ export const ContactPage: React.FC = () => {
           <div className="lg:col-span-5">
             <SectionTitle title={isMr ? 'पत्ता व दिशा' : 'Address and directions'} />
             <address className="not-italic text-stone-700 leading-relaxed">
-              Sanjeevani Multispeciality Hospital
+              {HOSPITAL.name}
               <br />
-              Plot No. 17, Rishi Park, Ambad Choufuli
+              {HOSPITAL.address.line1}
               <br />
-              Jalna, Maharashtra 431203
+              {HOSPITAL.address.line2}
             </address>
             <ul className="mt-4 list-disc pl-5 space-y-1 text-[15px] text-stone-600 marker:text-stone-400">
               <li>{isMr ? 'अंबड चौफुली चौकाजवळ' : 'Near the Ambad Choufuli junction'}</li>
@@ -146,8 +147,8 @@ export const ContactPage: React.FC = () => {
           </div>
           <div className="lg:col-span-7 rounded-lg overflow-hidden h-72 sm:h-96 bg-stone-100 border border-[#E7E3DA]">
             <iframe
-              title="Sanjeevani Hospital Jalna Location Map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3752.482025734346!2d75.87321277598858!3d19.83965932757277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bda574d6cfa92ff%3A0x6b30c144577884ff!2sAmbad%20Choufuli%2C%20Jalna%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
+              title={`${HOSPITAL.shortName} ${HOSPITAL.city} Location Map`}
+              src={HOSPITAL.mapEmbedUrl}
               width="100%"
               height="100%"
               style={{ border: 0 }}

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { AWARDS_DATA } from '../data/awardsData';
 import { GALLERY, PHOTOS } from '../data/photos';
 import { PageIntro, SectionTitle, Photo } from '../components/ui';
+import { HOSPITAL } from '../config/hospital';
 
 const WRAP = 'max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8';
 const INPUT =
@@ -39,7 +40,7 @@ export const EventsPage: React.FC = () => {
         isMr ? 'एक्स-रे वर ५०% सवलत' : '50% off digital X-rays',
         isMr ? 'अस्थिरोग तज्ज्ञांचा सल्ला' : 'Consultation with the orthopaedic surgeon',
       ],
-      contactPhone: '+917507342222',
+      contactPhone: HOSPITAL.phones.reception.tel,
     },
     {
       id: 'camp-2',
@@ -63,7 +64,7 @@ export const EventsPage: React.FC = () => {
         isMr ? 'दमा व अ‍ॅलर्जी तपासणी' : 'Asthma and allergy screening',
         isMr ? 'बालरोगतज्ज्ञांचा सल्ला' : 'Consultation with the paediatrician',
       ],
-      contactPhone: '+917507342222',
+      contactPhone: HOSPITAL.phones.reception.tel,
     },
     {
       id: 'camp-3',
@@ -86,7 +87,7 @@ export const EventsPage: React.FC = () => {
         isMr ? 'ईसीजी (ECG)' : 'ECG',
         isMr ? 'आहार व जीवनशैली सल्ला' : 'Diet and lifestyle advice',
       ],
-      contactPhone: '+917507342222',
+      contactPhone: HOSPITAL.phones.reception.tel,
     },
     {
       id: 'camp-4',
@@ -110,7 +111,7 @@ export const EventsPage: React.FC = () => {
         isMr ? 'मंजूर शस्त्रक्रियेसाठी कॅशलेस नोंदणी' : 'Cashless registration for approved operations',
         isMr ? 'आणायची कागदपत्रे: रेशन कार्ड, आधार' : 'Bring: ration card and Aadhaar',
       ],
-      contactPhone: '+917507342222',
+      contactPhone: HOSPITAL.phones.reception.tel,
     },
   ];
 
@@ -264,7 +265,7 @@ export const EventsPage: React.FC = () => {
   };
   const camps = events.map((e: any, i: number) => {
     const iso: string | undefined = typeof e.eventDate === 'string' ? e.eventDate.slice(0, 10) : undefined;
-    const phone: string = e.registrationPhone || e.contactPhone || '+917507342222';
+    const phone: string = e.registrationPhone || e.contactPhone || HOSPITAL.phones.reception.tel;
     return {
       id: String(e.id ?? i),
       iso,
@@ -415,8 +416,8 @@ export const EventsPage: React.FC = () => {
           {isMr
             ? 'तुमच्या गावात किंवा संस्थेत शिबिर घ्यायचे असल्यास स्वागत कक्षाला फोन करा: '
             : 'To hold a camp in your village or organisation, call reception on '}
-          <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline underline-offset-4 whitespace-nowrap">
-            +91 75073 42222
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline underline-offset-4 whitespace-nowrap">
+            {HOSPITAL.phones.reception.display}
           </a>
           .
         </p>
@@ -582,8 +583,8 @@ export const EventsPage: React.FC = () => {
                   {reviewError && (
                     <p role="alert" className="text-[15px] text-[#C62828]">
                       {isMr
-                        ? 'अभिप्राय पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा किंवा +91 75073 42222 वर फोन करा.'
-                        : 'Your review could not be sent. Please try again, or call +91 75073 42222.'}
+                        ? `अभिप्राय पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा किंवा ${HOSPITAL.phones.reception.display} वर फोन करा.`
+                        : `Your review could not be sent. Please try again, or call ${HOSPITAL.phones.reception.display}.`}
                     </p>
                   )}
 

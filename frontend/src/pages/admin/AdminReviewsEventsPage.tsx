@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Star } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
+import { HOSPITAL } from '../../config/hospital';
 
 type ReviewStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
 type EventStatus = 'UPCOMING' | 'ONGOING' | 'COMPLETED' | 'CANCELLED';
@@ -72,8 +73,8 @@ const inputClass =
 const emptyEvent = {
   title: '', titleMr: '', description: '', descriptionMr: '',
   eventDate: '', eventTime: '', venue: '',
-  category: 'HEALTH_CAMP', organizer: 'Sanjeevani Hospital', featuredDoctor: '',
-  registrationRequired: false, registrationPhone: '+91-75073-42222',
+  category: 'HEALTH_CAMP', organizer: HOSPITAL.shortName, featuredDoctor: '',
+  registrationRequired: false, registrationPhone: HOSPITAL.phones.reception.display,
   isFree: true,
 };
 
@@ -470,7 +471,7 @@ export const AdminReviewsEventsPage: React.FC = () => {
                     required
                     value={newEvent.venue}
                     onChange={(e) => set({ venue: e.target.value })}
-                    placeholder="OPD Complex, Sanjeevani Hospital"
+                    placeholder={`OPD Complex, ${HOSPITAL.shortName}`}
                     className={inputClass}
                   />
                 </label>

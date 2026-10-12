@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { HOSPITAL } from './config/hospital.config';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
@@ -37,7 +38,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
-  logger.log(`🚀 Sanjeevani Hospital API is running on http://localhost:${port}/api`);
+  logger.log(`🚀 ${HOSPITAL.shortName} API is running on http://localhost:${port}/api`);
   logger.log(`🩺 Health Check endpoint: http://localhost:${port}/api/health`);
 }
 

@@ -19,6 +19,7 @@ import {
   validateSchedule,
   toMinutes,
 } from './schedules';
+import { HOSPITAL } from '../config/hospital.config';
 
 export interface BookingSessionRecord {
   id: string;
@@ -85,7 +86,7 @@ export class AppointmentsService {
       appointmentCode: 'SMH-2026-000101',
       bookingSessionId: 'sess-demo-1',
       slotId: 'slot-demo-1',
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       doctorId: 'doc-goyal',
       doctorName: 'Dr. Nishant Goyal',
       department: 'Orthopedics & Joint Replacement',
@@ -388,7 +389,7 @@ export class AppointmentsService {
       appointmentCode,
       bookingSessionId,
       slotId: slot.id,
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       doctorId: doctor.id,
       doctorName: doctor.name,
       department: doctor.department,
@@ -410,7 +411,7 @@ export class AppointmentsService {
     this.appointments.unshift(confirmedRecord);
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: 'APPOINTMENT_CONFIRMED',
       entity: 'APPOINTMENT',
       entityId: confirmedRecord.id,
@@ -434,8 +435,8 @@ export class AppointmentsService {
         apt.paymentStatus === 'PAID'
           ? 'Please come to the OPD reception 15 minutes before your time and show this token number.'
           : `Please come to the OPD reception 15 minutes before your time, show this token number and pay the ₹${apt.fee} consultation fee at the counter.`,
-      hospitalAddress: 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna – 431203',
-      emergencyHelpline: '+91-75073-42222',
+      hospitalAddress: HOSPITAL.fullAddress,
+      emergencyHelpline: HOSPITAL.helpline,
       message: 'Appointment confirmed',
     };
   }

@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 as uuidv4 } from 'uuid';
+import { HOSPITAL } from '../config/hospital.config';
 
 export interface AuditLogEntry {
   id?: string;
@@ -19,11 +20,11 @@ export class AuditService {
   private inMemoryLogs: AuditLogEntry[] = [
     {
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       userId: 'admin-sanjeevani-01',
       action: 'SYSTEM_BOOTSTRAP',
       entity: 'HOSPITAL',
-      entityId: 'hosp-sanjeevani-jalna',
+      entityId: HOSPITAL.id,
       metadata: { note: 'Initial system initialization' },
       createdAt: new Date().toISOString(),
     },

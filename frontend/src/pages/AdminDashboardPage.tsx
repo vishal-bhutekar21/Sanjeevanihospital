@@ -1,5 +1,6 @@
 import React from 'react';
 import { Users, Calendar, Activity, Clock, CheckCircle2 } from 'lucide-react';
+import { HOSPITAL } from '../config/hospital';
 
 export const AdminDashboardPage: React.FC = () => {
   const stats = [
@@ -16,7 +17,7 @@ export const AdminDashboardPage: React.FC = () => {
           Executive Operations Overview
         </h2>
         <p className="text-xs text-stone-500 mt-0.5">
-          Patient flow and doctor shifts at Sanjeevani Hospital.
+          Patient flow and doctor shifts at {HOSPITAL.shortName}.
         </p>
       </div>
 

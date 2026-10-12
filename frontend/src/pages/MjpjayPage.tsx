@@ -4,6 +4,7 @@ import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
 import { PageIntro, SectionTitle } from '../components/ui';
 import { PHOTOS } from '../data/photos';
+import { HOSPITAL } from '../config/hospital';
 
 const inputClass =
   'w-full px-3.5 py-3 bg-white border border-[#D8D3C8] rounded-md text-[15px] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
@@ -64,8 +65,8 @@ export const MjpjayPage: React.FC = () => {
     } catch (err) {
       setError(
         isMr
-          ? 'अर्ज पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा किंवा +91 75073 42222 वर फोन करा.'
-          : 'We could not send your request. Please try again, or call +91 75073 42222.'
+          ? `अर्ज पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा किंवा ${HOSPITAL.phones.reception.display} वर फोन करा.`
+          : `We could not send your request. Please try again, or call ${HOSPITAL.phones.reception.display}.`
       );
     } finally {
       setLoading(false);
@@ -195,7 +196,7 @@ export const MjpjayPage: React.FC = () => {
       mr: 'वरीलपैकी एक रेशन कार्ड, ज्यावर रुग्णाचे किंवा कुटुंबप्रमुखाचे नाव असावे',
     },
     { en: 'Original Aadhaar card of the patient and the attendant', mr: 'रुग्ण आणि नातेवाईकाचे मूळ आधार कार्ड' },
-    { en: 'Sanjeevani OPD prescription or doctor’s referral letter', mr: 'संजीवनी ओपीडी प्रिस्क्रिप्शन / डॉक्टरांचे निदान पत्र' },
+    { en: `${HOSPITAL.brand} OPD prescription or doctor’s referral letter`, mr: `${HOSPITAL.brandMr} ओपीडी प्रिस्क्रिप्शन / डॉक्टरांचे निदान पत्र` },
     { en: '2 recent passport-size photos of the patient', mr: 'रुग्णाचे २ पासपोर्ट आकाराचे फोटो' },
   ];
 
@@ -219,16 +220,16 @@ export const MjpjayPage: React.FC = () => {
         title={isMr ? 'महात्मा ज्योतिराव फुले जन आरोग्य योजना' : 'Free treatment under MJPJAY'}
         intro={
           isMr
-            ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे शस्त्रक्रिया, ICU आणि तज्ज्ञ उपचार मोफत. कुटुंबाला वर्षाला ₹५ लाखांपर्यंत संरक्षण. आमचा आरोग्य मित्र कक्ष कागदपत्रे व मंजुरीसाठी मदत करतो.'
-            : 'Families with a yellow or orange ration card can get surgery, ICU care and specialist treatment free at Sanjeevani Hospital, Jalna, under the Mahatma Jyotirao Phule Jan Arogya Yojana. Cover is up to ₹5,00,000 per family each year. Our Arogya Mitra desk helps with the paperwork and approval.'
+            ? `पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी ${HOSPITAL.shortNameMr}, ${HOSPITAL.cityMr} येथे शस्त्रक्रिया, ICU आणि तज्ज्ञ उपचार मोफत. कुटुंबाला वर्षाला ₹५ लाखांपर्यंत संरक्षण. आमचा आरोग्य मित्र कक्ष कागदपत्रे व मंजुरीसाठी मदत करतो.`
+            : `Families with a yellow or orange ration card can get surgery, ICU care and specialist treatment free at ${HOSPITAL.shortName}, ${HOSPITAL.city}, under the Mahatma Jyotirao Phule Jan Arogya Yojana. Cover is up to ₹5,00,000 per family each year. Our Arogya Mitra desk helps with the paperwork and approval.`
         }
         image={PHOTOS.reception}
         imageAlt={isMr ? 'हॉस्पिटलचा स्वागत कक्ष' : 'Hospital reception desk'}
       >
         <div className="flex flex-col sm:flex-row gap-3">
-          <a href="tel:+917507342222" className="btn-primary">
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-primary">
             <Phone className="w-4 h-4" />
-            {isMr ? 'आरोग्य मित्र: +91 75073 42222' : 'Arogya Mitra: +91 75073 42222'}
+            {isMr ? `आरोग्य मित्र: ${HOSPITAL.phones.reception.display}` : `Arogya Mitra: ${HOSPITAL.phones.reception.display}`}
           </a>
           <a href="#register" className="btn-secondary">
             {isMr ? 'मदतीसाठी नोंदणी करा' : 'Register for help'}
@@ -281,7 +282,7 @@ export const MjpjayPage: React.FC = () => {
       <section id="covered" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
         <div className={`${wrap} py-12 sm:py-16`}>
           <SectionTitle
-            title={isMr ? 'संजीवनी हॉस्पिटलमध्ये समाविष्ट उपचार' : 'Treatments covered at Sanjeevani'}
+            title={isMr ? `${HOSPITAL.shortNameMr}मध्ये समाविष्ट उपचार` : `Treatments covered at ${HOSPITAL.brand}`}
             sub={
               isMr
                 ? 'तपासण्या आणि औषधे पॅकेजमध्ये समाविष्ट आहेत.'
@@ -305,8 +306,8 @@ export const MjpjayPage: React.FC = () => {
             {isMr
               ? 'MJPJAY अंतर्गत ९९६ हून अधिक उपचार समाविष्ट आहेत. आपला उपचार यादीत नसेल तर आरोग्य मित्र कक्षाला विचारा: '
               : 'More than 996 treatments are covered under MJPJAY. If yours is not listed, ask the Arogya Mitra desk: '}
-            <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline whitespace-nowrap">
-              +91 75073 42222
+            <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline whitespace-nowrap">
+              {HOSPITAL.phones.reception.display}
             </a>
           </p>
         </div>
@@ -390,8 +391,8 @@ export const MjpjayPage: React.FC = () => {
             />
             <p className="text-sm text-stone-600">
               {isMr ? 'थेट बोलायचे आहे?' : 'Prefer to talk?'}{' '}
-              <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline">
-                +91 75073 42222
+              <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] hover:underline">
+                {HOSPITAL.phones.reception.display}
               </a>
             </p>
           </div>

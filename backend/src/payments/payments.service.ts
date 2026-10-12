@@ -7,6 +7,7 @@ import { AuditService } from '../audit/audit.service';
 import { AppointmentsService } from '../appointments/appointments.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { VerifyPaymentDto } from './dto/verify-payment.dto';
+import { HOSPITAL } from '../config/hospital.config';
 
 export interface PaymentRecord {
   id: string;
@@ -82,7 +83,7 @@ export class PaymentsService {
 
     this.inMemoryPayments.push({
       id: uuidv4(),
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       bookingSessionId,
       orderId: order.id,
       amount: fee,
@@ -99,7 +100,7 @@ export class PaymentsService {
       amountInRupees: fee,
       currency: 'INR',
       keyId: this.razorpayKeyId,
-      hospitalName: 'Sanjeevani Multispeciality Hospital',
+      hospitalName: HOSPITAL.name,
       themeColor: '#0F766E',
     };
   }
@@ -138,7 +139,7 @@ export class PaymentsService {
     this.appointmentsService.markSessionPaid(bookingSessionId, razorpayPaymentId, record.amount);
 
     await this.auditService.logAction({
-      hospitalId: 'hosp-sanjeevani-jalna',
+      hospitalId: HOSPITAL.id,
       action: 'PAYMENT_VERIFIED',
       entity: 'PAYMENT',
       entityId: razorpayPaymentId,
