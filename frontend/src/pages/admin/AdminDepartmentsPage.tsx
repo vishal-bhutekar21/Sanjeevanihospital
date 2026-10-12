@@ -136,19 +136,11 @@ export const AdminDepartmentsPage: React.FC = () => {
       {/* ─── 1. PAGE HEADER ─────────────────────────────────────────────────── */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="badge-teal text-[11px] py-0.5 px-2.5">
-              Clinical Specializations
-            </span>
-            <span className="text-xs text-stone-400 font-mono">
-              6 Active Major Departments
-            </span>
-          </div>
           <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
             Departments
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-normal">
-            Configure clinical department profiles, bilingual Marathi/English content, and linked faculty rosters.
+            Department names and descriptions shown on the website, in English and Marathi.
           </p>
         </div>
 
