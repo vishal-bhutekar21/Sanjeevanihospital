@@ -1,330 +1,212 @@
-import React, { useState } from 'react';
-import {
-  Users,
-  Plus,
-  Search,
-  CheckCircle2,
-  XCircle,
-  Edit2,
-  Stethoscope,
-  Building2,
-  Calendar,
-} from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Search } from 'lucide-react';
+import { apiFetch } from '../../lib/api';
+import { DOCTORS_DATA } from '../../data/doctorsData';
+import { DoctorPhoto } from '../../components/ui';
 
-interface DoctorItem {
-  id: string;
+interface Session {
+  start: string;
+  end: string;
+}
+interface WeeklySchedule {
+  slotMinutes: number;
+  days: Session[][]; // 0 = Sunday ... 6 = Saturday
+}
+interface DoctorSchedule {
+  doctorId: string;
   name: string;
-  designation: string;
-  qualifications: string;
   department: string;
-  specialty: string;
-  consultationFee: number;
-  isActive: boolean;
+  savedInDatabase: boolean;
+  schedule: WeeklySchedule;
 }
 
+// Monday first, Sunday last
+const DAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const DAY_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+const fmt = (t: string) => {
+  const [h, m] = t.split(':').map(Number);
+  const p = h >= 12 ? 'pm' : 'am';
+  const hh = h % 12 === 0 ? 12 : h % 12;
+  return m ? `${hh}:${String(m).padStart(2, '0')} ${p}` : `${hh} ${p}`;
+};
+
+const isBookable = (s?: WeeklySchedule) => !!s && s.days.some((d) => d.length > 0);
+
+const weeklySummary = (s: WeeklySchedule) => {
+  const active = DAY_ORDER.filter((d) => (s.days[d] || []).length > 0);
+  if (active.length === 0) return 'No OPD days set';
+  const hours = (d: number) => s.days[d].map((x) => `${fmt(x.start)}–${fmt(x.end)}`).join(', ');
+  const same = active.every((d) => JSON.stringify(s.days[d]) === JSON.stringify(s.days[active[0]]));
+  if (!same) return `${active.length} days a week, hours vary by day`;
+  const names = active.map((d) => DAY_SHORT[d]);
+  const consecutive = active.length > 2 && active.join() === DAY_ORDER.slice(0, active.length).join();
+  return `${consecutive ? `${names[0]}–${names[names.length - 1]}` : names.join(', ')}, ${hours(active[0])}`;
+};
+
+const inputClass =
+  'w-full px-3 py-2 bg-white border border-[#D8D3C8] rounded-md text-sm focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
+
 export const AdminDoctorsPage: React.FC = () => {
+  const [schedules, setSchedules] = useState<Record<string, DoctorSchedule>>({});
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [search, setSearch] = useState('');
-  const [doctors, setDoctors] = useState<DoctorItem[]>([
-    {
-      id: 'doc-bagal',
-      name: 'Dr. Baliram Bagal',
-      designation: 'Director & Senior Consultant',
-      qualifications: 'MBBS, DA, FICM, CCCS',
-      department: 'Critical Care & Anesthesiology',
-      specialty: 'Critical Care Resuscitation & Family Medicine',
-      consultationFee: 400,
-      isActive: true,
-    },
-    {
-      id: 'doc-mirkad',
-      name: 'Dr. Shivdas Mirkad',
-      designation: 'Director & Consultant Pediatrician',
-      qualifications: 'MBBS, MD, DCH',
-      department: 'Pediatrics & Neonatology',
-      specialty: 'Neonatal Intensive Care, Child Growth & Vaccinations',
-      consultationFee: 500,
-      isActive: true,
-    },
-    {
-      id: 'doc-goyal',
-      name: 'Dr. Nishant Goyal',
-      designation: 'Director & Consultant Orthopedic Surgeon',
-      qualifications: 'MBBS, DNB, D. Ortho',
-      department: 'Orthopedics & Joint Replacement',
-      specialty: 'Trauma Care, Knee/Hip Replacement, Arthroscopy',
-      consultationFee: 500,
-      isActive: true,
-    },
-    {
-      id: 'doc-rajguru',
-      name: 'Dr. Kailash Rajguru',
-      designation: 'Director & Consultant Physician',
-      qualifications: 'MBBS, MD (Medicine)',
-      department: 'Internal Medicine',
-      specialty: 'Diabetes, Hypertension & Critical Illness',
-      consultationFee: 400,
-      isActive: true,
-    },
-    {
-      id: 'doc-anshul',
-      name: 'Dr. Anshul (Pahawa) Goyal',
-      designation: 'Consultant Obstetrician & Gynecologist',
-      qualifications: 'MBBS, DNB, DGO',
-      department: 'Obstetrics & Gynecology',
-      specialty: 'High-Risk Pregnancy, Infertility & Laparoscopic Gyn Surgery',
-      consultationFee: 500,
-      isActive: true,
-    },
-    {
-      id: 'doc-katole',
-      name: 'Dr. Millind Katole',
-      designation: 'Consultant General Surgeon',
-      qualifications: 'MBBS, MS (General Surgery)',
-      department: 'General & Laparoscopic Surgery',
-      specialty: 'Hernia, Appendix, Gallbladder & Laparoscopic Surgeries',
-      consultationFee: 500,
-      isActive: true,
-    },
-  ]);
+  const [dept, setDept] = useState('');
 
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    designation: 'Consultant Specialist',
-    qualifications: '',
-    department: 'Orthopedics & Joint Replacement',
-    specialty: '',
-    consultationFee: 500,
-  });
-
-  const toggleStatus = (id: string) => {
-    setDoctors(doctors.map((d) => (d.id === id ? { ...d, isActive: !d.isActive } : d)));
+  const load = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const res = await apiFetch<DoctorSchedule[]>('/appointments/schedules');
+      const map: Record<string, DoctorSchedule> = {};
+      (Array.isArray(res.data) ? res.data : []).forEach((d) => (map[d.doctorId] = d));
+      setSchedules(map);
+    } catch (e: any) {
+      setError(e?.message || 'Could not load OPD timings.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleAddDoctor = (e: React.FormEvent) => {
-    e.preventDefault();
-    const newDoc: DoctorItem = {
-      id: `doc-${Date.now()}`,
-      ...formData,
-      isActive: true,
-    };
-    setDoctors([...doctors, newDoc]);
-    setShowModal(false);
-    setFormData({
-      name: '',
-      designation: 'Consultant Specialist',
-      qualifications: '',
-      department: 'Orthopedics & Joint Replacement',
-      specialty: '',
-      consultationFee: 500,
-    });
-  };
+  useEffect(() => {
+    load();
+  }, []);
 
-  const filtered = doctors.filter(
-    (d) =>
-      d.name.toLowerCase().includes(search.toLowerCase()) ||
-      d.department.toLowerCase().includes(search.toLowerCase()) ||
-      d.specialty.toLowerCase().includes(search.toLowerCase()),
-  );
+  const departments = useMemo(() => Array.from(new Set(DOCTORS_DATA.map((d) => d.dept))).sort(), []);
+
+  const shown = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return DOCTORS_DATA.filter(
+      (d) =>
+        (!dept || d.dept === dept) &&
+        (!q || [d.name, d.role, d.dept, d.degree, d.specialty].some((v) => v.toLowerCase().includes(q))),
+    );
+  }, [search, dept]);
+
+  const timingLine = (id: string) => {
+    if (loading) return { text: 'Loading timings…', on: null as boolean | null };
+    if (error) return { text: 'Timings not loaded', on: null };
+    const s = schedules[id];
+    if (!s) return { text: 'No timings found', on: false };
+    return { text: weeklySummary(s.schedule), on: isBookable(s.schedule) };
+  };
 
   return (
-    <div className="space-y-6">
-      {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-2xl text-stone-900">Doctors</h2>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Add doctors, update fees and mark who is available.
-          </p>
-        </div>
-
-        <button
-          onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-hospital-teal text-white text-xs font-bold shadow-sm hover:bg-hospital-teal/90 transition"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add New Specialist</span>
-        </button>
+    <div className="max-w-[1200px] mx-auto space-y-6">
+      <div>
+        <h1 className="text-2xl sm:text-3xl">Doctors</h1>
+        <p className="mt-1 text-stone-600">
+          The {DOCTORS_DATA.length} doctors listed on the website, with their current OPD timings for online booking.
+        </p>
       </div>
 
-      {/* Search Filter */}
-      <div className="flex items-center justify-between gap-4">
-        <div className="relative max-w-md w-full">
-          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
-          <input
-            type="text"
-            placeholder="Search doctor by name, specialty or department..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-          />
-        </div>
-        <span className="text-xs font-medium text-stone-500">
-          Showing {filtered.length} of {doctors.length} Doctors
-        </span>
-      </div>
-
-      {/* Doctors Table */}
-      <div className="bg-white rounded-lg border border-stone-200 shadow-card-subtle overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-stone-600">
-            <thead className="bg-stone-50 text-stone-700 uppercase font-bold text-[10px] tracking-wider border-b border-stone-200">
-              <tr>
-                <th className="py-3 px-4">Doctor Name</th>
-                <th className="py-3 px-4">Department</th>
-                <th className="py-3 px-4">Qualifications</th>
-                <th className="py-3 px-4">OPD Fee</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-stone-100">
-              {filtered.map((doc) => (
-                <tr key={doc.id} className="hover:bg-stone-50 transition">
-                  <td className="py-3.5 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 rounded-lg bg-hospital-soft flex items-center justify-center text-hospital-teal shrink-0">
-                        <Stethoscope className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="font-bold text-stone-900">{doc.name}</p>
-                        <p className="text-[11px] text-stone-500">{doc.designation}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3.5 px-4 font-medium text-stone-800">{doc.department}</td>
-                  <td className="py-3.5 px-4 font-semibold text-hospital-teal">{doc.qualifications}</td>
-                  <td className="py-3.5 px-4 font-bold text-stone-900">₹{doc.consultationFee}</td>
-                  <td className="py-3.5 px-4">
-                    <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        doc.isActive
-                          ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-stone-100 text-stone-600'
-                      }`}
-                    >
-                      {doc.isActive ? 'Active' : 'Inactive'}
-                    </span>
-                  </td>
-                  <td className="py-3.5 px-4 text-right space-x-2">
-                    <button
-                      onClick={() => toggleStatus(doc.id)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition ${
-                        doc.isActive
-                          ? 'text-rose-600 hover:bg-rose-50'
-                          : 'text-emerald-600 hover:bg-emerald-50'
-                      }`}
-                    >
-                      {doc.isActive ? 'Deactivate' : 'Activate'}
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Add Doctor Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg border border-stone-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="text-base text-stone-900">Add Specialist Doctor</h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-stone-400 hover:text-stone-600 font-bold"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleAddDoctor} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Full Doctor Name</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Dr. Ramesh Kulkarni"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Qualifications</label>
-                  <input
-                    type="text"
-                    required
-                    placeholder="e.g. MBBS, MS, MCh"
-                    value={formData.qualifications}
-                    onChange={(e) => setFormData({ ...formData, qualifications: e.target.value })}
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-stone-700 mb-1">Consultation Fee (₹)</label>
-                  <input
-                    type="number"
-                    required
-                    value={formData.consultationFee}
-                    onChange={(e) => setFormData({ ...formData, consultationFee: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Clinical Department</label>
-                <select
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-                >
-                  <option>Orthopedics & Joint Replacement</option>
-                  <option>Pediatrics & Neonatology</option>
-                  <option>Obstetrics & Gynecology</option>
-                  <option>General & Laparoscopic Surgery</option>
-                  <option>ICU & Critical Care</option>
-                  <option>Internal Medicine</option>
-                  <option>Nephrology & Dialysis</option>
-                  <option>Urology & Andrology</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-stone-700 mb-1">Specialty Focus</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Trauma Care, Knee Replacement"
-                  value={formData.specialty}
-                  onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
-                />
-              </div>
-
-              <div className="pt-3 border-t border-stone-100 flex justify-end space-x-3">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-stone-600 hover:bg-stone-100 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-hospital-teal hover:bg-hospital-teal/90 shadow-sm transition"
-                >
-                  Save Doctor Profile
-                </button>
-              </div>
-            </form>
-          </div>
+      {error && (
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex justify-between gap-3">
+          <span>Could not load OPD timings ({error}). The doctor list below is still correct.</span>
+          <button type="button" className="font-semibold underline shrink-0" onClick={load}>
+            Try again
+          </button>
         </div>
       )}
+
+      <div className="flex flex-col sm:flex-row gap-3">
+        <label className="relative flex-1">
+          <span className="sr-only">Search doctors</span>
+          <Search className="w-4 h-4 text-stone-400 absolute left-3 top-1/2 -translate-y-1/2" aria-hidden />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, department or qualification"
+            className={`${inputClass} pl-9`}
+          />
+        </label>
+        <label className="sm:w-80">
+          <span className="sr-only">Department</span>
+          <select value={dept} onChange={(e) => setDept(e.target.value)} className={inputClass}>
+            <option value="">All departments</option>
+            {departments.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
+        </label>
+      </div>
+
+      <section className="bg-white border border-[#E7E3DA] rounded-lg">
+        <div className="px-5 py-4 border-b border-[#E7E3DA] flex items-center justify-between gap-3">
+          <h2 className="text-lg">
+            {shown.length === DOCTORS_DATA.length ? 'All doctors' : `${shown.length} of ${DOCTORS_DATA.length} doctors`}
+          </h2>
+          {(search || dept) && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearch('');
+                setDept('');
+              }}
+              className="text-sm text-[#0F766E] font-semibold hover:underline underline-offset-4"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {shown.length === 0 ? (
+          <p className="px-5 py-10 text-center text-stone-500">No doctor matches your search.</p>
+        ) : (
+          <ul className="divide-y divide-[#E7E3DA]">
+            {shown.map((d) => {
+              const t = timingLine(d.id);
+              return (
+                <li key={d.id} className="px-5 py-4 flex flex-col md:flex-row md:items-center gap-4">
+                  <div className="flex gap-4 min-w-0 flex-1">
+                    <DoctorPhoto src={d.image} name={d.name} className="w-14 h-14 rounded-md shrink-0" textClass="text-lg" />
+                    <div className="min-w-0">
+                      <p className="font-medium text-[#1C2321]">{d.name}</p>
+                      <p className="text-sm text-stone-600">{d.role}</p>
+                      <p className="text-sm text-stone-500">
+                        {d.dept} · {d.degree} · ₹{d.fee} fee
+                      </p>
+                      <p className="mt-1.5 text-sm text-stone-700">{t.text}</p>
+                      {t.on !== null && (
+                        <p className="mt-0.5 flex items-center gap-1.5 text-sm text-stone-600">
+                          <span className={`w-2 h-2 rounded-full ${t.on ? 'bg-[#0F766E]' : 'bg-stone-300'}`} />
+                          Online booking: {t.on ? 'on' : 'off'}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-x-5 gap-y-2 md:flex-col md:items-end md:gap-1.5 shrink-0 text-sm md:pl-4">
+                    <Link to="/admin/schedules" className="text-[#0F766E] font-semibold hover:underline underline-offset-4">
+                      Edit timings
+                    </Link>
+                    <a
+                      href={`/doctors/${d.id}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#0F766E] font-semibold hover:underline underline-offset-4"
+                    >
+                      View on website
+                    </a>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      <p className="text-sm text-stone-600 max-w-3xl">
+        OPD timings can be changed here under Edit timings. A doctor’s profile details (name, qualifications, fee,
+        photo) are part of the website’s doctor list, so to change them, ask your developer. Doctor photos go in{' '}
+        <span className="font-mono text-[13px]">/public/images/doctors/&lt;id&gt;.webp</span>, for example{' '}
+        <span className="font-mono text-[13px]">doc-bagal.webp</span>. Until a photo is added, the website shows the
+        doctor’s initials.
+      </p>
     </div>
   );
 };

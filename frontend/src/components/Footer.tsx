@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
   const { i18n } = useTranslation();
@@ -29,11 +30,23 @@ export const Footer: React.FC = () => {
               <p className="text-xs text-stone-400">Healing body, mind & spirit</p>
             </div>
           </div>
-          <p className="text-stone-400 leading-relaxed max-w-sm">
-            {isMr
-              ? 'प्लॉट नं. १७, ऋषी पार्क, अंबड चौफुली, जालना, महाराष्ट्र ४३१२०३'
-              : 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203'}
+          <p className="flex gap-3 text-stone-300 leading-relaxed max-w-sm">
+            <MapPin className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
+            <span>
+              {isMr
+                ? 'प्लॉट नं. १७, ऋषी पार्क, अंबड चौफुली, जालना, महाराष्ट्र ४३१२०३'
+                : 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna, Maharashtra 431203'}
+            </span>
           </p>
+          <a
+            href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 text-white hover:underline underline-offset-4"
+          >
+            <Navigation className="w-4 h-4 text-stone-500" aria-hidden />
+            {isMr ? 'गुगल मॅपवर दिशा' : 'Get directions'}
+          </a>
         </div>
 
         <div className="lg:col-span-3">
@@ -43,7 +56,8 @@ export const Footer: React.FC = () => {
           <ul className="space-y-2">
             {links.map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="hover:text-white">
+                <Link to={l.to} className="group inline-flex items-center gap-1.5 hover:text-white">
+                  <ChevronRight className="w-3.5 h-3.5 text-stone-600 group-hover:text-stone-400" aria-hidden />
                   {isMr ? l.mr : l.en}
                 </Link>
               </li>
@@ -55,13 +69,19 @@ export const Footer: React.FC = () => {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">
             {isMr ? 'ओपीडी वेळ' : 'OPD hours'}
           </h2>
-          <p className="leading-relaxed">
-            {isMr ? 'सकाळी ९ ते १' : '9 am – 1 pm'}
-            <br />
-            {isMr ? 'संध्याकाळी ५ ते ८' : '5 pm – 8 pm'}
+          <p className="flex gap-3 leading-relaxed">
+            <Clock className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
+            <span>
+              {isMr ? 'सोम–शनि' : 'Mon – Sat'}
+              <br />
+              {isMr ? 'सकाळी ९ ते १' : '9 am – 1 pm'}
+              <br />
+              {isMr ? 'संध्याकाळी ५ ते ८' : '5 pm – 8 pm'}
+            </span>
           </p>
-          <p className="mt-3 text-stone-400">
-            {isMr ? 'आपत्कालीन विभाग २४ तास सुरू' : 'Emergency open 24 hours'}
+          <p className="mt-3 flex gap-3 text-stone-300">
+            <Siren className="w-4 h-4 mt-0.5 shrink-0 text-red-400" aria-hidden />
+            <span>{isMr ? 'आपत्कालीन विभाग २४ तास सुरू' : 'Emergency open 24 hours'}</span>
           </p>
         </div>
 
@@ -69,19 +89,19 @@ export const Footer: React.FC = () => {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">
             {isMr ? 'संपर्क' : 'Contact'}
           </h2>
-          <p>
-            <span className="text-stone-400">{isMr ? 'आपत्कालीन व रिसेप्शन' : 'Emergency & reception'}</span>
-            <br />
-            <a href="tel:+917507342222" className="text-white text-lg font-semibold hover:underline">
-              +91 75073 42222
-            </a>
-          </p>
-          <p className="mt-3">
-            <a href="mailto:sanjeevanijalna@gmail.com" className="hover:text-white break-all">
-              sanjeevanijalna@gmail.com
-            </a>
-          </p>
+          <a href="tel:+917507342222" className="flex gap-3 group">
+            <Phone className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
+            <span>
+              <span className="block text-stone-400">{isMr ? 'आपत्कालीन व रिसेप्शन' : 'Emergency & reception'}</span>
+              <span className="block text-white text-lg font-semibold group-hover:underline">+91 75073 42222</span>
+            </span>
+          </a>
+          <a href="mailto:sanjeevanijalna@gmail.com" className="mt-3 flex gap-3 hover:text-white break-all">
+            <Mail className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
+            <span>sanjeevanijalna@gmail.com</span>
+          </a>
           <Link to="/book" className="btn-primary mt-5 w-full sm:w-auto">
+            <CalendarCheck className="w-4 h-4" aria-hidden />
             {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
           </Link>
         </div>
