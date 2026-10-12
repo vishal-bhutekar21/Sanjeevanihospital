@@ -1,37 +1,81 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import {
-  Calendar,
-  Phone,
-  ShieldCheck,
-  Award,
-  Stethoscope,
-  Activity,
-  HeartPulse,
-  MapPin,
-  ChevronRight,
-  CheckCircle2,
-  Star,
-  Baby,
-  Scissors,
-  CreditCard,
-  Sparkles,
-  ArrowRight,
-  Bed,
-  Layers,
-  AlertCircle,
-  Trophy,
-  Navigation,
-} from 'lucide-react';
+import { Phone, ArrowRight, Star, MapPin } from 'lucide-react';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { AWARDS_DATA } from '../data/awardsData';
+import { apiUrl } from '../lib/api';
+
+interface HomeReview {
+  id?: string;
+  patientName: string;
+  patientLocation?: string;
+  rating: number;
+  reviewText: string;
+  treatmentType?: string;
+}
+
+// Shown only until approved reviews load from the hospital's records
+const FALLBACK_REVIEWS: HomeReview[] = [
+  {
+    patientName: 'Gajanan Deshmukh',
+    patientLocation: 'Jalna City',
+    rating: 5,
+    reviewText:
+      'Dr. Nishant Goyal did my mother\'s knee replacement. She was walking without pain within four weeks. The ICU staff were very good and the cashless claim went through without trouble.',
+    treatmentType: 'Knee replacement',
+  },
+  {
+    patientName: 'Sunita Rathod',
+    patientLocation: 'Ambad Taluka',
+    rating: 5,
+    reviewText:
+      'Our baby was born early and spent two weeks in the NICU under Dr. Shivdas Mirkad. The nurses explained everything to us. The treatment was covered under MJPJAY.',
+    treatmentType: 'NICU care',
+  },
+  {
+    patientName: 'Pravin Kulkarni',
+    patientLocation: 'Partur, Jalna',
+    rating: 5,
+    reviewText:
+      'My father was brought in with severe breathing trouble at night. Dr. Baliram Bagal and the ICU team looked after him on the ventilator until he recovered. We are very grateful.',
+    treatmentType: 'ICU care',
+  },
+];
+
+const SectionHeading: React.FC<{ eyebrow?: string; title: string; sub?: string; action?: React.ReactNode }> = ({
+  eyebrow,
+  title,
+  sub,
+  action,
+}) => (
+  <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+    <div className="max-w-2xl">
+      {eyebrow && <span className="eyebrow mb-2">{eyebrow}</span>}
+      <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">{title}</h2>
+      {sub && <p className="mt-2 text-stone-600">{sub}</p>}
+    </div>
+    {action}
+  </div>
+);
 
 export const HomePage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
 
   const seniorDoctors = DOCTORS_DATA.slice(0, 6);
+  const [reviews, setReviews] = useState<HomeReview[]>(FALLBACK_REVIEWS);
+
+  useEffect(() => {
+    fetch(apiUrl('/reviews-events/reviews'))
+      .then((r) => r.json())
+      .then((d) => {
+        if (Array.isArray(d?.data) && d.data.length > 0) {
+          setReviews(d.data.slice(0, 3));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // 6 Major Clinical Departments
   const clinicalSpecialties = [
@@ -45,7 +89,6 @@ export const HomePage: React.FC = () => {
       desc: 'Complex trauma care, total knee & hip replacement, arthroscopy, and spine stabilization with digital C-Arm fluoroscopy.',
       descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
       image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
-      icon: Activity,
       slug: 'orthopedics',
     },
     {
@@ -58,7 +101,6 @@ export const HomePage: React.FC = () => {
       desc: 'Comprehensive child healthcare, 24x7 neonatal intensive care with phototherapy warmers, and pediatric asthma management.',
       descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
       image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
-      icon: Baby,
       slug: 'pediatrics',
     },
     {
@@ -71,7 +113,6 @@ export const HomePage: React.FC = () => {
       desc: 'Computerized hemodynamic monitoring, mechanical ventilation, renal dialysis support, and 24x7 dedicated intensivist care.',
       descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
       image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.55-PM-1.webp',
-      icon: HeartPulse,
       slug: 'icu-critical-care',
     },
     {
@@ -84,7 +125,6 @@ export const HomePage: React.FC = () => {
       desc: 'Safe motherhood, high-risk pregnancy management, painless normal delivery, cesarean section, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
       image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=800&q=80',
-      icon: Award,
       slug: 'obstetrics-gynecology',
     },
     {
@@ -97,7 +137,6 @@ export const HomePage: React.FC = () => {
       desc: 'Karl Storz HD Laparoscopic cholecystectomy, hernia repair, appendectomy, and laser anorectal surgeries.',
       descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
       image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-21-at-4.28.59-PM.webp',
-      icon: Scissors,
       slug: 'general-surgery',
     },
     {
@@ -110,7 +149,6 @@ export const HomePage: React.FC = () => {
       desc: 'Hypertension, diabetes management, infectious diseases, cardiac evaluation with 3D color Doppler, and preventive wellness.',
       descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
       image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.54-PM-1.webp',
-      icon: Stethoscope,
       slug: 'internal-medicine',
     },
   ];
@@ -143,698 +181,321 @@ export const HomePage: React.FC = () => {
     },
   ];
 
+  const helpRows = [
+    { to: '/book', title: t('quickActions.book'), desc: t('quickActions.bookDesc') },
+    { to: '/mjpjay', title: t('quickActions.mjpjay'), desc: t('quickActions.mjpjayDesc') },
+    { to: '/insurance', title: t('quickActions.insurance'), desc: t('quickActions.insuranceDesc') },
+    { to: '/doctors', title: isMr ? 'डॉक्टर शोधा' : 'Find a doctor', desc: isMr ? 'विभाग किंवा नावाने शोधा.' : 'Search by name or department.' },
+  ];
+
+  const facts = [
+    { value: t('hero.statIcu'), label: t('hero.statIcuSub') },
+    { value: t('hero.statDepts'), label: t('hero.statDeptsSub') },
+    { value: t('hero.statSurgeries'), label: t('hero.statSurgeriesSub') },
+    { value: t('hero.statService'), label: t('hero.statServiceSub') },
+  ];
+
   return (
-    <div className="space-y-16 sm:space-y-24">
-      {/* ─── 1. HERO SECTION ─────────────────────────────────────────────────── */}
-      <section className="pt-6 sm:pt-12 pb-12 sm:pb-16 border-b border-slate-200/70">
-        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
-            
-            {/* Left Column: Typography & CTAs */}
-            <div className="lg:col-span-7 space-y-6 text-left">
-              
-              {/* Subtle Trust Badge */}
-              <div className="badge-teal">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>{t('hero.badge')}</span>
-              </div>
+    <div className="pb-16">
+      {/* Hero */}
+      <section className="bg-white border-b border-[#E7E3DA]">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          <div className="lg:col-span-6">
+            <span className="eyebrow mb-4">{t('hero.badge')}</span>
+            <h1 className="text-[2.25rem] sm:text-5xl lg:text-[3.5rem] leading-[1.08]">{t('hero.title')}</h1>
+            <p className="mt-5 text-lg text-stone-600 leading-relaxed max-w-xl">{t('hero.subtitle')}</p>
 
-              {/* Page Title */}
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900 tracking-tight leading-[1.18] font-heading">
-                {t('hero.title')}
-              </h1>
-
-              {/* Subtitle */}
-              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-                {t('hero.subtitle')}
-              </p>
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Link
-                  to="/book"
-                  className="btn-primary"
-                >
-                  <Calendar className="w-4 h-4" />
-                  <span>{t('hero.bookCta')}</span>
-                </Link>
-
-                <a
-                  href="tel:+917507342222"
-                  className="btn-secondary text-slate-800"
-                >
-                  <Phone className="w-4 h-4 text-red-600" />
-                  <span>{t('hero.callEmergency')}</span>
-                </a>
-              </div>
-
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Link to="/book" className="btn-primary">
+                {t('hero.bookCta')}
+              </Link>
+              <a href="tel:+917507342222" className="btn-secondary">
+                <Phone className="w-4 h-4 text-[#C62828]" />
+                {t('hero.callEmergency')}
+              </a>
             </div>
 
-            {/* Right Column: Real Hospital Exterior Photo */}
-            <div className="lg:col-span-5">
-              <div className="card-clean overflow-hidden aspect-[16/11] relative">
-                <img
-                  src="https://sanjeevanihosp.in/wp-content/uploads/2023/03/FrontPic.webp"
-                  alt="Sanjeevani Multispeciality Hospital Building Jalna"
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent"></div>
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                  <p className="text-xs font-bold text-amber-300">
-                    Sanjeevani Multispeciality Hospital
-                  </p>
-                  <p className="text-[11px] text-slate-200">
-                    Plot 17, Rishi Park, Ambad Choufuli, Jalna • Healing Body, Mind & Spirit
-                  </p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-          {/* ─── 4 BORDERLESS METRIC CARDS ─────────────────────────────────── */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 pt-10 sm:pt-14">
-            
-            <div className="card-clean p-5 flex items-center space-x-3.5">
-              <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
-                <Bed className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
-                  {t('hero.statIcu')}
-                </div>
-                <div className="text-xs text-slate-500 font-medium truncate">
-                  {t('hero.statIcuSub')}
-                </div>
-              </div>
-            </div>
-
-            <div className="card-clean p-5 flex items-center space-x-3.5">
-              <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
-                <Layers className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
-                  {t('hero.statDepts')}
-                </div>
-                <div className="text-xs text-slate-500 font-medium truncate">
-                  {t('hero.statDeptsSub')}
-                </div>
-              </div>
-            </div>
-
-            <div className="card-clean p-5 flex items-center space-x-3.5">
-              <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
-                <Award className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
-                  {t('hero.statSurgeries')}
-                </div>
-                <div className="text-xs text-slate-500 font-medium truncate">
-                  {t('hero.statSurgeriesSub')}
-                </div>
-              </div>
-            </div>
-
-            <div className="card-clean p-5 flex items-center space-x-3.5">
-              <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-                <HeartPulse className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <div className="text-xl sm:text-2xl font-bold text-red-600 font-heading">
-                  {t('hero.statService')}
-                </div>
-                <div className="text-xs text-slate-500 font-medium truncate">
-                  {t('hero.statServiceSub')}
-                </div>
-              </div>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ─── 2. QUICK ACTION TILES ────────────────────────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          
-          <Link
-            to="/book"
-            className="card-clean p-6 flex flex-col justify-between space-y-4 group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-slate-900 font-heading">{t('quickActions.book')}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('quickActions.bookDesc')}</p>
-            </div>
-            <span className="text-xs font-semibold text-[#0F766E] flex items-center gap-1">
-              <span>{isMr ? 'वेळ निवडा' : 'Select Time Slot'}</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-          <a
-            href="tel:+917507342222"
-            className="card-clean p-6 flex flex-col justify-between space-y-4 group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-              <HeartPulse className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-slate-900 font-heading">{t('quickActions.emergency')}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('quickActions.emergencyDesc')}</p>
-            </div>
-            <span className="text-xs font-semibold text-red-600 flex items-center gap-1">
-              <span>+91-75073-42222</span>
-              <Phone className="w-3.5 h-3.5" />
-            </span>
-          </a>
-
-          <Link
-            to="/mjpjay"
-            className="card-clean p-6 flex flex-col justify-between space-y-4 group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-slate-900 font-heading">{t('quickActions.mjpjay')}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('quickActions.mjpjayDesc')}</p>
-            </div>
-            <span className="text-xs font-semibold text-[#0F766E] flex items-center gap-1">
-              <span>{isMr ? 'पात्रता तपासा' : 'Check Eligibility'}</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-          <Link
-            to="/insurance"
-            className="card-clean p-6 flex flex-col justify-between space-y-4 group"
-          >
-            <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center">
-              <CreditCard className="w-5 h-5" />
-            </div>
-            <div className="space-y-1">
-              <h3 className="text-base font-semibold text-slate-900 font-heading">{t('quickActions.insurance')}</h3>
-              <p className="text-xs text-slate-500 leading-relaxed">{t('quickActions.insuranceDesc')}</p>
-            </div>
-            <span className="text-xs font-semibold text-[#0F766E] flex items-center gap-1">
-              <span>{isMr ? 'विमा यादी पहा' : 'View Insurance Panels'}</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
-            </span>
-          </Link>
-
-        </div>
-      </section>
-
-      {/* ─── 3. CLINICAL SPECIALTIES GRID ────────────────────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
-            {t('sections.specialtiesHeading')}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {t('sections.specialtiesSub')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {clinicalSpecialties.map((dept) => (
-            <div
-              key={dept.id}
-              className="card-clean overflow-hidden flex flex-col group border border-slate-200 bg-white shadow-2xs hover:shadow-md transition-shadow"
-            >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={dept.image}
-                  alt={dept.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                
-                {/* Floating Doctor Headshot Avatar */}
-                <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-white/95 backdrop-blur-xs p-1.5 pr-3 rounded-full shadow-md border border-white/60">
-                  <img
-                    src={dept.facultyImg}
-                    alt={dept.doctor}
-                    className="w-8 h-8 rounded-full object-cover border border-teal-500 shrink-0"
-                  />
-                  <div className="min-w-0">
-                    <span className="text-[11px] font-bold text-slate-900 block truncate max-w-[120px]">
-                      {dept.doctor}
-                    </span>
-                    <span className="text-[9px] text-teal-700 block truncate max-w-[120px] font-medium">
-                      {dept.degree}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
-                <div className="space-y-1.5">
-                  <span className="text-xs font-semibold text-[#0F766E]">
-                    {dept.doctor} <span className="text-slate-400 font-normal">({dept.degree})</span>
-                  </span>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-[#0F766E] transition-colors font-heading">
-                    {isMr ? dept.titleMr : dept.title}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    {isMr ? dept.descMr : dept.desc}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                  <Link
-                    to={`/departments/${dept.slug}`}
-                    className="text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition flex items-center gap-1"
-                  >
-                    <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
-                  </Link>
-                  <Link
-                    to="/book"
-                    className="btn-primary text-xs py-1.5 px-3.5 min-h-[36px] shadow-2xs"
-                  >
-                    {isMr ? 'अपॉइंटमेंट घ्या' : 'Book Consultation'}
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center pt-2">
-          <Link
-            to="/departments"
-            className="btn-secondary text-xs"
-          >
-            <span>{t('common.viewAll')}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ─── 4. MEDICAL TECHNOLOGY & EQUIPMENT SHOWCASE ─────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
-            {t('sections.technologyHeading')}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {t('sections.technologySub')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-          {hospitalEquipment.map((eq, idx) => (
-            <div
-              key={idx}
-              className="card-clean overflow-hidden flex flex-col group"
-            >
-              <div className="h-44 overflow-hidden relative">
-                <img
-                  src={eq.image}
-                  alt={eq.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-2.5 left-2.5 bg-slate-900/80 backdrop-blur-sm text-teal-300 text-[11px] font-medium px-2 py-0.5 rounded">
-                  {eq.category}
-                </div>
-              </div>
-              <div className="p-4 flex-1 flex flex-col justify-between space-y-1.5">
-                <h3 className="text-sm font-bold text-slate-900 leading-snug font-heading">{eq.title}</h3>
-                <p className="text-xs text-slate-500 leading-relaxed">{eq.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── 5. SENIOR MEDICAL FACULTY ─────────────────────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
-            {t('sections.doctorsHeading')}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {t('sections.doctorsSub')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {seniorDoctors.map((doc) => (
-            <div
-              key={doc.id}
-              className="card-clean p-5 flex flex-col justify-between space-y-4"
-            >
-              <div className="flex items-start space-x-3.5">
-                <div className="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-slate-100">
-                  <img
-                    src={doc.image}
-                    alt={doc.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-0.5 flex-1 min-w-0">
-                  <h3 className="text-base font-bold text-slate-900 truncate font-heading">
-                    {isMr ? doc.nameMr : doc.name}
-                  </h3>
-                  <p className="text-xs font-medium text-[#0F766E]">
-                    {isMr ? doc.roleMr : doc.role}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    {doc.degree}
-                  </p>
-                  <p className="text-[11px] text-slate-400 truncate">
-                    {isMr ? doc.deptMr : doc.dept}
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-1 text-xs bg-slate-50 p-3 rounded-lg">
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">{t('common.opdFee')}:</span>
-                  <span className="font-semibold text-slate-900">₹{doc.fee}</span>
-                </div>
-                <div className="flex justify-between items-center text-[11px]">
-                  <span className="text-slate-500">{t('common.timings')}:</span>
-                  <span className="font-medium text-slate-700">{doc.timings}</span>
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Link
-                  to={`/doctors/${doc.id}`}
-                  className="btn-secondary text-xs flex-1 min-h-[38px] py-1.5"
-                >
-                  {t('common.viewProfile')}
-                </Link>
-                <Link
-                  to={`/book?doctorId=${doc.id}`}
-                  className="btn-primary text-xs flex-1 min-h-[38px] py-1.5"
-                >
-                  <span>{t('common.bookSlot')}</span>
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ─── 6. MJPJAY SCHEME SPOTLIGHT (CLEAN HEALTHCARE STYLING) ───────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-emerald-50/50 border border-teal-200 shadow-sm">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left Column */}
-            <div className="lg:col-span-7 space-y-4">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-semibold border border-teal-200">
-                <ShieldCheck className="w-4 h-4 text-teal-700" />
-                <span>{isMr ? '१००% मोफत व कॅशलेस उपचार' : '100% Cashless Govt. Scheme'}</span>
-              </div>
-
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-                <span>{isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}</span>
-                <br />
-                <span className="text-[#0F766E]">
-                  {isMr ? 'जन आरोग्य योजना (MJPJAY)' : 'Jan Arogya Yojana (MJPJAY)'}
-                </span>
-              </h2>
-              
-              <p className="text-sm text-slate-600 leading-relaxed">
-                {isMr
-                  ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि प्रगत उपचार. आमच्या समर्पित आरोग्य मित्र डेस्कवरून त्वरित मदत मिळवा.'
-                  : 'Cashless surgical care and tertiary hospitalization for eligible yellow and orange ration card families across Maharashtra at Sanjeevani Hospital, Jalna.'}
-              </p>
-
-              <div className="flex flex-wrap gap-3 pt-2">
-                <Link
-                  to="/mjpjay"
-                  className="btn-primary text-xs py-2 px-4 shadow-xs"
-                >
-                  <span>{isMr ? 'योजना प्रक्रिया व कागदपत्रे' : 'MJPJAY Process & Documents'}</span>
-                </Link>
-                <Link
-                  to="/insurance"
-                  className="btn-secondary text-xs py-2 px-4"
-                >
-                  <span>{isMr ? 'कॅशलेस विमा कंपन्या' : 'Insurance Panels'}</span>
-                </Link>
-              </div>
-            </div>
-
-            {/* Right Column: Document Checklist Card */}
-            <div className="lg:col-span-5 bg-white rounded-xl p-5 border border-teal-200 shadow-xs space-y-3">
-              <p className="font-bold text-slate-900 text-sm flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
-                <span>{isMr ? 'आवश्यक मूळ कागदपत्रे' : 'Documents Required'}</span>
-              </p>
-
-              <ul className="space-y-2 text-xs text-slate-700">
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                  <span>{isMr ? 'पिवळे किंवा केशरी रेशन कार्ड (Original)' : 'Yellow or Orange Ration Card (Original)'}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                  <span>{isMr ? 'रुग्ण व कुटुंबप्रमुखांचे आधार कार्ड' : 'Patient & Family Head Aadhaar Card'}</span>
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                  <span>{isMr ? 'डॉक्टरांचे प्रिस्क्रिप्शन व तपासणी रिपोर्ट' : "Doctor's Prescription & Reports"}</span>
-                </li>
-              </ul>
-
-              <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
-                <div>
-                  <span className="text-slate-500 block text-[11px]">{isMr ? 'आरोग्य मित्र कक्ष:' : 'Arogya Mitra Helpline:'}</span>
-                  <a href="tel:+917507342222" className="text-slate-900 font-bold hover:underline">
-                    +91-75073-42222
-                  </a>
-                </div>
-                <span className="badge-teal text-[11px]">24x7 Help</span>
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* Government Scheme Compliance Notice Banner (Warm Amber Styling) */}
-        <div className="mt-4 card-notice-amber flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
-          <div className="space-y-0.5">
-            <h4 className="text-xs sm:text-sm font-bold text-amber-900">
-              {isMr ? 'शासकीय योजना व कॅशलेस उपचार नियमावली' : 'Government Scheme Compliance Notice'}
-            </h4>
-            <p className="text-[11px] sm:text-xs text-amber-800 leading-relaxed">
+            <p className="mt-6 text-sm text-stone-500">
               {isMr
-                ? 'शासकीय योजना, विमा पात्रता व कॅशलेस मंजुरी ही महाराष्ट्र शासन निकष आणि आरोग्य मित्र प्री-ऑथरायझेशन मान्यतेवर आधारित आहे.'
-                : 'Eligibility, coverage, and cashless treatment are subject to applicable government scheme rules and Arogya Mitra pre-authorization approval.'}
+                ? 'ओपीडी: सकाळी ९–१, संध्या. ५–८ · MJPJAY व कॅशलेस विमा स्वीकारला जातो'
+                : 'OPD 9 am – 1 pm and 5 – 8 pm · MJPJAY and cashless insurance accepted'}
             </p>
           </div>
+
+          <figure className="lg:col-span-6">
+            <img
+              src="https://sanjeevanihosp.in/wp-content/uploads/2023/03/FrontPic.webp"
+              alt={isMr ? 'संजीवनी हॉस्पिटल इमारत, जालना' : 'Sanjeevani Hospital building, Jalna'}
+              className="w-full aspect-[4/3] object-cover rounded-lg"
+            />
+            <figcaption className="mt-2 text-xs text-stone-500 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5" />
+              {isMr ? 'प्लॉट १७, ऋषी पार्क, अंबड चौफुली, जालना' : 'Plot 17, Rishi Park, Ambad Choufuli, Jalna'}
+            </figcaption>
+          </figure>
+        </div>
+
+        {/* Facts */}
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pb-10">
+          <dl className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-6">
+            {facts.map((f) => (
+              <div key={f.label} className="border-t border-[#E7E3DA] pt-5 flex flex-col-reverse">
+                <dt className="text-sm text-stone-500 mt-1">{f.label}</dt>
+                <dd className="font-heading text-3xl text-[#1C2321]">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* ─── 7. AWARDS & INSTITUTIONAL ACHIEVEMENTS (FROM LIVE WEBSITE) ─────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-semibold border border-amber-300">
-            <Trophy className="w-3.5 h-3.5 text-amber-700" />
-            <span>{isMr ? 'पुरस्कार, सन्मान व यशोगाथा' : 'Awards & Recognition'}</span>
+      {/* How can we help */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-14 sm:pt-20">
+        <div className="grid lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-4">
+            <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">{t('quickActions.heading')}</h2>
+            <div className="mt-6 p-5 rounded-lg bg-[#FDF1F0] border border-[#F3D3CF]">
+              <p className="font-semibold text-[#8E1C1C]">{t('quickActions.emergency')}</p>
+              <p className="mt-1 text-sm text-[#6B2A2A]">{t('quickActions.emergencyDesc')}</p>
+              <a href="tel:+917507342222" className="btn-emergency mt-4 w-full sm:w-auto">
+                <Phone className="w-4 h-4" />
+                +91 75073 42222
+              </a>
+            </div>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
-            {isMr ? 'संजीवनी हॉस्पिटलचे प्रतिष्ठित पुरस्कार व गौरव' : 'Prestigious Awards & Clinical Milestones'}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {isMr
-              ? 'उत्कृष्ट वैद्यकीय गुणवत्ता, २४ तास आपत्कालीन सेवा आणि निष्कलंक रुग्णसेवेसाठी राज्य व राष्ट्रीय स्तरावर मिळालेले सन्मान:'
-              : 'Recognized by state medical bodies, administration, and healthcare authorities for excellence in critical care and clinical outcomes:'}
-          </p>
+          <ul className="lg:col-span-8 divide-y divide-[#E7E3DA] border-y border-[#E7E3DA]">
+            {helpRows.map((row) => (
+              <li key={row.to}>
+                <Link to={row.to} className="group flex items-center justify-between gap-6 py-5 hover:bg-white -mx-3 px-3 rounded">
+                  <div>
+                    <p className="text-lg font-semibold text-[#1C2321] group-hover:text-[#0F766E]">{row.title}</p>
+                    <p className="text-stone-600 text-[15px]">{row.desc}</p>
+                  </div>
+                  <ArrowRight className="w-5 h-5 text-stone-400 group-hover:text-[#0F766E] shrink-0" />
+                </Link>
+              </li>
+            ))}
+          </ul>
         </div>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {AWARDS_DATA.slice(0, 4).map((award) => (
-            <div
-              key={award.id}
-              className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition bg-white"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                <img
-                  src={award.image}
-                  alt={award.title}
-                  loading="lazy"
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-2.5 right-2.5 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
-                  <span>{award.year}</span>
-                </div>
-              </div>
+      {/* Departments */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <SectionHeading
+          title={t('sections.specialtiesHeading')}
+          sub={t('sections.specialtiesSub')}
+          action={
+            <Link to="/departments" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+              {t('common.viewAll')} <ArrowRight className="w-4 h-4" />
+            </Link>
+          }
+        />
 
-              <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
-                <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
-                    {isMr ? award.subtitleMr : award.subtitle}
-                  </span>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading mt-0.5">
-                    {isMr ? award.titleMr : award.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                    {isMr ? award.descriptionMr : award.description}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+          {clinicalSpecialties.map((dept) => (
+            <Link key={dept.id} to={`/departments/${dept.slug}`} className="group block">
+              <img
+                src={dept.image}
+                alt=""
+                loading="lazy"
+                className="w-full aspect-[3/2] object-cover rounded-lg bg-stone-100"
+              />
+              <h3 className="mt-4 text-xl group-hover:text-[#0F766E]">{isMr ? dept.titleMr : dept.title}</h3>
+              <p className="mt-1 text-sm text-stone-500">
+                {dept.doctor} · {dept.degree}
+              </p>
+              <p className="mt-2 text-[15px] text-stone-600 leading-relaxed">{isMr ? dept.descMr : dept.desc}</p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Doctors */}
+      <section className="mt-16 sm:mt-24 bg-white border-y border-[#E7E3DA]">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-14 sm:py-20">
+          <SectionHeading
+            title={t('sections.doctorsHeading')}
+            sub={t('sections.doctorsSub')}
+            action={
+              <Link to="/doctors" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+                {isMr ? 'सर्व डॉक्टर' : 'All doctors'} <ArrowRight className="w-4 h-4" />
+              </Link>
+            }
+          />
+
+          <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 divide-y md:divide-y-0 divide-[#E7E3DA]">
+            {seniorDoctors.map((doc) => (
+              <li key={doc.id} className="py-5 md:border-b border-[#E7E3DA] flex gap-4">
+                <img src={doc.image} alt="" loading="lazy" className="w-20 h-24 rounded-md object-cover object-top bg-stone-100 shrink-0" />
+                <div className="min-w-0 flex-1">
+                  <Link to={`/doctors/${doc.id}`} className="font-heading text-lg text-[#1C2321] hover:text-[#0F766E]">
+                    {isMr ? doc.nameMr : doc.name}
+                  </Link>
+                  <p className="text-sm text-stone-600">{isMr ? doc.roleMr : doc.role}</p>
+                  <p className="text-xs text-stone-500 mt-0.5">{doc.degree}</p>
+                  <p className="mt-2 text-sm text-stone-700">
+                    ₹{doc.fee} · {isMr ? doc.timingsMr || doc.timings : doc.timings}
                   </p>
-                </div>
-
-                <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-                  <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>{isMr ? 'अधिकृत सन्मान' : 'Official Citation'}</span>
-                  </span>
-                  <Link to="/events" className="text-slate-700 hover:text-[#0F766E] font-semibold flex items-center gap-0.5">
-                    <span>{isMr ? 'अधिक पहा' : 'View More'}</span>
-                    <ChevronRight className="w-3 h-3" />
+                  <Link to={`/book?doctorId=${doc.id}`} className="mt-2 inline-block text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4">
+                    {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'} →
                   </Link>
                 </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center pt-2">
-          <Link
-            to="/events"
-            className="btn-secondary text-xs"
-          >
-            <Trophy className="w-3.5 h-3.5 text-amber-500" />
-            <span>{isMr ? 'सर्व १६ पुरस्कार व यशोगाथा पहा' : 'View All 16 Awards & Achievements'}</span>
-            <ArrowRight className="w-3.5 h-3.5" />
-          </Link>
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 
-      {/* ─── 8. PATIENT TESTIMONIALS ───────────────────────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
-        <div className="text-center max-w-2xl mx-auto space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 font-heading">
-            {t('sections.reviewsHeading')}
-          </h2>
-          <p className="text-sm text-slate-500">
-            {t('sections.reviewsSub')}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          {[
-            {
-              name: 'Gajanan Deshmukh',
-              location: 'Jalna City',
-              rating: 5,
-              text: 'Dr. Nishant Goyal performed total knee replacement surgery on my mother. She is walking without pain within 4 weeks. Exceptional ICU staff and cashless mediclaim support.',
-              treatment: 'Knee Arthroplasty',
-              badge: 'Verified Patient',
-            },
-            {
-              name: 'Sunita Rathod',
-              location: 'Ambad Taluka',
-              rating: 5,
-              text: 'Dr. Shivdas Mirkad treated our premature baby in the NICU. The radiant warmers and pediatric nursing care are outstanding. Completely free under MJPJAY scheme.',
-              treatment: 'Neonatal NICU Care',
-              badge: 'MJPJAY Beneficiary',
-            },
-            {
-              name: 'Pravin Kulkarni',
-              location: 'Partur, Jalna',
-              rating: 5,
-              text: 'Admitted my father with acute respiratory distress in ICU. Dr. Baliram Bagal managed his mechanical ventilation with precision. Truly grateful for 24x7 intensivist care.',
-              treatment: 'Critical Care (ICU)',
-              badge: 'Verified Patient',
-            },
-          ].map((rev, idx) => (
-            <div
-              key={idx}
-              className="card-clean p-5 flex flex-col justify-between space-y-3"
-            >
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex text-amber-400 gap-0.5">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="w-3.5 h-3.5 fill-amber-400" />
-                    ))}
-                  </div>
-                  <span className="badge-teal text-[10px] py-0.5">
-                    {rev.badge}
-                  </span>
-                </div>
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  "{rev.text}"
-                </p>
-              </div>
-
-              <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                <div>
-                  <p className="font-semibold text-slate-900">{rev.name}</p>
-                  <p className="text-[11px] text-slate-400">{rev.location}</p>
-                </div>
-                <span className="text-[11px] font-medium text-[#0F766E]">{rev.treatment}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="text-center pt-1">
-          <Link
-            to="/events"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition"
-          >
-            <span>{isMr ? 'सर्व रुग्ण अभिप्राय व शिबिरे पहा' : 'View All Patient Reviews & Health Camps'}</span>
-            <ChevronRight className="w-3.5 h-3.5" />
-          </Link>
-        </div>
-      </section>
-
-      {/* ─── 8. LOCATION & DIRECTIONS ─────────────────────────────────────────── */}
-      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pb-8">
-        <div className="card-clean p-6 sm:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          <div className="lg:col-span-6 space-y-4">
-            <div className="badge-slate">
-              <MapPin className="w-3.5 h-3.5 text-[#0F766E]" />
-              <span>{isMr ? 'हॉस्पिटल पत्ता व मार्ग' : 'Location & Directions'}</span>
-            </div>
-
-            <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
-              {isMr ? 'संजीवनी हॉस्पिटल, जालना' : 'Sanjeevani Multispeciality Hospital'}
-            </h3>
-
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-              Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli, Jalna, Maharashtra – 431203.<br />
-              <span className="text-xs text-slate-400">Landmark: Ambad Choufuli Junction • 3.5 km from Jalna Railway Station.</span>
+      {/* MJPJAY */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-6">
+            <span className="eyebrow mb-2">{isMr ? 'शासकीय योजना' : 'Government scheme'}</span>
+            <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">
+              {isMr ? 'महात्मा ज्योतिराव फुले जन आरोग्य योजना' : 'Free treatment under MJPJAY'}
+            </h2>
+            <p className="mt-4 text-stone-600 leading-relaxed">
+              {isMr
+                ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटलमध्ये मोफत शस्त्रक्रिया आणि उपचार. आमच्या आरोग्य मित्र कक्षात कागदपत्रे आणि मंजुरीसाठी मदत मिळते.'
+                : 'Families with a yellow or orange ration card can get operations and hospital treatment free of cost at Sanjeevani. Our Arogya Mitra desk helps with the paperwork and approval.'}
             </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link to="/mjpjay" className="btn-primary">
+                {isMr ? 'योजनेची माहिती' : 'How it works'}
+              </Link>
+              <Link to="/insurance" className="btn-secondary">
+                {isMr ? 'कॅशलेस विमा' : 'Cashless insurance'}
+              </Link>
+            </div>
+          </div>
 
-            <div className="flex flex-wrap gap-2.5 pt-1">
+          <div className="lg:col-span-6 card-clean p-6 sm:p-8">
+            <h3 className="text-lg">{isMr ? 'सोबत आणा' : 'What to bring'}</h3>
+            <ol className="mt-4 space-y-3 text-[15px] text-stone-700">
+              {[
+                isMr ? 'पिवळे किंवा केशरी रेशन कार्ड (मूळ)' : 'Yellow or orange ration card (original)',
+                isMr ? 'रुग्ण व कुटुंबप्रमुखांचे आधार कार्ड' : 'Aadhaar card of the patient and head of family',
+                isMr ? 'डॉक्टरांचे प्रिस्क्रिप्शन व तपासणी रिपोर्ट' : "Doctor's prescription and any test reports",
+              ].map((doc, i) => (
+                <li key={doc} className="flex gap-3">
+                  <span className="font-heading text-[#0F766E] w-5 shrink-0">{i + 1}.</span>
+                  <span>{doc}</span>
+                </li>
+              ))}
+            </ol>
+            <p className="mt-6 pt-4 border-t border-[#E7E3DA] text-sm text-stone-600">
+              {isMr ? 'आरोग्य मित्र कक्ष:' : 'Arogya Mitra desk:'}{' '}
+              <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline">
+                +91 75073 42222
+              </a>
+            </p>
+          </div>
+        </div>
+
+        <p className="mt-6 card-notice-amber text-sm">
+          {isMr
+            ? 'पात्रता व मोफत उपचार हे शासनाचे नियम आणि आरोग्य मित्र मंजुरीनुसार ठरतात.'
+            : 'Eligibility and coverage depend on government scheme rules and approval through the Arogya Mitra desk.'}
+        </p>
+      </section>
+
+      {/* Equipment */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <SectionHeading title={t('sections.technologyHeading')} sub={t('sections.technologySub')} />
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {hospitalEquipment.map((eq) => (
+            <div key={eq.title}>
+              <img src={eq.image} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg bg-stone-100" />
+              <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-stone-500">{eq.category}</p>
+              <h3 className="mt-1 text-lg">{eq.title}</h3>
+              <p className="mt-1 text-sm text-stone-600 leading-relaxed">{eq.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Awards */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <SectionHeading
+          title={isMr ? 'पुरस्कार व सन्मान' : 'Awards and recognition'}
+          action={
+            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+              {isMr ? 'सर्व पुरस्कार' : 'All awards'} <ArrowRight className="w-4 h-4" />
+            </Link>
+          }
+        />
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {AWARDS_DATA.slice(0, 4).map((award) => (
+            <div key={award.id}>
+              <img src={award.image} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg bg-stone-100" />
+              <p className="mt-3 text-xs text-stone-500">
+                {award.year} · {isMr ? award.subtitleMr : award.subtitle}
+              </p>
+              <h3 className="mt-1 text-base leading-snug">{isMr ? award.titleMr : award.title}</h3>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Reviews */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <SectionHeading
+          title={t('sections.reviewsHeading')}
+          action={
+            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+              {isMr ? 'सर्व अभिप्राय' : 'Read more reviews'} <ArrowRight className="w-4 h-4" />
+            </Link>
+          }
+        />
+        <div className="grid md:grid-cols-3 gap-6">
+          {reviews.map((rev, idx) => (
+            <figure key={rev.id || idx} className="card-clean p-6 flex flex-col">
+              <div className="flex gap-0.5 text-[#C98A00]" aria-label={`${rev.rating} / 5`}>
+                {[...Array(Math.max(0, Math.min(5, rev.rating || 0)))].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <blockquote className="mt-3 text-[15px] text-stone-700 leading-relaxed flex-1">“{rev.reviewText}”</blockquote>
+              <figcaption className="mt-5 text-sm">
+                <span className="font-semibold text-[#1C2321]">{rev.patientName}</span>
+                {rev.patientLocation && <span className="text-stone-500">, {rev.patientLocation}</span>}
+                {rev.treatmentType && <span className="block text-stone-500">{rev.treatmentType}</span>}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+
+      {/* Location */}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
+          <div className="lg:col-span-5">
+            <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">{t('sections.locationHeading')}</h2>
+            <address className="not-italic mt-4 text-stone-700 leading-relaxed">
+              Sanjeevani Multispeciality Hospital
+              <br />
+              Plot No. 17, Rishi Park, Ambad Road
+              <br />
+              Ambad Choufuli, Jalna, Maharashtra 431203
+            </address>
+            <p className="mt-3 text-sm text-stone-500">
+              {isMr ? 'जालना रेल्वे स्टेशनपासून सुमारे ३.५ किमी.' : 'About 3.5 km from Jalna railway station.'}
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
               <a
                 href="https://maps.google.com/?q=Sanjeevani+Multispeciality+Hospital+Jalna"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="btn-secondary text-xs"
+                className="btn-secondary"
               >
-                <Navigation className="w-3.5 h-3.5 text-[#0F766E]" />
-                <span>{isMr ? 'गुगल मॅपवर दिशा' : 'Google Maps'}</span>
+                {isMr ? 'गुगल मॅपवर दिशा' : 'Get directions'}
               </a>
-
-              <a
-                href="tel:+917507342222"
-                className="btn-emergency text-xs"
-              >
-                <Phone className="w-3.5 h-3.5" />
-                <span>+91-75073-42222</span>
+              <a href="tel:+917507342222" className="btn-secondary">
+                <Phone className="w-4 h-4" />
+                +91 75073 42222
               </a>
             </div>
           </div>
-
-          <div className="lg:col-span-6 rounded-lg overflow-hidden h-60 sm:h-64 bg-slate-100">
+          <div className="lg:col-span-7 rounded-lg overflow-hidden h-72 bg-stone-100 border border-[#E7E3DA]">
             <iframe
               title="Sanjeevani Hospital Jalna Location"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3752.482025734346!2d75.87321277598858!3d19.83965932757277!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bda574d6cfa92ff%3A0x6b30c144577884ff!2sAmbad%20Choufuli%2C%20Jalna%2C%20Maharashtra!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin"
@@ -846,10 +507,8 @@ export const HomePage: React.FC = () => {
               referrerPolicy="no-referrer-when-downgrade"
             ></iframe>
           </div>
-
         </div>
       </section>
-
     </div>
   );
 };

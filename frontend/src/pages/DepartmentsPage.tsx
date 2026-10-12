@@ -95,7 +95,7 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'obstetrics-gynecology',
       nameEn: 'Obstetrics & Gynecology (Maternity)',
       nameMr: 'प्रसूती आणि स्त्रीरोग विभाग',
-      desc: 'Holistic women health, painless normal delivery, cesarean sections, fertility evaluation, and gynecological laparoscopy.',
+      desc: 'Women’s health, painless normal delivery, cesarean sections, fertility evaluation, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
       faculty: 'Dr. Anshul Goyal',
       facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Anshul-pahawa-goyal-1.webp',
@@ -141,7 +141,7 @@ export const DepartmentsPage: React.FC = () => {
       slug: 'internal-medicine',
       nameEn: 'Internal Medicine & Physician',
       nameMr: 'इंटरनल मेडिसिन व फिजिशियन',
-      desc: 'Holistic diagnosis and management of chronic diabetes, hypertension, cardiovascular risks, and infectious diseases.',
+      desc: 'Diagnosis and long-term care for diabetes, hypertension, cardiovascular risks, and infectious diseases.',
       descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
       faculty: 'Dr. Kailash Rajguru',
       facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/IMG-1153-1.webp',
@@ -165,18 +165,18 @@ export const DepartmentsPage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
       {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-6">
+      <div className="card-clean p-6 sm:p-10  space-y-6">
         <div className="space-y-3">
           <div className="badge-teal text-xs">
             <Building2 className="w-3.5 h-3.5" />
             <span>{isMr ? 'सर्वसमावेशक वैद्यकीय विभाग' : 'Clinical Specialties & Infrastructure'}</span>
           </div>
 
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
+          <h1 className="text-2xl sm:text-4xl text-stone-900 font-heading">
             {isMr ? 'प्रमुख वैद्यकीय विभाग आणि विशेषोपचार शाखा' : 'Clinical Departments & Specialty Centers'}
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
+          <p className="text-sm sm:text-base text-stone-600 max-w-3xl leading-relaxed">
             {isMr
               ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी सर्जन आणि तज्ज्ञ डॉक्टरांच्या मार्गदर्शनाखाली आधुनिक तंत्रज्ञानासह सर्व प्रमुख आजारांचे अचूक निदान व यशस्वी उपचार केले जातात.'
               : 'Comprehensive clinical specialties equipped with modular surgical suites, 21-bed ICU, digital imaging, and experienced specialist doctors in Jalna.'}
@@ -184,26 +184,26 @@ export const DepartmentsPage: React.FC = () => {
         </div>
 
         {/* 4 Clinical Stats (Warm Yellow/Amber Styling) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-200/80">
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-stone-200/80">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
               <Users className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'एकूण रुग्ण' : 'Patient Count'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">50,000+</div>
+            <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-1 font-heading">50,000+</div>
             <div className="text-xs text-amber-900/80">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
           </div>
 
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
               <Award className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Done'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">10,000+</div>
+            <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-1 font-heading">10,000+</div>
             <div className="text-xs text-amber-900/80">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
           </div>
 
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
               <TrendingUp className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'यशस्वी उपचार दर' : 'Success Rate'}</span>
@@ -212,12 +212,12 @@ export const DepartmentsPage: React.FC = () => {
             <div className="text-xs text-amber-900/80">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
           </div>
 
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
               <Bed className="w-3.5 h-3.5 text-amber-700" />
               <span>{isMr ? 'अतिदक्षता खाटा' : 'Critical ICU Beds'}</span>
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">21 Beds</div>
+            <div className="text-xl sm:text-2xl font-bold text-stone-900 mt-1 font-heading">21 Beds</div>
             <div className="text-xs text-amber-900/80">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
           </div>
         </div>
@@ -230,7 +230,7 @@ export const DepartmentsPage: React.FC = () => {
           return (
             <div
               key={dept.slug}
-              className="card-clean overflow-hidden flex flex-col justify-between group bg-white border border-slate-200 shadow-2xs hover:shadow-md transition-shadow"
+              className="card-clean overflow-hidden flex flex-col justify-between group bg-white border border-stone-200 shadow-2xs hover:shadow-md transition-shadow"
             >
               <div>
                 {/* Department Image with In-Set Doctor Headshot Badge */}
@@ -250,7 +250,7 @@ export const DepartmentsPage: React.FC = () => {
                       className="w-8 h-8 rounded-full object-cover border border-teal-500 shrink-0"
                     />
                     <div className="min-w-0">
-                      <span className="text-[11px] font-bold text-slate-900 block truncate max-w-[120px]">
+                      <span className="text-[11px] font-bold text-stone-900 block truncate max-w-[120px]">
                         {dept.faculty}
                       </span>
                       <span className="text-[9px] text-teal-700 block truncate max-w-[120px] font-medium">
@@ -266,40 +266,40 @@ export const DepartmentsPage: React.FC = () => {
                       <Icon className="w-4 h-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
+                      <h3 className="text-base text-stone-900 font-heading leading-snug">
                         {isMr ? dept.nameMr : dept.nameEn}
                       </h3>
                       <p className="text-xs font-semibold text-[#0F766E] mt-0.5">
-                        {dept.faculty} <span className="text-slate-400 font-normal">({dept.degree})</span>
+                        {dept.faculty} <span className="text-stone-400 font-normal">({dept.degree})</span>
                       </p>
                     </div>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     {isMr ? dept.descMr : dept.desc}
                   </p>
 
                   <div className="space-y-1.5 pt-1">
                     {dept.features.map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-center gap-2 text-xs text-slate-700">
+                      <div key={fIdx} className="flex items-center gap-2 text-xs text-stone-700">
                         <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                         <span className="truncate">{feat}</span>
                       </div>
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-[11px] text-stone-500 pt-2 border-t border-stone-100">
+                    <Clock className="w-3.5 h-3.5 text-stone-400 shrink-0" />
                     <span className="truncate">{dept.timings}</span>
                   </div>
 
                 </div>
               </div>
 
-              <div className="p-5 pt-0 flex items-center justify-between gap-3 border-t border-slate-100/60 mt-2">
+              <div className="p-5 pt-0 flex items-center justify-between gap-3 border-t border-stone-100/60 mt-2">
                 <Link
                   to={`/departments/${dept.slug}`}
-                  className="text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition flex items-center gap-1"
+                  className="text-xs font-semibold text-stone-700 hover:text-[#0F766E] transition flex items-center gap-1"
                 >
                   <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
                   <ChevronRight className="w-3.5 h-3.5" />

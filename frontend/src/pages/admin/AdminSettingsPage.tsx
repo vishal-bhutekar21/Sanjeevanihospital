@@ -26,14 +26,14 @@ export const AdminSettingsPage: React.FC = () => {
     <div className="space-y-6 max-w-4xl">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Hospital Configuration</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-2xl text-stone-900">Hospital Configuration</h2>
+          <p className="text-xs text-stone-500 mt-0.5">
             Manage public hospital contacts, emergency numbers, and patient portal notices.
           </p>
         </div>
 
         {saved && (
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200">
             <CheckCircle2 className="w-4 h-4" />
             <span>Hospital settings updated!</span>
           </div>
@@ -42,85 +42,85 @@ export const AdminSettingsPage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Core Profile */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
+          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
             <Building2 className="w-4 h-4 text-hospital-teal" />
             <span>General Hospital Profile</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Hospital Name</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Hospital Name</label>
               <input
                 type="text"
                 value={formData.hospitalName}
                 onChange={(e) => setFormData({ ...formData, hospitalName: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Tagline</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Tagline</label>
               <input
                 type="text"
                 value={formData.tagline}
                 onChange={(e) => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Physical Address</label>
+            <label className="block text-xs font-bold text-stone-700 mb-1">Physical Address</label>
             <input
               type="text"
               value={formData.address}
               onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
             />
           </div>
         </div>
 
         {/* Helplines */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
+          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
             <Phone className="w-4 h-4 text-hospital-teal" />
             <span>Emergency & Reception Helplines</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">24x7 Emergency Hotline</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">24x7 Emergency Hotline</label>
               <input
                 type="text"
                 value={formData.emergencyPhone}
                 onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Reception Landline</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Reception Landline</label>
               <input
                 type="text"
                 value={formData.receptionPhone}
                 onChange={(e) => setFormData({ ...formData, receptionPhone: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Official Email</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Official Email</label>
               <input
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
               />
             </div>
           </div>
         </div>
 
         {/* Announcements Banner */}
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-card-subtle space-y-4">
-          <h3 className="text-sm font-bold text-slate-900 border-b border-slate-100 pb-3 flex items-center gap-2">
+        <div className="bg-white rounded-lg border border-stone-200 p-6 shadow-card-subtle space-y-4">
+          <h3 className="text-sm text-stone-900 border-b border-stone-100 pb-3 flex items-center gap-2">
             <Bell className="w-4 h-4 text-hospital-teal" />
             <span>Patient Portal Announcement Notice</span>
           </h3>
@@ -130,7 +130,7 @@ export const AdminSettingsPage: React.FC = () => {
               rows={2}
               value={formData.announcement}
               onChange={(e) => setFormData({ ...formData, announcement: e.target.value })}
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+              className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs font-medium focus:ring-2 focus:ring-hospital-teal focus:outline-none"
             />
           </div>
         </div>
@@ -138,7 +138,7 @@ export const AdminSettingsPage: React.FC = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-hospital-teal text-white text-xs font-bold rounded-xl shadow-sm hover:bg-hospital-teal/90 transition"
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-hospital-teal text-white text-xs font-bold rounded-lg shadow-sm hover:bg-hospital-teal/90 transition"
           >
             <Save className="w-4 h-4" />
             <span>Save Hospital Settings</span>

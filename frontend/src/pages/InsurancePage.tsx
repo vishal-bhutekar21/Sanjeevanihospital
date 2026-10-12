@@ -224,7 +224,7 @@ export const InsurancePage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
       {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-teal-50/80 via-white to-blue-50/40 border border-teal-200 shadow-xs space-y-6">
+      <div className="card-clean p-6 sm:p-10 lg:p-12  space-y-6">
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="badge-teal text-xs py-1 px-3">
             <CreditCard className="w-4 h-4 text-[#0F766E]" />
@@ -237,17 +237,17 @@ export const InsurancePage: React.FC = () => {
         </div>
 
         <div className="space-y-3 max-w-3xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl text-stone-900 font-heading leading-tight">
             {isMr ? 'कॅशलेस मेडिक्लेम आणि' : 'Cashless Mediclaim &'}<br />
             <span className="text-[#0F766E]">
               {isMr ? 'इन्शुरन्स टीपीए (TPA) सहाय्यता कक्ष' : 'Insurance TPA Help Desk'}
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
             {isMr
               ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल भारतातील सर्व प्रमुख शासकीय व खाजगी आरोग्य विमा कंपन्या आणि टीपीए भागीदारांशी संलग्न आहे. आमचा समर्पित इन्शुरन्स डेस्क रुग्णांसाठी अखंड कॅशलेस पूर्व-मंजुरी, झिरो अ‍ॅडव्हान्स डिपॉझिट आणि सुलभ क्लेम सेटलमेंटची सुविधा देतो.'
-              : 'Sanjeevani Multispeciality Hospital, Jalna coordinates seamless cashless pre-authorization, zero upfront deposit, and priority claim settlement with all major public and private insurance companies.'}
+              : 'Sanjeevani Multispeciality Hospital, Jalna handles cashless approval with most public and private insurers, so you don’t have to pay a deposit upfront.'}
           </p>
         </div>
 
@@ -261,32 +261,32 @@ export const InsurancePage: React.FC = () => {
             <span>{isMr ? 'इन्शुरन्स हेल्पलाईन: +91-75073-42222' : 'Insurance Helpline: +91-75073-42222'}</span>
           </a>
 
-          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-700 shadow-2xs">
             <Clock className="w-4 h-4 text-[#0F766E]" />
             <span>{info?.tpaDeskTimings || (isMr ? 'वेळ: सोम-शनि ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन)' : 'Mon–Sat: 09:00 AM – 06:00 PM | Emergency 24x7')}</span>
           </div>
         </div>
 
         {/* 4 Standout Infographic Badges (Warm Yellow/Amber Styling) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-stone-200/80 text-xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'पूर्व-मंजुरी वेग' : 'Speed'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२ ते ४ तासांत मंजुरी' : '2–4 Hour Turnaround'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '२ ते ४ तासांत मंजुरी' : '2–4 Hour Turnaround'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'डिजिटल ई-प्री-ऑथ' : 'Fast digital pre-auth'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'डिपॉझिट नियम' : 'Admission'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'शून्य अ‍ॅडव्हान्स कॅश' : 'Zero Advance Deposit'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? 'शून्य अ‍ॅडव्हान्स कॅश' : 'Zero Advance Deposit'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'मंजूर रकमेसाठी कॅशलेस' : 'For approved cashless limits'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'संलग्न नेटवर्क' : 'Network'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '३५+ विमा कंपन्या' : '35+ Insurers & TPAs'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '३५+ विमा कंपन्या' : '35+ Insurers & TPAs'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'शासकीय व खाजगी कंपन्या' : 'PSU & Private Panels'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'समर्पित डेस्क' : 'Coordinator'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'तज्ज्ञ क्लेम समन्वयक' : 'Dedicated TPA Desk'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? 'तज्ज्ञ क्लेम समन्वयक' : 'Dedicated TPA Desk'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'हॉस्पिटल तळमजला रूम १०३' : 'Lobby Helpdesk'}</p>
           </div>
         </div>
@@ -294,14 +294,14 @@ export const InsurancePage: React.FC = () => {
 
       {/* ─── 2. PLANNED VS EMERGENCY ADMISSION INFOGRAPHIC ─────────────────────── */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card-clean p-6 space-y-3 bg-slate-50 border border-slate-200">
+        <div className="card-clean p-6 space-y-3 bg-stone-50 border border-stone-200">
           <div className="flex items-center gap-2 text-[#0F766E]">
             <Calendar className="w-5 h-5" />
-            <h3 className="text-base font-bold text-slate-900 font-heading">
+            <h3 className="text-base text-stone-900 font-heading">
               {isMr ? 'नियोजित दाखल (Planned Hospitalization)' : 'Planned Hospitalization Workflow'}
             </h3>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
             {isMr
               ? 'शस्त्रक्रिया किंवा उपचारांच्या ४८ ते ७२ तास आधी हॉस्पिटलच्या इन्शुरन्स डेस्कवर येऊन प्री-ऑथ अर्ज सबमिट करा. दाखल होण्याच्या दिवशी प्रारंभिक मंजुरी पत्र तयार राहते.'
               : 'Submit pre-authorization documents 48 to 72 hours prior to scheduled surgery. Initial cashless approval is ready on the day of admission.'}
@@ -312,11 +312,11 @@ export const InsurancePage: React.FC = () => {
         <div className="card-clean p-6 space-y-3 bg-red-50/50 border border-red-200">
           <div className="flex items-center gap-2 text-red-600">
             <HeartPulse className="w-5 h-5" />
-            <h3 className="text-base font-bold text-slate-900 font-heading">
+            <h3 className="text-base text-stone-900 font-heading">
               {isMr ? 'आपत्कालीन दाखल (Emergency Hospitalization)' : 'Emergency Hospitalization Workflow'}
             </h3>
           </div>
-          <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+          <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
             {isMr
               ? 'तातडीच्या आपत्कालीन किंवा अपघात प्रसंगी रुग्णाला त्वरित ICU/कॅज्युअल्टीमध्ये दाखल केले जाते आणि २४ तासांच्या आत इन्शुरन्स डेस्कद्वारे इमर्जन्सी प्री-ऑथ पाठवले जाते.'
               : 'In critical emergencies, patient is admitted immediately. Insurance Desk files emergency pre-authorization within 24 hours of hospital admission.'}
@@ -342,7 +342,7 @@ export const InsurancePage: React.FC = () => {
 
       {/* ─── 3. TAB NAVIGATION (COMPACT SEGMENTED PILLS) ────────────────────── */}
       <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-stone-100/90 rounded-lg border border-stone-200/70 shadow-2xs">
           {([
             { key: 'process', label: isMr ? 'कॅशलेस प्रक्रिया' : 'Cashless Process', icon: ArrowRight },
             { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Required Documents', icon: FileText },
@@ -356,11 +356,11 @@ export const InsurancePage: React.FC = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                   activeTab === tab.key
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-stone-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -372,13 +372,13 @@ export const InsurancePage: React.FC = () => {
       {activeTab === 'process' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'कॅशलेस मेडिक्लेम मंजुरीची ५-टप्प्यांची सोपी प्रक्रिया' : 'Step-by-Step Cashless Mediclaim Approval Process'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'हॉस्पिटलमध्ये दाखल झाल्यापासून डिस्चार्जपर्यंतची पारदर्शक आणि जलद प्रक्रिया:'
-                : 'Follow these 5 simple steps for seamless cashless hospitalization at Sanjeevani Hospital:'}
+                : 'How cashless admission works, step by step:'}
             </p>
           </div>
 
@@ -389,7 +389,7 @@ export const InsurancePage: React.FC = () => {
                 className="card-clean p-5 sm:p-6 space-y-3 hover:shadow-card-hover hover:border-teal-300 transition-all bg-white"
               >
                 {/* Step Top Bar with Step Number and Timeframe */}
-                <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
                   <div className="flex items-center gap-2.5">
                     <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#0F766E] font-bold text-xs flex items-center justify-center font-mono">
                       0{step.step}
@@ -409,10 +409,10 @@ export const InsurancePage: React.FC = () => {
 
                 {/* Step Content */}
                 <div className="space-y-1.5 pt-0.5">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading">
+                  <h3 className="text-base sm:text-lg text-stone-900 font-heading">
                     {isMr ? step.titleMr : step.titleEn}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
                     {isMr ? step.descMr : step.descEn}
                   </p>
                 </div>
@@ -421,9 +421,9 @@ export const InsurancePage: React.FC = () => {
           </div>
 
           {/* Direct Helpdesk Box */}
-          <div className="card-clean p-6 bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
                 <CreditCard className="w-6 h-6" />
               </div>
               <div className="space-y-0.5">
@@ -433,7 +433,7 @@ export const InsurancePage: React.FC = () => {
                 <p className="text-base font-bold text-white">
                   Sanjeevani Multispeciality Hospital, Jalna
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-stone-400">
                   {isMr ? 'वेळ: सोमवार ते शनिवार: ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन चालू)' : 'Mon–Sat: 09:00 AM – 06:00 PM | Emergency Desk: 24 Hours'}
                 </p>
               </div>
@@ -454,10 +454,10 @@ export const InsurancePage: React.FC = () => {
       {activeTab === 'documents' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'कॅशलेस प्रवेशासाठी आवश्यक कागदपत्रांची तपशीलवार यादी' : 'Complete Document Checklist for Cashless Admission'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'हॉस्पिटलमध्ये दाखल होताना खालील मूळ कागदपत्रे आणि प्रत्येकी २ झेरॉक्स प्रती इन्शुरन्स डेस्कवर सादर कराव्यात:'
                 : 'Please bring original physical documents along with 2 photocopies each to our Insurance Desk:'}
@@ -467,7 +467,7 @@ export const InsurancePage: React.FC = () => {
           <div className="space-y-6">
             {documentGroups.map((group, gIdx) => (
               <div key={gIdx} className="card-clean p-6 space-y-4">
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading border-b border-slate-100 pb-2.5">
+                <h3 className="text-sm sm:text-base text-stone-900 font-heading border-b border-stone-100 pb-2.5">
                   {isMr ? group.groupMr : group.groupEn}
                 </h3>
 
@@ -475,23 +475,23 @@ export const InsurancePage: React.FC = () => {
                   {group.items.map((doc, dIdx) => (
                     <div
                       key={dIdx}
-                      className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5"
+                      className="p-4 rounded-lg bg-stone-50 border border-stone-100 space-y-1.5"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs sm:text-sm font-semibold text-slate-900">
+                        <span className="text-xs sm:text-sm font-semibold text-stone-900">
                           {isMr ? doc.nameMr : doc.nameEn}
                         </span>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
                             doc.required
                               ? 'bg-red-100 text-red-700'
-                              : 'bg-slate-200 text-slate-700'
+                              : 'bg-stone-200 text-stone-700'
                           }`}
                         >
                           {doc.required ? (isMr ? 'अनिवार्य' : 'MANDATORY') : (isMr ? 'लागू असल्यास' : 'IF APPLICABLE')}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-500 leading-normal">
+                      <p className="text-[11px] text-stone-500 leading-normal">
                         {isMr ? doc.descMr : doc.descEn}
                       </p>
                     </div>
@@ -523,10 +523,10 @@ export const InsurancePage: React.FC = () => {
         <div className="space-y-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+              <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
                 {isMr ? 'संलग्न विमा कंपन्या आणि टीपीए (TPA) भागीदार' : 'Panel Insurance Companies & Third Party Administrators'}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-500">
+              <p className="text-xs sm:text-sm text-stone-500">
                 {isMr
                   ? 'संजीवनी हॉस्पिटलमध्ये खालील सर्व विमा कंपन्यांचे कॅशलेस उपचार उपलब्ध आहेत:'
                   : 'Sanjeevani Multispeciality Hospital provides cashless admissions for all listed insurers:'}
@@ -535,13 +535,13 @@ export const InsurancePage: React.FC = () => {
 
             {/* Quick Search Bar */}
             <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder={isMr ? 'विमा कंपनी शोधा...' : 'Search insurer or TPA...'}
-                className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                className="w-full pl-9 pr-4 py-2 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
               />
             </div>
           </div>
@@ -549,10 +549,10 @@ export const InsurancePage: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* 1. Panel Insurance Companies */}
             <div className="card-clean p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div className="flex items-center gap-2.5">
                   <ShieldCheck className="w-5 h-5 text-[#0F766E]" />
-                  <h3 className="text-base font-bold text-slate-900 font-heading">
+                  <h3 className="text-base text-stone-900 font-heading">
                     {isMr ? 'संलग्न विमा कंपन्या (१८)' : 'Panel Insurance Companies (18)'}
                   </h3>
                 </div>
@@ -563,15 +563,15 @@ export const InsurancePage: React.FC = () => {
                 {filteredInsurers.map((ins, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between gap-3 hover:bg-slate-100/70 transition"
+                    className="p-3 rounded-lg bg-stone-50 border border-stone-100 flex items-center justify-between gap-3 hover:bg-stone-100/70 transition"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
                       <div className="truncate">
-                        <span className="text-xs sm:text-sm font-semibold text-slate-900 block truncate">
+                        <span className="text-xs sm:text-sm font-semibold text-stone-900 block truncate">
                           {isMr ? ins.nameMr : ins.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 block">{ins.type}</span>
+                        <span className="text-[10px] text-stone-400 block">{ins.type}</span>
                       </div>
                     </div>
                     <span className="text-[10px] font-semibold text-[#0F766E] bg-teal-50 px-2 py-0.5 rounded shrink-0">
@@ -584,10 +584,10 @@ export const InsurancePage: React.FC = () => {
 
             {/* 2. Third Party Administrators (TPA) */}
             <div className="card-clean p-6 space-y-5">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                 <div className="flex items-center gap-2.5">
                   <Building2 className="w-5 h-5 text-[#0F766E]" />
-                  <h3 className="text-base font-bold text-slate-900 font-heading">
+                  <h3 className="text-base text-stone-900 font-heading">
                     {isMr ? 'टीपीए (TPA) भागीदार (११)' : 'Third Party Administrators - TPA (11)'}
                   </h3>
                 </div>
@@ -598,18 +598,18 @@ export const InsurancePage: React.FC = () => {
                 {filteredTpas.map((tpa, idx) => (
                   <div
                     key={idx}
-                    className="p-3 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-between gap-3 hover:bg-slate-100/70 transition"
+                    className="p-3 rounded-lg bg-stone-50 border border-stone-100 flex items-center justify-between gap-3 hover:bg-stone-100/70 transition"
                   >
                     <div className="flex items-center gap-2.5 min-w-0">
                       <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0" />
                       <div className="truncate">
-                        <span className="text-xs sm:text-sm font-semibold text-slate-900 block truncate">
+                        <span className="text-xs sm:text-sm font-semibold text-stone-900 block truncate">
                           {isMr ? tpa.nameMr : tpa.name}
                         </span>
-                        <span className="text-[10px] text-slate-400 block">{tpa.code}</span>
+                        <span className="text-[10px] text-stone-400 block">{tpa.code}</span>
                       </div>
                     </div>
-                    <span className="text-[10px] font-semibold text-slate-700 bg-slate-200 px-2 py-0.5 rounded shrink-0">
+                    <span className="text-[10px] font-semibold text-stone-700 bg-stone-200 px-2 py-0.5 rounded shrink-0">
                       {tpa.support}
                     </span>
                   </div>
@@ -623,11 +623,11 @@ export const InsurancePage: React.FC = () => {
       {/* ─── TAB 4: ADVANCE ELIGIBILITY INQUIRY FORM ───────────────────────────── */}
       {activeTab === 'inquiry' && (
         <div className="card-clean p-6 sm:p-10 space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-xl font-bold text-slate-900 font-heading">
+          <div className="border-b border-stone-100 pb-4">
+            <h2 className="text-xl text-stone-900 font-heading">
               {isMr ? 'कॅशलेस विमा पूर्व-पात्रता तपासणी अर्ज' : 'Pre-Admission Cashless Insurance Verification'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               {isMr
                 ? 'आपल्या विमा पॉलिसीची माहिती सबमिट करा, आमचा इन्शुरन्स डेस्क तात्काळ पात्रता व कॅशलेस मर्यादा तपासून आपणास कळवेल.'
                 : 'Submit your policy details below for fast pre-admission cashless verification and estimate support.'}
@@ -639,10 +639,10 @@ export const InsurancePage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 font-heading">
+              <h3 className="text-lg text-stone-900 font-heading">
                 {isMr ? 'विमा चौकशी अर्ज नोंदवला गेला!' : 'Insurance Verification Request Submitted!'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
+              <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
                 {isMr
                   ? 'आमचा इन्शुरन्स डेस्क आपल्या विमा कंपनीशी संपर्क साधून लवकरच आपल्याशी संपर्क करेल.'
                   : 'Our TPA coordinator will verify your policy coverage and contact you within 30 minutes.'}
@@ -658,7 +658,7 @@ export const InsurancePage: React.FC = () => {
             <form onSubmit={handleInquirySubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient Full Name *'}
                   </label>
                   <input
@@ -666,12 +666,12 @@ export const InsurancePage: React.FC = () => {
                     value={inquiryForm.patientName}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, patientName: e.target.value })}
                     placeholder={isMr ? 'उदा. सुहास कुलकर्णी' : 'e.g. Suhas Kulkarni'}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'मोबाईल नंबर *' : 'Contact Phone Number *'}
                   </label>
                   <input
@@ -681,12 +681,12 @@ export const InsurancePage: React.FC = () => {
                     value={inquiryForm.phone}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, phone: e.target.value })}
                     placeholder="98XXXXXXXX"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'विमा कंपनीचे नाव *' : 'Insurance Company / TPA Name *'}
                   </label>
                   <input
@@ -694,12 +694,12 @@ export const InsurancePage: React.FC = () => {
                     value={inquiryForm.insuranceCompany}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, insuranceCompany: e.target.value })}
                     placeholder={isMr ? 'उदा. Star Health / HDFC ERGO / Medi Assist' : 'e.g. Star Health / HDFC ERGO / Medi Assist'}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'पॉलिसी नंबर किंवा कार्ड नंबर *' : 'Policy / Member Card Number *'}
                   </label>
                   <input
@@ -707,13 +707,13 @@ export const InsurancePage: React.FC = () => {
                     value={inquiryForm.policyNumber}
                     onChange={(e) => setInquiryForm({ ...inquiryForm, policyNumber: e.target.value })}
                     placeholder="P/123456/01/2026/000123"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-stone-700">
                   {isMr ? 'नियोजित उपचार / शस्त्रक्रिया वर्णन *' : 'Planned Surgery / Medical Diagnosis Details *'}
                 </label>
                 <textarea
@@ -726,7 +726,7 @@ export const InsurancePage: React.FC = () => {
                       ? 'उदा. ऑर्थोपेडिक शस्त्रक्रिया, लेप्रोस्कोपी किंवा अतिदक्षता विभाग उपचार...'
                       : 'Describe the planned medical treatment or recommended surgery...'
                   }
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                 />
               </div>
 

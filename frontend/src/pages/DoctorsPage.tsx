@@ -36,17 +36,17 @@ export const DoctorsPage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* ─── PAGE HEADER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-amber-50/40 border border-teal-200 shadow-xs space-y-4">
+      <div className="card-clean p-6 sm:p-10  space-y-4">
         <div className="badge-teal text-xs">
           <ShieldCheck className="w-3.5 h-3.5" />
           <span>{isMr ? 'अधिकृत वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Official Medical Faculty & Super-Specialists'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
+        <h1 className="text-2xl sm:text-4xl text-stone-900 font-heading">
           {isMr ? 'तज्ज्ञ डॉक्टर, संचालक व व्हिजिटिंग सुपर-स्पेशालिस्ट' : 'Expert Doctors, Directors & Visiting Consultants'}
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-stone-600 max-w-3xl leading-relaxed">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथील संचालक, इन-हाऊस कन्सल्टंट्स आणि नामांकित व्हिजिटिंग सुपर-स्पेशालिस्ट डॉक्टरांची संपूर्ण माहिती व ओपीडी वेळापत्रक.'
             : 'Explore full profiles, clinical specialties, and OPD schedules of founding directors, full-time consultants, and visiting super-specialist surgeons at Sanjeevani Hospital Jalna.'}
@@ -55,13 +55,13 @@ export const DoctorsPage: React.FC = () => {
         {/* Search Bar & Stats */}
         <div className="flex flex-col sm:flex-row gap-3 pt-2">
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-3 text-stone-400" />
             <input
               type="text"
               placeholder={isMr ? 'डॉक्टरांचे नाव, विभाग किंवा पदवी शोधा...' : 'Search doctor name, department or specialty...'}
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white text-slate-900 placeholder-slate-400 border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-[#0F766E]"
+              className="w-full pl-10 pr-4 py-2.5 bg-white text-stone-900 placeholder-stone-400 border border-stone-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-[#0F766E]"
             />
           </div>
         </div>
@@ -69,16 +69,16 @@ export const DoctorsPage: React.FC = () => {
 
       {/* ─── 4 CATEGORY FILTER TABS (COMPACT SEGMENTED PILLS) ───────────────── */}
       <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-stone-100/90 rounded-lg border border-stone-200/70 shadow-2xs">
           <button
             onClick={() => setSelectedCategory('ALL')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               selectedCategory === 'ALL'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Users className={`w-3.5 h-3.5 ${selectedCategory === 'ALL' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <Users className={`w-3.5 h-3.5 ${selectedCategory === 'ALL' ? 'text-[#0F766E]' : 'text-stone-400'}`} />
             <span>{isMr ? `सर्व डॉक्टर्स (${countAll})` : `All Doctors (${countAll})`}</span>
           </button>
 
@@ -86,11 +86,11 @@ export const DoctorsPage: React.FC = () => {
             onClick={() => setSelectedCategory('DIRECTOR')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               selectedCategory === 'DIRECTOR'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Award className={`w-3.5 h-3.5 ${selectedCategory === 'DIRECTOR' ? 'text-amber-500' : 'text-slate-400'}`} />
+            <Award className={`w-3.5 h-3.5 ${selectedCategory === 'DIRECTOR' ? 'text-amber-500' : 'text-stone-400'}`} />
             <span>{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
           </button>
 
@@ -98,11 +98,11 @@ export const DoctorsPage: React.FC = () => {
             onClick={() => setSelectedCategory('INHOUSE')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               selectedCategory === 'INHOUSE'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Stethoscope className={`w-3.5 h-3.5 ${selectedCategory === 'INHOUSE' ? 'text-teal-600' : 'text-slate-400'}`} />
+            <Stethoscope className={`w-3.5 h-3.5 ${selectedCategory === 'INHOUSE' ? 'text-teal-600' : 'text-stone-400'}`} />
             <span>{isMr ? `इन-हाऊस (${countInhouse})` : `In-House (${countInhouse})`}</span>
           </button>
 
@@ -110,11 +110,10 @@ export const DoctorsPage: React.FC = () => {
             onClick={() => setSelectedCategory('VISITING')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               selectedCategory === 'VISITING'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === 'VISITING' ? 'text-blue-600' : 'text-slate-400'}`} />
             <span>{isMr ? `व्हिजिटिंग (${countVisiting})` : `Visiting (${countVisiting})`}</span>
           </button>
         </div>
@@ -129,7 +128,7 @@ export const DoctorsPage: React.FC = () => {
           >
             <div className="space-y-4">
               <div className="flex items-start space-x-3.5">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200">
+                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden shrink-0 bg-stone-100 border border-stone-200">
                   <img
                     src={doc.image}
                     alt={doc.name}
@@ -156,32 +155,32 @@ export const DoctorsPage: React.FC = () => {
                     )}
                   </div>
 
-                  <h3 className="text-base font-bold text-slate-900 truncate font-heading group-hover:text-[#0F766E] transition">
+                  <h3 className="text-base text-stone-900 truncate font-heading group-hover:text-[#0F766E] transition">
                     {isMr ? doc.nameMr : doc.name}
                   </h3>
                   <p className="text-xs font-semibold text-[#0F766E] line-clamp-1">
                     {isMr ? doc.roleMr : doc.role}
                   </p>
-                  <p className="text-[11px] font-medium text-slate-600">
+                  <p className="text-[11px] font-medium text-stone-600">
                     {doc.degree}
                   </p>
-                  <p className="text-[11px] text-slate-500 truncate">
+                  <p className="text-[11px] text-stone-500 truncate">
                     {isMr ? doc.deptMr : doc.dept}
                   </p>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-slate-50 rounded-lg space-y-1.5 text-xs text-slate-600">
+              <div className="p-3.5 bg-stone-50 rounded-lg space-y-1.5 text-xs text-stone-600">
                 <div>
-                  <span className="font-semibold text-slate-700">{isMr ? 'विशेष प्राविण्य: ' : 'Specialty: '}</span>
+                  <span className="font-semibold text-stone-700">{isMr ? 'विशेष प्राविण्य: ' : 'Specialty: '}</span>
                   <span>{isMr ? doc.specialtyMr : doc.specialty}</span>
                 </div>
                 <div>
-                  <span className="font-semibold text-slate-700">{isMr ? 'वेळ / दिवस: ' : 'Schedule: '}</span>
-                  <span className="text-slate-800 font-medium">{isMr ? doc.timingsMr : doc.timings}</span>
+                  <span className="font-semibold text-stone-700">{isMr ? 'वेळ / दिवस: ' : 'Schedule: '}</span>
+                  <span className="text-stone-800 font-medium">{isMr ? doc.timingsMr : doc.timings}</span>
                 </div>
-                <div className="pt-1.5 flex justify-between items-center border-t border-slate-200">
-                  <span className="text-slate-500">{isMr ? 'ओपीडी सल्ला शुल्क:' : 'OPD Consultation:'}</span>
+                <div className="pt-1.5 flex justify-between items-center border-t border-stone-200">
+                  <span className="text-stone-500">{isMr ? 'ओपीडी सल्ला शुल्क:' : 'OPD Consultation:'}</span>
                   <span className="font-bold text-[#0F766E] text-sm">₹{doc.fee}</span>
                 </div>
               </div>

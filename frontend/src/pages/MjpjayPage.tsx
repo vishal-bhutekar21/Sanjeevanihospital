@@ -183,7 +183,7 @@ export const MjpjayPage: React.FC = () => {
       timeframe: '15–30 Mins',
       descEn: 'The Arogya Mitra verifies your family eligibility online on the State Health Assurance Society (SHAS) MJPJAY portal and creates an electronic registration token.',
       descMr: 'आरोग्य मित्र शासकीय MJPJAY पोर्टलवर आपल्या रेशन कार्डची पडताळणी करून तात्काळ ऑनलाइन रुग्ण नोंदणी आणि टोकन तयार करतात.',
-      badge: isMr ? 'डिजिटल मंजुरी' : 'Portal Sync',
+      badge: isMr ? 'डिजिटल मंजुरी' : 'Online approval',
     },
     {
       step: '03',
@@ -295,7 +295,7 @@ export const MjpjayPage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
       {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-teal-50/80 via-white to-emerald-50/40 border border-teal-200 shadow-xs space-y-6">
+      <div className="card-clean p-6 sm:p-10 lg:p-12  space-y-6">
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="badge-teal text-xs py-1 px-3">
             <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
@@ -308,14 +308,14 @@ export const MjpjayPage: React.FC = () => {
         </div>
 
         <div className="space-y-3 max-w-3xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl text-stone-900 font-heading leading-tight">
             {isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}<br />
             <span className="text-[#0F766E]">
               {isMr ? 'जन आरोग्य योजना (MJPJAY) कक्ष' : 'Jan Arogya Yojana (MJPJAY)'}
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
             {isMr
               ? 'महाराष्ट्रातील पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे सर्व प्रमुख शस्त्रक्रिया, अतिदक्षता विभाग (ICU) आणि तज्ज्ञ डॉक्टरांचे उपचार १००% मोफत उपलब्ध आहेत. आमचा समर्पित आरोग्य मित्र कक्ष आपणास तत्पर सहाय्य करतो.'
               : 'Sanjeevani Multispeciality Hospital, Jalna provides 100% cashless surgical care, 21-bed ICU, and specialist medical management for eligible yellow and orange ration card families under MJPJAY.'}
@@ -332,30 +332,30 @@ export const MjpjayPage: React.FC = () => {
             <span>{isMr ? 'आरोग्य मित्र हेल्पलाईन: +91-75073-42222' : 'Arogya Mitra Helpline: +91-75073-42222'}</span>
           </a>
 
-          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-700 shadow-2xs">
+          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-700 shadow-2xs">
             <Award className="w-4 h-4 text-[#0F766E]" />
             <span>{isMr ? 'कौटुंबिक संरक्षण: ₹५,००,००० / वर्ष' : 'Annual Family Coverage: Up to ₹5,00,000'}</span>
           </div>
         </div>
 
         {/* 4 Standout Infographic Badges (Warm Yellow/Amber Styling) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-stone-200/80 text-xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'कॅशलेस उपचार' : 'Zero Expense'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '१००% मोफत शस्त्रक्रिया' : '100% Cashless'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '१००% मोफत शस्त्रक्रिया' : '100% Cashless'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कोणतेही आगाऊ शुल्क नाही' : 'No advance deposit'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'अतिदक्षता विभाग' : 'Critical Care'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२१ खाटांचा ICU' : '21-Bed ICU'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '२१ खाटांचा ICU' : '21-Bed ICU'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'पात्रता' : 'Beneficiaries'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? 'पिवळे / केशरी कार्ड' : 'Yellow & Orange Cards'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? 'पिवळे / केशरी कार्ड' : 'Yellow & Orange Cards'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'अन्नपूर्णा व अंत्योदय कार्ड' : 'AAY & Annapurna cards'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'आरोग्य मित्र कक्ष' : 'Hospital Helpdesk'}</p>
             <p className="font-bold text-teal-700 text-base mt-0.5">{isMr ? '२४x७ सक्रिय' : '24x7 Active'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कागदपत्र तपासणी कक्ष' : 'Fast-track approvals'}</p>
@@ -380,7 +380,7 @@ export const MjpjayPage: React.FC = () => {
 
       {/* ─── 3. TAB NAVIGATION (COMPACT SEGMENTED PILLS) ────────────────────── */}
       <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-stone-100/90 rounded-lg border border-stone-200/70 shadow-2xs">
           {([
             { key: 'procedures', label: isMr ? 'समाविष्ट शस्त्रक्रिया' : 'Covered Procedures', icon: Activity },
             { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step Process', icon: ArrowRight },
@@ -394,11 +394,11 @@ export const MjpjayPage: React.FC = () => {
                 onClick={() => setActiveTab(tab.key)}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
                   activeTab === tab.key
-                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                    : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
                 }`}
               >
-                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-stone-400'}`} />
                 <span>{tab.label}</span>
               </button>
             );
@@ -410,10 +410,10 @@ export const MjpjayPage: React.FC = () => {
       {activeTab === 'procedures' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'महात्मा फुले योजनेअंतर्गत समाविष्ट प्रमुख शस्त्रक्रिया' : 'Covered Clinical Procedures & Surgeries'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'संजीवनी हॉस्पिटल, जालना येथे खालील सर्व वैद्यकीय व शस्त्रक्रिया विभाग १००% मोफत कॅशलेस पॅकेजमध्ये समाविष्ट आहेत:'
                 : 'The following multispeciality surgeries and treatments are 100% cashless at Sanjeevani Hospital under MJPJAY:'}
@@ -429,7 +429,7 @@ export const MjpjayPage: React.FC = () => {
                   className="card-clean p-6 flex flex-col justify-between space-y-4 hover:shadow-card-hover transition"
                 >
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                    <div className="flex items-center justify-between border-b border-stone-100 pb-3">
                       <div className="flex items-center gap-2.5">
                         <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
                           <Icon className="w-4.5 h-4.5" />
@@ -438,7 +438,7 @@ export const MjpjayPage: React.FC = () => {
                       </div>
                     </div>
 
-                    <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
+                    <h3 className="text-base text-stone-900 font-heading leading-snug">
                       {isMr ? cat.categoryMr : cat.categoryEn}
                     </h3>
                     <p className="text-[11px] font-medium text-[#0F766E]">
@@ -447,7 +447,7 @@ export const MjpjayPage: React.FC = () => {
 
                     <ul className="space-y-2 pt-1">
                       {cat.procedures.map((proc, pIdx) => (
-                        <li key={pIdx} className="flex items-start gap-2 text-xs text-slate-700 leading-snug">
+                        <li key={pIdx} className="flex items-start gap-2 text-xs text-stone-700 leading-snug">
                           <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
                           <span>{isMr ? proc.mr : proc.en}</span>
                         </li>
@@ -455,8 +455,8 @@ export const MjpjayPage: React.FC = () => {
                     </ul>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-400">
+                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
+                    <span className="text-[11px] text-stone-400">
                       {isMr ? 'मोफत तपासणी व औषधे समाविष्ट' : 'Free diagnostics & meds'}
                     </span>
                     <a
@@ -473,12 +473,12 @@ export const MjpjayPage: React.FC = () => {
           </div>
 
           {/* Scheme Inpatient Package Note */}
-          <div className="card-clean p-6 bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1">
               <h4 className="text-base font-bold font-heading">
                 {isMr ? 'तुमची शस्त्रक्रिया यादीत दिसत नाही का?' : 'Is your prescribed surgery not listed here?'}
               </h4>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-stone-300">
                 {isMr
                   ? 'शासकीय MJPJAY योजनेअंतर्गत ९९६ हून अधिक शस्त्रक्रिया समाविष्ट आहेत. त्वरित पडताळणीसाठी आमच्या आरोग्य मित्रांशी संपर्क साधा.'
                   : 'Over 996+ medical & surgical procedures are empanelled under MJPJAY. Contact our Arogya Mitra desk for direct verification.'}
@@ -499,10 +499,10 @@ export const MjpjayPage: React.FC = () => {
       {activeTab === 'process' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'महात्मा फुले योजनेतून मोफत उपचार मिळवण्याची सोपी प्रक्रिया' : 'Step-by-Step MJPJAY Cashless Admission Process'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'हॉस्पिटलमध्ये दाखल झाल्यापासून डिस्चार्जपर्यंतची संपूर्ण पारदर्शक व जलद प्रक्रिया खालीलप्रमाणे आहे:'
                 : 'Follow these 5 simple steps from hospital arrival to discharge with full cashless assistance:'}
@@ -517,7 +517,7 @@ export const MjpjayPage: React.FC = () => {
                 className="card-clean p-5 sm:p-6 space-y-3 hover:shadow-card-hover hover:border-teal-300 transition-all bg-white"
               >
                 {/* Step Top Bar with Step Number and Timeframe */}
-                <div className="flex items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
                   <div className="flex items-center gap-2.5">
                     <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#0F766E] font-bold text-xs flex items-center justify-center font-mono">
                       0{step.step}
@@ -537,10 +537,10 @@ export const MjpjayPage: React.FC = () => {
 
                 {/* Step Content */}
                 <div className="space-y-1.5 pt-0.5">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading">
+                  <h3 className="text-base sm:text-lg text-stone-900 font-heading">
                     {isMr ? step.titleMr : step.titleEn}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
                     {isMr ? step.descMr : step.descEn}
                   </p>
                 </div>
@@ -549,9 +549,9 @@ export const MjpjayPage: React.FC = () => {
           </div>
 
           {/* Arogya Mitra Helpdesk Direct Box */}
-          <div className="card-clean p-6 bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
+              <div className="w-12 h-12 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
                 <UserCheck className="w-6 h-6" />
               </div>
               <div className="space-y-0.5">
@@ -561,7 +561,7 @@ export const MjpjayPage: React.FC = () => {
                 <p className="text-base font-bold text-white">
                   Sanjeevani Multispeciality Hospital, Jalna
                 </p>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-stone-400">
                   {isMr ? 'वेळ: सोमवार ते शनिवार: ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन चालू)' : 'Timings: Mon–Sat: 09:00 AM – 06:00 PM | Emergency: 24x7'}
                 </p>
               </div>
@@ -582,10 +582,10 @@ export const MjpjayPage: React.FC = () => {
       {activeTab === 'documents' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'महात्मा फुले योजनेसाठी आवश्यक कागदपत्रांची यादी' : 'Complete Document Checklist for MJPJAY Admission'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'कृपया रुग्णालयात दाखल होताना खालील मूळ कागदपत्रे आणि प्रत्येकी २ झेरॉक्स प्रती सोबत ठेवाव्यात:'
                 : 'Please bring original physical documents along with 2 photocopies each at the time of admission:'}
@@ -595,7 +595,7 @@ export const MjpjayPage: React.FC = () => {
           <div className="space-y-6">
             {documentChecklist.map((group, gIdx) => (
               <div key={gIdx} className="card-clean p-6 space-y-4">
-                <h3 className="text-sm sm:text-base font-bold text-slate-900 font-heading border-b border-slate-100 pb-2.5">
+                <h3 className="text-sm sm:text-base text-stone-900 font-heading border-b border-stone-100 pb-2.5">
                   {isMr ? group.categoryMr : group.categoryEn}
                 </h3>
 
@@ -603,23 +603,23 @@ export const MjpjayPage: React.FC = () => {
                   {group.items.map((doc, dIdx) => (
                     <div
                       key={dIdx}
-                      className="p-4 rounded-xl bg-slate-50 border border-slate-100 space-y-1.5"
+                      className="p-4 rounded-lg bg-stone-50 border border-stone-100 space-y-1.5"
                     >
                       <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs sm:text-sm font-semibold text-slate-900">
+                        <span className="text-xs sm:text-sm font-semibold text-stone-900">
                           {isMr ? doc.nameMr : doc.nameEn}
                         </span>
                         <span
                           className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
                             doc.required
                               ? 'bg-red-100 text-red-700'
-                              : 'bg-slate-200 text-slate-700'
+                              : 'bg-stone-200 text-stone-700'
                           }`}
                         >
                           {doc.required ? (isMr ? 'अनिवार्य' : 'REQUIRED') : (isMr ? 'पर्यायी' : 'OPTIONAL')}
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-500 leading-normal">
+                      <p className="text-[11px] text-stone-500 leading-normal">
                         {isMr ? doc.tipMr : doc.tipEn}
                       </p>
                     </div>
@@ -649,11 +649,11 @@ export const MjpjayPage: React.FC = () => {
       {/* ─── TAB 4: REGISTER CLAIM & FAST-TRACK FORM ───────────────────────────── */}
       {activeTab === 'register' && (
         <div className="card-clean p-6 sm:p-10 space-y-6">
-          <div className="border-b border-slate-100 pb-4">
-            <h2 className="text-xl font-bold text-slate-900 font-heading">
+          <div className="border-b border-stone-100 pb-4">
+            <h2 className="text-xl text-stone-900 font-heading">
               {isMr ? 'महात्मा फुले योजना तात्काळ सहाय्यता नोंदणी' : 'Direct MJPJAY Fast-Track Claim Inquire Form'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">
+            <p className="text-xs sm:text-sm text-stone-500 mt-1">
               {isMr
                 ? 'खालील फॉर्म भरा, आमचे आरोग्य मित्र प्रतिनिधी १५ मिनिटांत आपल्याशी संपर्क साधून पात्रतेची खात्री करतील.'
                 : 'Fill this form to notify our hospital Arogya Mitra team for immediate pre-authorization assistance.'}
@@ -665,10 +665,10 @@ export const MjpjayPage: React.FC = () => {
               <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
                 <CheckCircle2 className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-slate-900 font-heading">
+              <h3 className="text-lg text-stone-900 font-heading">
                 {isMr ? 'योजना सहाय्यता अर्ज यशस्वीरीत्या नोंदवला!' : 'MJPJAY Claim Registered Successfully!'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 max-w-md mx-auto">
+              <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
                 {isMr
                   ? 'आपला अर्ज संजीवनी हॉस्पिटलच्या आरोग्य मित्र कक्षाकडे पाठवला गेला आहे. आमचा प्रतिनिधी लवकरच संपर्क करेल.'
                   : 'Your claim request has been dispatched to our Arogya Mitra desk. Our coordinator will contact you shortly.'}
@@ -684,7 +684,7 @@ export const MjpjayPage: React.FC = () => {
             <form onSubmit={handleRegister} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient Full Name *'}
                   </label>
                   <input
@@ -692,12 +692,12 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.patientName}
                     onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
                     placeholder={isMr ? 'उदा. ज्ञानेश्वर जाधव' : 'e.g. Dnyaneshwar Jadhav'}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'मोबाईल नंबर (१० अंकी) *' : 'Mobile Number (10 Digits) *'}
                   </label>
                   <input
@@ -707,12 +707,12 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.patientPhone}
                     onChange={(e) => setFormData({ ...formData, patientPhone: e.target.value })}
                     placeholder="98XXXXXXXX"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'रुग्णाचे वय (वर्षे) *' : 'Patient Age *'}
                   </label>
                   <input
@@ -723,12 +723,12 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.patientAge}
                     onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
                     placeholder="45"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'आधार कार्ड शेवटचे ४ अंक *' : 'Aadhaar Card Last 4 Digits *'}
                   </label>
                   <input
@@ -737,12 +737,12 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.aadhaarLast4}
                     onChange={(e) => setFormData({ ...formData, aadhaarLast4: e.target.value })}
                     placeholder="4567"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'रेशन कार्ड नंबर (पिवळे / केशरी) *' : 'Ration Card Number (Yellow/Orange) *'}
                   </label>
                   <input
@@ -750,12 +750,12 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.rationCardNumber}
                     onChange={(e) => setFormData({ ...formData, rationCardNumber: e.target.value })}
                     placeholder="MH/JLN/1234567"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'अपेक्षित उपचार खर्च (पर्यायी ₹)' : 'Estimated Surgery / Treatment Cost (₹)'}
                   </label>
                   <input
@@ -763,13 +763,13 @@ export const MjpjayPage: React.FC = () => {
                     value={formData.estimatedAmount}
                     onChange={(e) => setFormData({ ...formData, estimatedAmount: e.target.value })}
                     placeholder="50000"
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">
+                <label className="block text-xs font-semibold text-stone-700">
                   {isMr ? 'आजाराचे नाव / आवश्यक शस्त्रक्रिया वर्णन *' : 'Diagnosis / Recommended Surgery Details *'}
                 </label>
                 <textarea
@@ -782,7 +782,7 @@ export const MjpjayPage: React.FC = () => {
                       ? 'उदा. गुडघे प्रत्यारोपण (Knee Replacement) किंवा हर्निया शस्त्रक्रिया...'
                       : 'Describe the diagnosed ailment or proposed surgery (e.g. Knee Replacement, Hernia Repair, NICU admission)...'
                   }
-                  className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                 />
               </div>
 

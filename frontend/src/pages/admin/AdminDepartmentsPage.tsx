@@ -134,20 +134,20 @@ export const AdminDepartmentsPage: React.FC = () => {
   return (
     <div className="space-y-8 max-w-[1400px] mx-auto">
       {/* ─── 1. PAGE HEADER ─────────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200/80">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="badge-teal text-[11px] py-0.5 px-2.5">
               Clinical Specializations
             </span>
-            <span className="text-xs text-slate-400 font-mono">
+            <span className="text-xs text-stone-400 font-mono">
               6 Active Major Departments
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 font-heading">
+          <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
             Clinical Departments Management
           </h1>
-          <p className="text-xs sm:text-sm text-slate-500 font-normal">
+          <p className="text-xs sm:text-sm text-stone-500 font-normal">
             Configure clinical department profiles, bilingual Marathi/English content, and linked faculty rosters.
           </p>
         </div>
@@ -167,11 +167,11 @@ export const AdminDepartmentsPage: React.FC = () => {
         {departments.map((dept) => (
           <div
             key={dept.id}
-            className="card-clean bg-white border border-slate-200 rounded-2xl p-6 shadow-2xs flex flex-col justify-between space-y-5 hover:shadow-md transition-shadow"
+            className="card-clean bg-white border border-stone-200 rounded-lg p-6 shadow-2xs flex flex-col justify-between space-y-5 hover:shadow-md transition-shadow"
           >
             <div className="space-y-4">
               <div className="flex items-start justify-between">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0F766E] flex items-center justify-center border border-teal-100 shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center border border-teal-100 shrink-0">
                   <Building2 className="w-5 h-5" />
                 </div>
 
@@ -180,7 +180,7 @@ export const AdminDepartmentsPage: React.FC = () => {
                     className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       dept.isActive
                         ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                        : 'bg-slate-100 text-slate-500 border-slate-200'
+                        : 'bg-stone-100 text-stone-500 border-stone-200'
                     }`}
                   >
                     {dept.isActive ? 'Active on Portal' : 'Draft / Inactive'}
@@ -188,16 +188,16 @@ export const AdminDepartmentsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => toggleStatus(dept.id)}
-                    className="text-xs text-slate-400 hover:text-slate-700 p-1"
+                    className="text-xs text-stone-400 hover:text-stone-700 p-1"
                     title="Toggle Status"
                   >
-                    <CheckCircle2 className={`w-4 h-4 ${dept.isActive ? 'text-emerald-600' : 'text-slate-300'}`} />
+                    <CheckCircle2 className={`w-4 h-4 ${dept.isActive ? 'text-emerald-600' : 'text-stone-300'}`} />
                   </button>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <h3 className="text-base font-bold text-slate-900 font-heading">
+                <h3 className="text-base text-stone-900 font-heading">
                   {dept.nameEn}
                 </h3>
                 <p className="text-xs font-semibold text-[#0F766E]">
@@ -205,30 +205,30 @@ export const AdminDepartmentsPage: React.FC = () => {
                 </p>
               </div>
 
-              <div className="space-y-1 text-xs text-slate-600 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <div className="space-y-1 text-xs text-stone-600 leading-relaxed bg-stone-50 p-3 rounded-lg border border-stone-100">
                 <p>{dept.descriptionEn}</p>
-                <p className="text-[11px] text-slate-500 pt-1 border-t border-slate-200/60 font-medium">
+                <p className="text-[11px] text-stone-500 pt-1 border-t border-stone-200/60 font-medium">
                   {dept.descriptionMr}
                 </p>
               </div>
 
               <div className="space-y-1 pt-1 text-xs">
-                <span className="text-[11px] text-slate-400 block font-semibold uppercase tracking-wider">
+                <span className="text-[11px] text-stone-400 block font-semibold uppercase tracking-wider">
                   Department In-Charge / Faculty
                 </span>
-                <p className="font-bold text-slate-800 flex items-center gap-1.5">
+                <p className="font-bold text-stone-800 flex items-center gap-1.5">
                   <Stethoscope className="w-3.5 h-3.5 text-[#0F766E]" />
                   <span>{dept.leadDoctor}</span>
                 </p>
               </div>
             </div>
 
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+            <div className="pt-3 border-t border-stone-100 flex items-center justify-between text-xs text-stone-500">
               <span className="flex items-center gap-1">
-                <Users className="w-3.5 h-3.5 text-slate-400" />
-                <span className="font-semibold text-slate-700">{dept.doctorCount} Doctors Linked</span>
+                <Users className="w-3.5 h-3.5 text-stone-400" />
+                <span className="font-semibold text-stone-700">{dept.doctorCount} Doctors Linked</span>
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">
+              <span className="text-[11px] text-stone-400 font-mono">
                 /departments/{dept.slug}
               </span>
             </div>
@@ -239,16 +239,16 @@ export const AdminDepartmentsPage: React.FC = () => {
       {/* ─── 3. ADD DEPARTMENT MODAL ────────────────────────────────────────── */}
       {showModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900 font-heading flex items-center gap-2">
+          <div className="bg-white rounded-lg max-w-lg w-full p-6 space-y-5 shadow-lg border border-stone-200">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="text-base text-stone-900 font-heading flex items-center gap-2">
                 <Plus className="w-4 h-4 text-[#0F766E]" />
                 <span>Add Clinical Department</span>
               </h3>
               <button
                 type="button"
                 onClick={() => setShowModal(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -256,64 +256,64 @@ export const AdminDepartmentsPage: React.FC = () => {
 
             <form onSubmit={handleAddDept} className="space-y-4">
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Department Name (English) *</label>
+                <label className="block text-xs font-semibold text-stone-700">Department Name (English) *</label>
                 <input
                   type="text"
                   required
                   value={formData.nameEn}
                   onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
                   placeholder="e.g. Cardiology & Cath Lab"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Department Name (Marathi) *</label>
+                <label className="block text-xs font-semibold text-stone-700">Department Name (Marathi) *</label>
                 <input
                   type="text"
                   required
                   value={formData.nameMr}
                   onChange={(e) => setFormData({ ...formData, nameMr: e.target.value })}
                   placeholder="उदा. हृदयरोग व कॅथ लॅब विभाग"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Lead Specialist Doctor *</label>
+                <label className="block text-xs font-semibold text-stone-700">Lead Specialist Doctor *</label>
                 <input
                   type="text"
                   required
                   value={formData.leadDoctor}
                   onChange={(e) => setFormData({ ...formData, leadDoctor: e.target.value })}
                   placeholder="e.g. Dr. Kailash Rajguru (MD Medicine)"
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Short Description (English)</label>
+                <label className="block text-xs font-semibold text-stone-700">Short Description (English)</label>
                 <textarea
                   rows={2}
                   value={formData.descriptionEn}
                   onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
                   placeholder="Clinical scope, diagnostic equipment, and surgical specialties..."
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-700">Short Description (Marathi)</label>
+                <label className="block text-xs font-semibold text-stone-700">Short Description (Marathi)</label>
                 <textarea
                   rows={2}
                   value={formData.descriptionMr}
                   onChange={(e) => setFormData({ ...formData, descriptionMr: e.target.value })}
                   placeholder="तपासणी सुविधा, निदान व विशेषोपचार..."
-                  className="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
+                  className="w-full px-3.5 py-2 bg-stone-50 border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <div className="pt-3 border-t border-stone-100 flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}

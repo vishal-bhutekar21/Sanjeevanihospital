@@ -354,27 +354,26 @@ export const EventsPage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
       {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 lg:p-12 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-6">
+      <div className="card-clean p-6 sm:p-10 lg:p-12  space-y-6">
         <div className="flex flex-wrap items-center gap-2.5">
           <div className="badge-teal text-xs py-1 px-3">
             <HeartPulse className="w-4 h-4 text-[#0F766E]" />
-            <span>{isMr ? 'सामाजिक आरोग्य उपक्रम आणि रुग्ण अनुभव' : 'Community Health Initiatives & Verified Patient Feedback'}</span>
+            <span>{isMr ? 'सामाजिक आरोग्य उपक्रम आणि रुग्ण अनुभव' : 'Health camps & patient reviews'}</span>
           </div>
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-50 text-amber-900 text-xs font-semibold border border-amber-200">
-            <Sparkles className="w-3.5 h-3.5 text-amber-600" />
             <span>{isMr ? '४.९ / ५ रुग्ण समाधान दर' : '4.9 / 5 Rating across 1,200+ Reviews'}</span>
           </div>
         </div>
 
         <div className="space-y-3 max-w-3xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 font-heading leading-tight">
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl text-stone-900 font-heading leading-tight">
             {isMr ? 'मोफत आरोग्य शिबिरे आणि' : 'Community Health Camps &'}<br />
             <span className="text-[#0F766E]">
-              {isMr ? 'रुग्णांचे खरे अनुभव व अभिप्राय' : 'Verified Patient Reviews'}
+              {isMr ? 'रुग्णांचे खरे अनुभव व अभिप्राय' : 'Patient reviews'}
             </span>
           </h1>
 
-          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
             {isMr
               ? 'संजीवनी हॉस्पिटल, जालना तर्फे ग्रामीण व शहरी भागातील नागरिकांसाठी नियमित आयोजित केली जाणारी मोफत तपासणी शिबिरे आणि यशस्वी उपचार घेतलेल्या हजारो समाधानी रुग्णांचे मनोगत.'
               : 'Free specialist diagnostic checkup camps organized regularly by Sanjeevani Multispeciality Hospital, Jalna, and genuine recovery stories from cured patients.'}
@@ -382,23 +381,23 @@ export const EventsPage: React.FC = () => {
         </div>
 
         {/* 4 Standout Infographic Badges (Proper Warm Yellow/Amber Cards) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-slate-200/80 text-xs">
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-stone-200/80 text-xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'मोफत शिबिरे' : 'Health Camps'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '१००+ मोफत शिबिरे' : '100+ Camps Done'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '१००+ मोफत शिबिरे' : '100+ Camps Done'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'जालना व मराठवाड्यात' : 'Across Marathwada'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'रुग्ण तपासणी' : 'Free Screenings'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '२५,०००+ मोफत तपासण्या' : '25,000+ Screened'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '२५,०००+ मोफत तपासण्या' : '25,000+ Screened'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'बीएमडी, ईसीजी व रक्त चाचण्या' : 'BMD, ECG, blood sugar'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'समाधानी रुग्ण' : 'Happy Patients'}</p>
-            <p className="font-bold text-slate-900 text-base mt-0.5">{isMr ? '५०,०००+ बरे झालेले रुग्ण' : '50,000+ Treated'}</p>
+            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '५०,०००+ बरे झालेले रुग्ण' : '50,000+ Treated'}</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'यशस्वी शस्त्रक्रिया व उपचार' : 'Since 2016 in Jalna'}</p>
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
+          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
             <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'रुग्ण समाधान' : 'Satisfaction'}</p>
             <p className="font-bold text-teal-700 text-base mt-0.5">99.4%</p>
             <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'क्लिनिकल अचूकता दर' : 'Positive clinical outcome'}</p>
@@ -408,16 +407,16 @@ export const EventsPage: React.FC = () => {
 
       {/* ─── 2. TAB SWITCHER (COMPACT SEGMENTED PILLS) ────────────────────── */}
       <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
+        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-stone-100/90 rounded-lg border border-stone-200/70 shadow-2xs">
           <button
             onClick={() => setActiveTab('events')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'events'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Calendar className={`w-3.5 h-3.5 ${activeTab === 'events' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <Calendar className={`w-3.5 h-3.5 ${activeTab === 'events' ? 'text-[#0F766E]' : 'text-stone-400'}`} />
             <span>{isMr ? 'आरोग्य शिबिरे' : 'Health Camps'}</span>
           </button>
 
@@ -425,11 +424,11 @@ export const EventsPage: React.FC = () => {
             onClick={() => setActiveTab('awards')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'awards'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Trophy className={`w-3.5 h-3.5 ${activeTab === 'awards' ? 'text-amber-500' : 'text-slate-400'}`} />
+            <Trophy className={`w-3.5 h-3.5 ${activeTab === 'awards' ? 'text-amber-500' : 'text-stone-400'}`} />
             <span>{isMr ? 'पुरस्कार व सन्मान' : 'Awards & Honors'}</span>
           </button>
 
@@ -437,11 +436,11 @@ export const EventsPage: React.FC = () => {
             onClick={() => setActiveTab('gallery')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'gallery'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Camera className={`w-3.5 h-3.5 ${activeTab === 'gallery' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
+            <Camera className={`w-3.5 h-3.5 ${activeTab === 'gallery' ? 'text-[#0F766E]' : 'text-stone-400'}`} />
             <span>{isMr ? 'शिबिर फोटो गॅलरी' : 'Camps Gallery'}</span>
           </button>
 
@@ -449,11 +448,11 @@ export const EventsPage: React.FC = () => {
             onClick={() => setActiveTab('reviews')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
               activeTab === 'reviews'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
+                ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
+                : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
             }`}
           >
-            <Star className={`w-3.5 h-3.5 ${activeTab === 'reviews' ? 'text-amber-500 fill-amber-500' : 'text-slate-400'}`} />
+            <Star className={`w-3.5 h-3.5 ${activeTab === 'reviews' ? 'text-amber-500 fill-amber-500' : 'text-stone-400'}`} />
             <span>{isMr ? 'रुग्ण अभिप्राय' : 'Patient Reviews'}</span>
           </button>
         </div>
@@ -463,10 +462,10 @@ export const EventsPage: React.FC = () => {
       {activeTab === 'events' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'संजीवनी हॉस्पिटलचे आगामी व नियमित मोफत आरोग्य शिबिरे' : 'Upcoming & Regular Free Community Health Camps'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'खालील सर्व शिबिरांमध्ये तज्ज्ञ डॉक्टरांचा सल्ला आणि मूलभूत चाचण्या पूर्णपणे मोफत उपलब्ध आहेत:'
                 : 'All diagnostic checkups and senior doctor consultations in the following camps are 100% free:'}
@@ -477,7 +476,7 @@ export const EventsPage: React.FC = () => {
             {events.map((event) => (
               <div
                 key={event.id}
-                className="card-clean p-6 flex flex-col justify-between space-y-5 bg-slate-50/50 hover:bg-white hover:shadow-card-hover transition"
+                className="card-clean p-6 flex flex-col justify-between space-y-5 bg-stone-50/50 hover:bg-white hover:shadow-card-hover transition"
               >
                 <div className="space-y-3.5">
                   <div className="flex items-center justify-between gap-2">
@@ -489,11 +488,11 @@ export const EventsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 font-heading leading-snug">
+                  <h3 className="text-base sm:text-lg text-stone-900 font-heading leading-snug">
                     {isMr ? event.titleMr || event.title : event.title}
                   </h3>
 
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed font-normal">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
                     {isMr ? event.descriptionMr || event.description : event.description}
                   </p>
 
@@ -501,7 +500,7 @@ export const EventsPage: React.FC = () => {
                   {event.highlights && (
                     <div className="space-y-1.5 pt-1">
                       {event.highlights.map((hl: string, hIdx: number) => (
-                        <div key={hIdx} className="flex items-center gap-2 text-xs text-slate-700 font-medium">
+                        <div key={hIdx} className="flex items-center gap-2 text-xs text-stone-700 font-medium">
                           <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
                           <span>{hl}</span>
                         </div>
@@ -511,18 +510,18 @@ export const EventsPage: React.FC = () => {
                 </div>
 
                 {/* Metadata Box with Soft Color */}
-                <div className="space-y-2 pt-3 border-t border-slate-200/80 text-xs">
-                  <div className="flex items-center gap-2 text-slate-800 font-semibold">
+                <div className="space-y-2 pt-3 border-t border-stone-200/80 text-xs">
+                  <div className="flex items-center gap-2 text-stone-800 font-semibold">
                     <Calendar className="w-4 h-4 text-[#0F766E] shrink-0" />
                     <span>{isMr ? event.dateMr || event.date : event.date}</span>
-                    <span className="text-slate-400 font-normal">({event.timings})</span>
+                    <span className="text-stone-400 font-normal">({event.timings})</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <MapPin className="w-4 h-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-2 text-stone-600">
+                    <MapPin className="w-4 h-4 text-stone-400 shrink-0" />
                     <span className="truncate">{isMr ? event.locationMr || event.location : event.location}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-600">
-                    <Stethoscope className="w-4 h-4 text-slate-400 shrink-0" />
+                  <div className="flex items-center gap-2 text-stone-600">
+                    <Stethoscope className="w-4 h-4 text-stone-400 shrink-0" />
                     <span className="truncate">{event.doctorInCharge}</span>
                   </div>
                 </div>
@@ -541,12 +540,12 @@ export const EventsPage: React.FC = () => {
           </div>
 
           {/* Health Camp Organizers Note */}
-          <div className="card-clean p-6 bg-slate-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="space-y-1">
               <h4 className="text-base font-bold font-heading">
                 {isMr ? 'तुमच्या गावात किंवा संस्थेत मोफत शिबिर आयोजित करायचे आहे का?' : 'Want to organize a free health camp in your village or organization?'}
               </h4>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-stone-300">
                 {isMr
                   ? 'संजीवनी हॉस्पिटलची वैद्यकीय टीम आवश्यक तपासणी उपकरणांसह आपल्या परिसरात मोफत शिबिर आयोजित करू शकते.'
                   : 'Sanjeevani Multispeciality Hospital medical team conducts free mobile diagnostic camps across Jalna district.'}
@@ -567,11 +566,11 @@ export const EventsPage: React.FC = () => {
       {activeTab === 'awards' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading flex items-center gap-2">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading flex items-center gap-2">
               <Trophy className="w-5 h-5 text-amber-500" />
               <span>{isMr ? 'संजीवनी हॉस्पिटलचे अधिकृत पुरस्कार, सन्मान व यशोगाथा' : 'Official Awards, Citations & Institutional Achievements'}</span>
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'वैद्यकीय गुणवत्ता, २४ तास आपत्कालीन अतिदक्षता आणि निष्कलंक रुग्णसेवेसाठी मिळालेली सन्मानचिन्हे व पारितोषिके:'
                 : 'Recognized for benchmark critical care resuscitation, MJPJAY implementation, and community health services across Maharashtra:'}
@@ -585,14 +584,14 @@ export const EventsPage: React.FC = () => {
                 key={item.id}
                 className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition bg-white"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
                   <img
                     src={item.image}
                     alt={item.title}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-2.5 right-2.5 bg-amber-500 text-slate-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
+                  <div className="absolute top-2.5 right-2.5 bg-amber-500 text-stone-950 text-[10px] font-bold px-2 py-0.5 rounded shadow-xs">
                     <span>{item.year || 'Honor'}</span>
                   </div>
                 </div>
@@ -602,20 +601,20 @@ export const EventsPage: React.FC = () => {
                     <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 block">
                       {isMr ? item.subtitleMr : item.subtitle}
                     </span>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading mt-0.5">
+                    <h3 className="text-sm text-stone-900 group-hover:text-[#0F766E] transition font-heading mt-0.5">
                       {isMr ? item.titleMr : item.title}
                     </h3>
-                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                       {isMr ? item.descriptionMr : item.description}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
                     <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>{isMr ? 'अधिकृत गौरव' : 'Verified Citation'}</span>
                     </span>
-                    <span className="text-slate-400 font-medium">Sanjeevani Jalna</span>
+                    <span className="text-stone-400 font-medium">Sanjeevani Jalna</span>
                   </div>
                 </div>
               </div>
@@ -623,16 +622,16 @@ export const EventsPage: React.FC = () => {
           </div>
 
           {/* Achievement Milestone Banner */}
-          <div className="card-clean p-6 sm:p-8 bg-gradient-to-r from-amber-50/80 via-white to-teal-50 border border-amber-200 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="card-clean p-6 sm:p-8  flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               <span className="badge-teal text-xs">{isMr ? '२०१६ पासून अविरत विश्वास' : 'Serving Jalna Since 2016'}</span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-heading">
+              <h3 className="text-lg sm:text-xl text-stone-900 font-heading">
                 {isMr ? '५०,०००+ समाधानी रुग्ण आणि अविरत जीवनरक्षक कार्य' : '50,000+ Patients Treated with Compassion & Clinical Precision'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                 {isMr
                   ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना हे सर्वसामान्य कुटुंबांसाठी उच्च दर्जाचे आणि विश्वासार्ह वैद्यकीय उपचार रास्त दरात उपलब्ध करून देण्यासाठी वचनबद्ध आहे.'
-                  : 'Our healthcare mission continues with unwavering dedication to clinical excellence, zero hidden fees, and empathetic round-the-clock emergency medical response.'}
+                  : 'We keep running free camps through the year. Call reception to ask about the next one near you.'}
               </p>
             </div>
             <a
@@ -658,19 +657,19 @@ export const EventsPage: React.FC = () => {
                   <Star key={i} className="w-4 h-4 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-xs text-slate-500 font-medium">{isMr ? 'सरासरी रुग्ण रेटिंग' : 'Overall Patient Rating'}</p>
+              <p className="text-xs text-stone-500 font-medium">{isMr ? 'सरासरी रुग्ण रेटिंग' : 'Overall Patient Rating'}</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-slate-900 font-heading">1,200+</p>
-              <p className="text-xs text-slate-500 mt-2 font-medium">{isMr ? 'पडताळलेले अभिप्राय' : 'Verified Reviews'}</p>
+              <p className="text-3xl font-bold text-stone-900 font-heading">1,200+</p>
+              <p className="text-xs text-stone-500 mt-2 font-medium">{isMr ? 'पडताळलेले अभिप्राय' : 'Verified Reviews'}</p>
             </div>
             <div>
               <p className="text-3xl font-bold text-teal-700 font-heading">99.4%</p>
-              <p className="text-xs text-slate-500 mt-2 font-medium">{isMr ? 'समाधान व पुनरुत्थान दर' : 'Clinical Recovery Rate'}</p>
+              <p className="text-xs text-stone-500 mt-2 font-medium">{isMr ? 'समाधान व पुनरुत्थान दर' : 'Clinical Recovery Rate'}</p>
             </div>
             <div>
-              <p className="text-3xl font-bold text-slate-900 font-heading">50,000+</p>
-              <p className="text-xs text-slate-500 mt-2 font-medium">{isMr ? 'उपचार घेतलेले रुग्ण' : 'Patients Treated Since 2016'}</p>
+              <p className="text-3xl font-bold text-stone-900 font-heading">50,000+</p>
+              <p className="text-xs text-stone-500 mt-2 font-medium">{isMr ? 'उपचार घेतलेले रुग्ण' : 'Patients Treated Since 2016'}</p>
             </div>
           </div>
 
@@ -679,7 +678,7 @@ export const EventsPage: React.FC = () => {
             {reviews.map((rev) => (
               <div
                 key={rev.id}
-                className="card-clean p-6 flex flex-col justify-between space-y-4 bg-slate-50/40 hover:bg-white hover:shadow-card-hover transition"
+                className="card-clean p-6 flex flex-col justify-between space-y-4 bg-stone-50/40 hover:bg-white hover:shadow-card-hover transition"
               >
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
@@ -693,21 +692,21 @@ export const EventsPage: React.FC = () => {
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm text-slate-700 leading-relaxed font-normal italic">
+                  <p className="text-xs sm:text-sm text-stone-700 leading-relaxed font-normal italic">
                     "{isMr ? rev.reviewTextMr || rev.reviewText : rev.reviewText}"
                   </p>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-xs">
+                <div className="pt-3 border-t border-stone-200/70 flex items-center justify-between text-xs">
                   <div className="space-y-0.5">
-                    <span className="font-bold text-slate-900 block text-xs sm:text-sm">
+                    <span className="font-bold text-stone-900 block text-xs sm:text-sm">
                       {rev.patientName}
                     </span>
-                    <span className="text-[11px] text-slate-500 block">
+                    <span className="text-[11px] text-stone-500 block">
                       {isMr ? rev.patientLocationMr || rev.patientLocation : rev.patientLocation} • <span className="text-[#0F766E] font-medium">{isMr ? rev.treatmentTypeMr || rev.treatmentType : rev.treatmentType}</span>
                     </span>
                     {rev.doctorName && (
-                      <span className="text-[10px] text-slate-400 block">
+                      <span className="text-[10px] text-stone-400 block">
                         {isMr ? 'तज्ज्ञ डॉक्टर:' : 'Consultant:'} {rev.doctorName}
                       </span>
                     )}
@@ -715,7 +714,7 @@ export const EventsPage: React.FC = () => {
 
                   <button
                     onClick={() => handleMarkHelpful(rev.id)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-600 hover:text-[#0F766E] hover:border-teal-300 text-xs font-semibold transition"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 hover:text-[#0F766E] hover:border-teal-300 text-xs font-semibold transition"
                     title="Helpful review"
                   >
                     <ThumbsUp className="w-3.5 h-3.5 text-[#0F766E]" />
@@ -728,11 +727,11 @@ export const EventsPage: React.FC = () => {
 
           {/* Submit Patient Review Form */}
           <div className="card-clean p-6 sm:p-8 space-y-5 bg-white">
-            <div className="border-b border-slate-100 pb-3">
-              <h3 className="text-lg font-bold text-slate-900 font-heading">
+            <div className="border-b border-stone-100 pb-3">
+              <h3 className="text-lg text-stone-900 font-heading">
                 {isMr ? 'संजीवनी हॉस्पिटलमधील तुमचा अनुभव व अभिप्राय नोंदवा' : 'Share Your Sanjeevani Hospital Experience'}
               </h3>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-stone-500 mt-0.5">
                 {isMr
                   ? 'तुमचा प्रामाणिक अभिप्राय इतर रुग्णांना योग्य वैद्यकीय निर्णय घेण्यास मदत करतो.'
                   : 'Your genuine review helps other patients make informed healthcare decisions.'}
@@ -744,10 +743,10 @@ export const EventsPage: React.FC = () => {
                 <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
                   <CheckCircle2 className="w-7 h-7" />
                 </div>
-                <h4 className="text-base font-bold text-slate-900">
+                <h4 className="text-base font-bold text-stone-900">
                   {isMr ? 'आपल्या मौल्यवान अभिप्रायाबद्दल धन्यवाद!' : 'Thank you for your valuable feedback!'}
                 </h4>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-stone-500">
                   {isMr ? 'आपला अभिप्राय पडताळणीनंतर प्रकाशित केला जाईल.' : 'Your verified review has been recorded.'}
                 </p>
               </div>
@@ -755,7 +754,7 @@ export const EventsPage: React.FC = () => {
               <form onSubmit={handleSubmitReview} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-700">
+                    <label className="block text-xs font-semibold text-stone-700">
                       {isMr ? 'तुमचे पूर्ण नाव *' : 'Your Full Name *'}
                     </label>
                     <input
@@ -763,55 +762,55 @@ export const EventsPage: React.FC = () => {
                       value={reviewForm.patientName}
                       onChange={(e) => setReviewForm({ ...reviewForm, patientName: e.target.value })}
                       placeholder={isMr ? 'उदा. आनंद शिंदे' : 'e.g. Anand Shinde'}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-700">
+                    <label className="block text-xs font-semibold text-stone-700">
                       {isMr ? 'शहर / गाव' : 'City / Town / Village'}
                     </label>
                     <input
                       value={reviewForm.patientLocation}
                       onChange={(e) => setReviewForm({ ...reviewForm, patientLocation: e.target.value })}
                       placeholder={isMr ? 'उदा. जालना शहर / परतूर / अंबड' : 'e.g. Jalna City / Ambad'}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-700">
+                    <label className="block text-xs font-semibold text-stone-700">
                       {isMr ? 'उपचार केलेले डॉक्टर' : 'Doctor Consulted'}
                     </label>
                     <input
                       value={reviewForm.doctorName}
                       onChange={(e) => setReviewForm({ ...reviewForm, doctorName: e.target.value })}
                       placeholder={isMr ? 'उदा. डॉ. निशांत गोयल / डॉ. शिवदास मिरकड' : 'e.g. Dr. Nishant Goyal'}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                     />
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-xs font-semibold text-slate-700">
+                    <label className="block text-xs font-semibold text-stone-700">
                       {isMr ? 'उपचार किंवा शस्त्रक्रिया प्रकार' : 'Treatment / Surgery / Department'}
                     </label>
                     <input
                       value={reviewForm.treatmentType}
                       onChange={(e) => setReviewForm({ ...reviewForm, treatmentType: e.target.value })}
                       placeholder={isMr ? 'उदा. गुडघे प्रत्यारोपण / NICU केअर' : 'e.g. Knee Replacement / NICU Care'}
-                      className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                      className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'तुमचे रेटिंग *' : 'Your Rating *'}
                   </label>
                   <select
                     value={reviewForm.rating}
                     onChange={(e) => setReviewForm({ ...reviewForm, rating: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
                   >
                     <option value={5}>⭐⭐⭐⭐⭐ (5/5 - {isMr ? 'उत्कृष्ट व समाधानकारक सेवा' : 'Outstanding Care'})</option>
                     <option value={4}>⭐⭐⭐⭐ (4/5 - {isMr ? 'खूप चांगली सेवा' : 'Very Good Care'})</option>
@@ -820,7 +819,7 @@ export const EventsPage: React.FC = () => {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-slate-700">
+                  <label className="block text-xs font-semibold text-stone-700">
                     {isMr ? 'तुमचा सविस्तर अनुभव *' : 'Your Detailed Feedback *'}
                   </label>
                   <textarea
@@ -833,7 +832,7 @@ export const EventsPage: React.FC = () => {
                         ? 'डॉक्टरांचा सल्ला, हॉस्पिटलमधील स्वच्छता, नर्सिंग सेवा किंवा शस्त्रक्रियेचा अनुभव सांगा...'
                         : 'Describe the doctor consultation, nursing care, ICU monitoring, or overall recovery experience...'
                     }
-                    className="w-full px-3.5 py-2.5 bg-white border border-slate-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
+                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
                   />
                 </div>
 
@@ -855,10 +854,10 @@ export const EventsPage: React.FC = () => {
       {activeTab === 'gallery' && (
         <div className="space-y-8">
           <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 font-heading">
+            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
               {isMr ? 'संजीवनी हॉस्पिटल मोफत आरोग्य शिबिर छायाचित्रे व वृत्त' : 'Real Community Health Camps Photo Gallery & News'}
             </h2>
-            <p className="text-xs sm:text-sm text-slate-500">
+            <p className="text-xs sm:text-sm text-stone-500">
               {isMr
                 ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना द्वारे आयोजित केलेल्या मोफत आरोग्य तपासणी, औषध वाटप व निदान शिबिरांची छायाचित्रे:'
                 : 'Direct on-ground photographs from free diagnostic camps and medical checkup drives conducted by Sanjeevani Hospital across Jalna:'}
@@ -871,36 +870,36 @@ export const EventsPage: React.FC = () => {
                 key={item.id}
                 className="card-clean overflow-hidden flex flex-col group hover:shadow-card-hover transition"
               >
-                <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                <div className="relative aspect-[4/3] overflow-hidden bg-stone-100">
                   <img
                     src={item.image}
                     alt={item.title}
                     loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
-                  <div className="absolute top-2.5 right-2.5 bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded">
+                  <div className="absolute top-2.5 right-2.5 bg-stone-900/80 backdrop-blur-xs text-white text-[10px] font-semibold px-2 py-0.5 rounded">
                     <span>{isMr ? item.locationMr : item.location}</span>
                   </div>
                 </div>
 
                 <div className="p-4 flex-1 flex flex-col justify-between space-y-2">
                   <div>
-                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-[#0F766E] transition font-heading">
+                    <h3 className="text-sm text-stone-900 group-hover:text-[#0F766E] transition font-heading">
                       {isMr ? item.titleMr : item.title}
                     </h3>
-                    <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+                    <p className="text-xs text-stone-600 mt-1 leading-relaxed">
                       {isMr ? item.descMr : item.desc}
                     </p>
                   </div>
 
-                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+                  <div className="pt-2 border-t border-stone-100 flex items-center justify-between text-[11px] text-stone-500">
                     <span className="flex items-center gap-1 text-[#0F766E] font-semibold">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>{isMr ? 'मोफत शिबिर' : 'Free Camp'}</span>
                     </span>
                     <a
                       href="tel:+917507342222"
-                      className="text-slate-700 hover:text-[#0F766E] font-semibold flex items-center gap-1"
+                      className="text-stone-700 hover:text-[#0F766E] font-semibold flex items-center gap-1"
                     >
                       <Phone className="w-3 h-3" />
                       <span>+91-75073-42222</span>
@@ -912,15 +911,15 @@ export const EventsPage: React.FC = () => {
           </div>
 
           {/* Hospital Building & Facilities Banner */}
-          <div className="card-clean p-6 sm:p-8 bg-gradient-to-r from-teal-50 via-white to-amber-50/50 border border-teal-200 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="card-clean p-6 sm:p-8  flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="space-y-2 max-w-2xl">
               <span className="badge-teal text-xs">Sanjeevani Multispeciality Hospital, Jalna</span>
-              <h3 className="text-lg sm:text-xl font-bold text-slate-900 font-heading">
+              <h3 className="text-lg sm:text-xl text-stone-900 font-heading">
                 {isMr
                   ? '२४ तास आपत्कालीन सेवा, २१ खाटांचा ICU व प्रगत शस्त्रक्रिया सुविधा'
                   : '24x7 Emergency Trauma Care, 21-Bed ICU & Advanced Modular Surgical Suites'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+              <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                 {isMr
                   ? 'अंबड चौफुली, जालना येथे अनुभवी तज्ज्ञ डॉक्टरांची अखंड सेवा उपलब्ध आहे. महात्मा फुले जन आरोग्य योजना (MJPJAY) व सर्व मेडिक्लेम कॅशलेस सुविधा उपलब्ध.'
                   : 'Located at Ambad Choufuli, Jalna. Empanelled for 100% cashless treatment under MJPJAY and 35+ major health insurance companies.'}

@@ -23,6 +23,14 @@ export default {
         slate: {
           850: '#172033',
         },
+        // Used by admin screens
+        hospital: {
+          teal: '#0F766E',
+          cyan: '#0E7490',
+          soft: '#F0F7F6',
+        },
+        ink: '#1C2321',
+        paper: '#FAF8F4',
         neutral: {
           bg: '#F8FAFC',
           card: '#FFFFFF',
@@ -38,10 +46,12 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'Mukta', 'Noto Sans Devanagari', 'Yantramanav', 'system-ui', '-apple-system', 'sans-serif'],
-        heading: ['Plus Jakarta Sans', 'Mukta', 'Noto Sans Devanagari', 'Inter', 'sans-serif'],
+        heading: ['Source Serif 4', 'Mukta', 'Noto Sans Devanagari', 'Georgia', 'serif'],
         marathi: ['Mukta', 'Noto Sans Devanagari', 'Yantramanav', 'Inter', 'sans-serif'],
       },
       boxShadow: {
+        '2xs': '0 1px 1px 0 rgba(28, 35, 33, 0.03)',
+        'xs': '0 1px 2px 0 rgba(28, 35, 33, 0.05)',
         'subtle': '0 1px 2px 0 rgba(0, 0, 0, 0.04)',
         'card': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
         'card-hover': '0 4px 12px 0 rgba(15, 23, 42, 0.07)',

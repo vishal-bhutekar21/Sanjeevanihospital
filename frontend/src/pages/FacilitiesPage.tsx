@@ -75,20 +75,20 @@ export const FacilitiesPage: React.FC = () => {
   return (
     <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
       {/* ─── HERO BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-4">
+      <div className="card-clean p-6 sm:p-10  space-y-4">
         <div className="badge-teal text-xs">
           <Activity className="w-3.5 h-3.5" />
           <span>{isMr ? 'अत्याधुनिक वैद्यकीय पायाभूत सुविधा' : 'Advanced Healthcare Infrastructure'}</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
+        <h1 className="text-2xl sm:text-4xl text-stone-900 font-heading">
           {isMr ? 'हॉस्पिटल सुविधा आणि २१ खाटांचा ICU' : 'Hospital Facilities & 21-Bed Critical Care'}
         </h1>
 
-        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
+        <p className="text-sm sm:text-base text-stone-600 max-w-3xl leading-relaxed">
           {isMr
             ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे रुग्णांच्या सुरक्षिततेसाठी आणि जलद उपचारांसाठी आंतरराष्ट्रीय दर्जाचे तंत्रज्ञान, २१ खाटांचा सुसज्ज ICU आणि मॉड्युलर शस्त्रक्रिया गृह सज्ज आहेत.'
-            : 'State-of-the-art medical technology engineered for patient safety, sterile surgical outcomes, and 24x7 critical resuscitation in Jalna.'}
+            : 'The operation theatres, ICU, labs and imaging we use to look after patients every day.'}
         </p>
       </div>
 
@@ -107,8 +107,8 @@ export const FacilitiesPage: React.FC = () => {
                   alt={fac.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/75 via-transparent to-transparent"></div>
-                <div className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-sm text-teal-300 text-[11px] font-medium px-2.5 py-1 rounded">
+                <div className="absolute inset-0 bg-gradient-to-t from-stone-950/75 via-transparent to-transparent"></div>
+                <div className="absolute top-3 right-3 bg-stone-900/80 backdrop-blur-sm text-teal-300 text-[11px] font-medium px-2.5 py-1 rounded">
                   {fac.badge}
                 </div>
               </div>
@@ -119,11 +119,11 @@ export const FacilitiesPage: React.FC = () => {
                     <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4" />
                     </div>
-                    <h3 className="text-base font-bold text-slate-900 font-heading">
+                    <h3 className="text-base text-stone-900 font-heading">
                       {isMr ? fac.titleMr : fac.title}
                     </h3>
                   </div>
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
                     {isMr ? fac.descMr : fac.desc}
                   </p>
                 </div>

@@ -132,15 +132,15 @@ export const AdminDoctorsPage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Doctor Faculty Management</h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <h2 className="text-2xl text-stone-900">Doctor Faculty Management</h2>
+          <p className="text-xs text-stone-500 mt-0.5">
             Configure specialist profiles, departments, fees, and active availability status.
           </p>
         </div>
 
         <button
           onClick={() => setShowModal(true)}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-hospital-teal text-white text-xs font-bold shadow-sm hover:bg-hospital-teal/90 transition"
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-hospital-teal text-white text-xs font-bold shadow-sm hover:bg-hospital-teal/90 transition"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Specialist</span>
@@ -150,25 +150,25 @@ export const AdminDoctorsPage: React.FC = () => {
       {/* Search Filter */}
       <div className="flex items-center justify-between gap-4">
         <div className="relative max-w-md w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-stone-400 absolute left-3.5 top-3" />
           <input
             type="text"
             placeholder="Search doctor by name, specialty or department..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+            className="w-full pl-10 pr-4 py-2 bg-white border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
           />
         </div>
-        <span className="text-xs font-medium text-slate-500">
+        <span className="text-xs font-medium text-stone-500">
           Showing {filtered.length} of {doctors.length} Doctors
         </span>
       </div>
 
       {/* Doctors Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-card-subtle overflow-hidden">
+      <div className="bg-white rounded-lg border border-stone-200 shadow-card-subtle overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+          <table className="w-full text-left text-xs text-stone-600">
+            <thead className="bg-stone-50 text-stone-700 uppercase font-bold text-[10px] tracking-wider border-b border-stone-200">
               <tr>
                 <th className="py-3 px-4">Doctor Name</th>
                 <th className="py-3 px-4">Department</th>
@@ -178,29 +178,29 @@ export const AdminDoctorsPage: React.FC = () => {
                 <th className="py-3 px-4 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-stone-100">
               {filtered.map((doc) => (
-                <tr key={doc.id} className="hover:bg-slate-50 transition">
+                <tr key={doc.id} className="hover:bg-stone-50 transition">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 rounded-lg bg-hospital-soft flex items-center justify-center text-hospital-teal shrink-0">
                         <Stethoscope className="w-4 h-4" />
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900">{doc.name}</p>
-                        <p className="text-[11px] text-slate-500">{doc.designation}</p>
+                        <p className="font-bold text-stone-900">{doc.name}</p>
+                        <p className="text-[11px] text-stone-500">{doc.designation}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="py-3.5 px-4 font-medium text-slate-800">{doc.department}</td>
+                  <td className="py-3.5 px-4 font-medium text-stone-800">{doc.department}</td>
                   <td className="py-3.5 px-4 font-semibold text-hospital-teal">{doc.qualifications}</td>
-                  <td className="py-3.5 px-4 font-bold text-slate-900">₹{doc.consultationFee}</td>
+                  <td className="py-3.5 px-4 font-bold text-stone-900">₹{doc.consultationFee}</td>
                   <td className="py-3.5 px-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
                         doc.isActive
                           ? 'bg-emerald-100 text-emerald-800'
-                          : 'bg-slate-100 text-slate-600'
+                          : 'bg-stone-100 text-stone-600'
                       }`}
                     >
                       {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
@@ -227,13 +227,13 @@ export const AdminDoctorsPage: React.FC = () => {
 
       {/* Add Doctor Modal */}
       {showModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-lg w-full shadow-2xl border border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <h3 className="text-base font-bold text-slate-900">Add Specialist Doctor</h3>
+        <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-white rounded-lg p-6 max-w-lg w-full shadow-lg border border-stone-200 space-y-4">
+            <div className="flex items-center justify-between border-b border-stone-100 pb-3">
+              <h3 className="text-base text-stone-900">Add Specialist Doctor</h3>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold"
+                className="text-stone-400 hover:text-stone-600 font-bold"
               >
                 ✕
               </button>
@@ -241,47 +241,47 @@ export const AdminDoctorsPage: React.FC = () => {
 
             <form onSubmit={handleAddDoctor} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Full Doctor Name</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Full Doctor Name</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Dr. Ramesh Kulkarni"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Qualifications</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">Qualifications</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. MBBS, MS, MCh"
                     value={formData.qualifications}
                     onChange={(e) => setFormData({ ...formData, qualifications: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 mb-1">Consultation Fee (₹)</label>
+                  <label className="block text-xs font-bold text-stone-700 mb-1">Consultation Fee (₹)</label>
                   <input
                     type="number"
                     required
                     value={formData.consultationFee}
                     onChange={(e) => setFormData({ ...formData, consultationFee: Number(e.target.value) })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Clinical Department</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Clinical Department</label>
                 <select
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
                 >
                   <option>Orthopedics & Joint Replacement</option>
                   <option>Pediatrics & Neonatology</option>
@@ -295,28 +295,28 @@ export const AdminDoctorsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">Specialty Focus</label>
+                <label className="block text-xs font-bold text-stone-700 mb-1">Specialty Focus</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Trauma Care, Knee Replacement"
                   value={formData.specialty}
                   onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none"
                 />
               </div>
 
-              <div className="pt-3 border-t border-slate-100 flex justify-end space-x-3">
+              <div className="pt-3 border-t border-stone-100 flex justify-end space-x-3">
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-100 transition"
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-stone-600 hover:bg-stone-100 transition"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-hospital-teal hover:bg-hospital-teal/90 shadow-sm transition"
+                  className="px-4 py-2 rounded-lg text-xs font-bold text-white bg-hospital-teal hover:bg-hospital-teal/90 shadow-sm transition"
                 >
                   Save Doctor Profile
                 </button>
