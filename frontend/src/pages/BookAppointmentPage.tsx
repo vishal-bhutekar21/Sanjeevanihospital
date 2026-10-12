@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download } from 'lucide-react';
 import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
+import { DoctorPhoto } from '../components/ui';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 
@@ -118,8 +119,10 @@ export const BookAppointmentPage: React.FC = () => {
   const days = useMemo(() => nextDays(14), []);
   const [date, setDate] = useState(toDateKey(days[0]));
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [slotsState, setSlotsState] = useState<'loading' | 'ready' | 'error' | 'not-bookable'>('loading');
+  const [slotsState, setSlotsState] = useState<'loading' | 'ready' | 'error' | 'not-bookable' | 'day-off'>('loading');
   const [slot, setSlot] = useState<Slot | null>(null);
+  // Weekdays (0 = Sunday) on which the selected doctor holds OPD; null = not known yet
+  const [opdWeekdays, setOpdWeekdays] = useState<number[] | null>(null);
 
   // Details
   const [name, setName] = useState('');
@@ -153,11 +156,14 @@ export const BookAppointmentPage: React.FC = () => {
     if (!doctor) return;
     setSlotsState('loading');
     try {
-      const data = await call<{ bookable?: boolean; slots: Slot[] }>(
+      const data = await call<{ bookable?: boolean; dayOff?: boolean; slots: Slot[] }>(
         `/appointments/availability?doctorId=${encodeURIComponent(doctor.id)}&date=${date}`,
       );
       if (data.bookable === false) {
         setSlotsState('not-bookable');
+        setSlots([]);
+      } else if (data.dayOff) {
+        setSlotsState('day-off');
         setSlots([]);
       } else {
         setSlots(data.slots || []);
@@ -172,6 +178,23 @@ export const BookAppointmentPage: React.FC = () => {
     if (step === 'time') loadSlots();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctor?.id, date, step]);
+
+  // Learn which weekdays the doctor works, and jump to the first open day
+  useEffect(() => {
+    if (!doctor) return;
+    setOpdWeekdays(null);
+    call<{ schedule: { days: unknown[][] } }>(`/appointments/schedules/${encodeURIComponent(doctor.id)}`)
+      .then((d) => {
+        const open = d.schedule.days.map((x, i) => (x.length ? i : -1)).filter((i) => i >= 0);
+        setOpdWeekdays(open);
+        if (open.length && !open.includes(new Date(`${date}T00:00:00`).getDay())) {
+          const first = days.find((x) => open.includes(x.getDay()));
+          if (first) setDate(toDateKey(first));
+        }
+      })
+      .catch(() => setOpdWeekdays(null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doctor?.id]);
 
   // Countdowns (OTP resend, slot hold)
   useEffect(() => {
@@ -431,17 +454,24 @@ export const BookAppointmentPage: React.FC = () => {
                 {days.map((d, i) => {
                   const key = toDateKey(d);
                   const active = key === date;
+                  const off = !!opdWeekdays && opdWeekdays.length > 0 && !opdWeekdays.includes(d.getDay());
                   return (
                     <button
                       key={key}
                       type="button"
                       aria-pressed={active}
+                      disabled={off}
+                      title={off ? L('No OPD on this day', 'या दिवशी OPD नाही') : undefined}
                       onClick={() => {
                         setDate(key);
                         setSlot(null);
                       }}
                       className={`shrink-0 w-[68px] py-2.5 rounded-md border text-center transition-colors ${
-                        active ? 'bg-[#0F766E] border-[#0F766E] text-white' : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
+                        active
+                          ? 'bg-[#0F766E] border-[#0F766E] text-white'
+                          : off
+                          ? 'bg-stone-100 border-stone-100 text-stone-400 cursor-not-allowed'
+                          : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
                       }`}
                     >
                       <span className={`block text-xs ${active ? 'text-teal-100' : 'text-stone-500'}`}>
@@ -466,16 +496,29 @@ export const BookAppointmentPage: React.FC = () => {
 
               {slotsState === 'error' && (
                 <div className="card-clean p-5">
-                  <p>{L('We couldn’t load the times.', 'वेळा लोड झाल्या नाहीत.')}</p>
-                  <div className="mt-3 flex flex-wrap gap-3">
+                  <p className="font-semibold">{L('Online booking isn’t available right now.', 'ऑनलाइन बुकिंग सध्या उपलब्ध नाही.')}</p>
+                  <p className="mt-1 text-stone-600">
+                    {L(`${doctor.name} usually sees patients: ${doctor.timings}.`, `${doctor.nameMr} यांची नेहमीची वेळ: ${doctor.timingsMr || doctor.timings}.`)}{' '}
+                    {L('Call reception and we’ll book a time for you.', 'रिसेप्शनला कॉल करा, आम्ही वेळ बुक करून देऊ.')}
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <a href="tel:+917507342222" className="btn-primary">
+                      <Phone className="w-4 h-4" /> {L('Call 75073 42222', '७५०७३ ४२२२२ वर कॉल करा')}
+                    </a>
                     <button type="button" onClick={loadSlots} className="btn-secondary">
                       {L('Try again', 'पुन्हा प्रयत्न करा')}
                     </button>
-                    <a href="tel:+917507342222" className="btn-secondary">
-                      <Phone className="w-4 h-4" /> {L('Call to book', 'कॉल करून बुक करा')}
-                    </a>
                   </div>
                 </div>
+              )}
+
+              {slotsState === 'day-off' && (
+                <p className="card-clean p-5 text-stone-600">
+                  {L(
+                    `${doctor.name} doesn’t hold OPD on ${dateLabel(date, { weekday: 'long' })}. Please pick another day.`,
+                    `${doctor.nameMr} यांची ${dateLabel(date, { weekday: 'long' })} रोजी OPD नसते. कृपया दुसरा दिवस निवडा.`,
+                  )}
+                </p>
               )}
 
               {slotsState === 'not-bookable' && (
@@ -749,7 +792,7 @@ export const BookAppointmentPage: React.FC = () => {
             <div className="card-clean p-4 sm:p-5">
               <p className="hidden sm:block text-xs font-semibold uppercase tracking-wider text-stone-500">{L('Your appointment', 'आपली अपॉइंटमेंट')}</p>
               <div className="sm:mt-3 flex gap-3">
-                <img src={doctor.image} alt="" className="w-12 h-14 sm:w-14 sm:h-16 rounded-md object-cover object-top bg-stone-100 shrink-0" />
+                <DoctorPhoto src={doctor.image} name={isMr ? doctor.nameMr : doctor.name} className="w-12 h-14 sm:w-14 sm:h-16 rounded-md shrink-0" textClass="text-lg" />
                 <div className="min-w-0">
                   <p className="font-heading text-lg leading-tight">{isMr ? doctor.nameMr : doctor.name}</p>
                   <p className="text-sm text-stone-600">{isMr ? doctor.deptMr : doctor.dept}</p>
@@ -884,7 +927,7 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
               onClick={() => onSelect(d)}
               className={`w-full text-left py-4 flex gap-4 items-center hover:bg-white -mx-2 px-2 rounded ${selectedId === d.id ? 'bg-white' : ''}`}
             >
-              <img src={d.image} alt="" loading="lazy" className="w-14 h-16 rounded-md object-cover object-top bg-stone-100 shrink-0" />
+              <DoctorPhoto src={d.image} name={isMr ? d.nameMr : d.name} className="w-14 h-16 rounded-md shrink-0" textClass="text-lg" />
               <span className="flex-1 min-w-0">
                 <span className="block font-heading text-lg leading-tight">{isMr ? d.nameMr : d.name}</span>
                 <span className="block text-sm text-stone-600">{isMr ? d.deptMr : d.dept}</span>

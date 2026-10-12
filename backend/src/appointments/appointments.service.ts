@@ -11,6 +11,14 @@ import { AuditService } from '../audit/audit.service';
 import { InitBookingSessionDto } from './dto/init-session.dto';
 import { ReserveSlotDto } from './dto/reserve-slot.dto';
 import { ConfirmSlotDto } from './dto/confirm-slot.dto';
+import {
+  ROSTER,
+  DEFAULT_SCHEDULES,
+  WeeklySchedule,
+  cleanSchedule,
+  validateSchedule,
+  toMinutes,
+} from './schedules';
 
 export interface BookingSessionRecord {
   id: string;
@@ -97,51 +105,15 @@ export class AppointmentsService {
     },
   ];
 
-  // Doctor Profiles & Shifts Cache
-  private doctors = [
-    {
-      id: 'doc-goyal',
-      name: 'Dr. Nishant Goyal',
-      department: 'Orthopedics & Joint Replacement',
-      fee: 500,
-      shifts: { start: '11:00', end: '16:00', interval: 30, breakStart: '13:00', breakEnd: '13:30' },
-    },
-    {
-      id: 'doc-mirkad',
-      name: 'Dr. Shivdas Mirkad',
-      department: 'Pediatrics & Neonatology',
-      fee: 500,
-      shifts: { start: '10:00', end: '14:00', interval: 30, breakStart: '12:00', breakEnd: '12:30' },
-    },
-    {
-      id: 'doc-bagal',
-      name: 'Dr. Baliram Bagal',
-      department: 'Critical Care & Anesthesiology',
-      fee: 400,
-      shifts: { start: '09:00', end: '15:00', interval: 30, breakStart: '12:30', breakEnd: '13:00' },
-    },
-    {
-      id: 'doc-rajguru',
-      name: 'Dr. Kailash Rajguru',
-      department: 'Internal Medicine',
-      fee: 400,
-      shifts: { start: '10:00', end: '14:00', interval: 30, breakStart: '12:00', breakEnd: '12:30' },
-    },
-    {
-      id: 'doc-anshul',
-      name: 'Dr. Anshul Goyal',
-      department: 'Obstetrics & Gynecology',
-      fee: 500,
-      shifts: { start: '11:00', end: '15:00', interval: 30, breakStart: '13:00', breakEnd: '13:30' },
-    },
-    {
-      id: 'doc-katole',
-      name: 'Dr. Millind Katole',
-      department: 'General & Laparoscopic Surgery',
-      fee: 500,
-      shifts: { start: '10:00', end: '15:00', interval: 30, breakStart: '13:00', breakEnd: '13:30' },
-    },
-  ];
+  // Doctors who can be booked online (same ids as the website)
+  private doctors = ROSTER;
+
+  // Weekly OPD timings. Starts from DEFAULT_SCHEDULES, then whatever admins
+  // have saved in the doctor_schedules table overrides it.
+  private schedules = new Map<string, WeeklySchedule>(
+    Object.entries(DEFAULT_SCHEDULES).map(([id, sch]) => [id, cleanSchedule(sch)]),
+  );
+  private schedulesLoadedFromDb = false;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -201,7 +173,12 @@ export class AppointmentsService {
     if (!doctor) {
       return { doctorId, date: targetDate, bookable: false, totalSlots: 0, availableSlots: 0, slots: [] };
     }
-    const { start, end, interval, breakStart, breakEnd } = doctor.shifts;
+    await this.loadSchedulesFromDb();
+    const schedule = this.schedules.get(doctor.id);
+    const offersOnline = !!schedule && schedule.days.some((d) => d.length > 0);
+    if (!offersOnline) {
+      return { doctorId, date: targetDate, bookable: false, totalSlots: 0, availableSlots: 0, slots: [] };
+    }
 
     // Clean up expired held slots
     const now = Date.now();
@@ -213,11 +190,6 @@ export class AppointmentsService {
       }
     });
 
-    // Helper: convert "HH:mm" to minutes
-    const parseMins = (t: string) => {
-      const [h, m] = t.split(':').map(Number);
-      return h * 60 + m;
-    };
     const formatMins = (m: number) => {
       const h = Math.floor(m / 60);
       const min = m % 60;
@@ -226,47 +198,52 @@ export class AppointmentsService {
       return `${String(displayH).padStart(2, '0')}:${String(min).padStart(2, '0')} ${period}`;
     };
 
-    const startMins = parseMins(start);
-    const endMins = parseMins(end);
-    const bStartMins = parseMins(breakStart);
-    const bEndMins = parseMins(breakEnd);
-
     // Don't offer times that have already passed today (hospital time, IST)
     const nowIst = new Date(Date.now() + 330 * 60 * 1000);
     const todayIst = nowIst.toISOString().split('T')[0];
-    if (targetDate < todayIst) {
-      return { doctorId, date: targetDate, bookable: true, totalSlots: 0, availableSlots: 0, slots: [] };
+    const weekday = new Date(`${targetDate}T00:00:00Z`).getUTCDay();
+    const sessions = schedule!.days[weekday] || [];
+    if (targetDate < todayIst || sessions.length === 0) {
+      return {
+        doctorId,
+        date: targetDate,
+        bookable: true,
+        dayOff: sessions.length === 0,
+        totalSlots: 0,
+        availableSlots: 0,
+        slots: [],
+      };
     }
     const minStartMins =
       targetDate === todayIst ? nowIst.getUTCHours() * 60 + nowIst.getUTCMinutes() + 30 : -1;
+    const interval = schedule!.slotMinutes;
 
-    const generatedSlots = [];
-    for (let cur = startMins; cur + interval <= endMins; cur += interval) {
-      // Exclude lunch break
-      if (cur >= bStartMins && cur < bEndMins) continue;
-      if (cur < minStartMins) continue;
+    const generatedSlots: SlotRecord[] = [];
+    for (const session of sessions) {
+      const startMins = toMinutes(session.start);
+      const endMins = toMinutes(session.end);
+      for (let cur = startMins; cur + interval <= endMins; cur += interval) {
+        if (cur < minStartMins) continue;
 
-      const slotStartTime = formatMins(cur);
-      const slotEndTime = formatMins(cur + interval);
+        const slotStartTime = formatMins(cur);
+        const slotEndTime = formatMins(cur + interval);
 
-      // Check existing slot in store
-      let existing = this.slots.find(
-        (s) => s.doctorId === doctor.id && s.slotDate === targetDate && s.startTime === slotStartTime,
-      );
-
-      if (!existing) {
-        existing = {
-          id: `slot_${doctor.id}_${targetDate}_${cur}`,
-          doctorId: doctor.id,
-          slotDate: targetDate,
-          startTime: slotStartTime,
-          endTime: slotEndTime,
-          status: 'AVAILABLE',
-        };
-        this.slots.push(existing);
+        let existing = this.slots.find(
+          (s) => s.doctorId === doctor.id && s.slotDate === targetDate && s.startTime === slotStartTime,
+        );
+        if (!existing) {
+          existing = {
+            id: `slot_${doctor.id}_${targetDate}_${cur}`,
+            doctorId: doctor.id,
+            slotDate: targetDate,
+            startTime: slotStartTime,
+            endTime: slotEndTime,
+            status: 'AVAILABLE',
+          };
+          this.slots.push(existing);
+        }
+        generatedSlots.push(existing);
       }
-
-      generatedSlots.push(existing);
     }
 
     return {
@@ -497,6 +474,109 @@ export class AppointmentsService {
       apt.paymentStatus = 'PAID';
     }
     return apt;
+  }
+
+  // ─── OPD timings ──────────────────────────────────────────────────────────
+
+  private normaliseName(name: string) {
+    return name.toLowerCase().replace(/^dr\.?\s*/, '').replace(/\([^)]*\)/g, '').replace(/[^a-z]/g, '');
+  }
+
+  /** Map our doctor ids to the matching rows in the doctors table (matched by name). */
+  private async dbDoctorIds(): Promise<Map<string, string>> {
+    const map = new Map<string, string>();
+    const rows = await this.prisma.doctor.findMany({ select: { id: true, name: true } });
+    for (const d of this.doctors) {
+      const want = this.normaliseName(d.name);
+      const hit = rows.find((r) => {
+        const got = this.normaliseName(r.name);
+        return got === want || want.startsWith(got) || got.startsWith(want);
+      });
+      if (hit) map.set(d.id, hit.id);
+    }
+    return map;
+  }
+
+  private dbDoctorIdCache: Map<string, string> | null = null;
+
+  /** Load saved timings from doctor_schedules once; keep defaults if the database is unreachable. */
+  private async loadSchedulesFromDb() {
+    if (this.schedulesLoadedFromDb) return;
+    this.schedulesLoadedFromDb = true;
+    try {
+      const ids = await this.dbDoctorIds();
+      this.dbDoctorIdCache = ids;
+      for (const [ourId, dbId] of ids) {
+        const rows = await this.prisma.doctorSchedule.findMany({
+          where: { doctorId: dbId, isActive: true },
+          orderBy: [{ dayOfWeek: 'asc' }, { startTime: 'asc' }],
+        });
+        if (rows.length === 0) continue;
+        const days: { start: string; end: string }[][] = [[], [], [], [], [], [], []];
+        rows.forEach((r) => days[r.dayOfWeek]?.push({ start: r.startTime, end: r.endTime }));
+        this.schedules.set(ourId, cleanSchedule({ slotMinutes: rows[0].slotDurationMins, days }));
+      }
+      this.logger.log(`Loaded OPD timings from database for ${ids.size} doctor(s)`);
+    } catch (err) {
+      this.logger.warn(`Using default OPD timings (database not reachable): ${(err as Error).message}`);
+    }
+  }
+
+  async getSchedules() {
+    await this.loadSchedulesFromDb();
+    return this.doctors.map((d) => ({
+      doctorId: d.id,
+      name: d.name,
+      department: d.department,
+      savedInDatabase: !!this.dbDoctorIdCache?.has(d.id),
+      schedule: this.schedules.get(d.id) || { slotMinutes: 15, days: [[], [], [], [], [], [], []] },
+    }));
+  }
+
+  async getSchedule(doctorId: string) {
+    const all = await this.getSchedules();
+    const one = all.find((s) => s.doctorId === doctorId);
+    if (!one) throw new NotFoundException('Doctor not found.');
+    return one;
+  }
+
+  async saveSchedule(doctorId: string, input: WeeklySchedule) {
+    await this.loadSchedulesFromDb();
+    if (!this.doctors.some((d) => d.id === doctorId)) {
+      throw new NotFoundException('Doctor not found.');
+    }
+    const problem = validateSchedule(input);
+    if (problem) throw new BadRequestException(problem);
+    const schedule = cleanSchedule(input);
+
+    // Save to the database when this doctor exists there
+    let savedInDatabase = false;
+    const dbId = this.dbDoctorIdCache?.get(doctorId);
+    if (dbId) {
+      const rows = schedule.days.flatMap((sessions, dayOfWeek) =>
+        sessions.map((sess) => ({
+          doctorId: dbId,
+          dayOfWeek,
+          startTime: sess.start,
+          endTime: sess.end,
+          slotDurationMins: schedule.slotMinutes,
+          isActive: true,
+        })),
+      );
+      try {
+        await this.prisma.$transaction([
+          this.prisma.doctorSchedule.deleteMany({ where: { doctorId: dbId } }),
+          this.prisma.doctorSchedule.createMany({ data: rows }),
+        ]);
+        savedInDatabase = true;
+      } catch (err) {
+        this.logger.error(`Could not save OPD timings for ${doctorId}: ${(err as Error).message}`);
+        throw new BadRequestException('Could not save to the database. Please try again.');
+      }
+    }
+
+    this.schedules.set(doctorId, schedule);
+    return { doctorId, savedInDatabase, schedule };
   }
 
   async getAllAppointments() {

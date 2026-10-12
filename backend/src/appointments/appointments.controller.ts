@@ -9,6 +9,7 @@ import {
   HttpStatus,
   ValidationPipe,
   Patch,
+  Put,
   UseGuards,
   BadRequestException,
 } from '@nestjs/common';
@@ -60,6 +61,26 @@ export class AppointmentsController {
   @HttpCode(HttpStatus.OK)
   confirmSlot(@Body(new ValidationPipe({ transform: true })) dto: ConfirmSlotDto) {
     return this.appointmentsService.confirmSlot(dto);
+  }
+
+  // OPD timings are public (patients see them); only staff can change them
+  @Public()
+  @Get('schedules')
+  getSchedules() {
+    return this.appointmentsService.getSchedules();
+  }
+
+  @Public()
+  @Get('schedules/:doctorId')
+  getSchedule(@Param('doctorId') doctorId: string) {
+    return this.appointmentsService.getSchedule(doctorId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Put('schedules/:doctorId')
+  saveSchedule(@Param('doctorId') doctorId: string, @Body() body: any) {
+    return this.appointmentsService.saveSchedule(doctorId, body);
   }
 
   // Patient names and phone numbers: staff only
