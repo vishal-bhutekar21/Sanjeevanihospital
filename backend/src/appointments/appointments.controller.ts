@@ -36,8 +36,9 @@ export class AppointmentsController {
   initSession(
     @Body(new ValidationPipe({ transform: true })) dto: InitBookingSessionDto,
     @CurrentUser('phone') verifiedPhone: string,
+    @CurrentUser('phoneVerified') phoneVerified: boolean,
   ) {
-    return this.appointmentsService.initSession(dto, verifiedPhone);
+    return this.appointmentsService.initSession(dto, verifiedPhone, phoneVerified !== false);
   }
 
   @Public()

@@ -32,6 +32,7 @@ interface AppointmentItem {
   startTime: string;
   status: 'CONFIRMED' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
   paymentStatus: 'PAID' | 'PENDING';
+  phoneVerified?: boolean;
   fee: number;
 }
 
@@ -284,6 +285,9 @@ export const AdminAppointmentsPage: React.FC = () => {
                     <span className="text-[11px] text-stone-400 block">
                       {apt.patientAge} Yrs, {apt.patientGender} • {apt.patientPhone}
                     </span>
+                    {apt.phoneVerified === false && (
+                      <span className="text-[11px] text-amber-800 block">Mobile not verified · call to confirm</span>
+                    )}
                   </td>
 
                   {/* Doctor & Dept */}

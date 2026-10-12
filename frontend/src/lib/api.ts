@@ -1,10 +1,16 @@
+import { HOSPITAL } from '../config/hospital';
 /**
  * Sanjeevani Multispeciality Hospital — Centralized API Configuration
  * Supports environment overrides via VITE_API_URL or defaults to local backend
  */
 
+const isLocalHost =
+  typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
+
+// VITE_API_URL wins. Without it, the live site uses the hospital's booking server
+// from config/hospital.ts, and local development uses localhost.
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+  import.meta.env.VITE_API_URL || (isLocalHost ? 'http://localhost:3000/api' : HOSPITAL.apiBaseUrl);
 
 export const apiUrl = (endpoint: string): string => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;

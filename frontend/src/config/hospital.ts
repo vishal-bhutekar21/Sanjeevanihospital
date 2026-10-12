@@ -114,6 +114,8 @@ export interface HospitalConfig {
   logo: string;
   /** Website domain without https://, e.g. "sanjeevanihosp.in". */
   website: string;
+  /** Booking server address used by the live site when VITE_API_URL is not set (must end in /api) */
+  apiBaseUrl: string;
 }
 
 export const HOSPITAL: HospitalConfig = {
@@ -186,4 +188,5 @@ export const HOSPITAL: HospitalConfig = {
   ],
   logo: '/logo.png',
   website: 'sanjeevanihosp.in',
+  apiBaseUrl: 'https://sanjeevani-backend.onrender.com/api',
 };

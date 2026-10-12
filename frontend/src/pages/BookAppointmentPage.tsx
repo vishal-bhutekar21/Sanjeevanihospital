@@ -32,6 +32,7 @@ interface Confirmation {
     endTime?: string;
     fee: number;
     paymentStatus: 'PAID' | 'PENDING';
+    phoneVerified?: boolean;
   };
   reportingInstructions: string;
 }
@@ -149,6 +150,8 @@ export const BookAppointmentPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [otpSessionId, setOtpSessionId] = useState('');
   const [otp, setOtp] = useState('');
+  // Set when the server books without SMS codes (SMS not set up yet): no code to enter
+  const [directToken, setDirectToken] = useState('');
   const [resendIn, setResendIn] = useState(0);
 
   // Confirm
@@ -306,12 +309,18 @@ export const BookAppointmentPage: React.FC = () => {
     }
     setBusy(true);
     try {
-      const data = await call<{ sessionId: string }>('/auth/send-otp', { phone });
+      const data = await call<{ sessionId: string; otpRequired?: boolean; token?: string }>('/auth/send-otp', { phone });
       setOtpSessionId(data.sessionId);
-      setOtp('');
-      setResendIn(30);
+      if (data.otpRequired === false && data.token) {
+        setDirectToken(data.token);
+      } else {
+        setOtp('');
+        setResendIn(30);
+      }
+      return data;
     } catch (e: any) {
       setError(e.message);
+      return null;
     } finally {
       setBusy(false);
     }
@@ -333,18 +342,25 @@ export const BookAppointmentPage: React.FC = () => {
       go('confirm');
       return;
     }
+    let token = directToken;
     if (!otpSessionId) {
-      await sendOtp();
-      return;
+      const sent = await sendOtp();
+      if (!sent) return;
+      // SMS not set up on the server: continue straight away, reception confirms by phone
+      if (sent.otpRequired === false && sent.token) token = sent.token;
+      else return;
     }
-    if (!/^\d{6}$/.test(otp)) {
+    if (!token && !/^\d{6}$/.test(otp)) {
       setError(L('Enter the 6-digit code from the SMS.', 'एसएमएसमधील ६ अंकी कोड टाका.'));
       return;
     }
 
     setBusy(true);
     try {
-      const verified = await call<{ token: string }>('/auth/verify-otp', { sessionId: otpSessionId, otp });
+      if (!token) {
+        const verified = await call<{ token: string }>('/auth/verify-otp', { sessionId: otpSessionId, otp });
+        token = verified.token;
+      }
       const session = await call<{ sessionId: string }>(
         '/appointments/session/init',
         {
@@ -355,7 +371,7 @@ export const BookAppointmentPage: React.FC = () => {
           patientAddress: [town.trim(), reason.trim()].filter(Boolean).join(' · '),
           doctorId: doctor.id,
         },
-        verified.token,
+        token,
       );
       setBookingSessionId(session.sessionId);
 
@@ -820,6 +836,7 @@ export const BookAppointmentPage: React.FC = () => {
                       onClick={() => {
                         setOtpSessionId('');
                         setOtp('');
+                        setDirectToken('');
                         setResendIn(0);
                       }}
                     >
@@ -832,7 +849,16 @@ export const BookAppointmentPage: React.FC = () => {
                   )}
                 </div>
 
-                {!offline && otpSessionId && (
+                {!offline && directToken && (
+                  <p className="mt-4 p-3 rounded-md bg-[#E8F3F1] text-[#0B5D57] text-sm">
+                    {L(
+                      'No code is needed right now. Reception will call this number to confirm your booking.',
+                      'सध्या कोडची गरज नाही. बुकिंग निश्चित करण्यासाठी रिसेप्शन या नंबरवर कॉल करेल.',
+                    )}
+                  </p>
+                )}
+
+                {!offline && otpSessionId && !directToken && (
                   <div className="mt-5">
                     <label htmlFor="potp" className="block font-medium mb-1.5">
                       {L(`Enter the 6-digit code sent to +91 ${phone}`, `+91 ${phone} वर आलेला ६ अंकी कोड टाका`)}
@@ -864,7 +890,7 @@ export const BookAppointmentPage: React.FC = () => {
                 onBack={() => go('time')}
                 submit
                 busy={busy}
-                nextLabel={offline ? L('Continue', 'पुढे') : otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
+                nextLabel={offline || directToken ? L('Continue', 'पुढे') : otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
               />
             </form>
           )}
@@ -1227,6 +1253,15 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
           <dd>{HOSPITAL.address.short}</dd>
         </dl>
       </div>
+
+      {a.phoneVerified === false && (
+        <p className="mt-6 card-notice-amber text-[15px]">
+          {L(
+            `Reception will call ${phoneShown} to confirm this appointment. Please keep your phone on.`,
+            `ही अपॉइंटमेंट निश्चित करण्यासाठी रिसेप्शन ${phoneShown} वर कॉल करेल. कृपया फोन चालू ठेवा.`,
+          )}
+        </p>
+      )}
 
       <h2 className="mt-8 text-xl">{L('Before you come', 'येण्यापूर्वी')}</h2>
       <ul className="mt-3 space-y-2 text-[15px] text-stone-700 list-disc pl-5">
