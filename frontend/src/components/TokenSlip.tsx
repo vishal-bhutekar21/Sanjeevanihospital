@@ -99,7 +99,7 @@ export const TokenSlip = forwardRef<HTMLDivElement, { d: SlipData }>(({ d }, ref
             {row(
               'Consultation fee',
               <span>
-                ₹{d.fee}{' '}
+                {d.fee > 0 ? `₹${d.fee}` : 'As per hospital rates'}{' '}
                 <span style={{ color: d.paid ? '#0B5D57' : '#7A5300', fontWeight: 600 }}>
                   {d.paid ? '· Paid online' : '· To pay at OPD counter'}
                 </span>
@@ -113,7 +113,7 @@ export const TokenSlip = forwardRef<HTMLDivElement, { d: SlipData }>(({ d }, ref
           {[
             'Arrive 15 minutes early and show this slip at OPD reception.',
             'Bring old prescriptions and test reports, if any.',
-            ...(d.paid ? [] : [`Pay the consultation fee of ₹${d.fee} at the counter.`]),
+            ...(d.paid ? [] : [d.fee > 0 ? `Pay the consultation fee of ₹${d.fee} at the counter.` : 'Pay the consultation fee at the counter.']),
             'To change or cancel, call +91 75073 42222.',
           ].map((t, i) => (
             <div key={t} style={{ display: 'flex', gap: 8, color: '#3F3A33', marginBottom: 3 }}>

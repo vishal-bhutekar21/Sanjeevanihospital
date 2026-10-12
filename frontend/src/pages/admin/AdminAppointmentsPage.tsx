@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { feeLabel } from '../../lib/fee';
 import { apiFetch } from '../../lib/api';
 import { DateCalendar, toDateKey } from '../../components/DateCalendar';
 import {
@@ -299,7 +300,7 @@ export const AdminAppointmentsPage: React.FC = () => {
 
                   {/* Fee */}
                   <td className="py-3 px-4">
-                    <span className="font-bold text-stone-900">₹{apt.fee}</span>
+                    <span className="font-bold text-stone-900">{feeLabel(apt.fee)}</span>
                     {apt.paymentStatus === 'PAID' ? (
                       <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded ml-1.5">Paid</span>
                     ) : (

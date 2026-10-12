@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { hasFee } from '../../lib/fee';
 import { Link } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
@@ -169,7 +170,7 @@ export const AdminDoctorsPage: React.FC = () => {
                       <p className="font-medium text-[#1C2321]">{d.name}</p>
                       <p className="text-sm text-stone-600">{d.role}</p>
                       <p className="text-sm text-stone-500">
-                        {d.dept} · {d.degree} · ₹{d.fee} fee
+                        {d.dept} · {d.degree} · {hasFee(d.fee) ? `₹${d.fee} fee` : 'fee not set'}
                       </p>
                       <p className="mt-1.5 text-sm text-stone-700">{t.text}</p>
                       {t.on !== null && (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { feeLabel } from '../lib/fee';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -61,7 +62,7 @@ export const DoctorDetailPage: React.FC = () => {
 
   const details: { label: string; value: React.ReactNode }[] = [
     { label: isMr ? 'विभाग' : 'Department', value: dept },
-    { label: isMr ? 'तपासणी फी' : 'Consultation fee', value: `₹${doc.fee}` },
+    { label: isMr ? 'तपासणी फी' : 'Consultation fee', value: feeLabel(doc.fee, isMr) },
   ];
   if (doc.experienceYears) {
     details.push({

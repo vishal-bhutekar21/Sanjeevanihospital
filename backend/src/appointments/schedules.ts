@@ -19,7 +19,7 @@ export interface RosterDoctor {
   id: string;
   name: string;
   department: string;
-  fee: number;
+  fee: number; // 0 = not published; patients pay at the counter
 }
 
 // Same ids, names and fees as the website (frontend/src/data/doctorsData.ts)
@@ -38,6 +38,15 @@ export const ROSTER: RosterDoctor[] = [
   { id: 'doc-pole', name: 'Dr. Shivaji Pole', department: 'Interventional Radiology', fee: 600 },
   { id: 'doc-annachhatre', name: 'Dr. Suhrad Annachhatre', department: 'Cardiothoracic & Vascular Surgery', fee: 800 },
   { id: 'doc-vanjari', name: 'Dr. Pranav Vanjari', department: 'Neurovascular Interventional Radiology', fee: 700 },
+  // Listed on sanjeevanihosp.in; fees not published yet
+  { id: 'doc-rakh', name: 'Dr. Rajendra Rakh', department: 'Radiology', fee: 0 },
+  { id: 'doc-daberao', name: 'Dr. Sheetal Daberao', department: 'Dermatology', fee: 0 },
+  { id: 'doc-darak', name: 'Dr. Harish Darak', department: 'Gastroenterology', fee: 0 },
+  { id: 'doc-ruikar', name: 'Dr. Rahul S. Ruikar', department: 'Nephrology and Dialysis', fee: 0 },
+  { id: 'doc-wankhede', name: 'Dr. Shriram Wankhede', department: 'General and Laparoscopic Surgery', fee: 0 },
+  { id: 'doc-patil', name: 'Dr. Govind Patil', department: 'General and Laparoscopic Surgery', fee: 0 },
+  { id: 'doc-bhute', name: 'Dr. Vishnu Bhute', department: 'Cardiology', fee: 0 },
+  { id: 'doc-sanap', name: 'Dr. Rameshwar Sanap', department: 'Cardiology', fee: 0 },
 ];
 
 const monToSat = (...sessions: OpdSession[]): OpdSession[][] => [
@@ -72,6 +81,15 @@ export const DEFAULT_SCHEDULES: Record<string, WeeklySchedule> = {
   'doc-pole': { slotMinutes: 20, days: none() },
   'doc-annachhatre': { slotMinutes: 20, days: none() },
   'doc-vanjari': { slotMinutes: 20, days: none() },
+  // No timings published yet: online booking stays off until an admin sets them
+  'doc-rakh': { slotMinutes: 15, days: none() },
+  'doc-daberao': { slotMinutes: 15, days: none() },
+  'doc-darak': { slotMinutes: 15, days: none() },
+  'doc-ruikar': { slotMinutes: 15, days: none() },
+  'doc-wankhede': { slotMinutes: 15, days: none() },
+  'doc-patil': { slotMinutes: 15, days: none() },
+  'doc-bhute': { slotMinutes: 15, days: none() },
+  'doc-sanap': { slotMinutes: 15, days: none() },
 };
 
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;

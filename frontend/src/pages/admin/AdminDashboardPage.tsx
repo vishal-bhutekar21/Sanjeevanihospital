@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { hasFee } from '../../lib/fee';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
 
@@ -170,7 +171,7 @@ export const AdminDashboardPage: React.FC = () => {
                     </p>
                   </div>
                   <span className="hidden sm:inline text-sm text-stone-500 shrink-0">
-                    {a.paymentStatus === 'PAID' ? `₹${a.fee} paid` : `₹${a.fee} due`}
+                    {a.paymentStatus === 'PAID' ? `₹${a.fee} paid` : hasFee(a.fee) ? `₹${a.fee} due` : 'fee at counter'}
                   </span>
                   <span className="flex items-center gap-1.5 text-sm text-stone-700 shrink-0 w-[100px]">
                     <span className={`w-2 h-2 rounded-full ${STATUS_DOT[a.status]}`} />
