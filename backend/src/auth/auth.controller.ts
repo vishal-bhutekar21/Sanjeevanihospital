@@ -7,6 +7,7 @@ import {
   HttpStatus,
   UseGuards,
   ValidationPipe,
+  Ip,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
@@ -27,8 +28,8 @@ export class AuthController {
   @Public()
   @Post('send-otp')
   @HttpCode(HttpStatus.OK)
-  sendOtp(@Body(new ValidationPipe({ transform: true })) dto: SendOtpDto) {
-    return this.authService.sendOtp(dto);
+  sendOtp(@Body(new ValidationPipe({ transform: true })) dto: SendOtpDto, @Ip() ip: string) {
+    return this.authService.sendOtp(dto, ip);
   }
 
   @Public()

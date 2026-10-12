@@ -1,4 +1,5 @@
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { HOSPITAL } from './config/hospital.config';
 import { ValidationPipe, Logger } from '@nestjs/common';
 import helmet from 'helmet';
@@ -8,7 +9,9 @@ import { TransformInterceptor } from './common/interceptors/transform.intercepto
 
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Behind Render's proxy: use the visitor's real IP (X-Forwarded-For) for rate limits
+  app.set('trust proxy', 1);
 
   // Security Headers
   app.use(helmet());

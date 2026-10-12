@@ -111,7 +111,19 @@ export class AuthService {
   /**
    * 1. Send OTP to Patient Mobile Number
    */
-  async sendOtp(dto: SendOtpDto) {
+  // Bookings made without an SMS check, per IP per day (spam guard for the no-SMS fallback)
+  private unverifiedByIp = new Map<string, { count: number; resetAt: number }>();
+
+  /**
+   * With no SMS gateway in production, booking can still go ahead without a code:
+   * the mobile number is recorded as "not verified" and reception confirms by phone.
+   * Set REQUIRE_OTP=true to turn this off and insist on SMS codes.
+   */
+  private get allowBookingWithoutOtp() {
+    return this.configService.get<string>('REQUIRE_OTP', 'false') !== 'true';
+  }
+
+  async sendOtp(dto: SendOtpDto, ip = 'unknown') {
     const { phone } = dto;
     const now = Date.now();
 
@@ -136,10 +148,43 @@ export class AuthService {
     const smsReady = this.msg91.configured;
 
     if (!smsReady && this.isProduction) {
-      this.logger.error('MSG91_AUTH_KEY / MSG91_TEMPLATE_ID are not set; cannot send booking OTPs.');
-      throw new ServiceUnavailableException(
-        `Online booking is temporarily unavailable. Please call reception on ${HOSPITAL.helpline}.`,
+      if (!this.allowBookingWithoutOtp) {
+        this.logger.error('MSG91_AUTH_KEY / MSG91_TEMPLATE_ID are not set; cannot send booking OTPs.');
+        throw new ServiceUnavailableException(
+          `Online booking is temporarily unavailable. Please call reception on ${HOSPITAL.helpline}.`,
+        );
+      }
+
+      const day = this.unverifiedByIp.get(ip);
+      if (day && now < day.resetAt && day.count >= 5) {
+        throw new BadRequestException(
+          `Too many bookings from this connection today. Please call reception on ${HOSPITAL.helpline}.`,
+        );
+      }
+      if (!day || now >= day.resetAt) {
+        this.unverifiedByIp.set(ip, { count: 1, resetAt: now + 24 * 60 * 60 * 1000 });
+      } else {
+        day.count += 1;
+      }
+
+      this.logger.warn(`SMS not configured: booking for +91-${phone} continues without OTP (mobile not verified).`);
+      const token = this.jwtService.sign(
+        {
+          sub: sessionId,
+          phone,
+          type: 'BOOKING_SESSION',
+          role: 'PATIENT_EPHEMERAL',
+          phoneVerified: false,
+        },
+        { expiresIn: '30m' },
       );
+      return {
+        sessionId,
+        phone: `+91-${phone}`,
+        otpRequired: false,
+        token,
+        message: 'SMS codes are not set up yet. Reception will call this number to confirm the booking.',
+      };
     }
 
     // Real random code when SMS is set up; fixed code only for local development
@@ -166,6 +211,7 @@ export class AuthService {
     return {
       sessionId,
       phone: `+91-${phone}`,
+      otpRequired: true,
       expiresInSeconds: 600,
       message: 'OTP sent by SMS',
     };

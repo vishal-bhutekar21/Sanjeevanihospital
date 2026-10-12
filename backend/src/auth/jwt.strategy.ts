@@ -10,6 +10,7 @@ export interface JwtPayload {
   hospitalId?: string;
   type?: string;
   phone?: string;
+  phoneVerified?: boolean;
 }
 
 @Injectable()
@@ -33,6 +34,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       hospitalId: payload.hospitalId,
       type: payload.type,
       phone: payload.phone,
+      // OTP-verified tokens don't carry the flag; only the no-SMS fallback sets it to false
+      phoneVerified: payload.phoneVerified !== false,
     };
   }
 }

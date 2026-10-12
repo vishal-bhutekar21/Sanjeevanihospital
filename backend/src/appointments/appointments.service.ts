@@ -32,6 +32,7 @@ export interface BookingSessionRecord {
   departmentId?: string;
   status: 'OTP_VERIFIED' | 'SLOT_HELD' | 'PAYMENT_PENDING' | 'PAYMENT_COMPLETED' | 'CONFIRMED' | 'EXPIRED';
   heldSlotId?: string;
+  phoneVerified?: boolean;
   paymentId?: string;
   paidAmount?: number;
   expiresAt: number;
@@ -68,6 +69,8 @@ export interface ConfirmedAppointmentRecord {
   endTime: string;
   status: 'CONFIRMED' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
   paymentStatus: 'PAID' | 'PENDING';
+  // false = booked while SMS codes were not set up; reception should call to confirm
+  phoneVerified?: boolean;
   fee: number;
   paymentId?: string;
   createdAt: string;
@@ -124,7 +127,7 @@ export class AppointmentsService {
   /**
    * 1. Initialize Booking Session with Patient Demographics
    */
-  async initSession(dto: InitBookingSessionDto, verifiedPhone?: string) {
+  async initSession(dto: InitBookingSessionDto, verifiedPhone?: string, phoneVerified = true) {
     if (!this.doctors.some((d) => d.id === dto.doctorId)) {
       throw new BadRequestException(
         'Online booking is not available for this doctor yet. Please call reception to book.',
@@ -136,6 +139,7 @@ export class AppointmentsService {
       id: sessionId,
       // Always use the phone number that passed OTP, not what the form sent
       phone: (verifiedPhone || dto.phone).replace(/^\+?91-?/, ''),
+      phoneVerified,
       patientName: dto.patientName,
       patientAge: dto.patientAge,
       patientGender: dto.patientGender,
@@ -395,6 +399,7 @@ export class AppointmentsService {
       department: doctor.department,
       patientName: session.patientName,
       patientPhone: session.phone,
+      phoneVerified: session.phoneVerified !== false,
       patientAge: session.patientAge,
       patientGender: session.patientGender,
       patientAddress: session.patientAddress,

@@ -14,8 +14,9 @@ Frontend → **Netlify** (static site). Backend → **Render** (Node web service
 | `DIRECT_URL` | for migrations | `postgresql://…:5432/postgres` | Used by `prisma db push` / migrations. |
 | `JWT_SECRET` | **yes** | long random string | Signs patient and staff tokens. The code has a built-in fallback: never rely on it. New value per hospital. |
 | `JWT_EXPIRES_IN` | no | `7d` | Staff login lifetime. |
-| `MSG91_AUTH_KEY` | yes (prod) | from MSG91 | Without it (in production) patients are told to call reception instead of booking. |
-| `MSG91_TEMPLATE_ID` | yes (prod) | from MSG91 | DLT-approved OTP template. |
+| `MSG91_AUTH_KEY` | recommended (prod) | from MSG91 | Without it (in production) patients still book, but the mobile number is not checked: the booking is marked "mobile not verified" in Admin → Appointments and reception calls to confirm. Limited to 5 such bookings per visitor per day. |
+| `MSG91_TEMPLATE_ID` | recommended (prod) | from MSG91 | DLT-approved OTP template. |
+| `REQUIRE_OTP` | no | `false` | `true` = refuse online booking until SMS codes work (patients are asked to call). |
 | `RAZORPAY_KEY_ID` | no | `rzp_live_…` | Empty = online payment off; patients pay at the counter. |
 | `RAZORPAY_KEY_SECRET` | no | from Razorpay | Needed with the key id; used to verify signatures. |
 | `HOSPITAL_TENANT_ID` | no | `hosp-sanjeevani-jalna` | See `src/config/hospital.config.ts`. |
@@ -29,7 +30,7 @@ Frontend → **Netlify** (static site). Backend → **Render** (Node web service
 
 | Variable | Required | Example | Notes |
 | --- | --- | --- | --- |
-| `VITE_API_URL` | **yes** (prod) | `https://sanjeevani-backend.onrender.com/api` | Must end with `/api`. Read at **build** time: after changing it, redeploy the site. Default is `http://localhost:3000/api`. |
+| `VITE_API_URL` | **yes** (prod) | `https://sanjeevani-backend.onrender.com/api` | Must end with `/api`. Read at **build** time: after changing it, redeploy the site. If it is not set, the live site uses `apiBaseUrl` from `frontend/src/config/hospital.ts`; on localhost it uses `http://localhost:3000/api`. |
 | `VITE_RAZORPAY_KEY_ID` | no | | Not needed; the backend sends the key id with each order. |
 | `VITE_GOOGLE_MAPS_KEY`, `VITE_FIREBASE_*` | no | | Not used by the current pages. |
 
@@ -110,3 +111,11 @@ Choose a paid instance for a live hospital: free instances sleep after inactivit
 | Admin login fails in production | No admin in the database | Run the seed, or create an admin. |
 | Pages 404 on refresh at `/doctors` etc. | SPA redirect missing | Netlify: keep `netlify.toml` / `public/_redirects`. |
 | Doctor photo shows initials | File `public/images/doctors/<id>.webp` missing or misnamed | Add it with the exact id. |
+
+## "Online booking is not available right now"
+
+The booking page shows this when it cannot reach the booking server. Check, in order:
+
+1. Open `https://<backend>/api/health`. "Service Suspended" or no answer means the Render service is off: Render dashboard → the service → **Resume Service** (check billing if it was suspended for payment).
+2. The site must point at the server: `VITE_API_URL` on Netlify, or `apiBaseUrl` in `frontend/src/config/hospital.ts`. Redeploy the site after changing either.
+3. While the server is off, the page still lets patients pick a time and send the request to reception on WhatsApp.
