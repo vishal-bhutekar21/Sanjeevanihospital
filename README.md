@@ -208,14 +208,39 @@ docker-compose up -d --build
 
 ---
 
-## 🔑 Pre-Configured Test Credentials
+## 🔑 Test Accounts
 
-| Portal | URL / Path | Credentials |
-|---|---|---|
-| **Public Website** | `/` | Open Access |
-| **Online OPD Booking** | `/book` | Any 10-digit mobile (OTP: `123456`) |
-| **Admin Portal** | `/admin/login` | `admin@sanjeevanihosp.in` / `Admin@123` |
-| **Super Admin** | `/admin/login` | `superadmin@sanjeevanihosp.in` / `SuperAdmin@123` |
+Use these to try the site. **They are for testing only.** Change or remove them before real patients and staff use the site.
+
+### Test admin (staff login: `/admin/login`)
+
+| Role | Email | Password | Where it works |
+|---|---|---|---|
+| Hospital admin | `admin@sanjeevanihosp.in` | `Admin@123` | Local development (built-in account). Also on the live site **if the database was seeded** with `npm run prisma:seed`, which creates the same account |
+| Super admin | `superadmin@sanjeevanihosp.in` | `SuperAdmin@123` | Local development only (built-in, not in the seed) |
+
+> ⚠️ When `NODE_ENV=production`, built-in accounts are switched off and only database accounts can sign in. If you seeded the live database, **change the `Admin@123` password right away**: this README is public.
+
+### Test patient (online booking: `/book`)
+
+| What | Value |
+|---|---|
+| Mobile number | Any valid 10-digit Indian mobile starting with 6–9, e.g. `9876543210` |
+| OTP code | `123456`, **only when the backend runs in development** (`NODE_ENV` not `production`). It's also printed in the backend log |
+| On the live site | A real 6-digit code is sent by SMS (needs `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`) |
+| Limit | 3 codes per number every 10 minutes. Use another number if you hit it while testing |
+
+### Test payment (only when Razorpay **test** keys are set)
+
+| Method | Value |
+|---|---|
+| Card | `4111 1111 1111 1111`, any future expiry date, any CVV |
+| UPI | `success@razorpay` |
+
+Without Razorpay keys, or for a doctor whose fee isn't set, booking offers **Pay at the hospital** only.
+
+### If the backend is down
+The booking page still works. Times come from each doctor's published OPD hours, and the last step sends the request to reception on WhatsApp (+91 75073 42222) or by phone. Reception confirms by calling the patient.
 
 ---
 
@@ -236,4 +261,5 @@ node test_phase8_9.js
 
 ## 📄 License & Authorship
 Developed for **Sanjeevani Multispeciality Hospital, Jalna, Maharashtra**.
-Engineered under Senior Product Architect standards.
+
+**Developer:** Vishal Bhutekar · [vishalbhutekar.me](https://vishalbhutekar.me) · [vishalbhutekar33772@gmail.com](mailto:vishalbhutekar33772@gmail.com)

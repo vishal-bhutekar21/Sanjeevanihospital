@@ -16,6 +16,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
+import { DEVELOPER } from '../data/developer';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
@@ -149,6 +150,17 @@ export const AdminLayout: React.FC = () => {
             <ExternalLink className="w-3.5 h-3.5" /> Open website
           </span>
         </Link>
+
+        <p className="px-3 text-[11px] leading-relaxed text-stone-500">
+          Website support:{' '}
+          <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="text-stone-300 hover:text-white underline underline-offset-2">
+            {DEVELOPER.name}
+          </a>
+          <br />
+          <a href={`mailto:${DEVELOPER.email}`} className="hover:text-stone-300 break-all">
+            {DEVELOPER.email}
+          </a>
+        </p>
 
         <div className="px-3 py-2 bg-white/5 rounded-md space-y-1">
           <p className="text-white font-bold text-xs">{admin?.name || 'Administrator'}</p>
