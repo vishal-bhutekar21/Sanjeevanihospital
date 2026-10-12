@@ -6,6 +6,7 @@ import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
 import { DoctorPhoto } from '../components/ui';
 import { feeLabel, hasFee } from '../lib/fee';
 import { DateCalendar } from '../components/DateCalendar';
+import { offlineSlots, parseOpdHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 
@@ -130,6 +131,11 @@ export const BookAppointmentPage: React.FC = () => {
   const [slotsState, setSlotsState] = useState<'loading' | 'ready' | 'error' | 'not-bookable' | 'day-off'>('loading');
   const [slot, setSlot] = useState<Slot | null>(null);
   const userPickedDate = useRef(false);
+  // Booking server unreachable: times come from the doctor's published hours and the
+  // final step sends a request to reception (WhatsApp / call) instead of confirming online
+  const [offline, setOffline] = useState(false);
+  const [dayView, setDayView] = useState<'days' | 'calendar'>('days');
+  const [dayCounts, setDayCounts] = useState<Record<string, number>>({});
   // Weekdays (0 = Sunday) on which the selected doctor holds OPD; null = not known yet
   const [opdWeekdays, setOpdWeekdays] = useState<number[] | null>(null);
 
@@ -184,13 +190,68 @@ export const BookAppointmentPage: React.FC = () => {
             return;
           }
         }
+        setOffline(false);
         setSlots(list);
         setSlotsState('ready');
       }
-    } catch {
+    } catch (e: any) {
+      // Server down or unreachable: fall back to the doctor's published hours
+      if (!e?.status || e.status >= 500) {
+        const list = offlineSlots(doctor.timings, date);
+        if (list) {
+          setOffline(true);
+          if (list.length === 0) {
+            const hours = parseOpdHours(doctor.timings)!;
+            const worksThatDay = hours.weekdays.includes(new Date(`${date}T00:00:00`).getDay());
+            // Today's times have passed: move to the next working day unless the patient chose today
+            if (worksThatDay && date === minDateKey && !userPickedDate.current) {
+              const next = days.slice(1).find((d) => hours.weekdays.includes(d.getDay()));
+              if (next) {
+                setDate(toDateKey(next));
+                return;
+              }
+            }
+            setSlots([]);
+            setSlotsState(worksThatDay ? 'ready' : 'day-off');
+            return;
+          }
+          setSlots(list);
+          setSlotsState('ready');
+          return;
+        }
+      }
       setSlotsState('error');
     }
   };
+
+  // Free-time counts for the "next 7 days" columns
+  const nextOpenDays = useMemo(
+    () => days.filter((d) => !opdWeekdays || opdWeekdays.length === 0 || opdWeekdays.includes(d.getDay())).slice(0, 7),
+    [days, opdWeekdays],
+  );
+  useEffect(() => {
+    if (step !== 'time' || !doctor) return;
+    let cancelled = false;
+    Promise.all(
+      nextOpenDays.map(async (d) => {
+        const key = toDateKey(d);
+        try {
+          const data = await call<{ bookable?: boolean; dayOff?: boolean; slots: Slot[] }>(
+            `/appointments/availability?doctorId=${encodeURIComponent(doctor.id)}&date=${key}`,
+          );
+          return [key, data.bookable === false || data.dayOff ? 0 : (data.slots || []).filter((x) => x.status === 'AVAILABLE').length] as const;
+        } catch {
+          return [key, offlineSlots(doctor.timings, key)?.length ?? -1] as const;
+        }
+      }),
+    ).then((pairs) => {
+      if (!cancelled) setDayCounts(Object.fromEntries(pairs));
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doctor?.id, step, nextOpenDays.map(toDateKey).join(), confirmation]);
 
   useEffect(() => {
     if (step === 'time') loadSlots();
@@ -210,7 +271,15 @@ export const BookAppointmentPage: React.FC = () => {
           if (first) setDate(toDateKey(first));
         }
       })
-      .catch(() => setOpdWeekdays(null));
+      .catch(() => {
+        // Offline: use the published hours to know which weekdays have OPD
+        const hours = parseOpdHours(doctor.timings);
+        setOpdWeekdays(hours ? hours.weekdays : null);
+        if (hours && !hours.weekdays.includes(new Date(`${date}T00:00:00`).getDay())) {
+          const first = days.find((x) => hours.weekdays.includes(x.getDay()));
+          if (first) setDate(toDateKey(first));
+        }
+      });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [doctor?.id]);
 
@@ -253,6 +322,14 @@ export const BookAppointmentPage: React.FC = () => {
     if (!doctor || !slot) return;
     if (!name.trim() || !age || !gender || !town.trim()) {
       setError(L('Please fill in the patient’s name, age, gender and town.', 'कृपया रुग्णाचे नाव, वय, लिंग व गाव भरा.'));
+      return;
+    }
+    if (offline) {
+      if (!/^[6-9]\d{9}$/.test(phone)) {
+        setError(L('Please enter a valid 10-digit mobile number.', 'कृपया योग्य १० अंकी मोबाईल नंबर टाका.'));
+        return;
+      }
+      go('confirm');
       return;
     }
     if (!otpSessionId) {
@@ -467,42 +544,71 @@ export const BookAppointmentPage: React.FC = () => {
           {/* ── Step 2: Time ───────────────────────────────────────────── */}
           {step === 'time' && doctor && (
             <section>
-              <h2 className="text-xl mb-3">{L('Which day?', 'कोणता दिवस?')}</h2>
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <h2 className="text-xl">{L('Which day?', 'कोणता दिवस?')}</h2>
+                <div className="inline-flex rounded-md border border-[#D8D3C8] bg-white p-0.5 text-sm" role="tablist" aria-label={L('How to pick a day', 'दिवस कसा निवडायचा')}>
+                  {([
+                    ['days', L('Next 7 days', 'पुढील ७ दिवस')],
+                    ['calendar', L('Calendar', 'कॅलेंडर')],
+                  ] as const).map(([k, label]) => (
+                    <button
+                      key={k}
+                      type="button"
+                      role="tab"
+                      aria-selected={dayView === k}
+                      onClick={() => setDayView(k)}
+                      className={`px-3.5 py-1.5 rounded ${dayView === k ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-              {/* Quick picks: the next few days this doctor holds OPD */}
-              {(() => {
-                const open = days
-                  .filter((d) => !opdWeekdays || opdWeekdays.length === 0 || opdWeekdays.includes(d.getDay()))
-                  .slice(0, 5);
-                return (
-                  <div className="flex gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 pb-1 mb-4" aria-label={L('Next available days', 'पुढील उपलब्ध दिवस')}>
-                    {open.map((d) => {
+              <div className={dayView === 'calendar' ? 'grid md:grid-cols-2 gap-6 items-start' : 'space-y-8'}>
+                {dayView === 'days' ? (
+                  <div
+                    className="grid grid-flow-col auto-cols-[minmax(84px,1fr)] gap-2 overflow-x-auto no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0 pb-1"
+                    aria-label={L('Next available days', 'पुढील उपलब्ध दिवस')}
+                  >
+                    {nextOpenDays.map((d) => {
                       const key = toDateKey(d);
                       const active = key === date;
                       const idx = days.indexOf(d);
+                      const count = dayCounts[key];
+                      const full = count === 0;
                       return (
                         <button
                           key={key}
                           type="button"
                           aria-pressed={active}
+                          disabled={full}
                           onClick={() => {
                             userPickedDate.current = true;
                             setDate(key);
                             setSlot(null);
                           }}
-                          className={`shrink-0 px-3.5 py-2 rounded-md border text-sm transition-colors ${
-                            active ? 'bg-[#0F766E] border-[#0F766E] text-white font-semibold' : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
+                          className={`rounded-lg border px-2 py-3 text-center transition-colors ${
+                            active
+                              ? 'bg-[#0F766E] border-[#0F766E] text-white'
+                              : full
+                              ? 'bg-stone-100 border-stone-100 text-stone-400 cursor-not-allowed'
+                              : 'bg-white border-[#D8D3C8] hover:border-[#0F766E]'
                           }`}
                         >
-                          {idx === 0 ? L('Today', 'आज') : idx === 1 ? L('Tomorrow', 'उद्या') : dateLabel(key)}
+                          <span className={`block text-xs ${active ? 'text-teal-100' : 'text-stone-500'}`}>
+                            {idx === 0 ? L('Today', 'आज') : idx === 1 ? L('Tomorrow', 'उद्या') : dateLabel(key, { weekday: 'short' })}
+                          </span>
+                          <span className="block text-2xl font-semibold leading-tight mt-0.5">{d.getDate()}</span>
+                          <span className={`block text-xs ${active ? 'text-teal-100' : 'text-stone-500'}`}>{dateLabel(key, { month: 'short' })}</span>
+                          <span className={`block mt-2 text-xs font-medium ${active ? 'text-white' : full ? 'text-stone-400' : 'text-[#0F766E]'}`}>
+                            {count === undefined || count < 0 ? '\u00a0' : full ? L('Full', 'भरले') : L(`${count} free`, `${count} उपलब्ध`)}
+                          </span>
                         </button>
                       );
                     })}
                   </div>
-                );
-              })()}
-
-              <div className="grid md:grid-cols-2 gap-6 items-start">
+                ) : (
                 <DateCalendar
                   value={date}
                   minDate={minDateKey}
@@ -515,12 +621,13 @@ export const BookAppointmentPage: React.FC = () => {
                     setSlot(null);
                   }}
                 />
+                )}
                 <div>
               <h2 className="text-xl mb-1">{L('What time?', 'किती वाजता?')}</h2>
               <p className="text-sm text-stone-500 mb-4">{dateLabel(date, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
 
               {slotsState === 'loading' && (
-                <div className="grid grid-cols-3 gap-2" aria-busy="true">
+                <div className={`grid gap-2 ${dayView === 'days' ? 'grid-cols-3 sm:grid-cols-4' : 'grid-cols-3'}`} aria-busy="true">
                   {Array.from({ length: 8 }).map((_, i) => (
                     <div key={i} className="h-12 rounded-md bg-stone-200/60 animate-pulse" />
                   ))}
@@ -583,7 +690,7 @@ export const BookAppointmentPage: React.FC = () => {
                 groupedSlots.map((g) => (
                   <div key={g.key} className="mb-6">
                     <p className="text-sm text-stone-500 mb-2">{g.label}</p>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className={`grid gap-2 ${dayView === 'days' ? 'grid-cols-3 sm:grid-cols-4' : 'grid-cols-3'}`}>
                       {g.items.map((s) => {
                         const free = s.status === 'AVAILABLE';
                         const active = slot?.id === s.id;
@@ -686,7 +793,9 @@ export const BookAppointmentPage: React.FC = () => {
               <section className="mt-8 pt-6 border-t border-[#E7E3DA]">
                 <h2 className="text-xl">{L('Mobile number', 'मोबाईल नंबर')}</h2>
                 <p className="text-sm text-stone-600 mt-1">
-                  {L('We’ll text a 6-digit code to confirm it’s your number. Reception may call you on it if a doctor’s timing changes.', 'हा नंबर आपलाच आहे हे तपासण्यासाठी ६ अंकी कोड पाठवू. डॉक्टरांची वेळ बदलल्यास रिसेप्शन या नंबरवर कॉल करू शकते.')}
+                  {offline
+                    ? L('Reception will call you on this number to confirm your time.', 'आपली वेळ निश्चित करण्यासाठी रिसेप्शन या नंबरवर कॉल करेल.')
+                    : L('We’ll text a 6-digit code to confirm it’s your number. Reception may call you on it if a doctor’s timing changes.', 'हा नंबर आपलाच आहे हे तपासण्यासाठी ६ अंकी कोड पाठवू. डॉक्टरांची वेळ बदलल्यास रिसेप्शन या नंबरवर कॉल करू शकते.')}
                 </p>
 
                 <div className="mt-4 flex gap-2">
@@ -703,7 +812,7 @@ export const BookAppointmentPage: React.FC = () => {
                       className={`${inputClass} pl-12 disabled:bg-stone-100 disabled:text-stone-600`}
                     />
                   </div>
-                  {otpSessionId ? (
+                  {offline ? null : otpSessionId ? (
                     <button
                       type="button"
                       className="btn-secondary shrink-0"
@@ -722,7 +831,7 @@ export const BookAppointmentPage: React.FC = () => {
                   )}
                 </div>
 
-                {otpSessionId && (
+                {!offline && otpSessionId && (
                   <div className="mt-5">
                     <label htmlFor="potp" className="block font-medium mb-1.5">
                       {L(`Enter the 6-digit code sent to +91 ${phone}`, `+91 ${phone} वर आलेला ६ अंकी कोड टाका`)}
@@ -754,13 +863,75 @@ export const BookAppointmentPage: React.FC = () => {
                 onBack={() => go('time')}
                 submit
                 busy={busy}
-                nextLabel={otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
+                nextLabel={offline ? L('Continue', 'पुढे') : otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
               />
             </form>
           )}
 
           {/* ── Step 4: Confirm ────────────────────────────────────────── */}
-          {step === 'confirm' && doctor && slot && (
+          {/* ── Step 4 (server down): send the request to reception ───── */}
+          {step === 'confirm' && offline && doctor && slot && (() => {
+            const when = `${dateLabel(date, { weekday: 'long', day: 'numeric', month: 'long' })}, ${slot.startTime.replace(/^0/, '')}`;
+            const message = [
+              'Appointment request – Sanjeevani Hospital',
+              `Doctor: ${doctor.name}`,
+              `Date and time: ${when}`,
+              `Patient: ${name.trim()}, ${age} yrs, ${gender}`,
+              `Town: ${town.trim()}`,
+              `Mobile: +91 ${phone}`,
+              reason.trim() ? `Reason: ${reason.trim()}` : '',
+              'Please confirm this appointment.',
+            ]
+              .filter(Boolean)
+              .join('\n');
+            return (
+              <section>
+                <div className="card-notice-amber text-[15px]">
+                  <p className="font-semibold">{L('Online booking is not available right now', 'ऑनलाइन बुकिंग सध्या उपलब्ध नाही')}</p>
+                  <p className="mt-1">
+                    {L(
+                      'Send this request to the hospital. Reception will call you on +91 ' + phone + ' to confirm the time. Your appointment is confirmed only after that call.',
+                      'ही विनंती हॉस्पिटलला पाठवा. वेळ निश्चित करण्यासाठी रिसेप्शन +91 ' + phone + ' वर कॉल करेल. त्या कॉलनंतरच अपॉइंटमेंट निश्चित होईल.',
+                    )}
+                  </p>
+                </div>
+
+                <h2 className="text-xl mt-8 mb-3">{L('Your request', 'आपली विनंती')}</h2>
+                <dl className="divide-y divide-[#E7E3DA] border-y border-[#E7E3DA] text-[15px]">
+                  {[
+                    [L('Doctor', 'डॉक्टर'), isMr ? doctor.nameMr : doctor.name],
+                    [L('When', 'केव्हा'), when],
+                    [L('Patient', 'रुग्ण'), `${name.trim()}, ${age}`],
+                    [L('Mobile', 'मोबाईल'), `+91 ${phone}`],
+                  ].map(([k, v]) => (
+                    <div key={k} className="py-3 flex justify-between gap-4">
+                      <dt className="text-stone-500">{k}</dt>
+                      <dd className="text-right">{v}</dd>
+                    </div>
+                  ))}
+                </dl>
+
+                <div className="mt-8 flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={`https://wa.me/${HOSPITAL_WHATSAPP}?text=${encodeURIComponent(message)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-primary"
+                  >
+                    {L('Send request on WhatsApp', 'व्हॉट्सॲपवर विनंती पाठवा')}
+                  </a>
+                  <a href="tel:+917507342222" className="btn-secondary">
+                    <Phone className="w-4 h-4" /> {L('Call 75073 42222 instead', 'त्याऐवजी ७५०७३ ४२२२२ वर कॉल करा')}
+                  </a>
+                </div>
+                <button type="button" onClick={() => go('details')} className="mt-6 inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
+                  <ArrowLeft className="w-4 h-4" /> {L('Back', 'मागे')}
+                </button>
+              </section>
+            );
+          })()}
+
+          {step === 'confirm' && !offline && doctor && slot && (
             <section>
               <div className={`p-4 rounded-md text-[15px] ${holdLeft > 0 ? 'bg-[#E8F3F1] text-[#0B5D57]' : 'bg-amber-50 text-amber-900'}`}>
                 {holdLeft > 0

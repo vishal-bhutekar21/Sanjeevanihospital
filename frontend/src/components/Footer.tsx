@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { DEVELOPER } from '../data/developer';
 import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight } from 'lucide-react';
 
 export const Footer: React.FC = () => {
@@ -109,8 +110,20 @@ export const Footer: React.FC = () => {
 
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row gap-2 justify-between text-xs text-stone-500">
-          <p>© {new Date().getFullYear()} Sanjeevani Multispeciality Hospital, Jalna</p>
-          <div className="flex gap-4">
+          <div className="space-y-1">
+            <p>© {new Date().getFullYear()} Sanjeevani Multispeciality Hospital, Jalna</p>
+            <p>
+              {isMr ? 'वेबसाइट विकसक: ' : 'Website by '}
+              <a href={DEVELOPER.url} target="_blank" rel="noopener noreferrer" className="text-stone-300 hover:text-white underline underline-offset-2">
+                {DEVELOPER.name}
+              </a>
+              {' · '}
+              <a href={`mailto:${DEVELOPER.email}`} className="hover:text-stone-300">
+                {DEVELOPER.email}
+              </a>
+            </p>
+          </div>
+          <div className="flex gap-4 sm:self-end">
             <span>{isMr ? 'MJPJAY संलग्न रुग्णालय' : 'MJPJAY empanelled hospital'}</span>
             <Link to="/admin/login" className="hover:text-stone-300">
               {isMr ? 'कर्मचारी लॉगिन' : 'Staff login'}
