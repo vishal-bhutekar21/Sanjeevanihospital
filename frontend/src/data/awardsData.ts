@@ -18,7 +18,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'उत्कृष्ट मल्टिस्पेशालिटी व अतिदक्षता रुग्णसेवा पुरस्कार',
     subtitle: 'Healthcare Excellence Recognition',
     subtitleMr: 'आरोग्य क्षेत्रातील विशेष सन्मान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-1-300x225.webp',
+    image: '',
     year: '2023',
     category: 'AWARD',
     description:
@@ -32,7 +32,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'मराठवाड्यातील अग्रणी वैद्यकीय नेतृत्व सन्मान',
     subtitle: 'Distinguished Service Award',
     subtitleMr: 'वैद्यकीय क्षेत्रातील अग्रगण्य योगदान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-2-300x229.webp',
+    image: '',
     year: '2023',
     category: 'AWARD',
     description:
@@ -46,7 +46,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'राज्यस्तरीय आरोग्य गौरव पुरस्कार',
     subtitle: 'Excellence in Emergency Care',
     subtitleMr: 'आपत्कालीन सेवेतील विशेष कामगिरी',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-3-300x225.webp',
+    image: '',
     year: '2022',
     category: 'AWARD',
     description:
@@ -60,7 +60,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'महात्मा फुले जन आरोग्य योजना उत्कृष्ट अंमलबजावणी सन्मान',
     subtitle: 'Government Scheme Recognition',
     subtitleMr: 'शासकीय योजना प्रभावी अंमलबजावणी',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-4-218x300.webp',
+    image: '',
     year: '2022',
     category: 'AWARD',
     description:
@@ -74,7 +74,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'सर्वोत्कृष्ट अतिदक्षता विभाग (ICU) पुरस्कार',
     subtitle: 'Hospital Infrastructure Benchmark',
     subtitleMr: 'वैद्यकीय पायाभूत सुविधा गौरव',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-5-300x289.webp',
+    image: '',
     year: '2022',
     category: 'AWARD',
     description:
@@ -88,7 +88,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'कोरोना योद्धा व अविरत रुग्णसेवा विशेष सन्मान',
     subtitle: 'Pandemic Response Citation',
     subtitleMr: 'साथरोग काळात अखंड जीवनरक्षक कार्य',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-6-300x244.webp',
+    image: '',
     year: '2021',
     category: 'ACHIEVEMENT',
     description:
@@ -102,7 +102,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'रोटरी व लायन्स क्लब मानवतावादी आरोग्य पुरस्कार',
     subtitle: 'Community Health Champion',
     subtitleMr: 'समाजहितासाठी आरोग्य सेवा सन्मान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-7-300x225.webp',
+    image: '',
     year: '2021',
     category: 'AWARD',
     description:
@@ -116,7 +116,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'अस्थिरोग व सांधे प्रत्यारोपण विशेष कामगिरी पुरस्कार',
     subtitle: 'Surgical Precision Award',
     subtitleMr: 'अचूक शस्त्रक्रिया तंत्रज्ञान सन्मान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-8-222x300.webp',
+    image: '',
     year: '2020',
     category: 'ACHIEVEMENT',
     description:
@@ -130,7 +130,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'माता व नवजात बालक सुरक्षितता गौरव',
     subtitle: 'Pediatric Care Benchmark',
     subtitleMr: 'बालरोग व शिशु आरोग्य विशेष सन्मान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-9-256x300.webp',
+    image: '',
     year: '2020',
     category: 'AWARD',
     description:
@@ -144,7 +144,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'जिल्हास्तरीय वैद्यकीय नेतृत्व करंडक',
     subtitle: 'Institutional Leadership',
     subtitleMr: 'संस्थात्मक उत्कृष्टता सन्मान',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-10-300x225.webp',
+    image: '',
     year: '2019',
     category: 'AWARD',
     description:
@@ -158,7 +158,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'राष्ट्रीय वैद्यकीय परिषद सन्मानचिन्ह',
     subtitle: 'Clinical Paper & Case Presentation',
     subtitleMr: 'वैद्यकीय शोधनिबंध व सादरीकरण',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-11-300x225.webp',
+    image: '',
     year: '2019',
     category: 'ACHIEVEMENT',
     description:
@@ -172,7 +172,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'आयएमए (IMA) जालना वैद्यकीय निष्ठा पुरस्कार',
     subtitle: 'Professional Excellence',
     subtitleMr: 'व्यावसायिक वैद्यकीय गौरव',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-12-242x300.webp',
+    image: '',
     year: '2018',
     category: 'AWARD',
     description:
@@ -186,7 +186,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'दर्जेदार आरोग्यसेवा व स्वच्छता सन्मान',
     subtitle: 'Hospital Infection Control Protocol',
     subtitleMr: 'हॉस्पिटल स्वच्छता व संसर्ग नियंत्रण',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-14-225x300.webp',
+    image: '',
     year: '2018',
     category: 'ACHIEVEMENT',
     description:
@@ -200,7 +200,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'जनविश्वास व सामाजिक आरोग्य सन्मान',
     subtitle: 'Public Trust & Service Citation',
     subtitleMr: 'लोकविश्वास व समाजसेवा गौरव',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-16-225x300.webp',
+    image: '',
     year: '2017',
     category: 'AWARD',
     description:
@@ -214,7 +214,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'आपत्कालीन जीवनरक्षक मानके पुरस्कार',
     subtitle: 'Golden Hour Trauma Management',
     subtitleMr: 'गोल्डन अवर ट्रॉमा व्यवस्थापन',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-17-225x300.webp',
+    image: '',
     year: '2017',
     category: 'ACHIEVEMENT',
     description:
@@ -228,7 +228,7 @@ export const AWARDS_DATA: AwardItem[] = [
     titleMr: 'संजीवनी हॉस्पिटल स्थापना गौरव सन्मान',
     subtitle: 'Serving Jalna Since 2016',
     subtitleMr: '२०१६ पासून अविरत रुग्णसेवा',
-    image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/04/Awards-18-225x300.webp',
+    image: '',
     year: '2016',
     category: 'AWARD',
     description:

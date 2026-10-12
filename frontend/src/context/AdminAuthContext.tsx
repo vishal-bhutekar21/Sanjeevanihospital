@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { ADMIN_TOKEN_KEY, ADMIN_USER_KEY } from '../lib/api';
 
 export interface AdminUser {
   id: string;
@@ -20,24 +21,24 @@ interface AdminAuthContextType {
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined);
 
 export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('sanjeevani_admin_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(ADMIN_TOKEN_KEY));
   const [admin, setAdmin] = useState<AdminUser | null>(() => {
-    const saved = localStorage.getItem('sanjeevani_admin_user');
+    const saved = localStorage.getItem(ADMIN_USER_KEY);
     return saved ? JSON.parse(saved) : null;
   });
 
   const login = (newToken: string, newAdmin: AdminUser) => {
     setToken(newToken);
     setAdmin(newAdmin);
-    localStorage.setItem('sanjeevani_admin_token', newToken);
-    localStorage.setItem('sanjeevani_admin_user', JSON.stringify(newAdmin));
+    localStorage.setItem(ADMIN_TOKEN_KEY, newToken);
+    localStorage.setItem(ADMIN_USER_KEY, JSON.stringify(newAdmin));
   };
 
   const logout = () => {
     setToken(null);
     setAdmin(null);
-    localStorage.removeItem('sanjeevani_admin_token');
-    localStorage.removeItem('sanjeevani_admin_user');
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
+    localStorage.removeItem(ADMIN_USER_KEY);
   };
 
   return (

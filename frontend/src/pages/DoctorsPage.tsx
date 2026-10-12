@@ -1,209 +1,148 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Search, ShieldCheck, Stethoscope, Users, Award, Calendar, Sparkles } from 'lucide-react';
+import { Search, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
+import { PageIntro, SectionTitle, DoctorPhoto } from '../components/ui';
+
+const GROUPS: { key: DoctorItem['category']; en: string; mr: string; subEn: string; subMr: string }[] = [
+  {
+    key: 'DIRECTOR',
+    en: 'Directors',
+    mr: 'संचालक',
+    subEn: 'The doctors who run the hospital. They see patients in the OPD as well.',
+    subMr: 'हॉस्पिटलचे संचालक डॉक्टर. हे ओपीडीमध्येही रुग्ण तपासतात.',
+  },
+  {
+    key: 'INHOUSE',
+    en: 'Consultants',
+    mr: 'कन्सल्टंट डॉक्टर',
+    subEn: 'Doctors who work at the hospital every week.',
+    subMr: 'दर आठवड्याला हॉस्पिटलमध्ये असणारे डॉक्टर.',
+  },
+  {
+    key: 'VISITING',
+    en: 'Visiting specialists',
+    mr: 'व्हिजिटिंग डॉक्टर',
+    subEn: 'They come on fixed days. Please call before you come to confirm the date.',
+    subMr: 'हे ठराविक दिवशी येतात. येण्यापूर्वी फोन करून तारीख निश्चित करा.',
+  },
+];
+
+const DoctorRow: React.FC<{ doc: DoctorItem; isMr: boolean }> = ({ doc, isMr }) => (
+  <li className="py-6 border-t border-[#E7E3DA]">
+    <div className="flex gap-4">
+      <DoctorPhoto src={doc.image} name={doc.name} className="w-20 h-24 rounded-md shrink-0" textClass="text-2xl" />
+      <div className="min-w-0 flex-1">
+        <h3 className="text-lg leading-snug">
+          <Link to={`/doctors/${doc.id}`} className="text-[#1C2321] hover:text-[#0F766E]">
+            {isMr ? doc.nameMr : doc.name}
+          </Link>
+        </h3>
+        <p className="text-[15px] text-stone-700">{isMr ? doc.roleMr : doc.role}</p>
+        <p className="text-sm text-stone-500">{doc.degree}</p>
+        <p className="mt-2 text-sm text-stone-600">{isMr ? doc.deptMr : doc.dept}</p>
+        <p className="text-sm text-stone-600">{isMr ? doc.timingsMr || doc.timings : doc.timings}</p>
+        <p className="text-sm text-stone-600">
+          {isMr ? 'तपासणी फी' : 'Consultation fee'} ₹{doc.fee}
+        </p>
+      </div>
+    </div>
+    <div className="mt-4 flex gap-3 sm:pl-24">
+      <Link to={`/doctors/${doc.id}`} className="btn-secondary px-6">
+        {isMr ? 'माहिती' : 'Profile'}
+      </Link>
+      <Link to={`/book?doctorId=${doc.id}`} className="btn-primary flex-1 sm:flex-none whitespace-nowrap">
+        {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
+      </Link>
+    </div>
+  </li>
+);
 
 export const DoctorsPage: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
   const [search, setSearch] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'ALL' | 'DIRECTOR' | 'INHOUSE' | 'VISITING'>('ALL');
 
-  const filteredDoctors = DOCTORS_DATA.filter((doc) => {
-    const matchesCategory =
-      selectedCategory === 'ALL' || doc.category === selectedCategory;
-
-    const q = search.toLowerCase().trim();
-    const matchesSearch =
+  const q = search.toLowerCase().trim();
+  const filtered = DOCTORS_DATA.filter(
+    (doc) =>
       !q ||
-      doc.name.toLowerCase().includes(q) ||
-      doc.nameMr.toLowerCase().includes(q) ||
-      doc.dept.toLowerCase().includes(q) ||
-      doc.deptMr.toLowerCase().includes(q) ||
-      doc.specialty.toLowerCase().includes(q) ||
-      doc.specialtyMr.toLowerCase().includes(q) ||
-      doc.degree.toLowerCase().includes(q);
-
-    return matchesCategory && matchesSearch;
-  });
-
-  const countAll = DOCTORS_DATA.length;
-  const countDirectors = DOCTORS_DATA.filter((d) => d.category === 'DIRECTOR').length;
-  const countInhouse = DOCTORS_DATA.filter((d) => d.category === 'INHOUSE').length;
-  const countVisiting = DOCTORS_DATA.filter((d) => d.category === 'VISITING').length;
+      [doc.name, doc.nameMr, doc.dept, doc.deptMr, doc.specialty, doc.specialtyMr, doc.degree, doc.role]
+        .join(' ')
+        .toLowerCase()
+        .includes(q),
+  );
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8">
-      {/* ─── PAGE HEADER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-amber-50/40 border border-teal-200 shadow-xs space-y-4">
-        <div className="badge-teal text-xs">
-          <ShieldCheck className="w-3.5 h-3.5" />
-          <span>{isMr ? 'अधिकृत वैद्यकीय संचालक व तज्ज्ञ डॉक्टर' : 'Official Medical Faculty & Super-Specialists'}</span>
+    <div className="pb-16">
+      <PageIntro
+        title={isMr ? 'आमचे डॉक्टर' : 'Our doctors'}
+        intro={
+          isMr
+            ? 'संजीवनी हॉस्पिटल, जालना येथील सर्व डॉक्टर, त्यांचे ओपीडी दिवस, वेळ आणि फी. अपॉइंटमेंटसाठी डॉक्टर निवडा किंवा रिसेप्शनला फोन करा.'
+            : 'All doctors at Sanjeevani Hospital, Jalna, with their OPD days, times and fees. Pick a doctor to book, or call reception.'
+        }
+      >
+        <label htmlFor="doctor-search" className="block text-sm text-stone-600 mb-2">
+          {isMr ? 'नाव किंवा विभागाने शोधा' : 'Search by name or department'}
+        </label>
+        <div className="relative max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400" aria-hidden="true" />
+          <input
+            id="doctor-search"
+            type="search"
+            placeholder={isMr ? 'उदा. गुडघे, बालरोग, डॉ. गोयल' : 'e.g. knee, child, Dr. Goyal'}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full min-h-[44px] pl-10 pr-4 bg-white text-[#1C2321] placeholder-stone-400 border border-[#D8D3C8] rounded-lg text-[15px] focus:outline-none focus:border-[#0F766E]"
+          />
         </div>
-
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-          {isMr ? 'तज्ज्ञ डॉक्टर, संचालक व व्हिजिटिंग सुपर-स्पेशालिस्ट' : 'Expert Doctors, Directors & Visiting Consultants'}
-        </h1>
-
-        <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
-          {isMr
-            ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथील संचालक, इन-हाऊस कन्सल्टंट्स आणि नामांकित व्हिजिटिंग सुपर-स्पेशालिस्ट डॉक्टरांची संपूर्ण माहिती व ओपीडी वेळापत्रक.'
-            : 'Explore full profiles, clinical specialties, and OPD schedules of founding directors, full-time consultants, and visiting super-specialist surgeons at Sanjeevani Hospital Jalna.'}
+        <p className="mt-4 text-sm text-stone-500">
+          {isMr ? 'रिसेप्शन: ' : 'Reception: '}
+          <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline underline-offset-4">
+            +91 75073 42222
+          </a>
         </p>
+      </PageIntro>
 
-        {/* Search Bar & Stats */}
-        <div className="flex flex-col sm:flex-row gap-3 pt-2">
-          <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3.5 top-3 text-slate-400" />
-            <input
-              type="text"
-              placeholder={isMr ? 'डॉक्टरांचे नाव, विभाग किंवा पदवी शोधा...' : 'Search doctor name, department or specialty...'}
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-white text-slate-900 placeholder-slate-400 border border-slate-200 rounded-lg text-xs sm:text-sm focus:outline-none focus:border-[#0F766E]"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 4 CATEGORY FILTER TABS (COMPACT SEGMENTED PILLS) ───────────────── */}
-      <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-slate-100/90 rounded-xl border border-slate-200/70 shadow-2xs">
-          <button
-            onClick={() => setSelectedCategory('ALL')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-              selectedCategory === 'ALL'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Users className={`w-3.5 h-3.5 ${selectedCategory === 'ALL' ? 'text-[#0F766E]' : 'text-slate-400'}`} />
-            <span>{isMr ? `सर्व डॉक्टर्स (${countAll})` : `All Doctors (${countAll})`}</span>
-          </button>
-
-          <button
-            onClick={() => setSelectedCategory('DIRECTOR')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-              selectedCategory === 'DIRECTOR'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Award className={`w-3.5 h-3.5 ${selectedCategory === 'DIRECTOR' ? 'text-amber-500' : 'text-slate-400'}`} />
-            <span>{isMr ? `संचालक मंडळ (${countDirectors})` : `Directors (${countDirectors})`}</span>
-          </button>
-
-          <button
-            onClick={() => setSelectedCategory('INHOUSE')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-              selectedCategory === 'INHOUSE'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Stethoscope className={`w-3.5 h-3.5 ${selectedCategory === 'INHOUSE' ? 'text-teal-600' : 'text-slate-400'}`} />
-            <span>{isMr ? `इन-हाऊस (${countInhouse})` : `In-House (${countInhouse})`}</span>
-          </button>
-
-          <button
-            onClick={() => setSelectedCategory('VISITING')}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-              selectedCategory === 'VISITING'
-                ? 'bg-white text-slate-900 shadow-sm border border-slate-200/50'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/50'
-            }`}
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${selectedCategory === 'VISITING' ? 'text-blue-600' : 'text-slate-400'}`} />
-            <span>{isMr ? `व्हिजिटिंग (${countVisiting})` : `Visiting (${countVisiting})`}</span>
-          </button>
-        </div>
-      </div>
-
-      {/* ─── DOCTOR CARDS GRID ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDoctors.map((doc) => (
-          <div
-            key={doc.id}
-            className="card-clean p-5 flex flex-col justify-between space-y-5 group hover:shadow-card-hover transition"
-          >
-            <div className="space-y-4">
-              <div className="flex items-start space-x-3.5">
-                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100 border border-slate-200">
-                  <img
-                    src={doc.image}
-                    alt={doc.name}
-                    loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <div className="space-y-1 min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    {doc.category === 'DIRECTOR' && (
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                        {isMr ? 'संचालक' : 'Director'}
-                      </span>
-                    )}
-                    {doc.category === 'VISITING' && (
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-900 border border-blue-300">
-                        {isMr ? 'व्हिजिटिंग' : 'Visiting Specialist'}
-                      </span>
-                    )}
-                    {doc.category === 'INHOUSE' && (
-                      <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-900 border border-teal-300">
-                        {isMr ? 'इन-हाऊस' : 'In-House Faculty'}
-                      </span>
-                    )}
-                  </div>
-
-                  <h3 className="text-base font-bold text-slate-900 truncate font-heading group-hover:text-[#0F766E] transition">
-                    {isMr ? doc.nameMr : doc.name}
-                  </h3>
-                  <p className="text-xs font-semibold text-[#0F766E] line-clamp-1">
-                    {isMr ? doc.roleMr : doc.role}
-                  </p>
-                  <p className="text-[11px] font-medium text-slate-600">
-                    {doc.degree}
-                  </p>
-                  <p className="text-[11px] text-slate-500 truncate">
-                    {isMr ? doc.deptMr : doc.dept}
-                  </p>
-                </div>
-              </div>
-
-              <div className="p-3.5 bg-slate-50 rounded-lg space-y-1.5 text-xs text-slate-600">
-                <div>
-                  <span className="font-semibold text-slate-700">{isMr ? 'विशेष प्राविण्य: ' : 'Specialty: '}</span>
-                  <span>{isMr ? doc.specialtyMr : doc.specialty}</span>
-                </div>
-                <div>
-                  <span className="font-semibold text-slate-700">{isMr ? 'वेळ / दिवस: ' : 'Schedule: '}</span>
-                  <span className="text-slate-800 font-medium">{isMr ? doc.timingsMr : doc.timings}</span>
-                </div>
-                <div className="pt-1.5 flex justify-between items-center border-t border-slate-200">
-                  <span className="text-slate-500">{isMr ? 'ओपीडी सल्ला शुल्क:' : 'OPD Consultation:'}</span>
-                  <span className="font-bold text-[#0F766E] text-sm">₹{doc.fee}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="flex gap-2.5 pt-1">
-              <Link
-                to={`/doctors/${doc.id}`}
-                className="btn-secondary text-xs flex-1 min-h-[38px] py-1.5 text-center flex items-center justify-center"
-              >
-                {isMr ? 'सविस्तर माहिती' : 'View Profile'}
-              </Link>
-              <Link
-                to={`/book?doctorId=${doc.id}`}
-                className="btn-primary text-xs flex-1 min-h-[38px] py-1.5 text-center flex items-center justify-center gap-1"
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{isMr ? 'अपॉइंटमेंट घ्या' : 'Book Token'}</span>
-              </Link>
+      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8">
+        {filtered.length === 0 && (
+          <div className="py-12 sm:py-16 max-w-xl">
+            <p className="text-[15px] text-stone-700">
+              {isMr ? `"${search}" साठी कोणताही डॉक्टर सापडला नाही.` : `No doctor found for "${search}".`}
+            </p>
+            <p className="mt-2 text-[15px] text-stone-600">
+              {isMr
+                ? 'दुसरा शब्द वापरून पहा, किंवा रिसेप्शनला फोन करा, ते योग्य डॉक्टर सांगतील.'
+                : 'Try another word, or call reception and they will tell you which doctor to see.'}
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <button type="button" onClick={() => setSearch('')} className="btn-secondary">
+                {isMr ? 'सर्व डॉक्टर दाखवा' : 'Show all doctors'}
+              </button>
+              <a href="tel:+917507342222" className="btn-secondary">
+                <Phone className="w-4 h-4" />
+                +91 75073 42222
+              </a>
             </div>
           </div>
-        ))}
+        )}
+
+        {GROUPS.map((group) => {
+          const docs = filtered.filter((d) => d.category === group.key);
+          if (docs.length === 0) return null;
+          return (
+            <section key={group.key} className="py-12 sm:py-16 border-b border-[#E7E3DA] last:border-b-0">
+              <SectionTitle title={isMr ? group.mr : group.en} sub={isMr ? group.subMr : group.subEn} />
+              <ul className="grid lg:grid-cols-2 gap-x-12">
+                {docs.map((doc) => (
+                  <DoctorRow key={doc.id} doc={doc} isMr={isMr} />
+                ))}
+              </ul>
+            </section>
+          );
+        })}
       </div>
     </div>
   );

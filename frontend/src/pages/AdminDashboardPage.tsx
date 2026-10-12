@@ -12,11 +12,11 @@ export const AdminDashboardPage: React.FC = () => {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold text-slate-900 tracking-tight">
+        <h2 className="text-2xl text-stone-900">
           Executive Operations Overview
         </h2>
-        <p className="text-xs text-slate-500 mt-0.5">
-          Real-time patient flow and doctor shift monitoring for Sanjeevani Multispeciality Hospital.
+        <p className="text-xs text-stone-500 mt-0.5">
+          Patient flow and doctor shifts at Sanjeevani Hospital.
         </p>
       </div>
 
@@ -27,15 +27,15 @@ export const AdminDashboardPage: React.FC = () => {
           return (
             <div
               key={idx}
-              className="bg-white rounded-2xl p-6 border border-slate-200 shadow-card-subtle space-y-3"
+              className="bg-white rounded-lg p-6 border border-stone-200 shadow-card-subtle space-y-3"
             >
               <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold text-slate-500">{stat.title}</span>
+                <span className="text-xs font-semibold text-stone-500">{stat.title}</span>
                 <div className="w-9 h-9 rounded-lg bg-hospital-soft flex items-center justify-center text-hospital-teal">
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <div className="text-3xl font-extrabold text-slate-900">{stat.value}</div>
+              <div className="text-3xl font-extrabold text-stone-900">{stat.value}</div>
               <div className="text-[11px] font-medium text-emerald-600 flex items-center gap-1">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>{stat.change}</span>
@@ -46,11 +46,11 @@ export const AdminDashboardPage: React.FC = () => {
       </div>
 
       {/* Recent Appointments Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-card-subtle p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+      <div className="bg-white rounded-lg border border-stone-200 shadow-card-subtle p-6 space-y-4">
+        <div className="flex items-center justify-between border-b border-stone-100 pb-4">
           <div>
-            <h3 className="text-base font-bold text-slate-900">Recent OPD Bookings</h3>
-            <p className="text-xs text-slate-500">Live booking stream from patient portal</p>
+            <h3 className="text-base text-stone-900">Recent OPD Bookings</h3>
+            <p className="text-xs text-stone-500">Live booking stream from patient portal</p>
           </div>
           <span className="px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
             System Live
@@ -58,8 +58,8 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-600">
-            <thead className="bg-slate-50 text-slate-700 uppercase font-bold text-[10px] tracking-wider">
+          <table className="w-full text-left text-xs text-stone-600">
+            <thead className="bg-stone-50 text-stone-700 uppercase font-bold text-[10px] tracking-wider">
               <tr>
                 <th className="py-3 px-4 rounded-l-lg">Appointment ID</th>
                 <th className="py-3 px-4">Patient Name</th>
@@ -69,10 +69,10 @@ export const AdminDashboardPage: React.FC = () => {
                 <th className="py-3 px-4 rounded-r-lg">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              <tr className="hover:bg-slate-50 transition">
+            <tbody className="divide-y divide-stone-100">
+              <tr className="hover:bg-stone-50 transition">
                 <td className="py-3.5 px-4 font-bold text-hospital-teal">SMH-2026-000101</td>
-                <td className="py-3.5 px-4 font-medium text-slate-900">Ramesh Patil</td>
+                <td className="py-3.5 px-4 font-medium text-stone-900">Ramesh Patil</td>
                 <td className="py-3.5 px-4">Dr. Nishant Goyal</td>
                 <td className="py-3.5 px-4">Orthopedics</td>
                 <td className="py-3.5 px-4">Today, 11:30 AM</td>
@@ -82,9 +82,9 @@ export const AdminDashboardPage: React.FC = () => {
                   </span>
                 </td>
               </tr>
-              <tr className="hover:bg-slate-50 transition">
+              <tr className="hover:bg-stone-50 transition">
                 <td className="py-3.5 px-4 font-bold text-hospital-teal">SMH-2026-000102</td>
-                <td className="py-3.5 px-4 font-medium text-slate-900">Sunita Deshmukh</td>
+                <td className="py-3.5 px-4 font-medium text-stone-900">Sunita Deshmukh</td>
                 <td className="py-3.5 px-4">Dr. Shivdas Mirkad</td>
                 <td className="py-3.5 px-4">Pediatrics</td>
                 <td className="py-3.5 px-4">Today, 12:00 PM</td>

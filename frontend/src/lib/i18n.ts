@@ -17,4 +17,11 @@ i18n
     },
   });
 
+// Keep <html lang> in sync so Marathi text gets the right font
+const syncHtmlLang = (lng: string) => {
+  document.documentElement.lang = lng;
+};
+syncHtmlLang(i18n.language);
+i18n.on('languageChanged', syncHtmlLang);
+
 export default i18n;

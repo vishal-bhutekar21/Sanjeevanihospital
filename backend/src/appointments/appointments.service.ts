@@ -23,6 +23,8 @@ export interface BookingSessionRecord {
   departmentId?: string;
   status: 'OTP_VERIFIED' | 'SLOT_HELD' | 'PAYMENT_PENDING' | 'PAYMENT_COMPLETED' | 'CONFIRMED' | 'EXPIRED';
   heldSlotId?: string;
+  paymentId?: string;
+  paidAmount?: number;
   expiresAt: number;
   createdAt: string;
 }
@@ -149,11 +151,18 @@ export class AppointmentsService {
   /**
    * 1. Initialize Booking Session with Patient Demographics
    */
-  async initSession(dto: InitBookingSessionDto) {
+  async initSession(dto: InitBookingSessionDto, verifiedPhone?: string) {
+    if (!this.doctors.some((d) => d.id === dto.doctorId)) {
+      throw new BadRequestException(
+        'Online booking is not available for this doctor yet. Please call reception to book.',
+      );
+    }
+
     const sessionId = uuidv4();
     const session: BookingSessionRecord = {
       id: sessionId,
-      phone: dto.phone,
+      // Always use the phone number that passed OTP, not what the form sent
+      phone: (verifiedPhone || dto.phone).replace(/^\+?91-?/, ''),
       patientName: dto.patientName,
       patientAge: dto.patientAge,
       patientGender: dto.patientGender,
@@ -168,7 +177,7 @@ export class AppointmentsService {
     this.sessions.set(sessionId, session);
     this.logger.log(`Initialized Booking Session ${sessionId} for patient ${dto.patientName}`);
 
-    const doctor = this.doctors.find((d) => d.id === dto.doctorId) || this.doctors[0];
+    const doctor = this.doctors.find((d) => d.id === dto.doctorId)!;
 
     return {
       sessionId,
@@ -188,7 +197,10 @@ export class AppointmentsService {
    */
   async getDoctorAvailability(doctorId: string, dateStr?: string) {
     const targetDate = dateStr || new Date().toISOString().split('T')[0];
-    const doctor = this.doctors.find((d) => d.id === doctorId) || this.doctors[0];
+    const doctor = this.doctors.find((d) => d.id === doctorId);
+    if (!doctor) {
+      return { doctorId, date: targetDate, bookable: false, totalSlots: 0, availableSlots: 0, slots: [] };
+    }
     const { start, end, interval, breakStart, breakEnd } = doctor.shifts;
 
     // Clean up expired held slots
@@ -219,10 +231,20 @@ export class AppointmentsService {
     const bStartMins = parseMins(breakStart);
     const bEndMins = parseMins(breakEnd);
 
+    // Don't offer times that have already passed today (hospital time, IST)
+    const nowIst = new Date(Date.now() + 330 * 60 * 1000);
+    const todayIst = nowIst.toISOString().split('T')[0];
+    if (targetDate < todayIst) {
+      return { doctorId, date: targetDate, bookable: true, totalSlots: 0, availableSlots: 0, slots: [] };
+    }
+    const minStartMins =
+      targetDate === todayIst ? nowIst.getUTCHours() * 60 + nowIst.getUTCMinutes() + 30 : -1;
+
     const generatedSlots = [];
     for (let cur = startMins; cur + interval <= endMins; cur += interval) {
       // Exclude lunch break
       if (cur >= bStartMins && cur < bEndMins) continue;
+      if (cur < minStartMins) continue;
 
       const slotStartTime = formatMins(cur);
       const slotEndTime = formatMins(cur + interval);
@@ -248,6 +270,7 @@ export class AppointmentsService {
     }
 
     return {
+      bookable: true,
       doctorId: doctor.id,
       doctorName: doctor.name,
       department: doctor.department,
@@ -267,8 +290,11 @@ export class AppointmentsService {
     const now = Date.now();
 
     const session = this.sessions.get(bookingSessionId);
-    if (!session) {
-      throw new NotFoundException('Booking session not found or expired.');
+    if (!session || Date.now() > session.expiresAt) {
+      throw new NotFoundException('Your booking session has expired. Please start again.');
+    }
+    if (session.doctorId !== doctorId) {
+      throw new BadRequestException('Doctor does not match this booking.');
     }
 
     // Release any previous slot held by this session
@@ -339,20 +365,40 @@ export class AppointmentsService {
    * 4. Confirm Slot & Issue Unique Hospital Token Code
    */
   async confirmSlot(dto: ConfirmSlotDto) {
-    const { bookingSessionId, slotId, paymentId } = dto;
+    const { bookingSessionId, slotId, payAtHospital } = dto;
 
     const session = this.sessions.get(bookingSessionId);
     if (!session) {
       throw new NotFoundException('Booking session expired or not found.');
     }
 
+    // Repeat calls (e.g. double-tap) return the same booking
+    const already = this.appointments.find((a) => a.bookingSessionId === bookingSessionId);
+    if (already) {
+      return this.confirmationResponse(already);
+    }
+
     const slot = this.slots.find((s) => s.id === slotId);
     if (!slot) {
       throw new NotFoundException('Selected appointment slot not found.');
     }
+    if (slot.status !== 'HELD' || slot.heldBySessionId !== bookingSessionId) {
+      throw new ConflictException(
+        'Your hold on this time has expired. Please pick the time again.',
+      );
+    }
 
-    const doctor = this.doctors.find((d) => d.id === session.doctorId) || this.doctors[0];
-    const appointmentCode = `SMH-2026-${Math.floor(100000 + Math.random() * 900000)}`;
+    const isPaid = !!session.paymentId;
+    if (!isPaid && !payAtHospital) {
+      throw new BadRequestException('Payment has not been completed for this booking.');
+    }
+
+    const doctor = this.doctors.find((d) => d.id === session.doctorId)!;
+    const year = slot.slotDate.slice(0, 4);
+    let appointmentCode: string;
+    do {
+      appointmentCode = `SMH-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
+    } while (this.appointments.some((a) => a.appointmentCode === appointmentCode));
 
     slot.status = 'CONFIRMED';
     slot.heldBySessionId = undefined;
@@ -378,9 +424,9 @@ export class AppointmentsService {
       startTime: slot.startTime,
       endTime: slot.endTime,
       status: 'CONFIRMED',
-      paymentStatus: 'PAID',
+      paymentStatus: isPaid ? 'PAID' : 'PENDING',
       fee: doctor.fee,
-      paymentId: paymentId || 'pay_test_online',
+      paymentId: session.paymentId,
       createdAt: new Date().toISOString(),
     };
 
@@ -400,15 +446,57 @@ export class AppointmentsService {
       },
     });
 
+    return this.confirmationResponse(confirmedRecord);
+  }
+
+  private confirmationResponse(apt: ConfirmedAppointmentRecord) {
     return {
-      appointmentCode,
-      appointment: confirmedRecord,
+      appointmentCode: apt.appointmentCode,
+      appointment: apt,
       reportingInstructions:
-        'Please report to Sanjeevani Hospital OPD Reception 15 minutes before your scheduled slot. Show your Appointment Code on arrival.',
+        apt.paymentStatus === 'PAID'
+          ? 'Please come to the OPD reception 15 minutes before your time and show this token number.'
+          : `Please come to the OPD reception 15 minutes before your time, show this token number and pay the ₹${apt.fee} consultation fee at the counter.`,
       hospitalAddress: 'Plot No. 17, Rishi Park, Ambad Choufuli, Jalna – 431203',
       emergencyHelpline: '+91-75073-42222',
-      message: 'Appointment confirmed successfully!',
+      message: 'Appointment confirmed',
     };
+  }
+
+  /** Used by payments: the fee always comes from the server, never the browser */
+  getSessionForPayment(bookingSessionId: string) {
+    const session = this.sessions.get(bookingSessionId);
+    if (!session || Date.now() > session.expiresAt) {
+      throw new NotFoundException('Your booking session has expired. Please start again.');
+    }
+    if (!session.heldSlotId) {
+      throw new BadRequestException('Please choose an appointment time first.');
+    }
+    const doctor = this.doctors.find((d) => d.id === session.doctorId)!;
+    return { session, fee: doctor.fee, doctorName: doctor.name };
+  }
+
+  markSessionPaid(bookingSessionId: string, paymentId: string, amount: number) {
+    const session = this.sessions.get(bookingSessionId);
+    if (!session) {
+      throw new NotFoundException('Booking session expired or not found.');
+    }
+    session.paymentId = paymentId;
+    session.paidAmount = amount;
+    session.status = 'PAYMENT_COMPLETED';
+  }
+
+  async updateAppointmentStatus(id: string, status: ConfirmedAppointmentRecord['status']) {
+    const apt = this.appointments.find((a) => a.id === id);
+    if (!apt) {
+      throw new NotFoundException('Appointment not found.');
+    }
+    apt.status = status;
+    if (status === 'COMPLETED' && apt.paymentStatus === 'PENDING') {
+      // Fee is collected at the counter before the consultation ends
+      apt.paymentStatus = 'PAID';
+    }
+    return apt;
   }
 
   async getAllAppointments() {

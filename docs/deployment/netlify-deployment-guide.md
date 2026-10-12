@@ -59,7 +59,7 @@ Vite embeds environment variables prefixed with `VITE_` directly into the static
 | Environment Variable | Required? | Example Production Value | Description |
 |---|:---:|---|---|
 | `VITE_API_URL` | **Yes** | `https://sanjeevani-backend.onrender.com/api` | Base URL for the NestJS Backend API. Must include the `/api` prefix. |
-| `VITE_RAZORPAY_KEY_ID` | **Yes** | `rzp_live_XXXXXXXXXXXXXX` (or `rzp_test_TRlp6qdfVyCHyQ`) | Public Razorpay Key ID for OPD consultation fee processing. |
+| `VITE_RAZORPAY_KEY_ID` | **Yes** | `rzp_live_XXXXXXXXXXXXXX` (or `rzp_test_XXXXXXXXXXXXXX`) | Public Razorpay Key ID for OPD consultation fee processing. |
 | `VITE_GOOGLE_MAPS_KEY` | Optional | `AIzaSyD...` | Google Maps JavaScript Embed API Key for live hospital map view. |
 | `VITE_FIREBASE_API_KEY` | Optional | `AIzaSy...` | Firebase Web API Key for Web Push Notifications & Analytics. |
 | `VITE_FIREBASE_AUTH_DOMAIN` | Optional | `sanjeevani-hospital.firebaseapp.com` | Firebase Auth domain. |
@@ -137,7 +137,7 @@ Follow the interactive prompts:
 #### Step 4: Set Environment Variables via CLI
 ```bash
 netlify env:set VITE_API_URL "https://sanjeevani-backend.onrender.com/api"
-netlify env:set VITE_RAZORPAY_KEY_ID "rzp_test_TRlp6qdfVyCHyQ"
+netlify env:set VITE_RAZORPAY_KEY_ID "rzp_test_XXXXXXXXXXXXXX"
 ```
 
 #### Step 5: Build and Deploy to Production

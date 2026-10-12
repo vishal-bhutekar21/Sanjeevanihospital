@@ -12,7 +12,7 @@ import {
   TrendingUp,
   DollarSign,
 } from 'lucide-react';
-import { apiUrl } from '../../lib/api';
+import { apiUrl, getAdminToken } from '../../lib/api';
 
 const statusMeta: Record<string, { label: string; color: string; icon: React.ElementType }> = {
   PENDING:        { label: 'Pending',         color: 'bg-amber-100 text-amber-800 border-amber-200',   icon: Clock         },
@@ -27,7 +27,7 @@ const schemeMeta: Record<string, { label: string; color: string }> = {
   MJPJAY:            { label: 'MJPJAY',           color: 'bg-teal-100 text-teal-800 border-teal-200' },
   AYUSHMAN_BHARAT:   { label: 'Ayushman Bharat',  color: 'bg-orange-100 text-orange-800 border-orange-200' },
   CASHLESS_TPA:      { label: 'Cashless TPA',     color: 'bg-indigo-100 text-indigo-800 border-indigo-200' },
-  EMPLOYEE_STATE_INSURANCE: { label: 'ESI',       color: 'bg-slate-100 text-slate-700 border-slate-200' },
+  EMPLOYEE_STATE_INSURANCE: { label: 'ESI',       color: 'bg-stone-100 text-stone-700 border-stone-200' },
 };
 
 export const AdminSchemesPage: React.FC = () => {
@@ -41,7 +41,7 @@ export const AdminSchemesPage: React.FC = () => {
 
   const fetchData = async () => {
     setLoading(true);
-    const token = localStorage.getItem('token');
+    const token = getAdminToken();
     const headers = { Authorization: `Bearer ${token}` };
     try {
       const [claimsRes, statsRes] = await Promise.all([
@@ -64,7 +64,7 @@ export const AdminSchemesPage: React.FC = () => {
     if (!selectedClaim || !statusUpdate.status) return;
     setUpdating(true);
     try {
-      const token = localStorage.getItem('token');
+      const token = getAdminToken();
       await fetch(apiUrl(`/schemes/claims/${selectedClaim.id}/status`), {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -79,7 +79,7 @@ export const AdminSchemesPage: React.FC = () => {
 
   const statCards = stats
     ? [
-        { label: 'Total Claims', value: stats.total, color: 'text-slate-900' },
+        { label: 'Total Claims', value: stats.total, color: 'text-stone-900' },
         { label: 'Pending', value: stats.pending, color: 'text-amber-600' },
         { label: 'Pre-Authorized', value: stats.preAuthorized, color: 'text-blue-600' },
         { label: 'In Treatment', value: stats.inTreatment, color: 'text-purple-600' },
@@ -93,10 +93,10 @@ export const AdminSchemesPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-extrabold text-slate-900">Government Scheme Claims</h1>
-          <p className="text-xs text-slate-500 mt-0.5">MJPJAY · Ayushman Bharat · Cashless TPA — Claim Management</p>
+          <h1 className="text-xl text-stone-900">Government Scheme Claims</h1>
+          <p className="text-xs text-stone-500 mt-0.5">MJPJAY · Ayushman Bharat · Cashless TPA — Claim Management</p>
         </div>
-        <button onClick={fetchData} className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">
+        <button onClick={fetchData} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 transition">
           <RefreshCcw className="w-3.5 h-3.5" /> Refresh
         </button>
       </div>
@@ -105,9 +105,9 @@ export const AdminSchemesPage: React.FC = () => {
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
           {statCards.map((s) => (
-            <div key={s.label} className="bg-white rounded-2xl border border-slate-200 p-4 text-center shadow-card-subtle">
+            <div key={s.label} className="bg-white rounded-lg border border-stone-200 p-4 text-center shadow-card-subtle">
               <p className={`text-2xl font-extrabold ${s.color}`}>{s.value}</p>
-              <p className="text-[11px] text-slate-500 mt-1 font-medium">{s.label}</p>
+              <p className="text-[11px] text-stone-500 mt-1 font-medium">{s.label}</p>
             </div>
           ))}
         </div>
@@ -115,9 +115,9 @@ export const AdminSchemesPage: React.FC = () => {
 
       {/* Financial Summary */}
       {stats && (
-        <div className="bg-gradient-to-r from-hospital-teal to-slate-700 rounded-2xl p-5 text-white flex items-center justify-between">
+        <div className="bg-[#1C2321] rounded-lg p-5 text-white flex items-center justify-between">
           <div>
-            <p className="text-xs text-slate-300 font-medium">Total Estimated Claim Value</p>
+            <p className="text-xs text-stone-300 font-medium">Total Estimated Claim Value</p>
             <p className="text-2xl font-extrabold mt-0.5">
               ₹{stats.totalEstimatedAmount?.toLocaleString('en-IN')}
             </p>
@@ -125,15 +125,15 @@ export const AdminSchemesPage: React.FC = () => {
           <div className="grid grid-cols-3 gap-6 text-center">
             <div>
               <p className="text-lg font-bold text-teal-300">{stats.mjpjayClaims}</p>
-              <p className="text-[10px] text-slate-400">MJPJAY</p>
+              <p className="text-[10px] text-stone-400">MJPJAY</p>
             </div>
             <div>
               <p className="text-lg font-bold text-orange-300">{stats.ayushmanClaims}</p>
-              <p className="text-[10px] text-slate-400">Ayushman</p>
+              <p className="text-[10px] text-stone-400">Ayushman</p>
             </div>
             <div>
               <p className="text-lg font-bold text-indigo-300">{stats.tpaClaims}</p>
-              <p className="text-[10px] text-slate-400">TPA</p>
+              <p className="text-[10px] text-stone-400">TPA</p>
             </div>
           </div>
         </div>
@@ -141,12 +141,12 @@ export const AdminSchemesPage: React.FC = () => {
 
       {/* Filter */}
       <div className="flex items-center gap-3">
-        <Filter className="w-4 h-4 text-slate-400" />
-        <span className="text-xs font-bold text-slate-600">Filter by scheme:</span>
+        <Filter className="w-4 h-4 text-stone-400" />
+        <span className="text-xs font-bold text-stone-600">Filter by scheme:</span>
         {['', 'MJPJAY', 'AYUSHMAN_BHARAT', 'CASHLESS_TPA'].map((s) => (
           <button key={s} onClick={() => setFilterScheme(s)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition ${
-              filterScheme === s ? 'bg-hospital-teal text-white border-hospital-teal' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-300'
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition ${
+              filterScheme === s ? 'bg-hospital-teal text-white border-hospital-teal' : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
             }`}>
             {s === '' ? 'All' : schemeMeta[s]?.label}
           </button>
@@ -154,48 +154,48 @@ export const AdminSchemesPage: React.FC = () => {
       </div>
 
       {/* Claims Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-card-subtle overflow-hidden">
+      <div className="bg-white rounded-lg border border-stone-200 shadow-card-subtle overflow-hidden">
         {loading ? (
-          <div className="text-center py-12 text-slate-400 text-sm">Loading claims...</div>
+          <div className="text-center py-12 text-stone-400 text-sm">Loading claims...</div>
         ) : claims.length === 0 ? (
-          <div className="text-center py-12 text-slate-400 text-sm">No claims found.</div>
+          <div className="text-center py-12 text-stone-400 text-sm">No claims found.</div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200">
+                <tr className="bg-stone-50 border-b border-stone-200">
                   {['Patient', 'Scheme', 'Diagnosis', 'Est. Amount', 'Pre-Auth ID', 'Status', 'Actions'].map((h) => (
-                    <th key={h} className="px-4 py-3 text-left font-bold text-slate-700">{h}</th>
+                    <th key={h} className="px-4 py-3 text-left font-bold text-stone-700">{h}</th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-stone-100">
                 {claims.map((claim) => {
                   const sm = statusMeta[claim.status] || statusMeta['PENDING'];
                   const Icon = sm.icon;
                   return (
-                    <tr key={claim.id} className="hover:bg-slate-50/50 transition">
+                    <tr key={claim.id} className="hover:bg-stone-50/50 transition">
                       <td className="px-4 py-3">
-                        <p className="font-bold text-slate-900">{claim.patientName}</p>
-                        <p className="text-slate-400">{claim.patientPhone} · Age {claim.patientAge}</p>
+                        <p className="font-bold text-stone-900">{claim.patientName}</p>
+                        <p className="text-stone-400">{claim.patientPhone} · Age {claim.patientAge}</p>
                         {claim.arogyaMitraId && <p className="text-hospital-teal font-semibold">{claim.arogyaMitraId}</p>}
                       </td>
                       <td className="px-4 py-3">
-                        <span className={`px-2 py-0.5 rounded-full font-bold border ${schemeMeta[claim.schemeType]?.color || 'bg-slate-100 text-slate-700'}`}>
+                        <span className={`px-2 py-0.5 rounded-full font-bold border ${schemeMeta[claim.schemeType]?.color || 'bg-stone-100 text-stone-700'}`}>
                           {schemeMeta[claim.schemeType]?.label || claim.schemeType}
                         </span>
                       </td>
                       <td className="px-4 py-3 max-w-[180px]">
-                        <p className="text-slate-700 leading-relaxed">{claim.diagnosisDescription}</p>
+                        <p className="text-stone-700 leading-relaxed">{claim.diagnosisDescription}</p>
                       </td>
-                      <td className="px-4 py-3 font-bold text-slate-900">
+                      <td className="px-4 py-3 font-bold text-stone-900">
                         ₹{claim.estimatedAmount?.toLocaleString('en-IN')}
                       </td>
                       <td className="px-4 py-3">
                         {claim.preAuthorizationId ? (
-                          <span className="font-mono text-[10px] bg-slate-100 px-2 py-1 rounded border border-slate-200">{claim.preAuthorizationId}</span>
+                          <span className="font-mono text-[10px] bg-stone-100 px-2 py-1 rounded border border-stone-200">{claim.preAuthorizationId}</span>
                         ) : (
-                          <span className="text-slate-400">—</span>
+                          <span className="text-stone-400">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
@@ -222,14 +222,14 @@ export const AdminSchemesPage: React.FC = () => {
       {/* Status Update Modal */}
       {selectedClaim && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-4">
-            <h3 className="text-sm font-bold text-slate-900">Update Claim — {selectedClaim.patientName}</h3>
-            <p className="text-[11px] text-slate-500">{selectedClaim.diagnosisDescription}</p>
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6 space-y-4">
+            <h3 className="text-sm text-stone-900">Update Claim — {selectedClaim.patientName}</h3>
+            <p className="text-[11px] text-stone-500">{selectedClaim.diagnosisDescription}</p>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">New Status</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">New Status</label>
               <select value={statusUpdate.status} onChange={e => setStatusUpdate({...statusUpdate, status: e.target.value})}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none">
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none">
                 {Object.entries(statusMeta).map(([key, val]) => (
                   <option key={key} value={key}>{val.label}</option>
                 ))}
@@ -237,26 +237,26 @@ export const AdminSchemesPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Pre-Authorization ID</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Pre-Authorization ID</label>
               <input value={statusUpdate.preAuthorizationId} onChange={e => setStatusUpdate({...statusUpdate, preAuthorizationId: e.target.value})}
                 placeholder="e.g. MJPJAY/PREAUTH/2026/..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-700 mb-1">Remarks / Notes</label>
+              <label className="block text-xs font-bold text-stone-700 mb-1">Remarks / Notes</label>
               <textarea rows={3} value={statusUpdate.remarks} onChange={e => setStatusUpdate({...statusUpdate, remarks: e.target.value})}
                 placeholder="Internal notes on this claim update..."
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
+                className="w-full px-3 py-2 bg-stone-50 border border-stone-300 rounded-lg text-xs focus:ring-2 focus:ring-hospital-teal focus:outline-none" />
             </div>
 
             <div className="flex gap-3 pt-2">
               <button onClick={() => setSelectedClaim(null)}
-                className="flex-1 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">
+                className="flex-1 py-2 rounded-lg bg-stone-100 hover:bg-stone-200 text-xs font-bold text-stone-700 transition">
                 Cancel
               </button>
               <button onClick={handleUpdateStatus} disabled={updating}
-                className="flex-1 py-2 rounded-xl bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 transition disabled:bg-slate-300">
+                className="flex-1 py-2 rounded-lg bg-hospital-teal text-white text-xs font-bold hover:bg-hospital-teal/90 transition disabled:bg-stone-300">
                 {updating ? 'Saving...' : 'Save Update'}
               </button>
             </div>

@@ -1,320 +1,264 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Activity,
-  HeartPulse,
-  Baby,
-  Scissors,
-  Stethoscope,
-  ChevronRight,
-  Clock,
-  CheckCircle2,
-  Users,
-  Award,
-  TrendingUp,
-  Bed,
-  Building2,
-} from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { Phone } from 'lucide-react';
+import { PageIntro, Photo } from '../components/ui';
+import { PHOTOS } from '../data/photos';
+import { DOCTORS_DATA, type DoctorItem } from '../data/doctorsData';
+
+export interface Department {
+  slug: string;
+  nameEn: string;
+  nameMr: string;
+  descEn: string;
+  descMr: string;
+  photo: string;
+  /** First id is the lead doctor. Ids come from DOCTORS_DATA. */
+  doctorIds: string[];
+  hoursEn: string;
+  hoursMr: string;
+  treatsEn: string[];
+  treatsMr: string[];
+}
+
+// Shared with DepartmentDetailPage. Slugs must not change (they are live URLs).
+export const DEPARTMENTS: Department[] = [
+  {
+    slug: 'orthopedics',
+    nameEn: 'Orthopaedics and joint replacement',
+    nameMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
+    descEn: 'Fractures, knee and hip replacement, and back and spine problems. Surgery is done in our own operation theatre with X-ray guidance.',
+    descMr: 'फ्रॅक्चर, गुडघे व खुबा प्रत्यारोपण आणि पाठीच्या व मणक्याच्या तक्रारी. शस्त्रक्रिया हॉस्पिटलच्याच ऑपरेशन थिएटरमध्ये होते.',
+    photo: PHOTOS.operationTheatre,
+    doctorIds: ['doc-goyal'],
+    hoursEn: 'Mon – Sat, 11 am – 3 pm and 6 – 8 pm',
+    hoursMr: 'सोम – शनि, सकाळी ११ – दुपारी ३ व संध्या. ६ – ८',
+    treatsEn: [
+      'Knee and hip replacement',
+      'Fractures and injuries from accidents',
+      'Ligament injuries (arthroscopy)',
+      'Slip disc, sciatica and back pain',
+      'Bone problems in children',
+      'Arthritis and weak bones (osteoporosis)',
+    ],
+    treatsMr: [
+      'गुडघे व खुबा प्रत्यारोपण',
+      'अपघातातील फ्रॅक्चर व दुखापती',
+      'लिगामेंट दुखापत (आर्थ्रोस्कोपी)',
+      'स्लिप डिस्क, सायटिका व पाठदुखी',
+      'लहान मुलांच्या हाडांचे आजार',
+      'संधिवात व हाडे ठिसूळ होणे',
+    ],
+  },
+  {
+    slug: 'pediatrics',
+    nameEn: 'Paediatrics and newborn care (NICU)',
+    nameMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
+    descEn: 'Care for newborns, babies and children, including a neonatal ICU for premature and low-weight babies. Vaccinations are given on all OPD days.',
+    descMr: 'नवजात बाळे व लहान मुलांचे उपचार. कमी दिवसांच्या व कमी वजनाच्या बाळांसाठी NICU. लसीकरण सर्व ओपीडी दिवशी.',
+    photo: PHOTOS.nicu,
+    doctorIds: ['doc-mirkad', 'doc-rajguru'],
+    hoursEn: 'Mon – Sat, 10 am – 2 pm and 5 – 8 pm. NICU open 24 hours.',
+    hoursMr: 'सोम – शनि, सकाळी १० – दुपारी २ व संध्या. ५ – ८. NICU २४ तास.',
+    treatsEn: [
+      'Premature and low birth weight babies (NICU)',
+      'Newborn jaundice (phototherapy)',
+      'Fever, infections and diarrhoea in children',
+      'Asthma, cough and allergies',
+      'Vaccinations',
+      'Growth and nutrition check-ups',
+    ],
+    treatsMr: [
+      'कमी दिवसांची व कमी वजनाची बाळे (NICU)',
+      'नवजात बाळांची कावीळ (फोटोथेरपी)',
+      'मुलांमधील ताप, संसर्ग व जुलाब',
+      'दमा, खोकला व ॲलर्जी',
+      'लसीकरण',
+      'वाढ व पोषण तपासणी',
+    ],
+  },
+  {
+    slug: 'icu-critical-care',
+    nameEn: 'ICU and critical care',
+    nameMr: 'अतिदक्षता विभाग (ICU)',
+    descEn: 'A 21-bed ICU with ventilators and bedside dialysis. An intensivist is on duty day and night.',
+    descMr: 'व्हेंटिलेटर व डायलिसिसची सोय असलेला २१ खाटांचा ICU. अतिदक्षतातज्ज्ञ डॉक्टर दिवस-रात्र उपस्थित.',
+    photo: PHOTOS.cardiacUnit,
+    doctorIds: ['doc-bagal', 'doc-avinash'],
+    hoursEn: 'Open 24 hours, every day',
+    hoursMr: 'दररोज २४ तास सुरू',
+    treatsEn: [
+      'Patients who need a ventilator',
+      'Severe infections and sepsis',
+      'Heart attack and stroke (first care)',
+      'Poisoning and snake bite',
+      'Care after major surgery',
+      'Kidney failure needing dialysis',
+    ],
+    treatsMr: [
+      'व्हेंटिलेटरची गरज असलेले रुग्ण',
+      'गंभीर संसर्ग व सेप्सिस',
+      'हृदयविकाराचा झटका व पक्षाघात (प्राथमिक उपचार)',
+      'विषबाधा व सर्पदंश',
+      'मोठ्या शस्त्रक्रियेनंतरची काळजी',
+      'डायलिसिसची गरज असलेले किडनीचे आजार',
+    ],
+  },
+  {
+    slug: 'obstetrics-gynecology',
+    nameEn: 'Obstetrics and gynaecology',
+    nameMr: 'प्रसूती आणि स्त्रीरोग',
+    descEn: 'Pregnancy check-ups, normal and caesarean delivery, and treatment for women’s health problems, including keyhole surgery.',
+    descMr: 'गर्भावस्था तपासणी, नॉर्मल व सिझेरियन प्रसूती आणि स्त्रियांच्या आजारांवर उपचार, दुर्बिणीद्वारे शस्त्रक्रियेसह.',
+    photo: PHOTOS.otTeam,
+    doctorIds: ['doc-anshul'],
+    hoursEn: 'Mon – Sat, 10:30 am – 2:30 pm and 5:30 – 7:30 pm. Deliveries at any hour.',
+    hoursMr: 'सोम – शनि, सकाळी १०:३० – दुपारी २:३० व संध्या. ५:३० – ७:३०. प्रसूती कधीही.',
+    treatsEn: [
+      'Pregnancy check-ups and scans',
+      'Normal and caesarean delivery',
+      'High-risk pregnancy',
+      'Irregular periods and PCOD',
+      'Fibroids, cysts and uterus removal',
+      'Help for couples trying to conceive',
+    ],
+    treatsMr: [
+      'गर्भावस्था तपासणी व सोनोग्राफी',
+      'नॉर्मल व सिझेरियन प्रसूती',
+      'जोखमीची गर्भावस्था',
+      'अनियमित मासिक पाळी व PCOD',
+      'फायब्रॉइड, गाठी व गर्भाशय काढणे',
+      'वंध्यत्व तपासणी व उपचार',
+    ],
+  },
+  {
+    slug: 'general-surgery',
+    nameEn: 'General and laparoscopic surgery',
+    nameMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
+    descEn: 'Keyhole and open surgery for gallstones, hernia, appendix, piles and fistula. Most patients go home within a few days.',
+    descMr: 'पित्ताशयातील खडे, हर्निया, अपेंडिक्स, मूळव्याध व फिस्टुला यांच्या दुर्बिणीद्वारे व नेहमीच्या शस्त्रक्रिया.',
+    photo: PHOTOS.surgery,
+    doctorIds: ['doc-shashikala', 'doc-kalyansing'],
+    hoursEn: 'Mon – Sat, 11 am – 3 pm',
+    hoursMr: 'सोम – शनि, सकाळी ११ – दुपारी ३',
+    treatsEn: [
+      'Gallbladder stones',
+      'Hernia',
+      'Appendix',
+      'Piles, fissure and fistula (including laser)',
+      'Lumps, abscesses and wounds',
+      'Cancer surgery (visiting surgeon)',
+    ],
+    treatsMr: [
+      'पित्ताशयातील खडे',
+      'हर्निया',
+      'अपेंडिक्स',
+      'मूळव्याध, फिशर व फिस्टुला (लेझरसह)',
+      'गाठी, गळू व जखमा',
+      'कर्करोग शस्त्रक्रिया (व्हिजिटिंग सर्जन)',
+    ],
+  },
+  {
+    slug: 'internal-medicine',
+    nameEn: 'Internal medicine',
+    nameMr: 'इंटरनल मेडिसिन (फिजिशियन)',
+    descEn: 'Diagnosis and ongoing care for diabetes, blood pressure, fevers and infections. The casualty ward takes medical emergencies at any hour.',
+    descMr: 'मधुमेह, रक्तदाब, ताप व संसर्गजन्य आजारांचे निदान व उपचार. आपत्कालीन रुग्णांसाठी कॅज्युअल्टी २४ तास.',
+    photo: PHOTOS.casualty,
+    doctorIds: ['doc-rajguru'],
+    hoursEn: 'Mon – Sat, 9 am – 1 pm and 5 – 8 pm',
+    hoursMr: 'सोम – शनि, सकाळी ९ – दुपारी १ व संध्या. ५ – ८',
+    treatsEn: [
+      'Diabetes and thyroid',
+      'High blood pressure',
+      'Dengue, malaria, typhoid and other fevers',
+      'Chest problems and breathlessness',
+      'Health check-ups',
+    ],
+    treatsMr: [
+      'मधुमेह व थायरॉईड',
+      'उच्च रक्तदाब',
+      'डेंग्यू, मलेरिया, टायफॉइड व इतर ताप',
+      'छातीचे आजार व दम लागणे',
+      'आरोग्य तपासणी',
+    ],
+  },
+];
+
+export const findDoctor = (id: string): DoctorItem | undefined => DOCTORS_DATA.find((d) => d.id === id);
 
 export const DepartmentsPage: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
 
-  const departments = [
-    {
-      slug: 'orthopedics',
-      nameEn: 'Orthopedics & Joint Replacement',
-      nameMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
-      desc: 'Advanced surgical care for complex fractures, total knee replacement, total hip arthroplasty, and spine stabilization.',
-      descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
-      faculty: 'Dr. Nishant Goyal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Nishant-Goyal-1.webp',
-      degree: 'MBBS, DNB, D. Ortho',
-      patientsCount: '12,500+',
-      patientsLabel: isMr ? 'रुग्ण उपचार' : 'Patients Treated',
-      successRate: '99.4%',
-      impressions: '1,200+ Arthroplasty Surgeries',
-      impressionsMr: '१,२००+ सांधे प्रत्यारोपण शस्त्रक्रिया',
-      timings: '11:00 AM – 03:00 PM | 06:00 PM – 08:00 PM',
-      features: [
-        isMr ? 'डिजिटल सी-आर्म इमेजिंग' : 'Digital C-Arm Fluoroscopy',
-        isMr ? 'गुडघे व खुबा प्रत्यारोपण' : 'Total Knee & Hip Arthroplasty',
-        isMr ? 'फ्रॅक्चर व मणक्याच्या शस्त्रक्रिया' : 'Trauma & Spine Stabilization',
-      ],
-      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
-      icon: Activity,
-    },
-    {
-      slug: 'pediatrics',
-      nameEn: 'Pediatrics & Neonatology (NICU)',
-      nameMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
-      desc: 'Compassionate pediatric medicine, 24x7 neonatal resuscitation, radiant warmers, phototherapy, and growth monitoring.',
-      descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
-      faculty: 'Dr. Shivdas Mirkad',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
-      degree: 'MBBS, MD, DCH',
-      patientsCount: '18,000+',
-      patientsLabel: isMr ? 'लहान मुले व नवजात बालके' : 'Children Healed',
-      successRate: '99.2%',
-      impressions: '3,500+ NICU Admissions',
-      impressionsMr: '३,५००+ NICU प्रवेश व यशस्वी डिस्चार्ज',
-      timings: '10:00 AM – 02:00 PM | 05:00 PM – 08:00 PM',
-      features: [
-        isMr ? '२४ तास NICU व वॉर्मर्स' : '24x7 Level-II Neonatal NICU',
-        isMr ? 'बालरोग दमा व श्वसन उपचार' : 'Pediatric Asthma Care',
-        isMr ? 'नियमित बाल लसीकरण' : 'Childhood Immunization',
-      ],
-      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
-      icon: Baby,
-    },
-    {
-      slug: 'icu-critical-care',
-      nameEn: '21-Bed ICU & Critical Care Unit',
-      nameMr: '२१ खाटांचा अतिदक्षता विभाग (ICU)',
-      desc: 'Round-the-clock intensivist monitoring, mechanical ventilation, telemetry, arterial blood gas analyzers, and dialysis.',
-      descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
-      faculty: 'Dr. Baliram Bagal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
-      degree: 'MBBS, DA, FICM, CCCS',
-      patientsCount: '8,200+',
-      patientsLabel: isMr ? 'गंभीर रुग्ण उपचार' : 'Critical Lives Rescued',
-      successRate: '98.8%',
-      impressions: '21 Fully-Equipped Beds',
-      impressionsMr: '२१ सुसज्ज अतिदक्षता खाटा',
-      timings: '24 Hours / 7 Days Continuous Care',
-      features: [
-        isMr ? 'मेकॅनिकल व्हेंटिलेशन' : 'Advanced Mechanical Ventilation',
-        isMr ? '२४x७ भूलतज्ज्ञ उपस्थिती' : '24x7 Critical Care Intensivist',
-        isMr ? 'बेडसाइड डायलिसिस सपोर्ट' : 'Bedside Hemodialysis Support',
-      ],
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.55-PM-1.webp',
-      icon: HeartPulse,
-    },
-    {
-      slug: 'obstetrics-gynecology',
-      nameEn: 'Obstetrics & Gynecology (Maternity)',
-      nameMr: 'प्रसूती आणि स्त्रीरोग विभाग',
-      desc: 'Holistic women health, painless normal delivery, cesarean sections, fertility evaluation, and gynecological laparoscopy.',
-      descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
-      faculty: 'Dr. Anshul Goyal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Anshul-pahawa-goyal-1.webp',
-      degree: 'MBBS, DNB, DGO',
-      patientsCount: '9,500+',
-      patientsLabel: isMr ? 'प्रसूती व महिला रुग्ण' : 'Mothers & Women Cared',
-      successRate: '99.6%',
-      impressions: '4,000+ Safe Deliveries',
-      impressionsMr: '४,०००+ सुरक्षित प्रसूती',
-      timings: '10:30 AM – 02:30 PM | 05:30 PM – 07:30 PM',
-      features: [
-        isMr ? 'सुरक्षित प्रसूती व सिझेरियन' : 'Painless Normal & C-Section Delivery',
-        isMr ? 'दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया' : 'Gynecological Laparoscopy',
-        isMr ? 'गर्भावस्थेतील सोनोग्राफी' : '3D/4D Fetal Ultrasound',
-      ],
-      image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=800&q=80',
-      icon: Award,
-    },
-    {
-      slug: 'general-surgery',
-      nameEn: 'General & Laparoscopic Surgery',
-      nameMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
-      desc: 'Minimally invasive keyhole surgery for gallstones, hernia repairs, appendix, and advanced laser anorectal procedures.',
-      descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
-      faculty: 'Dr. Millind Katole',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-millind-katole-1.webp',
-      degree: 'MBBS, MS General Surgery',
-      patientsCount: '7,800+',
-      patientsLabel: isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Conducted',
-      successRate: '99.5%',
-      impressions: '2,800+ Laparoscopic Procedures',
-      impressionsMr: '२,८००+ दुर्बिणीच्या शस्त्रक्रिया',
-      timings: '11:00 AM – 03:00 PM',
-      features: [
-        isMr ? 'कार्ल स्टॉर्झ HD लेप्रोस्कोपी' : 'Karl Storz HD Laparoscopy',
-        isMr ? 'हर्निया व अपेंडिक्स शस्त्रक्रिया' : 'Laparoscopic Hernia & Appendix',
-        isMr ? 'मूळव्याध व फिस्टुला लेझर उपचार' : 'Laser Anorectal Surgeries',
-      ],
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-21-at-4.28.59-PM.webp',
-      icon: Scissors,
-    },
-    {
-      slug: 'internal-medicine',
-      nameEn: 'Internal Medicine & Physician',
-      nameMr: 'इंटरनल मेडिसिन व फिजिशियन',
-      desc: 'Holistic diagnosis and management of chronic diabetes, hypertension, cardiovascular risks, and infectious diseases.',
-      descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
-      faculty: 'Dr. Kailash Rajguru',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/IMG-1153-1.webp',
-      degree: 'MBBS, MD Medicine',
-      patientsCount: '25,000+',
-      patientsLabel: isMr ? 'रुग्णांचे यशस्वी निदान' : 'Patients Treated',
-      successRate: '99.1%',
-      impressions: '40,000+ OPD Patient Footfalls',
-      impressionsMr: '४०,०००+ ओपीडी रुग्ण ओघ',
-      timings: '09:00 AM – 01:00 PM | 05:00 PM – 08:00 PM',
-      features: [
-        isMr ? 'मधुमेह व उच्च रक्तदाब तज्ज्ञ' : 'Diabetes & Hypertension Management',
-        isMr ? 'हृदयविकार व छातीचे आजार' : 'Cardiovascular & Chest Diseases',
-        isMr ? '२४ तास आपत्कालीन फिजिशियन' : '24x7 Physician Emergency Triage',
-      ],
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.54-PM-1.webp',
-      icon: Stethoscope,
-    },
-  ];
-
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-8 sm:space-y-12">
-      {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ─────────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 bg-gradient-to-br from-teal-50/80 via-white to-slate-50 border border-teal-200 shadow-xs space-y-6">
-        <div className="space-y-3">
-          <div className="badge-teal text-xs">
-            <Building2 className="w-3.5 h-3.5" />
-            <span>{isMr ? 'सर्वसमावेशक वैद्यकीय विभाग' : 'Clinical Specialties & Infrastructure'}</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-slate-900 font-heading">
-            {isMr ? 'प्रमुख वैद्यकीय विभाग आणि विशेषोपचार शाखा' : 'Clinical Departments & Specialty Centers'}
-          </h1>
-
-          <p className="text-sm sm:text-base text-slate-600 max-w-3xl leading-relaxed">
-            {isMr
-              ? 'संजीवनी मल्टिस्पेशालिटी हॉस्पिटल, जालना येथे अनुभवी सर्जन आणि तज्ज्ञ डॉक्टरांच्या मार्गदर्शनाखाली आधुनिक तंत्रज्ञानासह सर्व प्रमुख आजारांचे अचूक निदान व यशस्वी उपचार केले जातात.'
-              : 'Comprehensive clinical specialties equipped with modular surgical suites, 21-bed ICU, digital imaging, and experienced specialist doctors in Jalna.'}
-          </p>
+    <div className="pb-16">
+      <PageIntro
+        title={isMr ? 'वैद्यकीय विभाग' : 'Departments'}
+        intro={
+          isMr
+            ? 'प्रत्येक विभागाचे प्रमुख डॉक्टर, ओपीडी वेळ आणि उपचारांची माहिती. अपॉइंटमेंटसाठी विभाग निवडा किंवा थेट फोन करा.'
+            : 'Who leads each department, when the OPD runs, and what we treat. Choose a department to book, or call us.'
+        }
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link to="/book" className="btn-primary">
+            {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
+          </Link>
+          <a href="tel:+917507342222" className="btn-secondary">
+            <Phone className="w-4 h-4" />
+            +91 75073 42222
+          </a>
         </div>
+      </PageIntro>
 
-        {/* 4 Clinical Stats (Warm Yellow/Amber Styling) */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 pt-4 border-t border-slate-200/80">
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
-              <Users className="w-3.5 h-3.5 text-amber-700" />
-              <span>{isMr ? 'एकूण रुग्ण' : 'Patient Count'}</span>
-            </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">50,000+</div>
-            <div className="text-xs text-amber-900/80">{isMr ? 'समाधानी रुग्ण' : 'Patients Treated'}</div>
-          </div>
-
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
-              <Award className="w-3.5 h-3.5 text-amber-700" />
-              <span>{isMr ? 'यशस्वी शस्त्रक्रिया' : 'Surgeries Done'}</span>
-            </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">10,000+</div>
-            <div className="text-xs text-amber-900/80">{isMr ? 'ऑर्थो व लेप्रोस्कोपी' : 'Procedures Completed'}</div>
-          </div>
-
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
-              <TrendingUp className="w-3.5 h-3.5 text-amber-700" />
-              <span>{isMr ? 'यशस्वी उपचार दर' : 'Success Rate'}</span>
-            </div>
-            <div className="text-xl sm:text-2xl font-bold text-teal-700 mt-1 font-heading">99.4%</div>
-            <div className="text-xs text-amber-900/80">{isMr ? 'क्लिनिकल अचूकता' : 'Clinical Recovery'}</div>
-          </div>
-
-          <div className="p-3.5 bg-amber-50/90 rounded-xl border border-amber-200 shadow-2xs">
-            <div className="flex items-center gap-1.5 text-amber-800 text-xs font-semibold">
-              <Bed className="w-3.5 h-3.5 text-amber-700" />
-              <span>{isMr ? 'अतिदक्षता खाटा' : 'Critical ICU Beds'}</span>
-            </div>
-            <div className="text-xl sm:text-2xl font-bold text-slate-900 mt-1 font-heading">21 Beds</div>
-            <div className="text-xs text-amber-900/80">{isMr ? '२४ तास व्हेंटिलेटर' : 'Ventilator & Dialysis'}</div>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 2. DEPARTMENTS GRID ─────────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {departments.map((dept) => {
-          const Icon = dept.icon;
-          return (
-            <div
-              key={dept.slug}
-              className="card-clean overflow-hidden flex flex-col justify-between group bg-white border border-slate-200 shadow-2xs hover:shadow-md transition-shadow"
-            >
-              <div>
-                {/* Department Image with In-Set Doctor Headshot Badge */}
-                <div className="relative h-48 overflow-hidden">
-                  <img
-                    src={dept.image}
-                    alt={dept.nameEn}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Floating Doctor Headshot Avatar */}
-                  <div className="absolute bottom-3 right-3 flex items-center gap-2 bg-white/95 backdrop-blur-xs p-1.5 pr-3 rounded-full shadow-md border border-white/60">
-                    <img
-                      src={dept.facultyImg}
-                      alt={dept.faculty}
-                      className="w-8 h-8 rounded-full object-cover border border-teal-500 shrink-0"
-                    />
-                    <div className="min-w-0">
-                      <span className="text-[11px] font-bold text-slate-900 block truncate max-w-[120px]">
-                        {dept.faculty}
-                      </span>
-                      <span className="text-[9px] text-teal-700 block truncate max-w-[120px] font-medium">
-                        {dept.degree}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-3.5">
-                  <div className="flex items-start gap-2.5">
-                    <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0 border border-teal-100">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <h3 className="text-base font-bold text-slate-900 font-heading leading-snug">
-                        {isMr ? dept.nameMr : dept.nameEn}
-                      </h3>
-                      <p className="text-xs font-semibold text-[#0F766E] mt-0.5">
-                        {dept.faculty} <span className="text-slate-400 font-normal">({dept.degree})</span>
-                      </p>
-                    </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                    {isMr ? dept.descMr : dept.desc}
+      <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+          {DEPARTMENTS.map((dept) => {
+            const lead = findDoctor(dept.doctorIds[0]);
+            const name = isMr ? dept.nameMr : dept.nameEn;
+            return (
+              <li key={dept.slug} className="flex flex-col">
+                <Link to={`/departments/${dept.slug}`} className="group block">
+                  <Photo src={dept.photo} alt="" className="w-full aspect-[3/2] rounded-lg" />
+                  <h2 className="mt-4 text-xl leading-snug group-hover:text-[#0F766E]">{name}</h2>
+                </Link>
+                {lead && (
+                  <p className="mt-1 text-sm text-stone-500">
+                    {isMr ? lead.nameMr : lead.name}, {lead.degree}
                   </p>
-
-                  <div className="space-y-1.5 pt-1">
-                    {dept.features.map((feat, fIdx) => (
-                      <div key={fIdx} className="flex items-center gap-2 text-xs text-slate-700">
-                        <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0" />
-                        <span className="truncate">{feat}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-[11px] text-slate-500 pt-2 border-t border-slate-100">
-                    <Clock className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                    <span className="truncate">{dept.timings}</span>
-                  </div>
-
+                )}
+                <p className="mt-2 text-[15px] text-stone-600 leading-relaxed flex-1">
+                  {isMr ? dept.descMr : dept.descEn}
+                </p>
+                <div className="mt-3 flex flex-wrap items-center gap-x-6">
+                  <Link
+                    to={`/departments/${dept.slug}`}
+                    className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[#1C2321] hover:text-[#0F766E] underline underline-offset-4 decoration-[#D8D3C8]"
+                  >
+                    {isMr ? 'अधिक माहिती' : 'More about this department'}
+                  </Link>
+                  <Link
+                    to={lead ? `/book?doctorId=${lead.id}` : '/book'}
+                    className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4"
+                  >
+                    {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'} →
+                  </Link>
                 </div>
-              </div>
+              </li>
+            );
+          })}
+        </ul>
 
-              <div className="p-5 pt-0 flex items-center justify-between gap-3 border-t border-slate-100/60 mt-2">
-                <Link
-                  to={`/departments/${dept.slug}`}
-                  className="text-xs font-semibold text-slate-700 hover:text-[#0F766E] transition flex items-center gap-1"
-                >
-                  <span>{isMr ? 'तपशील पहा' : 'View Details'}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
-                <Link
-                  to="/book"
-                  className="btn-primary text-xs py-1.5 px-3.5 min-h-[36px] shadow-2xs"
-                >
-                  {isMr ? 'अपॉइंटमेंट घ्या' : 'Book Consultation'}
-                </Link>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+        <p className="mt-14 pt-6 border-t border-[#E7E3DA] text-stone-600 max-w-2xl">
+          {isMr
+            ? 'युरोलॉजी, न्यूरोसर्जरी, हृदय शस्त्रक्रिया व इंटरव्हेन्शनल रेडिओलॉजीचे तज्ज्ञ ठराविक दिवशी येतात. '
+            : 'Specialists in urology, neurosurgery, heart surgery and interventional radiology also see patients here on set days. '}
+          <Link to="/doctors" className="font-semibold text-[#0F766E] hover:underline underline-offset-4">
+            {isMr ? 'सर्व डॉक्टर पहा' : 'See all doctors'}
+          </Link>
+        </p>
+      </section>
     </div>
   );
 };

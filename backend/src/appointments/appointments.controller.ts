@@ -8,7 +8,16 @@ import {
   HttpCode,
   HttpStatus,
   ValidationPipe,
+  Patch,
+  UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
+import { AdminRole } from '@prisma/client';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { PatientSessionGuard } from '../common/guards/patient-session.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AppointmentsService } from './appointments.service';
 import { InitBookingSessionDto } from './dto/init-session.dto';
 import { ReserveSlotDto } from './dto/reserve-slot.dto';
@@ -19,17 +28,24 @@ import { Public } from '../common/decorators/public.decorator';
 export class AppointmentsController {
   constructor(private readonly appointmentsService: AppointmentsService) {}
 
-  @Public()
+  // Needs the short-lived token issued after the patient's phone passes OTP
+  @UseGuards(JwtAuthGuard, PatientSessionGuard)
   @Post('session/init')
   @HttpCode(HttpStatus.CREATED)
-  initSession(@Body(new ValidationPipe({ transform: true })) dto: InitBookingSessionDto) {
-    return this.appointmentsService.initSession(dto);
+  initSession(
+    @Body(new ValidationPipe({ transform: true })) dto: InitBookingSessionDto,
+    @CurrentUser('phone') verifiedPhone: string,
+  ) {
+    return this.appointmentsService.initSession(dto, verifiedPhone);
   }
 
   @Public()
   @Get('availability')
   getAvailability(@Query('doctorId') doctorId: string, @Query('date') date?: string) {
-    return this.appointmentsService.getDoctorAvailability(doctorId || 'doc-goyal', date);
+    if (!doctorId) {
+      throw new BadRequestException('doctorId is required');
+    }
+    return this.appointmentsService.getDoctorAvailability(doctorId, date);
   }
 
   @Public()
@@ -46,10 +62,23 @@ export class AppointmentsController {
     return this.appointmentsService.confirmSlot(dto);
   }
 
-  @Public()
+  // Patient names and phone numbers: staff only
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
   @Get()
   getAllAppointments() {
     return this.appointmentsService.getAllAppointments();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
+  @Patch(':id/status')
+  updateStatus(@Param('id') id: string, @Body('status') status: string) {
+    const allowed = ['CONFIRMED', 'IN_CONSULTATION', 'COMPLETED', 'CANCELLED', 'NO_SHOW'];
+    if (!allowed.includes(status)) {
+      throw new BadRequestException(`status must be one of ${allowed.join(', ')}`);
+    }
+    return this.appointmentsService.updateAppointmentStatus(id, status as any);
   }
 
   @Public()

@@ -1,29 +1,20 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { HeartPulse, Lock, Mail, AlertCircle, ArrowRight, Sparkles, ShieldCheck } from 'lucide-react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
 import { useAdminAuth } from '../../context/AdminAuthContext';
 import { apiUrl } from '../../lib/api';
 
 export const AdminLoginPage: React.FC = () => {
-  const [email, setEmail] = useState('admin@sanjeevanihosp.in');
-  const [password, setPassword] = useState('Admin@123');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [searchParams] = useSearchParams();
+  const [error, setError] = useState(
+    searchParams.get('expired') ? 'You were signed out. Please sign in again.' : '',
+  );
   const [loading, setLoading] = useState(false);
 
   const { login } = useAdminAuth();
   const navigate = useNavigate();
-
-  const handleDemoSignIn = () => {
-    login(`demo_admin_token_${Date.now()}`, {
-      id: 'admin-demo-1',
-      name: 'Dr. Nishant Goyal (Chief Administrator)',
-      email: 'admin@sanjeevanihosp.in',
-      role: 'SUPER_ADMIN',
-      hospitalId: 'snh-jalna-main',
-      hospitalName: 'Sanjeevani Multispeciality Hospital, Jalna',
-    });
-    navigate('/admin');
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,130 +35,82 @@ export const AdminLoginPage: React.FC = () => {
         navigate('/admin');
         return;
       }
-    } catch (err: any) {
-      console.log('Backend not reachable, activating client demo admin auth...');
-    }
 
-    // Demo Mode fallback authentication
-    const cleanEmail = email.toLowerCase().trim();
-    if (
-      (cleanEmail === 'admin@sanjeevanihosp.in' || cleanEmail.includes('admin')) &&
-      (password === 'Admin@123' || password.length >= 4)
-    ) {
-      login(`demo_admin_token_${Date.now()}`, {
-        id: 'admin-demo-1',
-        name: 'Dr. Nishant Goyal (Chief Administrator)',
-        email: 'admin@sanjeevanihosp.in',
-        role: 'SUPER_ADMIN',
-        hospitalId: 'snh-jalna-main',
-        hospitalName: 'Sanjeevani Multispeciality Hospital, Jalna',
-      });
-      navigate('/admin');
+      setError('That email and password don’t match our records.');
+    } catch {
+      setError('We couldn’t reach the server. Check your internet connection and try again.');
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setError('Invalid credentials. Please use the pre-configured demo credentials.');
-    setLoading(false);
   };
 
+  const inputClass =
+    'w-full px-3.5 py-2.5 bg-white border border-[#D8D3C8] rounded-md text-[15px] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
+
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center">
-          <div className="w-14 h-14 rounded-2xl bg-teal-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20">
-            <HeartPulse className="w-8 h-8 text-white" />
+    <div className="min-h-screen bg-[#FAF8F4] flex flex-col justify-center py-12 px-4">
+      <div className="w-full max-w-sm mx-auto">
+        <div className="flex items-center gap-3 mb-8">
+          <img src="/logo.png" alt="" className="w-11 h-11 object-contain" />
+          <div className="leading-tight">
+            <p className="font-heading text-lg text-[#1C2321]">Sanjeevani Hospital</p>
+            <p className="text-xs text-stone-500">Staff login</p>
           </div>
         </div>
-        <h2 className="mt-4 text-center text-2xl font-bold text-white tracking-tight font-heading">
-          Sanjeevani Hospital Administration
-        </h2>
-        <p className="mt-1 text-center text-xs text-slate-400">
-          Sign in with your authorized staff credentials to manage doctors, slots & bookings
-        </p>
-      </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-2xl rounded-2xl sm:px-10 border border-slate-200 space-y-6">
+        <div className="bg-white border border-[#E7E3DA] rounded-lg p-6 sm:p-8">
+          <h1 className="text-2xl">Sign in</h1>
+          <p className="mt-1 text-sm text-stone-500">For hospital staff only.</p>
+
           {error && (
-            <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl flex items-center gap-2.5 text-xs text-rose-700">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div role="alert" className="mt-5 p-3 bg-red-50 border border-red-200 rounded-md flex gap-2 text-sm text-red-800">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
 
-          <form className="space-y-4" onSubmit={handleSubmit}>
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
-                Official Email Address
+              <label htmlFor="admin-email" className="block text-sm font-medium text-stone-700 mb-1.5">
+                Email
               </label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:border-[#0F766E] focus:bg-white focus:outline-none transition"
-                  placeholder="admin@sanjeevanihosp.in"
-                />
-              </div>
+              <input
+                id="admin-email"
+                type="email"
+                required
+                autoComplete="username"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+              />
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+              <label htmlFor="admin-password" className="block text-sm font-medium text-stone-700 mb-1.5">
                 Password
               </label>
-              <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:border-[#0F766E] focus:bg-white focus:outline-none transition"
-                  placeholder="••••••••"
-                />
-              </div>
+              <input
+                id="admin-password"
+                type="password"
+                required
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className={inputClass}
+              />
             </div>
 
-            {/* Pre-configured Demo Box */}
-            <div className="p-3.5 bg-teal-50/70 rounded-xl border border-teal-200/80 text-xs text-slate-700 space-y-1.5">
-              <div className="flex items-center justify-between">
-                <span className="font-bold text-[#0F766E] flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-teal-600" />
-                  <span>Sandbox Demo Access</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={handleDemoSignIn}
-                  className="text-[11px] font-bold text-[#0F766E] hover:underline bg-white px-2 py-0.5 rounded border border-teal-200 shadow-2xs"
-                >
-                  ⚡ Quick 1-Click Login
-                </button>
-              </div>
-              <div className="text-[11px] text-slate-600">
-                <p>Email: <code className="text-[#0F766E] font-bold">admin@sanjeevanihosp.in</code></p>
-                <p>Password: <code className="text-[#0F766E] font-bold">Admin@123</code></p>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-xs font-bold text-white bg-[#0F766E] hover:bg-[#0D655E] shadow-sm transition disabled:bg-slate-400 cursor-pointer"
-            >
-              <span>{loading ? 'Authenticating...' : 'Sign In to Admin Portal'}</span>
-              <ArrowRight className="w-4 h-4" />
+            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
+              {loading ? 'Signing in…' : 'Sign in'}
             </button>
           </form>
-
-          <div className="pt-4 border-t border-slate-200 text-center">
-            <Link to="/" className="text-xs text-[#0F766E] font-semibold hover:underline">
-              ← Return to Sanjeevani Public Website
-            </Link>
-          </div>
         </div>
+
+        <p className="mt-6 text-sm text-center">
+          <Link to="/" className="text-stone-600 hover:text-[#0F766E]">
+            ← Back to the hospital website
+          </Link>
+        </p>
       </div>
     </div>
   );
