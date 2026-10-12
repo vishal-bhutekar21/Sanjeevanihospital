@@ -132,9 +132,9 @@ export const AdminDoctorsPage: React.FC = () => {
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl text-stone-900">Doctor Faculty Management</h2>
+          <h2 className="text-2xl text-stone-900">Doctors</h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Configure specialist profiles, departments, fees, and active availability status.
+            Add doctors, update fees and mark who is available.
           </p>
         </div>
 
@@ -203,7 +203,7 @@ export const AdminDoctorsPage: React.FC = () => {
                           : 'bg-stone-100 text-stone-600'
                       }`}
                     >
-                      {doc.isActive ? 'ACTIVE' : 'INACTIVE'}
+                      {doc.isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="py-3.5 px-4 text-right space-x-2">

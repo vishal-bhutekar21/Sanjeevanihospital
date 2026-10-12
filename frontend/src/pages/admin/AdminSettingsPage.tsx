@@ -28,7 +28,7 @@ export const AdminSettingsPage: React.FC = () => {
         <div>
           <h2 className="text-2xl text-stone-900">Hospital Configuration</h2>
           <p className="text-xs text-stone-500 mt-0.5">
-            Manage public hospital contacts, emergency numbers, and patient portal notices.
+            Phone numbers, hours and notices shown on the website.
           </p>
         </div>
 

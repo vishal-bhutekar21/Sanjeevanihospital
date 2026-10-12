@@ -145,7 +145,7 @@ export const AdminDepartmentsPage: React.FC = () => {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
-            Clinical Departments Management
+            Departments
           </h1>
           <p className="text-xs sm:text-sm text-stone-500 font-normal">
             Configure clinical department profiles, bilingual Marathi/English content, and linked faculty rosters.

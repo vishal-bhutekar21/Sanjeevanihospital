@@ -27,7 +27,7 @@ export const AdminSchedulesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl text-stone-900">
-            Doctor Shift & Slot Generation Rules
+            OPD timings
           </h2>
           <p className="text-xs text-stone-500 mt-0.5">
             Set each doctor's OPD hours, appointment length and breaks. Patients can book any free time within these hours.

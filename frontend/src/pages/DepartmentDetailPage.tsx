@@ -1,123 +1,171 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, CheckCircle2, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { ArrowLeft, Phone } from 'lucide-react';
+import { PageIntro, SectionTitle, DoctorPhoto } from '../components/ui';
+import { DEPARTMENTS, findDoctor } from './DepartmentsPage';
+import type { DoctorItem } from '../data/doctorsData';
+
+const wrap = 'max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8';
 
 export const DepartmentDetailPage: React.FC = () => {
   const { slug } = useParams();
+  const { i18n } = useTranslation();
+  const isMr = i18n.language === 'mr';
 
-  const deptData: Record<string, any> = {
-    orthopedics: {
-      nameEn: 'Orthopedics & Joint Replacement',
-      nameMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण विभाग',
-      doctor: 'Dr. Nishant Goyal (MBBS, DNB, D. Ortho)',
-      doctorId: 'doc-goyal',
-      about:
-        'The Department of Orthopedics at Sanjeevani Hospital treats for joint disorders, poly-trauma, sports injuries, and spinal deformities.',
-      treatments: [
-        'Total Knee Replacement (TKR) & Total Hip Replacement (THR)',
-        'Minimally Invasive Arthroscopic Ligament Repair',
-        'Complex Fracture & Pelvic Trauma Fixation',
-        'Spinal Disc Decompression & Sciatica Interventions',
-        'Pediatric Bone Deformity & Fracture Management',
-        'Osteoarthritis & Bone Mineral Density Screening',
-      ],
-      facilities: [
-        'Modular Clean-Air Orthopedic Operation Theatre with Laminar Flow',
-        'High-Resolution C-Arm Fluoroscopy Imaging',
-        'Dedicated Post-Operative Physiotherapy & Rehabilitation Center',
-        '24x7 Fracture Trauma Casualty Unit',
-      ],
-    },
-    pediatrics: {
-      nameEn: 'Pediatrics & Neonatology',
-      nameMr: 'बालरोग आणि नवजात शिशु काळजी विभाग',
-      doctor: 'Dr. Shivdas Mirkad (MBBS, MD, DCH)',
-      doctorId: 'doc-mirkad',
-      about:
-        'Our pediatric department offers warm, comprehensive, and specialized medical care for newborns, infants, and adolescents, backed by advanced neonatal intensive care.',
-      treatments: [
-        'Neonatal Intensive Care for Low Birth Weight & Preterm Infants',
-        'Pediatric Asthma, Bronchitis & Allergy Clinics',
-        'Complete National Immunization & Vaccination Schedules',
-        'Childhood Nutrition & Developmental Delay Assessments',
-        'Emergency Pediatric Infection Resuscitation',
-      ],
-      facilities: [
-        'Multi-Bed Neonatal Intensive Care Unit (NICU)',
-        'Phototherapy & Radiant Warmers',
-        'Child-Friendly Observation Ward',
-        '24x7 Pediatric Emergency Triage',
-      ],
-    },
-  };
+  const dept = DEPARTMENTS.find((d) => d.slug === slug);
 
-  const currentDept = deptData[slug || 'orthopedics'] || deptData['orthopedics'];
-
-  return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+  const backLink = (
+    <div className="bg-white">
+      <div className={`${wrap} pt-4`}>
       <Link
         to="/departments"
-        className="inline-flex items-center gap-1 text-xs font-semibold text-stone-600 hover:text-[#0F766E] transition"
+        className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-semibold text-stone-600 hover:text-[#0F766E]"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Back to All Departments</span>
+        {isMr ? 'सर्व विभाग' : 'All departments'}
       </Link>
+      </div>
+    </div>
+  );
 
-      {/* Hero Header */}
-      <div className="card-clean p-6 sm:p-8 space-y-5">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1.5">
-            <span className="text-xs font-semibold text-[#0F766E] uppercase tracking-wider block">
-              {currentDept.nameMr}
-            </span>
-            <h1 className="text-xl sm:text-3xl text-stone-900 font-heading">
-              {currentDept.nameEn}
-            </h1>
-            <p className="text-xs text-stone-600 font-medium">
-              Lead Specialist: <span className="text-stone-900 font-semibold">{currentDept.doctor}</span>
+  if (!dept) {
+    return (
+      <div className="pb-16">
+        <PageIntro
+          title={isMr ? 'हा विभाग सापडला नाही' : 'We could not find this department'}
+          intro={
+            isMr
+              ? 'लिंक जुनी किंवा चुकीची असू शकते. खालील यादीतून विभाग निवडा किंवा आम्हाला फोन करा.'
+              : 'The link may be old or mistyped. Pick a department from the list below, or call us and we will help.'
+          }
+        >
+          <div className="flex flex-col sm:flex-row gap-3">
+            <Link to="/departments" className="btn-primary">
+              {isMr ? 'सर्व विभाग पहा' : 'See all departments'}
+            </Link>
+            <a href="tel:+917507342222" className="btn-secondary">
+              <Phone className="w-4 h-4" />
+              +91 75073 42222
+            </a>
+          </div>
+        </PageIntro>
+        <section className={`${wrap} py-12 sm:py-16`}>
+          <ul className="divide-y divide-[#E7E3DA] border-y border-[#E7E3DA] max-w-2xl">
+            {DEPARTMENTS.map((d) => (
+              <li key={d.slug}>
+                <Link
+                  to={`/departments/${d.slug}`}
+                  className="flex items-center min-h-[52px] py-3 text-lg text-[#1C2321] hover:text-[#0F766E]"
+                >
+                  {isMr ? d.nameMr : d.nameEn}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      </div>
+    );
+  }
+
+  const doctors = dept.doctorIds.map(findDoctor).filter((d): d is DoctorItem => Boolean(d));
+  const lead = doctors[0];
+  const name = isMr ? dept.nameMr : dept.nameEn;
+  const treats = isMr ? dept.treatsMr : dept.treatsEn;
+  const bookHref = lead ? `/book?doctorId=${lead.id}` : '/book';
+
+  return (
+    <div className="pb-16">
+      {backLink}
+      <PageIntro title={name} intro={isMr ? dept.descMr : dept.descEn} image={dept.photo} imageAlt={name}>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Link to={bookHref} className="btn-primary">
+            {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
+          </Link>
+          <a href="tel:+917507342222" className="btn-secondary">
+            <Phone className="w-4 h-4" />
+            +91 75073 42222
+          </a>
+        </div>
+      </PageIntro>
+
+      <section className={`${wrap} py-12 sm:py-16`}>
+        <div className="grid lg:grid-cols-12 gap-10 lg:gap-14">
+          <div className="lg:col-span-7">
+            <SectionTitle title={isMr ? 'आम्ही काय उपचार करतो' : 'What we treat'} />
+            <ul className="list-disc pl-5 space-y-2 text-[17px] text-stone-700 marker:text-stone-400">
+              {treats.map((t) => (
+                <li key={t}>{t}</li>
+              ))}
+            </ul>
+            <p className="mt-6 text-sm text-stone-500">
+              {isMr
+                ? 'तुमचा आजार यादीत नसेल तर फोन करून विचारा.'
+                : 'If your problem is not listed, call us and ask.'}
             </p>
           </div>
 
-          <Link
-            to={`/book?doctorId=${currentDept.doctorId}`}
-            className="btn-primary text-xs py-2.5 px-4"
-          >
-            <Calendar className="w-4 h-4" />
-            <span>Book Department Consultation</span>
+          <div className="lg:col-span-5">
+            <SectionTitle title={isMr ? 'ओपीडी वेळ' : 'OPD timings'} />
+            <p className="text-[17px] text-stone-700">{isMr ? dept.hoursMr : dept.hoursEn}</p>
+            <p className="mt-3 text-sm text-stone-600">
+              {isMr
+                ? 'रविवार व सुट्टीच्या दिवशी आपत्कालीन विभाग २४ तास सुरू असतो.'
+                : 'On Sundays and holidays the emergency ward is open as usual, 24 hours.'}
+            </p>
+            <div className="mt-6 p-5 rounded-lg bg-[#FDF1F0] border border-[#F3D3CF]">
+              <p className="font-semibold text-[#8E1C1C]">{isMr ? 'आपत्कालीन स्थिती?' : 'Is it an emergency?'}</p>
+              <p className="mt-1 text-sm text-[#6B2A2A]">
+                {isMr ? 'थेट कॅज्युअल्टीमध्ये या किंवा फोन करा.' : 'Come straight to casualty, or call us now.'}
+              </p>
+              <a href="tel:+917507342222" className="btn-emergency mt-4 w-full sm:w-auto">
+                <Phone className="w-4 h-4" />
+                +91 75073 42222
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {doctors.length > 0 && (
+        <section className="bg-white border-y border-[#E7E3DA]">
+          <div className={`${wrap} py-12 sm:py-16`}>
+            <SectionTitle title={isMr ? 'या विभागातील डॉक्टर' : 'Doctors in this department'} />
+            <ul className="grid md:grid-cols-2 gap-x-8 divide-y md:divide-y-0 divide-[#E7E3DA]">
+              {doctors.map((doc) => (
+                <li key={doc.id} className="py-5 md:border-b border-[#E7E3DA] flex gap-4">
+                  <DoctorPhoto src={doc.image} name={doc.name} className="w-20 h-24 rounded-md shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <Link to={`/doctors/${doc.id}`} className="font-heading text-lg text-[#1C2321] hover:text-[#0F766E]">
+                      {isMr ? doc.nameMr : doc.name}
+                    </Link>
+                    <p className="text-sm text-stone-600">{isMr ? doc.roleMr : doc.role}</p>
+                    <p className="text-xs text-stone-500 mt-0.5">{doc.degree}</p>
+                    <p className="mt-2 text-sm text-stone-700">{isMr ? doc.timingsMr || doc.timings : doc.timings}</p>
+                    <Link
+                      to={`/book?doctorId=${doc.id}`}
+                      className="inline-flex items-center min-h-[44px] text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4"
+                    >
+                      {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'} →
+                    </Link>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <section className={`${wrap} pt-12 sm:pt-16`}>
+        <p className="card-notice-amber text-sm max-w-3xl">
+          {isMr
+            ? 'पात्र रुग्णांसाठी या विभागातील अनेक उपचार MJPJAY योजनेत व कॅशलेस विम्यात समाविष्ट आहेत. '
+            : 'Many treatments in this department are covered under MJPJAY and cashless insurance for eligible patients. '}
+          <Link to="/mjpjay" className="font-semibold underline underline-offset-2">
+            {isMr ? 'योजनेची माहिती' : 'How MJPJAY works'}
           </Link>
-        </div>
-
-        <p className="text-xs sm:text-sm text-stone-600 leading-relaxed pt-3 border-t border-stone-100">
-          {currentDept.about}
         </p>
-      </div>
-
-      {/* Treatments & Ward Facilities */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="card-clean p-6 space-y-3">
-          <h3 className="text-sm sm:text-base text-stone-900 font-heading">Clinical Procedures & Scope</h3>
-          <ul className="space-y-2 text-xs text-stone-700">
-            {currentDept.treatments.map((t: string, idx: number) => (
-              <li key={idx} className="flex items-start space-x-2.5">
-                <CheckCircle2 className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                <span>{t}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="card-clean p-6 space-y-3">
-          <h3 className="text-sm sm:text-base text-stone-900 font-heading">Specialized Infrastructure</h3>
-          <ul className="space-y-2 text-xs text-stone-700">
-            {currentDept.facilities.map((f: string, idx: number) => (
-              <li key={idx} className="flex items-start space-x-2.5">
-                <Activity className="w-4 h-4 text-[#0F766E] shrink-0 mt-0.5" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+      </section>
     </div>
   );
 };

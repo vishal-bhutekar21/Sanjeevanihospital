@@ -1,304 +1,236 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  Users,
-  Calendar,
-  Activity,
-  Clock,
-  CheckCircle2,
-  TrendingUp,
-  AlertCircle,
-  PlusCircle,
-  Stethoscope,
-  Building2,
-  ArrowUpRight,
-  ShieldCheck,
-  CreditCard,
-  Phone,
-  Bed,
-} from 'lucide-react';
-import { DOCTORS_DATA } from '../../data/doctorsData';
+import { apiFetch } from '../../lib/api';
+
+interface Apt {
+  id: string;
+  appointmentCode: string;
+  patientName: string;
+  patientPhone: string;
+  patientAge: number;
+  patientGender: string;
+  doctorName: string;
+  department: string;
+  appointmentDate: string;
+  startTime: string;
+  status: 'CONFIRMED' | 'IN_CONSULTATION' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+  paymentStatus: 'PAID' | 'PENDING';
+  fee: number;
+}
+
+const STATUS_LABEL: Record<Apt['status'], string> = {
+  CONFIRMED: 'Waiting',
+  IN_CONSULTATION: 'With doctor',
+  COMPLETED: 'Done',
+  CANCELLED: 'Cancelled',
+  NO_SHOW: 'Did not come',
+};
+
+const STATUS_DOT: Record<Apt['status'], string> = {
+  CONFIRMED: 'bg-[#0F766E]',
+  IN_CONSULTATION: 'bg-amber-500',
+  COMPLETED: 'bg-stone-400',
+  CANCELLED: 'bg-stone-300',
+  NO_SHOW: 'bg-red-400',
+};
+
+// Today's date in the hospital's time zone
+const todayIst = () => new Date(Date.now() + 330 * 60 * 1000).toISOString().slice(0, 10);
+
+const minutesOf = (t: string) => {
+  const [hm, p] = t.split(' ');
+  let [h, m] = hm.split(':').map(Number);
+  if (p === 'PM' && h !== 12) h += 12;
+  if (p === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
+};
 
 export const AdminDashboardPage: React.FC = () => {
-  const [stats] = useState({
-    todayAppointments: 18,
-    activeDoctors: 8,
-    pendingSlots: 5,
-    icuOccupancy: '76%',
-    totalRevenue: '₹9,200',
-  });
+  const [apts, setApts] = useState<Apt[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-  const recentAppointments = [
-    {
-      id: 'apt-101',
-      code: 'SNH-8492',
-      patient: 'Suresh Patil',
-      age: '42, M',
-      phone: '+91 98765 43210',
-      doctor: 'Dr. Nishant Goyal',
-      dept: 'Orthopedics',
-      time: '11:00 AM',
-      fee: '₹500',
-      status: 'CONFIRMED',
-    },
-    {
-      id: 'apt-102',
-      code: 'SNH-4129',
-      patient: 'Pooja Deshmukh',
-      age: '28, F',
-      phone: '+91 98223 11445',
-      doctor: 'Dr. Anshul Goyal',
-      dept: 'Gynecology',
-      time: '11:30 AM',
-      fee: '₹500',
-      status: 'IN_CONSULTATION',
-    },
-    {
-      id: 'apt-103',
-      code: 'SNH-9031',
-      patient: 'Aryan Kale',
-      age: '6, M',
-      phone: '+91 94231 88990',
-      doctor: 'Dr. Shivdas Mirkad',
-      dept: 'Pediatrics',
-      time: '12:00 PM',
-      fee: '₹500',
-      status: 'CONFIRMED',
-    },
-    {
-      id: 'apt-104',
-      code: 'SNH-7712',
-      patient: 'Rameshwar Shinde',
-      age: '54, M',
-      phone: '+91 97665 23411',
-      doctor: 'Dr. Kailash Rajguru',
-      dept: 'Medicine',
-      time: '12:30 PM',
-      fee: '₹400',
-      status: 'COMPLETED',
-    },
+  const load = () =>
+    apiFetch<Apt[]>('/appointments')
+      .then((r) => {
+        setApts(Array.isArray(r.data) ? r.data : []);
+        setError('');
+      })
+      .catch((e) => setError(e?.message || 'Could not load today’s appointments.'))
+      .finally(() => setLoading(false));
+
+  useEffect(() => {
+    load();
+    const t = setInterval(load, 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const today = todayIst();
+  const todays = useMemo(
+    () =>
+      apts
+        .filter((a) => a.appointmentDate === today)
+        .sort((a, b) => minutesOf(a.startTime) - minutesOf(b.startTime)),
+    [apts, today],
+  );
+  const upcoming = useMemo(
+    () => apts.filter((a) => a.appointmentDate > today && a.status === 'CONFIRMED').length,
+    [apts, today],
+  );
+
+  const count = (s: Apt['status']) => todays.filter((a) => a.status === s).length;
+  const collectedOnline = todays.filter((a) => a.paymentStatus === 'PAID').reduce((sum, a) => sum + a.fee, 0);
+  const toCollect = todays
+    .filter((a) => a.paymentStatus === 'PENDING' && a.status !== 'CANCELLED' && a.status !== 'NO_SHOW')
+    .reduce((sum, a) => sum + a.fee, 0);
+
+  const byDoctor = useMemo(() => {
+    const m = new Map<string, { name: string; dept: string; total: number; waiting: number }>();
+    todays.forEach((a) => {
+      const e = m.get(a.doctorName) || { name: a.doctorName, dept: a.department, total: 0, waiting: 0 };
+      e.total += 1;
+      if (a.status === 'CONFIRMED') e.waiting += 1;
+      m.set(a.doctorName, e);
+    });
+    return Array.from(m.values()).sort((a, b) => b.total - a.total);
+  }, [todays]);
+
+  const figures = [
+    { label: 'Booked for today', value: todays.length },
+    { label: 'Waiting', value: count('CONFIRMED') },
+    { label: 'With doctor', value: count('IN_CONSULTATION') },
+    { label: 'Done', value: count('COMPLETED') },
   ];
 
   return (
-    <div className="space-y-8 max-w-[1400px] mx-auto">
-      {/* ─── 1. EXECUTIVE HEADER ────────────────────────────────────────────── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-stone-200/80">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl text-stone-900 font-heading">
-            Hospital Operations Overview
-          </h1>
-          <p className="text-xs sm:text-sm text-stone-500 font-normal">
-            Today's OPD queue, doctors on duty, ICU beds and collections.
+    <div className="max-w-[1200px] mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl">Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'}</h1>
+          <p className="mt-1 text-stone-600">
+            {loading
+              ? 'Loading today’s OPD…'
+              : todays.length === 0
+              ? 'No online bookings for today yet.'
+              : `${todays.length} online booking${todays.length === 1 ? '' : 's'} today. ${count('CONFIRMED')} waiting.`}
           </p>
         </div>
-
-        <div className="flex items-center gap-2.5 shrink-0">
-          <Link
-            to="/admin/appointments"
-            className="btn-primary text-xs py-2 px-4 shadow-2xs flex items-center gap-1.5"
-          >
-            <Calendar className="w-3.5 h-3.5" />
-            <span>Manage Queue</span>
-          </Link>
-          <Link
-            to="/admin/doctors"
-            className="btn-secondary text-xs py-2 px-4 flex items-center gap-1.5"
-          >
-            <Users className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>Doctors (14)</span>
-          </Link>
-        </div>
+        <Link to="/admin/appointments" className="btn-primary self-start">
+          Open appointments
+        </Link>
       </div>
 
-      {/* ─── 2. ULTRA-MINIMAL 4-METRIC STAT CARDS ───────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Card 1: Today's Bookings */}
-        <div className="card-clean p-5 bg-white border border-stone-200/90 rounded-lg shadow-2xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-              Today's Bookings
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center">
-              <Calendar className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-stone-900 font-heading">{stats.todayAppointments}</span>
-            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              +4 new
-            </span>
-          </div>
+      {error && (
+        <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex justify-between gap-3">
+          <span>{error}</span>
+          <button type="button" className="font-semibold underline" onClick={load}>
+            Try again
+          </button>
         </div>
+      )}
 
-        {/* Card 2: Active Faculty */}
-        <div className="card-clean p-5 bg-white border border-stone-200/90 rounded-lg shadow-2xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-              Doctors on Duty
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Stethoscope className="w-4 h-4" />
-            </div>
+      {/* Today's figures */}
+      <dl className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-[#E7E3DA] rounded-lg divide-x divide-y lg:divide-y-0 divide-[#E7E3DA]">
+        {figures.map((f) => (
+          <div key={f.label} className="p-5 flex flex-col-reverse">
+            <dt className="text-sm text-stone-500 mt-1">{f.label}</dt>
+            <dd className="font-heading text-3xl text-[#1C2321]">{loading ? '–' : f.value}</dd>
           </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-stone-900 font-heading">{stats.activeDoctors}</span>
-            <span className="text-xs text-stone-500 font-semibold bg-stone-100 px-2 py-0.5 rounded-full">
-              8 / 14 Active
-            </span>
-          </div>
-        </div>
+        ))}
+      </dl>
 
-        {/* Card 3: ICU Occupancy */}
-        <div className="card-clean p-5 bg-white border border-stone-200/90 rounded-lg shadow-2xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-              21-Bed ICU Status
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Activity className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-stone-900 font-heading">{stats.icuOccupancy}</span>
-            <span className="text-xs font-semibold text-amber-800 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
-              16 / 21 Beds
-            </span>
-          </div>
-        </div>
-
-        {/* Card 4: Revenue */}
-        <div className="card-clean p-5 bg-white border border-stone-200/90 rounded-lg shadow-2xs space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-stone-500 uppercase tracking-wider">
-              OPD Collection
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-baseline justify-between">
-            <span className="text-3xl font-bold text-emerald-700 font-heading">{stats.totalRevenue}</span>
-            <span className="text-xs text-emerald-700 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              Verified
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 3. TWO-COLUMN BALANCED WORKSPACE ───────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* Left 8 Cols: Live OPD Patient Queue */}
-        <div className="lg:col-span-8 card-clean bg-white border border-stone-200 rounded-lg p-5 sm:p-6 space-y-4 shadow-2xs">
-          <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-            <h2 className="text-base text-stone-900 font-heading flex items-center gap-2">
-              <Calendar className="w-4 h-4 text-[#0F766E]" />
-              <span>Live Outpatient Queue</span>
-            </h2>
-            <Link
-              to="/admin/appointments"
-              className="text-xs font-bold text-[#0F766E] hover:underline flex items-center gap-1"
-            >
-              <span>View Full Queue</span>
-              <ArrowUpRight className="w-3.5 h-3.5" />
+      <div className="grid lg:grid-cols-12 gap-6 items-start">
+        {/* Queue */}
+        <section className="lg:col-span-8 bg-white border border-[#E7E3DA] rounded-lg">
+          <div className="px-5 py-4 border-b border-[#E7E3DA] flex items-center justify-between">
+            <h2 className="text-lg">Today’s queue</h2>
+            <Link to="/admin/appointments" className="text-sm text-[#0F766E] font-semibold hover:underline underline-offset-4">
+              See all
             </Link>
           </div>
-
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-stone-200/80 text-stone-400 uppercase tracking-wider text-[10px]">
-                  <th className="pb-2.5 font-semibold">Token</th>
-                  <th className="pb-2.5 font-semibold">Patient</th>
-                  <th className="pb-2.5 font-semibold">Specialist Doctor</th>
-                  <th className="pb-2.5 font-semibold">Time</th>
-                  <th className="pb-2.5 font-semibold">Fee</th>
-                  <th className="pb-2.5 font-semibold text-right">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-stone-100">
-                {recentAppointments.map((apt) => (
-                  <tr key={apt.id} className="hover:bg-stone-50/60 transition">
-                    <td className="py-3 pr-3 font-mono font-bold text-stone-800">
-                      #{apt.code}
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span className="font-bold text-stone-900 block">{apt.patient}</span>
-                      <span className="text-[11px] text-stone-400 block">{apt.age} • {apt.phone}</span>
-                    </td>
-                    <td className="py-3 pr-3">
-                      <span className="font-semibold text-stone-900 block">{apt.doctor}</span>
-                      <span className="text-[11px] text-[#0F766E] block">{apt.dept}</span>
-                    </td>
-                    <td className="py-3 pr-3 font-medium text-stone-700">
-                      {apt.time}
-                    </td>
-                    <td className="py-3 pr-3 font-bold text-stone-900">
-                      {apt.fee}
-                    </td>
-                    <td className="py-3 text-right">
-                      <span
-                        className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          apt.status === 'CONFIRMED'
-                            ? 'bg-teal-50 text-teal-800 border border-teal-200'
-                            : apt.status === 'IN_CONSULTATION'
-                            ? 'bg-amber-50 text-amber-800 border border-amber-200'
-                            : 'bg-stone-100 text-stone-700'
-                        }`}
-                      >
-                        {apt.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Right 4 Cols: Active Doctor Shifts */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="card-clean bg-white border border-stone-200 rounded-lg p-5 space-y-3 shadow-2xs">
-            <div className="flex items-center justify-between border-b border-stone-100 pb-2.5">
-              <h3 className="text-sm text-stone-900 font-heading flex items-center gap-2">
-                <Stethoscope className="w-4 h-4 text-[#0F766E]" />
-                <span>On-Duty Specialists</span>
-              </h3>
-              <span className="text-[11px] text-[#0F766E] font-bold">
-                OPD Active
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              {DOCTORS_DATA.slice(0, 5).map((doc) => (
-                <div
-                  key={doc.id}
-                  className="p-2.5 bg-stone-50/70 border border-stone-200/80 rounded-lg flex items-center gap-2.5 hover:bg-stone-100/70 transition"
-                >
-                  <img
-                    src={doc.image}
-                    alt={doc.name}
-                    className="w-9 h-9 rounded-lg object-cover border border-stone-200 shrink-0"
-                  />
+          {!loading && todays.length === 0 ? (
+            <p className="px-5 py-10 text-center text-stone-500">
+              Nothing booked online for today. New bookings appear here automatically.
+            </p>
+          ) : (
+            <ul className="divide-y divide-[#E7E3DA]">
+              {todays.slice(0, 8).map((a) => (
+                <li key={a.id} className="px-5 py-3.5 flex items-center gap-4">
+                  <span className="w-[72px] shrink-0 text-sm font-semibold text-[#1C2321]">{a.startTime.replace(/^0/, '')}</span>
                   <div className="min-w-0 flex-1">
-                    <h4 className="text-xs font-bold text-stone-900 truncate">{doc.name}</h4>
-                    <p className="text-[10px] text-[#0F766E] font-medium truncate">{doc.dept}</p>
+                    <p className="font-medium text-[#1C2321] truncate">
+                      {a.patientName}
+                      <span className="text-stone-500 font-normal">
+                        {' '}
+                        · {a.patientAge} {a.patientGender?.[0]}
+                      </span>
+                    </p>
+                    <p className="text-sm text-stone-500 truncate">
+                      {a.doctorName} · <span className="font-mono">{a.appointmentCode}</span>
+                    </p>
                   </div>
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Active" />
-                </div>
+                  <span className="hidden sm:inline text-sm text-stone-500 shrink-0">
+                    {a.paymentStatus === 'PAID' ? `₹${a.fee} paid` : `₹${a.fee} due`}
+                  </span>
+                  <span className="flex items-center gap-1.5 text-sm text-stone-700 shrink-0 w-[100px]">
+                    <span className={`w-2 h-2 rounded-full ${STATUS_DOT[a.status]}`} />
+                    {STATUS_LABEL[a.status]}
+                  </span>
+                </li>
               ))}
-            </div>
+            </ul>
+          )}
+        </section>
 
-            <Link
-              to="/admin/doctors"
-              className="btn-secondary text-xs w-full py-1.5 flex items-center justify-center gap-1"
-            >
-              <span>View All 14 Doctors</span>
-              <ArrowUpRight className="w-3 h-3" />
+        <div className="lg:col-span-4 space-y-6">
+          {/* Money */}
+          <section className="bg-white border border-[#E7E3DA] rounded-lg p-5">
+            <h2 className="text-lg">Consultation fees today</h2>
+            <dl className="mt-3 space-y-2 text-[15px]">
+              <div className="flex justify-between">
+                <dt className="text-stone-600">Paid online</dt>
+                <dd className="font-semibold">₹{collectedOnline.toLocaleString('en-IN')}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt className="text-stone-600">To collect at counter</dt>
+                <dd className="font-semibold">₹{toCollect.toLocaleString('en-IN')}</dd>
+              </div>
+            </dl>
+            <Link to="/admin/payments" className="mt-4 inline-block text-sm text-[#0F766E] font-semibold hover:underline underline-offset-4">
+              Online payments
             </Link>
-          </div>
-        </div>
+          </section>
 
+          {/* Per doctor */}
+          <section className="bg-white border border-[#E7E3DA] rounded-lg p-5">
+            <h2 className="text-lg">By doctor</h2>
+            {byDoctor.length === 0 ? (
+              <p className="mt-2 text-sm text-stone-500">No bookings yet today.</p>
+            ) : (
+              <ul className="mt-3 divide-y divide-[#E7E3DA]">
+                {byDoctor.map((d) => (
+                  <li key={d.name} className="py-2.5 flex justify-between gap-3 text-[15px]">
+                    <span className="min-w-0">
+                      <span className="block truncate">{d.name}</span>
+                      <span className="block text-xs text-stone-500 truncate">{d.dept}</span>
+                    </span>
+                    <span className="text-right text-sm text-stone-600 shrink-0">
+                      {d.total} booked
+                      <br />
+                      {d.waiting} waiting
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          {upcoming > 0 && (
+            <p className="text-sm text-stone-600">
+              {upcoming} more booking{upcoming === 1 ? '' : 's'} for the coming days.
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

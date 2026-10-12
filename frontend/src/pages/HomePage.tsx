@@ -5,6 +5,8 @@ import { Phone, ArrowRight, Star, MapPin } from 'lucide-react';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { AWARDS_DATA } from '../data/awardsData';
 import { apiUrl } from '../lib/api';
+import { PHOTOS } from '../data/photos';
+import { Photo, DoctorPhoto } from '../components/ui';
 
 interface HomeReview {
   id?: string;
@@ -84,11 +86,10 @@ export const HomePage: React.FC = () => {
       title: 'Orthopedics & Joint Replacement',
       titleMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
       doctor: 'Dr. Nishant Goyal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Nishant-Goyal-1.webp',
       degree: 'MBBS, DNB, D. Ortho',
       desc: 'Complex trauma care, total knee & hip replacement, arthroscopy, and spine stabilization with digital C-Arm fluoroscopy.',
       descMr: 'सांधेदुखी, गुडघे व खुबा प्रत्यारोपण, फ्रॅक्चर शस्त्रक्रिया व मणक्याचे आधुनिक उपचार.',
-      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=800&q=80',
+      image: PHOTOS.operationTheatre,
       slug: 'orthopedics',
     },
     {
@@ -96,11 +97,10 @@ export const HomePage: React.FC = () => {
       title: 'Pediatrics & Neonatal Care (NICU)',
       titleMr: 'बालरोग आणि नवजात शिशु अतिदक्षता',
       doctor: 'Dr. Shivdas Mirkad',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, MD, DCH',
       desc: 'Comprehensive child healthcare, 24x7 neonatal intensive care with phototherapy warmers, and pediatric asthma management.',
       descMr: 'लहान मुलांचे आजार, नवजात बाळांसाठी NICU, लसीकरण व बालरोग अतिदक्षता सेवा.',
-      image: 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80',
+      image: PHOTOS.nicu,
       slug: 'pediatrics',
     },
     {
@@ -108,11 +108,10 @@ export const HomePage: React.FC = () => {
       title: '21-Bed ICU & Critical Care',
       titleMr: '२१ खाटांचा अतिदक्षता विभाग (ICU)',
       doctor: 'Dr. Baliram Bagal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Screenshot_20220501_072310-1.webp',
       degree: 'MBBS, DA, FICM, CCCS',
       desc: 'Computerized hemodynamic monitoring, mechanical ventilation, renal dialysis support, and 24x7 dedicated intensivist care.',
       descMr: 'व्हेंटिलेटर, डायलिसिस सपोर्ट, संगणकीकृत मॉनिटरिंग व २४ तास भूलतज्ज्ञ डॉक्टर.',
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.55-PM-1.webp',
+      image: PHOTOS.cardiacUnit,
       slug: 'icu-critical-care',
     },
     {
@@ -120,11 +119,10 @@ export const HomePage: React.FC = () => {
       title: 'Obstetrics & Gynecology (Maternity)',
       titleMr: 'प्रसूती आणि स्त्रीरोग विभाग',
       doctor: 'Dr. Anshul Goyal',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-Anshul-pahawa-goyal-1.webp',
       degree: 'MBBS, DNB, DGO',
       desc: 'Safe motherhood, high-risk pregnancy management, painless normal delivery, cesarean section, and gynecological laparoscopy.',
       descMr: 'सुरक्षित बाळंतपण, सिझेरियन, वंध्यत्व निवारण व दुर्बिणीद्वारे स्त्रीरोग शस्त्रक्रिया.',
-      image: 'https://images.unsplash.com/photo-1538108149393-fbbd81895907?auto=format&fit=crop&w=800&q=80',
+      image: PHOTOS.picu,
       slug: 'obstetrics-gynecology',
     },
     {
@@ -132,11 +130,10 @@ export const HomePage: React.FC = () => {
       title: 'General & Laparoscopic Surgery',
       titleMr: 'जनरल आणि लेप्रोस्कोपिक शस्त्रक्रिया',
       doctor: 'Dr. Millind Katole',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/Dr-millind-katole-1.webp',
       degree: 'MBBS, MS General Surgery',
       desc: 'Karl Storz HD Laparoscopic cholecystectomy, hernia repair, appendectomy, and laser anorectal surgeries.',
       descMr: 'दुर्बिणीद्वारे पित्ताशय खडे, हर्निया, अपेंडिक्स व लेझरद्वारे मूळव्याध शस्त्रक्रिया.',
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-21-at-4.28.59-PM.webp',
+      image: PHOTOS.surgery,
       slug: 'general-surgery',
     },
     {
@@ -144,11 +141,10 @@ export const HomePage: React.FC = () => {
       title: 'Internal Medicine & Cardiology Consult',
       titleMr: 'इंटरनल मेडिसिन व फिजिशियन',
       doctor: 'Dr. Kailash Rajguru',
-      facultyImg: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/IMG-1153-1.webp',
       degree: 'MBBS, MD Medicine',
       desc: 'Hypertension, diabetes management, infectious diseases, cardiac evaluation with 3D color Doppler, and preventive wellness.',
       descMr: 'मधुमेह, उच्च रक्तदाब, हृदयविकार निदान व संसर्गजन्य आजारांचे तज्ज्ञ उपचार.',
-      image: 'https://sanjeevanihosp.in/wp-content/uploads/2023/03/WhatsApp-Image-2023-03-20-at-12.09.54-PM-1.webp',
+      image: PHOTOS.casualty,
       slug: 'internal-medicine',
     },
   ];
@@ -159,25 +155,25 @@ export const HomePage: React.FC = () => {
       title: isMr ? 'डिजिटल सी-आर्म (C-Arm)' : 'Digital C-Arm Fluoroscopy',
       category: isMr ? 'शस्त्रक्रिया इमेजिंग' : 'Surgical Imaging',
       desc: isMr ? 'हाडे व मणक्याच्या अचूक शस्त्रक्रियेसाठी रिअल-टाइम एक्स-रे तंत्रज्ञान.' : 'Real-time intraoperative imaging for precision orthopedics, trauma, and spine surgery.',
-      image: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=600&q=80',
+      image: PHOTOS.operationTheatre,
     },
     {
       title: isMr ? 'HD लेप्रोस्कोपी टॉवर' : 'HD Laparoscopic Surgical Suite',
       category: isMr ? 'दुर्बिणीद्वारे शस्त्रक्रिया' : 'Minimally Invasive',
       desc: isMr ? 'सूक्ष्म व रक्तस्त्रावरहित दुर्बिणीद्वारे शस्त्रक्रियेची अत्याधुनिक सुविधा.' : 'High-definition endoscopic visualization for scarless, faster recovery surgeries.',
-      image: 'https://images.unsplash.com/photo-1551076805-e1869033e561?auto=format&fit=crop&w=600&q=80',
+      image: PHOTOS.otTeam,
     },
     {
       title: isMr ? '२१ खाटांचा संगणकीकृत ICU' : '21-Bed Computerized ICU & Ventilators',
       category: isMr ? 'अतिदक्षता जीवनरक्षक' : 'Critical Life Support',
       desc: isMr ? 'मेकॅनिकल व्हेंटिलेटर्स, मल्टीपॅरा मॉनिटर्स व २४ तास तज्ज्ञ अतिदक्षतातज्ज्ञ.' : 'Equipped with Dräger mechanical ventilators, multipara telemetry, and round-the-clock intensivists.',
-      image: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=600&q=80',
+      image: PHOTOS.cardiacUnit,
     },
     {
       title: isMr ? '3D/4D कलर डॉपलर सोनोग्राफी' : '3D/4D Color Doppler Sonography',
       category: isMr ? 'अचूक रेडिओलॉजी निदान' : 'Radiology Diagnostics',
       desc: isMr ? 'गर्भावस्थेतील तपासणी व रक्तवाहिन्यांचे उच्च-दर्जाचे अचूक निदान.' : 'High-resolution fetal screening, abdominal scans, and vascular Doppler assessments.',
-      image: 'https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&w=600&q=80',
+      image: PHOTOS.pathologyLab,
     },
   ];
 
@@ -224,7 +220,7 @@ export const HomePage: React.FC = () => {
 
           <figure className="lg:col-span-6">
             <img
-              src="https://sanjeevanihosp.in/wp-content/uploads/2023/03/FrontPic.webp"
+              src={PHOTOS.building}
               alt={isMr ? 'संजीवनी हॉस्पिटल इमारत, जालना' : 'Sanjeevani Hospital building, Jalna'}
               className="w-full aspect-[4/3] object-cover rounded-lg"
             />
@@ -325,7 +321,7 @@ export const HomePage: React.FC = () => {
           <ul className="grid md:grid-cols-2 lg:grid-cols-3 gap-x-8 divide-y md:divide-y-0 divide-[#E7E3DA]">
             {seniorDoctors.map((doc) => (
               <li key={doc.id} className="py-5 md:border-b border-[#E7E3DA] flex gap-4">
-                <img src={doc.image} alt="" loading="lazy" className="w-20 h-24 rounded-md object-cover object-top bg-stone-100 shrink-0" />
+                <DoctorPhoto src={doc.image} name={isMr ? doc.nameMr : doc.name} className="w-20 h-24 rounded-md shrink-0" />
                 <div className="min-w-0 flex-1">
                   <Link to={`/doctors/${doc.id}`} className="font-heading text-lg text-[#1C2321] hover:text-[#0F766E]">
                     {isMr ? doc.nameMr : doc.name}
@@ -349,7 +345,6 @@ export const HomePage: React.FC = () => {
       <section className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24">
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-6">
-            <span className="eyebrow mb-2">{isMr ? 'शासकीय योजना' : 'Government scheme'}</span>
             <h2 className="text-[1.75rem] sm:text-[2.125rem] leading-tight">
               {isMr ? 'महात्मा ज्योतिराव फुले जन आरोग्य योजना' : 'Free treatment under MJPJAY'}
             </h2>
@@ -404,9 +399,8 @@ export const HomePage: React.FC = () => {
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {hospitalEquipment.map((eq) => (
             <div key={eq.title}>
-              <img src={eq.image} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg bg-stone-100" />
-              <p className="mt-3 text-xs font-semibold uppercase tracking-wider text-stone-500">{eq.category}</p>
-              <h3 className="mt-1 text-lg">{eq.title}</h3>
+              <Photo src={eq.image} className="w-full aspect-[4/3] rounded-lg" />
+              <h3 className="mt-3 text-lg">{eq.title}</h3>
               <p className="mt-1 text-sm text-stone-600 leading-relaxed">{eq.desc}</p>
             </div>
           ))}
@@ -423,17 +417,15 @@ export const HomePage: React.FC = () => {
             </Link>
           }
         />
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 border-t border-[#E7E3DA]">
           {AWARDS_DATA.slice(0, 4).map((award) => (
-            <div key={award.id}>
-              <img src={award.image} alt="" loading="lazy" className="w-full aspect-[4/3] object-cover rounded-lg bg-stone-100" />
-              <p className="mt-3 text-xs text-stone-500">
-                {award.year} · {isMr ? award.subtitleMr : award.subtitle}
-              </p>
-              <h3 className="mt-1 text-base leading-snug">{isMr ? award.titleMr : award.title}</h3>
-            </div>
+            <li key={award.id} className="pt-5 pb-2">
+              <p className="font-heading text-2xl text-[#0F766E]">{award.year}</p>
+              <h3 className="mt-2 text-base leading-snug">{isMr ? award.titleMr : award.title}</h3>
+              <p className="mt-1 text-sm text-stone-500">{isMr ? award.subtitleMr : award.subtitle}</p>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       {/* Reviews */}

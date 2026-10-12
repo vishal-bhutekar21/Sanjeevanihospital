@@ -1,31 +1,18 @@
 import React, { useEffect, useState } from 'react';
-import {
-  ShieldCheck,
-  Phone,
-  CheckCircle2,
-  AlertCircle,
-  HeartPulse,
-  Scissors,
-  Baby,
-  Activity,
-  Award,
-  FileText,
-  Clock,
-  ArrowRight,
-  UserCheck,
-  Building2,
-  CreditCard,
-  Send,
-  HelpCircle,
-} from 'lucide-react';
+import { Phone } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { useTranslation } from 'react-i18next';
+import { PageIntro, SectionTitle } from '../components/ui';
+import { PHOTOS } from '../data/photos';
+
+const inputClass =
+  'w-full px-3.5 py-3 bg-white border border-[#D8D3C8] rounded-md text-[15px] focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 focus:outline-none';
+const labelClass = 'block text-sm font-medium text-stone-700 mb-1.5';
 
 export const MjpjayPage: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
-  const [info, setInfo] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'procedures' | 'process' | 'documents' | 'register'>('procedures');
+  const [, setInfo] = useState<any>(null);
   const [formData, setFormData] = useState({
     patientName: '',
     patientPhone: '',
@@ -37,6 +24,7 @@ export const MjpjayPage: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     fetch(apiUrl('/schemes/mjpjay/info'))
@@ -48,6 +36,7 @@ export const MjpjayPage: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError('');
     try {
       const res = await fetch(apiUrl('/schemes/mjpjay/register-claim'), {
         method: 'POST',
@@ -73,732 +62,484 @@ export const MjpjayPage: React.FC = () => {
         estimatedAmount: '',
       });
     } catch (err) {
-      alert(isMr ? 'अर्ज सबमिट करताना त्रुटी आली. कृपया पुन्हा प्रयत्न करा.' : 'Failed to submit MJPJAY claim request. Please try again.');
+      setError(
+        isMr
+          ? 'अर्ज पाठवता आला नाही. कृपया पुन्हा प्रयत्न करा किंवा +91 75073 42222 वर फोन करा.'
+          : 'We could not send your request. Please try again, or call +91 75073 42222.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  // Comprehensive covered procedures dataset with full English and Marathi content
   const proceduresData = [
     {
-      categoryEn: 'Orthopedics & Joint Replacement',
-      categoryMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण शस्त्रक्रिया',
-      icon: Activity,
+      categoryEn: 'Orthopaedics and joint replacement',
+      categoryMr: 'अस्थिरोग आणि सांधे प्रत्यारोपण',
       doctor: 'Dr. Nishant Goyal (MBBS, DNB, D. Ortho)',
-      coverageBadge: isMr ? '१००% मोफत पॅकेज' : '100% Cashless Package',
       procedures: [
-        { en: 'Total Knee Replacement (TKR) Arthroplasty', mr: 'गुडघे प्रत्यारोपण (Total Knee Replacement)' },
-        { en: 'Total Hip Replacement (THR) Arthroplasty', mr: 'खुबा प्रत्यारोपण (Total Hip Replacement)' },
-        { en: 'Complex Fracture Trauma Internal Fixation (Plating & Nailing)', mr: 'गुंतागुंतीचे फ्रॅक्चर व हाडांचे ऑपरेशन' },
-        { en: 'Spinal Disc Decompression & Spine Stabilization', mr: 'मणक्याचे आजार, स्लिप डिस्क व स्टेबिलायझेशन' },
-        { en: 'Arthroscopic Ligament Reconstruction (ACL/PCL Repair)', mr: 'दुर्बिणीद्वारे लिगामेंट शस्त्रक्रिया (ACL/PCL)' },
-        { en: 'Pediatric Bone Deformity & Fracture Realignment', mr: 'लहान मुलांच्या हाडांचे फ्रॅक्चर व विकृती निवारण' },
+        { en: 'Total knee replacement', mr: 'गुडघे प्रत्यारोपण (Total Knee Replacement)' },
+        { en: 'Total hip replacement', mr: 'खुबा प्रत्यारोपण (Total Hip Replacement)' },
+        { en: 'Fracture fixation (plating and nailing)', mr: 'गुंतागुंतीचे फ्रॅक्चर व हाडांचे ऑपरेशन' },
+        { en: 'Spinal disc decompression and stabilisation', mr: 'मणक्याचे आजार, स्लिप डिस्क व स्टेबिलायझेशन' },
+        { en: 'Arthroscopic ligament repair (ACL/PCL)', mr: 'दुर्बिणीद्वारे लिगामेंट शस्त्रक्रिया (ACL/PCL)' },
+        { en: 'Children’s fractures and bone deformities', mr: 'लहान मुलांच्या हाडांचे फ्रॅक्चर व विकृती निवारण' },
       ],
     },
     {
-      categoryEn: 'General & Laparoscopic Surgeries',
+      categoryEn: 'General and laparoscopic surgery',
       categoryMr: 'जनरल आणि लेप्रोस्कोपिक (दुर्बिणीच्या) शस्त्रक्रिया',
-      icon: Scissors,
       doctor: 'Dr. Millind Katole (MBBS, MS)',
-      coverageBadge: isMr ? '१००% मोफत पॅकेज' : '100% Cashless Package',
       procedures: [
-        { en: 'Laparoscopic Cholecystectomy (Gallbladder Stones)', mr: 'दुर्बिणीद्वारे पित्ताशयातील खडे काढण्याची शस्त्रक्रिया' },
-        { en: 'Laparoscopic Inguinal & Incisional Hernia Repair (Mesh Plasty)', mr: 'दुर्बिणीद्वारे हर्निया व जाळी बसविण्याची शस्त्रक्रिया' },
-        { en: 'Laparoscopic Appendectomy (Acute Appendicitis)', mr: 'दुर्बिणीद्वारे अपेंडिक्स काढण्याची शस्त्रक्रिया' },
-        { en: 'Advanced Laser Anorectal Surgery (Piles, Fissure, Fistula)', mr: 'लेझरद्वारे मूळव्याध, भगंदर व फिशर शस्त्रक्रिया' },
-        { en: 'Emergency Abdominal Trauma & Bowel Perforation Surgery', mr: 'पोटातील गंभीर दुखापती व आपत्कालीन शस्त्रक्रिया' },
+        { en: 'Laparoscopic gallbladder removal (gallstones)', mr: 'दुर्बिणीद्वारे पित्ताशयातील खडे काढण्याची शस्त्रक्रिया' },
+        { en: 'Laparoscopic hernia repair with mesh', mr: 'दुर्बिणीद्वारे हर्निया व जाळी बसविण्याची शस्त्रक्रिया' },
+        { en: 'Laparoscopic appendix removal', mr: 'दुर्बिणीद्वारे अपेंडिक्स काढण्याची शस्त्रक्रिया' },
+        { en: 'Laser surgery for piles, fissure and fistula', mr: 'लेझरद्वारे मूळव्याध, भगंदर व फिशर शस्त्रक्रिया' },
+        { en: 'Emergency abdominal injury and bowel perforation surgery', mr: 'पोटातील गंभीर दुखापती व आपत्कालीन शस्त्रक्रिया' },
       ],
     },
     {
-      categoryEn: 'Pediatrics & Neonatal Intensive Care (NICU)',
+      categoryEn: 'Paediatrics and newborn ICU (NICU)',
       categoryMr: 'बालरोग आणि नवजात शिशु अतिदक्षता विभाग (NICU)',
-      icon: Baby,
       doctor: 'Dr. Shivdas Mirkad (MBBS, MD, DCH)',
-      coverageBadge: isMr ? '२४ तास अतिदक्षता' : '24x7 Critical NICU',
       procedures: [
-        { en: 'Level-II Neonatal ICU Care for Preterm & Low Birth Weight Babies', mr: 'अकाली जन्मलेली व कमी वजनाची बालके (NICU Care)' },
-        { en: 'Neonatal Respiratory Distress Syndrome & Phototherapy for Jaundice', mr: 'नवजात बालकांमधील कावीळ (फोटोथेरपी) व श्वसन विकार' },
-        { en: 'Severe Pediatric Pneumonia, Bronchiolitis & Asthma Management', mr: 'गंभीर न्यूमोनिया, दमा व श्वासनलिका संसर्ग' },
-        { en: 'Pediatric Sepsis & Critical Infection Resuscitation', mr: 'गंभीर संसर्ग (Sepsis) व बालरोग अतिदक्षता' },
-        { en: 'Congenital Deformity & Pediatric Surgical Recovery', mr: 'जन्मजात आजार व बालरोग शस्त्रक्रिया पश्चात देखभाल' },
+        { en: 'Level-II NICU care for premature and low birth weight babies', mr: 'अकाली जन्मलेली व कमी वजनाची बालके (NICU Care)' },
+        { en: 'Newborn breathing problems and phototherapy for jaundice', mr: 'नवजात बालकांमधील कावीळ (फोटोथेरपी) व श्वसन विकार' },
+        { en: 'Severe pneumonia, bronchiolitis and asthma in children', mr: 'गंभीर न्यूमोनिया, दमा व श्वासनलिका संसर्ग' },
+        { en: 'Sepsis and serious infections in children', mr: 'गंभीर संसर्ग (Sepsis) व बालरोग अतिदक्षता' },
+        { en: 'Birth defects and care after children’s surgery', mr: 'जन्मजात आजार व बालरोग शस्त्रक्रिया पश्चात देखभाल' },
       ],
     },
     {
-      categoryEn: '21-Bed ICU & Critical Care Unit',
+      categoryEn: 'ICU and critical care (21 beds)',
       categoryMr: '२१ खाटांचा अतिदक्षता विभाग (ICU) व व्हेंटिलेटर',
-      icon: HeartPulse,
       doctor: 'Dr. Baliram Bagal (MBBS, DA, FICM, CCCS)',
-      coverageBadge: isMr ? 'व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis',
       procedures: [
-        { en: 'Advanced Mechanical Ventilation & Invasive Arterial Line Care', mr: 'आधुनिक मेकॅनिकल व्हेंटिलेशन व आर्टेरियल मॉनिटरिंग' },
-        { en: 'Septic Shock, Poisoning & Multi-Organ Failure Resuscitation', mr: 'सेप्टिक शॉक, विषबाधा व मल्टी-ऑर्गन फेल्युअर उपचार' },
-        { en: 'Bedside Hemodialysis for Acute & Chronic Kidney Injury', mr: 'बेडसाइड डायलिसिस सपोर्ट व मूत्रपिंड निकामी रुग्ण' },
-        { en: 'Severe Head Injury, Stroke & Coma Critical Triage', mr: 'डोक्याला गंभीर मार, मेंदूतील रक्तस्राव व स्ट्रोक केअर' },
+        { en: 'Ventilator support and arterial line monitoring', mr: 'आधुनिक मेकॅनिकल व्हेंटिलेशन व आर्टेरियल मॉनिटरिंग' },
+        { en: 'Septic shock, poisoning and multi-organ failure', mr: 'सेप्टिक शॉक, विषबाधा व मल्टी-ऑर्गन फेल्युअर उपचार' },
+        { en: 'Bedside dialysis for kidney failure', mr: 'बेडसाइड डायलिसिस सपोर्ट व मूत्रपिंड निकामी रुग्ण' },
+        { en: 'Severe head injury, stroke and coma', mr: 'डोक्याला गंभीर मार, मेंदूतील रक्तस्राव व स्ट्रोक केअर' },
       ],
     },
     {
-      categoryEn: 'Obstetrics & Gynecology (Maternity)',
+      categoryEn: 'Obstetrics and gynaecology',
       categoryMr: 'प्रसूती आणि स्त्रीरोग विभाग',
-      icon: Award,
       doctor: 'Dr. Anshul Goyal (MBBS, DNB, DGO)',
-      coverageBadge: isMr ? 'सुरक्षित बाळंतपण' : 'Safe Delivery Care',
       procedures: [
-        { en: 'High-Risk Normal Delivery & Emergency Lower Segment C-Section (LSCS)', mr: 'सुरक्षित सिझेरियन (LSCS) व गुंतागुंतीचे बाळंतपण' },
-        { en: 'Ectopic Pregnancy Emergency Resection & Salpingectomy', mr: 'अस्थानिक गर्भधारणा (Ectopic Pregnancy) शस्त्रक्रिया' },
-        { en: 'Laparoscopic Hysterectomy (Uterus Removal) & Myomectomy', mr: 'दुर्बिणीद्वारे गर्भाशय काढण्याची शस्त्रक्रिया (Hysterectomy)' },
-        { en: 'Ovarian Cystectomy & Gynecological Emergency Bleeding Control', mr: 'अंडाशयातील गाठ (Ovarian Cyst) व रक्तस्राव नियंत्रण' },
+        { en: 'High-risk delivery and emergency caesarean section (LSCS)', mr: 'सुरक्षित सिझेरियन (LSCS) व गुंतागुंतीचे बाळंतपण' },
+        { en: 'Ectopic pregnancy surgery', mr: 'अस्थानिक गर्भधारणा (Ectopic Pregnancy) शस्त्रक्रिया' },
+        { en: 'Laparoscopic hysterectomy and myomectomy', mr: 'दुर्बिणीद्वारे गर्भाशय काढण्याची शस्त्रक्रिया (Hysterectomy)' },
+        { en: 'Ovarian cyst removal and control of heavy bleeding', mr: 'अंडाशयातील गाठ (Ovarian Cyst) व रक्तस्राव नियंत्रण' },
       ],
     },
     {
-      categoryEn: 'Internal Medicine & Physician Care',
+      categoryEn: 'Internal medicine',
       categoryMr: 'इंटरनल मेडिसिन व फिजिशियन उपचार',
-      icon: ShieldCheck,
       doctor: 'Dr. Kailash Rajguru (MBBS, MD Medicine)',
-      coverageBadge: isMr ? 'तज्ज्ञ वैद्यकीय निदान' : 'Specialist Medicine',
       procedures: [
-        { en: 'Complicated Diabetes, Diabetic Ketoacidosis & Foot Ulcers', mr: 'मधुमेहाची गुंतागुंत, कीटोअ‍ॅसिडोसिस व डायबेटिक फूट' },
-        { en: 'Hypertensive Crisis & Acute Cardiovascular Emergency Stabilization', mr: 'अति-उच्च रक्तदाब व आपत्कालीन हृदयविकार प्राथमिक उपचार' },
-        { en: 'Dengue Hemorrhagic Fever, Malaria & Tropical Infectious Diseases', mr: 'डेंग्यू, मलेरिया, विषमज्वर व संसर्गजन्य ताप उपचार' },
-        { en: 'Chronic Obstructive Pulmonary Disease (COPD) & Severe Asthma', mr: 'दमा, फुफ्फुसाचे आजार व श्वास लागणे' },
+        { en: 'Diabetes complications, ketoacidosis and foot ulcers', mr: 'मधुमेहाची गुंतागुंत, कीटोअ‍ॅसिडोसिस व डायबेटिक फूट' },
+        { en: 'Very high blood pressure and heart emergencies', mr: 'अति-उच्च रक्तदाब व आपत्कालीन हृदयविकार प्राथमिक उपचार' },
+        { en: 'Dengue, malaria and other serious fevers', mr: 'डेंग्यू, मलेरिया, विषमज्वर व संसर्गजन्य ताप उपचार' },
+        { en: 'COPD and severe asthma', mr: 'दमा, फुफ्फुसाचे आजार व श्वास लागणे' },
       ],
     },
   ];
 
-  // Comprehensive Step-by-Step Process with Timeframes & Visual Infographic Steps
   const processSteps = [
     {
-      step: '01',
-      titleEn: 'Patient Walk-in & Arogya Mitra Helpdesk',
-      titleMr: 'रुग्ण आगमन आणि आरोग्य मित्र कक्षात भेट',
-      timeframe: '0–15 Mins',
-      descEn: 'Visit the 24x7 MJPJAY Arogya Mitra Desk located at the ground floor entrance of Sanjeevani Hospital with your Ration Card and Aadhaar Card.',
-      descMr: 'संजीवनी हॉस्पिटलच्या तळमजल्यावरील २४ तास सुरू असलेल्या आरोग्य मित्र कक्षाला भेट द्या आणि आपले मूळ रेशन कार्ड व आधार कार्ड सादर करा.',
-      badge: isMr ? 'तत्पर नोंदणी' : 'Immediate Check-in',
+      titleEn: 'Come to the Arogya Mitra desk',
+      titleMr: 'आरोग्य मित्र कक्षात या',
+      time: isMr ? 'सुमारे १५ मिनिटे' : 'About 15 minutes',
+      descEn: 'The desk is at the ground floor entrance and is open 24 hours. Bring your ration card and Aadhaar card.',
+      descMr: 'तळमजल्यावरील प्रवेशद्वाराजवळील कक्ष २४ तास सुरू असतो. मूळ रेशन कार्ड व आधार कार्ड सोबत आणा.',
     },
     {
-      step: '02',
-      titleEn: 'Digital Eligibility Verification & Portal Registration',
-      titleMr: 'शासकीय पोर्टलवर ऑनलाइन पडताळणी',
-      timeframe: '15–30 Mins',
-      descEn: 'The Arogya Mitra verifies your family eligibility online on the State Health Assurance Society (SHAS) MJPJAY portal and creates an electronic registration token.',
-      descMr: 'आरोग्य मित्र शासकीय MJPJAY पोर्टलवर आपल्या रेशन कार्डची पडताळणी करून तात्काळ ऑनलाइन रुग्ण नोंदणी आणि टोकन तयार करतात.',
-      badge: isMr ? 'डिजिटल मंजुरी' : 'Online approval',
+      titleEn: 'Eligibility is checked online',
+      titleMr: 'शासकीय पोर्टलवर पात्रता तपासणी',
+      time: isMr ? '१५ ते ३० मिनिटे' : '15–30 minutes',
+      descEn: 'The Arogya Mitra checks your family’s eligibility on the State Health Assurance Society (SHAS) portal and registers the patient.',
+      descMr: 'आरोग्य मित्र शासकीय (SHAS) MJPJAY पोर्टलवर रेशन कार्डची पडताळणी करून रुग्णाची ऑनलाइन नोंदणी करतात.',
     },
     {
-      step: '03',
-      titleEn: 'Specialist Clinical Diagnosis & Pre-Authorization',
-      titleMr: 'तज्ज्ञ डॉक्टरांकडून निदान व पूर्व-मंजुरी प्रस्ताव',
-      timeframe: '1–2 Hours',
-      descEn: 'Hospital specialist examines the patient, performs necessary diagnostic investigations (X-Ray, Sonography, Blood Tests), and submits pre-authorization package request.',
-      descMr: 'तज्ज्ञ डॉक्टर रुग्णाची तपासणी करून आवश्यक चाचण्या (एक्स-रे, सोनोग्राफी, रक्त तपासणी) करतात आणि शासनाकडे पूर्व-मंजुरीसाठी प्रस्ताव पाठवतात.',
-      badge: isMr ? 'वैद्यकीय तपासणी' : 'Doctor Evaluation',
+      titleEn: 'Doctor examines and requests approval',
+      titleMr: 'डॉक्टरांकडून तपासणी व पूर्व-मंजुरी प्रस्ताव',
+      time: isMr ? '१ ते २ तास' : '1–2 hours',
+      descEn: 'Our specialist examines the patient, orders tests (X-ray, sonography, blood tests) and sends the approval request.',
+      descMr: 'तज्ज्ञ डॉक्टर तपासणी करून आवश्यक चाचण्या (एक्स-रे, सोनोग्राफी, रक्त तपासणी) करतात आणि पूर्व-मंजुरीसाठी प्रस्ताव पाठवतात.',
     },
     {
-      step: '04',
-      titleEn: '100% Cashless Surgery, ICU & Inpatient Care',
-      titleMr: '१००% मोफत शस्त्रक्रिया, ICU व औषधोपचार',
-      timeframe: 'Inpatient Stay',
-      descEn: 'Once approved by the government medical officer, the patient receives advanced surgery in modular OT, ICU observation, medicines, consumables, and nursing care at ₹0 cost.',
-      descMr: 'शासकीय मंजुरीनंतर रुग्णावर मॉड्युलर ओटीमध्ये शस्त्रक्रिया, आयसीयू मुक्काम, सर्व प्रकारची औषधे व तपासण्या एकाही रुपयाच्या खर्चाशिवाय मोफत केल्या जातात.',
-      badge: isMr ? 'शून्य खर्च' : 'Zero Out-of-Pocket',
+      titleEn: 'Treatment at no cost',
+      titleMr: 'मोफत शस्त्रक्रिया व उपचार',
+      time: isMr ? 'दाखल असेपर्यंत' : 'During the stay',
+      descEn: 'After the government medical officer approves, surgery, ICU stay, medicines and nursing care are free.',
+      descMr: 'शासकीय मंजुरीनंतर शस्त्रक्रिया, ICU मुक्काम, औषधे, तपासण्या व नर्सिंग सेवा मोफत केल्या जातात.',
     },
     {
-      step: '05',
-      titleEn: 'Discharge Summary & 10-Day Free Follow-up Medicines',
-      titleMr: 'डिस्चार्ज, मोफत औषधे व १० दिवसांचे फॉलोअप',
-      timeframe: 'On Discharge',
-      descEn: 'At the time of discharge, the patient receives complete discharge documentation, 10 days of post-operative follow-up medicines pack, and free OPD follow-up consultation.',
-      descMr: 'डिस्चार्जच्या वेळी रुग्णाला संपूर्ण डिस्चार्ज समरी, १० दिवसांचा मोफत औषध किट आणि पुढील तपासणीसाठी मार्गदर्शन मोफत दिले जाते.',
-      badge: isMr ? 'फॉलोअप सहाय्य' : 'Post-Op Support',
+      titleEn: 'Discharge with 10 days of medicines',
+      titleMr: 'डिस्चार्ज व १० दिवसांची मोफत औषधे',
+      time: isMr ? 'डिस्चार्जच्या वेळी' : 'At discharge',
+      descEn: 'You get the discharge summary, 10 days of medicines and a free follow-up OPD visit.',
+      descMr: 'डिस्चार्ज समरी, १० दिवसांची मोफत औषधे आणि पुढील ओपीडी तपासणी मोफत दिली जाते.',
     },
   ];
 
-  // Comprehensive Document Checklist with Details
-  const documentChecklist = [
-    {
-      categoryEn: 'Primary Scheme Eligibility Proof (Any One)',
-      categoryMr: 'पात्रतेचा मुख्य पुरावा (कोणतेही एक)',
-      items: [
-        {
-          nameEn: 'Yellow Ration Card (BPL - Below Poverty Line)',
-          nameMr: 'पिवळे रेशन कार्ड (दारिद्र्यरेषेखालील - BPL)',
-          required: true,
-          tipEn: 'Must show patient name or head of family clearly with valid barcode.',
-          tipMr: 'रेशन कार्डवर रुग्णाचे नाव किंवा कुटुंबप्रमुखाचे नाव स्पष्ट असणे आवश्यक.',
-        },
-        {
-          nameEn: 'Orange Ration Card (APL - Above Poverty Line, Income < ₹1 Lakh)',
-          nameMr: 'केशरी रेशन कार्ड (वार्षिक उत्पन्न मर्यादा ₹१ लाखापर्यंत)',
-          required: true,
-          tipEn: 'Active orange ration card issued by Maharashtra State Civil Supplies.',
-          tipMr: 'महाराष्ट्र शासनाने दिलेले अधिकृत केशरी रेशन कार्ड.',
-        },
-        {
-          nameEn: 'Antyodaya Anna Yojana (AAY) or Annapurna Ration Card',
-          nameMr: 'अंत्योदय अन्न योजना (AAY) किंवा अन्नपूर्णा रेशन कार्ड',
-          required: true,
-          tipEn: 'Covers fully subsidized cashless medical benefits.',
-          tipMr: 'शासकीय योजनेअंतर्गत १००% मोफत लाभासाठी पात्र.',
-        },
-      ],
-    },
-    {
-      categoryEn: 'Patient Identity & Residence Proof (Mandatory)',
-      categoryMr: 'रुग्णाची ओळख व पत्त्याचा पुरावा (अनिवार्य)',
-      items: [
-        {
-          nameEn: 'Original Aadhaar Card of Patient & Attendant',
-          nameMr: 'रुग्ण आणि नातेवाईकाचे मूळ आधार कार्ड',
-          required: true,
-          tipEn: 'Required for biometric/OTP authentication on SHAS portal.',
-          tipMr: 'पोर्टलवर ई-केवायसी आणि बायोमेट्रिक पडताळणीसाठी आवश्यक.',
-        },
-        {
-          nameEn: 'Secondary Photo ID (Voter ID Card / Driving License)',
-          nameMr: 'मतदान ओळखपत्र किंवा ड्रायव्हिंग लायसन्स (पर्यायी)',
-          required: false,
-          tipEn: 'Helpful if Aadhaar address requires secondary verification.',
-          tipMr: 'नाव किंवा पत्त्यात बदल असल्यास दुय्यम पुरावा म्हणून उपयुक्त.',
-        },
-      ],
-    },
-    {
-      categoryEn: 'Medical & Clinical Documents',
-      categoryMr: 'वैद्यकीय कागदपत्रे व तपासणी रिपोर्ट्स',
-      items: [
-        {
-          nameEn: 'Doctor Referral Letter / Sanjeevani OPD Prescription',
-          nameMr: 'संजीवनी हॉस्पिटलचे ओपीडी प्रिस्क्रिप्शन / डॉक्टरांचे निदान पत्र',
-          required: true,
-          tipEn: 'Issued directly by our specialist OPD doctors upon clinical evaluation.',
-          tipMr: 'संजीवनी हॉस्पिटलमधील तज्ज्ञ डॉक्टरांकडून तपासणीनंतर तात्काळ दिले जाते.',
-        },
-        {
-          nameEn: 'Diagnostic Investigation Reports (X-Ray, CT, Sonography, Blood Tests)',
-          nameMr: 'मागील वैद्यकीय चाचण्यांचे रिपोर्ट्स (एक्स-रे, सोनोग्राफी, रक्त अहवाल)',
-          required: false,
-          tipEn: 'Carry existing diagnostic reports for expedited surgical pre-authorization.',
-          tipMr: 'उपलब्ध असल्यास सोबत आणावेत, ज्यामुळे मंजुरी प्रक्रिया जलद होते.',
-        },
-        {
-          nameEn: '2 Recent Passport Size Photographs of Patient',
-          nameMr: 'रुग्णाचे २ पासपोर्ट आकाराचे फोटो',
-          required: true,
-          tipEn: 'Required for physical case sheet and government claim file.',
-          tipMr: 'क्लेम फाइल आणि हॉस्पिटल रेकॉर्डसाठी आवश्यक.',
-        },
-      ],
-    },
+  const eligibilityCards = [
+    { en: 'Yellow ration card (BPL)', mr: 'पिवळे रेशन कार्ड (दारिद्र्यरेषेखालील - BPL)' },
+    { en: 'Orange ration card (annual income up to ₹1 lakh)', mr: 'केशरी रेशन कार्ड (वार्षिक उत्पन्न ₹१ लाखापर्यंत)' },
+    { en: 'Antyodaya Anna Yojana (AAY) or Annapurna card', mr: 'अंत्योदय अन्न योजना (AAY) किंवा अन्नपूर्णा रेशन कार्ड' },
   ];
+
+  const documents = [
+    {
+      en: 'One ration card from the list above, with the patient’s or head of family’s name',
+      mr: 'वरीलपैकी एक रेशन कार्ड, ज्यावर रुग्णाचे किंवा कुटुंबप्रमुखाचे नाव असावे',
+    },
+    { en: 'Original Aadhaar card of the patient and the attendant', mr: 'रुग्ण आणि नातेवाईकाचे मूळ आधार कार्ड' },
+    { en: 'Sanjeevani OPD prescription or doctor’s referral letter', mr: 'संजीवनी ओपीडी प्रिस्क्रिप्शन / डॉक्टरांचे निदान पत्र' },
+    { en: '2 recent passport-size photos of the patient', mr: 'रुग्णाचे २ पासपोर्ट आकाराचे फोटो' },
+  ];
+
+  const optionalDocuments = [
+    { en: 'Earlier test reports (X-ray, CT, sonography, blood tests), which speed up approval', mr: 'मागील तपासणी अहवाल (एक्स-रे, सीटी, सोनोग्राफी, रक्त) — मंजुरी जलद होते' },
+    { en: 'Voter ID or driving licence, if the Aadhaar address needs checking', mr: 'मतदान ओळखपत्र किंवा ड्रायव्हिंग लायसन्स (पत्ता पडताळणीसाठी)' },
+  ];
+
+  const sectionLinks = [
+    { href: '#covered', label: isMr ? 'समाविष्ट उपचार' : 'Covered treatments' },
+    { href: '#how-it-works', label: isMr ? 'प्रक्रिया' : 'How it works' },
+    { href: '#documents', label: isMr ? 'कागदपत्रे' : 'Documents' },
+    { href: '#register', label: isMr ? 'नोंदणी' : 'Register' },
+  ];
+
+  const wrap = 'max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8';
 
   return (
-    <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 space-y-10">
-      {/* ─── 1. HERO BANNER (CLEAN HEALTHCARE STYLING) ───────────────────────── */}
-      <div className="card-clean p-6 sm:p-10 lg:p-12  space-y-6">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <div className="badge-teal text-xs py-1 px-3">
-            <ShieldCheck className="w-4 h-4 text-[#0F766E]" />
-            <span>{isMr ? 'महाराष्ट्र शासन मान्यताप्राप्त महात्मा फुले जन आरोग्य योजना' : 'Govt. of Maharashtra Approved Scheme'}</span>
-          </div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-white border border-teal-200 text-teal-800 text-xs font-semibold shadow-2xs">
-            <Building2 className="w-3.5 h-3.5 text-[#0F766E]" />
-            <span>{isMr ? 'संजीवनी हॉस्पिटल जालना अधिकृत केंद्र' : 'Empanelled Hospital Jalna'}</span>
-          </div>
-        </div>
-
-        <div className="space-y-3 max-w-3xl">
-          <h1 className="text-2xl sm:text-4xl lg:text-5xl text-stone-900 font-heading leading-tight">
-            {isMr ? 'महात्मा ज्योतिराव फुले' : 'Mahatma Jyotirao Phule'}<br />
-            <span className="text-[#0F766E]">
-              {isMr ? 'जन आरोग्य योजना (MJPJAY) कक्ष' : 'Jan Arogya Yojana (MJPJAY)'}
-            </span>
-          </h1>
-
-          <p className="text-sm sm:text-base text-stone-600 leading-relaxed font-normal">
-            {isMr
-              ? 'महाराष्ट्रातील पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे सर्व प्रमुख शस्त्रक्रिया, अतिदक्षता विभाग (ICU) आणि तज्ज्ञ डॉक्टरांचे उपचार १००% मोफत उपलब्ध आहेत. आमचा समर्पित आरोग्य मित्र कक्ष आपणास तत्पर सहाय्य करतो.'
-              : 'Sanjeevani Multispeciality Hospital, Jalna provides 100% cashless surgical care, 21-bed ICU, and specialist medical management for eligible yellow and orange ration card families under MJPJAY.'}
-          </p>
-        </div>
-
-        {/* Action Helpline & Scheme Badges */}
-        <div className="flex flex-wrap items-center gap-3 pt-2">
-          <a
-            href="tel:+917507342222"
-            className="btn-emergency text-xs py-2.5 px-4 shadow-sm"
-          >
+    <div className="pb-16">
+      <PageIntro
+        title={isMr ? 'महात्मा ज्योतिराव फुले जन आरोग्य योजना' : 'Free treatment under MJPJAY'}
+        intro={
+          isMr
+            ? 'पिवळे व केशरी रेशन कार्डधारक कुटुंबांसाठी संजीवनी हॉस्पिटल, जालना येथे शस्त्रक्रिया, ICU आणि तज्ज्ञ उपचार मोफत. कुटुंबाला वर्षाला ₹५ लाखांपर्यंत संरक्षण. आमचा आरोग्य मित्र कक्ष कागदपत्रे व मंजुरीसाठी मदत करतो.'
+            : 'Families with a yellow or orange ration card can get surgery, ICU care and specialist treatment free at Sanjeevani Hospital, Jalna, under the Mahatma Jyotirao Phule Jan Arogya Yojana. Cover is up to ₹5,00,000 per family each year. Our Arogya Mitra desk helps with the paperwork and approval.'
+        }
+        image={PHOTOS.reception}
+        imageAlt={isMr ? 'हॉस्पिटलचा स्वागत कक्ष' : 'Hospital reception desk'}
+      >
+        <div className="flex flex-col sm:flex-row gap-3">
+          <a href="tel:+917507342222" className="btn-primary">
             <Phone className="w-4 h-4" />
-            <span>{isMr ? 'आरोग्य मित्र हेल्पलाईन: +91-75073-42222' : 'Arogya Mitra Helpline: +91-75073-42222'}</span>
+            {isMr ? 'आरोग्य मित्र: +91 75073 42222' : 'Arogya Mitra: +91 75073 42222'}
           </a>
+          <a href="#register" className="btn-secondary">
+            {isMr ? 'मदतीसाठी नोंदणी करा' : 'Register for help'}
+          </a>
+        </div>
+        <p className="mt-4 text-sm text-stone-500">
+          {isMr
+            ? 'आरोग्य मित्र कक्ष, तळमजला, रूम १०२ · सोम–शनि सकाळी ९ ते संध्या. ६ · आपत्कालीन २४ तास'
+            : 'Arogya Mitra desk, ground floor, room 102 · Mon–Sat 9 am – 6 pm · Emergencies 24 hours'}
+        </p>
+      </PageIntro>
 
-          <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white border border-stone-200 text-xs font-semibold text-stone-700 shadow-2xs">
-            <Award className="w-4 h-4 text-[#0F766E]" />
-            <span>{isMr ? 'कौटुंबिक संरक्षण: ₹५,००,००० / वर्ष' : 'Annual Family Coverage: Up to ₹5,00,000'}</span>
+      {/* In-page links */}
+      <nav aria-label={isMr ? 'या पानावर' : 'On this page'} className="border-b border-[#E7E3DA] bg-[#FAF8F4]">
+        <div className={`${wrap} flex flex-wrap gap-x-6 gap-y-1 py-2 text-[15px]`}>
+          {sectionLinks.map((l) => (
+            <a
+              key={l.href}
+              href={l.href}
+              className="inline-flex items-center min-h-[44px] text-[#0F766E] font-medium hover:underline underline-offset-4"
+            >
+              {l.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      {/* Who can use it */}
+      <section className={`${wrap} py-12 sm:py-16`}>
+        <div className="grid lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-5">
+            <SectionTitle title={isMr ? 'कोण पात्र आहे' : 'Who can use the scheme'} />
+            <ul className="list-disc pl-5 space-y-2 text-[15px] text-stone-700">
+              {eligibilityCards.map((c) => (
+                <li key={c.en}>{isMr ? c.mr : c.en}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="lg:col-span-7 lg:pt-14">
+            <p className="card-notice-amber text-sm leading-relaxed">
+              {isMr
+                ? 'पात्रता, उपचारांची व्याप्ती आणि मोफत उपचार हे शासनाचे नियम आणि आरोग्य मित्र कक्षाकडून मिळणाऱ्या पूर्व-मंजुरीनुसार ठरतात. यासाठी वैध रेशन कार्ड व आधार कार्ड आवश्यक आहे.'
+                : 'Eligibility, what is covered and free treatment all depend on government scheme rules and approval through the Arogya Mitra desk. A valid ration card and Aadhaar card are needed.'}
+            </p>
           </div>
         </div>
+      </section>
 
-        {/* 4 Standout Infographic Badges (Warm Yellow/Amber Styling) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 border-t border-stone-200/80 text-xs">
-          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
-            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'कॅशलेस उपचार' : 'Zero Expense'}</p>
-            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '१००% मोफत शस्त्रक्रिया' : '100% Cashless'}</p>
-            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कोणतेही आगाऊ शुल्क नाही' : 'No advance deposit'}</p>
+      {/* Covered treatments */}
+      <section id="covered" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+        <div className={`${wrap} py-12 sm:py-16`}>
+          <SectionTitle
+            title={isMr ? 'संजीवनी हॉस्पिटलमध्ये समाविष्ट उपचार' : 'Treatments covered at Sanjeevani'}
+            sub={
+              isMr
+                ? 'तपासण्या आणि औषधे पॅकेजमध्ये समाविष्ट आहेत.'
+                : 'Tests and medicines are included in the package.'
+            }
+          />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {proceduresData.map((cat) => (
+              <div key={cat.categoryEn} className="card-clean p-6">
+                <h3 className="text-lg leading-snug">{isMr ? cat.categoryMr : cat.categoryEn}</h3>
+                <p className="mt-1 text-sm text-stone-500">{cat.doctor}</p>
+                <ul className="mt-4 list-disc pl-5 space-y-1.5 text-[15px] text-stone-700">
+                  {cat.procedures.map((proc) => (
+                    <li key={proc.en}>{isMr ? proc.mr : proc.en}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
-            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'अतिदक्षता विभाग' : 'Critical Care'}</p>
-            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? '२१ खाटांचा ICU' : '21-Bed ICU'}</p>
-            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'व्हेंटिलेटर व डायलिसिस' : 'Ventilator & Dialysis'}</p>
-          </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
-            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'पात्रता' : 'Beneficiaries'}</p>
-            <p className="font-bold text-stone-900 text-base mt-0.5">{isMr ? 'पिवळे / केशरी कार्ड' : 'Yellow & Orange Cards'}</p>
-            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'अन्नपूर्णा व अंत्योदय कार्ड' : 'AAY & Annapurna cards'}</p>
-          </div>
-          <div className="p-3.5 bg-amber-50/90 rounded-lg border border-amber-200 shadow-2xs">
-            <p className="text-amber-800 font-bold uppercase text-[10px]">{isMr ? 'आरोग्य मित्र कक्ष' : 'Hospital Helpdesk'}</p>
-            <p className="font-bold text-teal-700 text-base mt-0.5">{isMr ? '२४x७ सक्रिय' : '24x7 Active'}</p>
-            <p className="text-[11px] text-amber-900/80 mt-0.5">{isMr ? 'कागदपत्र तपासणी कक्ष' : 'Fast-track approvals'}</p>
-          </div>
-        </div>
-      </div>
-
-      {/* ─── 2. GOVERNMENT SCHEME NOTICE (WARM AMBER STYLING) ─────────────────── */}
-      <div className="card-notice-amber flex items-start gap-3.5">
-        <AlertCircle className="w-5 h-5 text-amber-800 shrink-0 mt-0.5" />
-        <div className="space-y-0.5">
-          <h4 className="font-bold text-amber-950 text-xs sm:text-sm">
-            {isMr ? 'शासकीय योजना मार्गदर्शक नियम व माहिती' : 'Government Scheme Compliance Notice'}
-          </h4>
-          <p className="text-xs text-amber-900 leading-relaxed">
+          <p className="mt-8 text-stone-600 max-w-2xl">
             {isMr
-              ? 'महात्मा फुले जन आरोग्य योजनेअंतर्गत मोफत उपचारांसाठी रुग्णाचे वैध रेशन कार्ड, आधार कार्ड आणि शासकीय आरोग्य मित्र कक्षाकडून इलेक्ट्रॉनिक पूर्व-मंजुरी आवश्यक असते.'
-              : 'Eligibility, coverage, and cashless treatment are subject to applicable government scheme rules and Arogya Mitra pre-authorization approval.'}
+              ? 'MJPJAY अंतर्गत ९९६ हून अधिक उपचार समाविष्ट आहेत. आपला उपचार यादीत नसेल तर आरोग्य मित्र कक्षाला विचारा: '
+              : 'More than 996 treatments are covered under MJPJAY. If yours is not listed, ask the Arogya Mitra desk: '}
+            <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline whitespace-nowrap">
+              +91 75073 42222
+            </a>
           </p>
         </div>
-      </div>
+      </section>
 
-      {/* ─── 3. TAB NAVIGATION (COMPACT SEGMENTED PILLS) ────────────────────── */}
-      <div className="flex justify-start">
-        <div className="inline-flex flex-wrap sm:flex-nowrap gap-1.5 p-1.5 bg-stone-100/90 rounded-lg border border-stone-200/70 shadow-2xs">
-          {([
-            { key: 'procedures', label: isMr ? 'समाविष्ट शस्त्रक्रिया' : 'Covered Procedures', icon: Activity },
-            { key: 'process', label: isMr ? 'योजना प्रक्रिया' : 'Step-by-Step Process', icon: ArrowRight },
-            { key: 'documents', label: isMr ? 'आवश्यक कागदपत्रे' : 'Required Documents', icon: FileText },
-            { key: 'register', label: isMr ? 'मदतीसाठी अर्ज' : 'Register / Inquire', icon: Send },
-          ] as const).map((tab) => {
-            const Icon = tab.icon;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap ${
-                  activeTab === tab.key
-                    ? 'bg-white text-stone-900 shadow-sm border border-stone-200/50'
-                    : 'text-stone-600 hover:text-stone-900 hover:bg-white/50'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${activeTab === tab.key ? 'text-[#0F766E]' : 'text-stone-400'}`} />
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ─── TAB 1: COVERED PROCEDURES (COMPREHENSIVE BILINGUAL INFOGRAPHIC) ───── */}
-      {activeTab === 'procedures' && (
-        <div className="space-y-8">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
-              {isMr ? 'महात्मा फुले योजनेअंतर्गत समाविष्ट प्रमुख शस्त्रक्रिया' : 'Covered Clinical Procedures & Surgeries'}
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              {isMr
-                ? 'संजीवनी हॉस्पिटल, जालना येथे खालील सर्व वैद्यकीय व शस्त्रक्रिया विभाग १००% मोफत कॅशलेस पॅकेजमध्ये समाविष्ट आहेत:'
-                : 'The following multispeciality surgeries and treatments are 100% cashless at Sanjeevani Hospital under MJPJAY:'}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {proceduresData.map((cat, idx) => {
-              const Icon = cat.icon;
-              return (
-                <div
-                  key={idx}
-                  className="card-clean p-6 flex flex-col justify-between space-y-4 hover:shadow-card-hover transition"
-                >
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-9 h-9 rounded-lg bg-teal-50 text-[#0F766E] flex items-center justify-center shrink-0">
-                          <Icon className="w-4.5 h-4.5" />
-                        </div>
-                        <span className="badge-teal text-[11px] py-0.5">{cat.coverageBadge}</span>
-                      </div>
-                    </div>
-
-                    <h3 className="text-base text-stone-900 font-heading leading-snug">
-                      {isMr ? cat.categoryMr : cat.categoryEn}
-                    </h3>
-                    <p className="text-[11px] font-medium text-[#0F766E]">
-                      {cat.doctor}
-                    </p>
-
-                    <ul className="space-y-2 pt-1">
-                      {cat.procedures.map((proc, pIdx) => (
-                        <li key={pIdx} className="flex items-start gap-2 text-xs text-stone-700 leading-snug">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-teal-600 shrink-0 mt-0.5" />
-                          <span>{isMr ? proc.mr : proc.en}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="pt-3 border-t border-stone-100 flex items-center justify-between">
-                    <span className="text-[11px] text-stone-400">
-                      {isMr ? 'मोफत तपासणी व औषधे समाविष्ट' : 'Free diagnostics & meds'}
-                    </span>
-                    <a
-                      href="tel:+917507342222"
-                      className="text-xs font-semibold text-[#0F766E] hover:underline flex items-center gap-1"
-                    >
-                      <span>{isMr ? 'माहिती विचारा' : 'Inquire'}</span>
-                      <ArrowRight className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Scheme Inpatient Package Note */}
-          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="space-y-1">
-              <h4 className="text-base font-bold font-heading">
-                {isMr ? 'तुमची शस्त्रक्रिया यादीत दिसत नाही का?' : 'Is your prescribed surgery not listed here?'}
-              </h4>
-              <p className="text-xs text-stone-300">
-                {isMr
-                  ? 'शासकीय MJPJAY योजनेअंतर्गत ९९६ हून अधिक शस्त्रक्रिया समाविष्ट आहेत. त्वरित पडताळणीसाठी आमच्या आरोग्य मित्रांशी संपर्क साधा.'
-                  : 'Over 996+ medical & surgical procedures are empanelled under MJPJAY. Contact our Arogya Mitra desk for direct verification.'}
-              </p>
-            </div>
-            <a
-              href="tel:+917507342222"
-              className="btn-primary text-xs py-2.5 px-4 whitespace-nowrap shrink-0"
-            >
-              <Phone className="w-3.5 h-3.5" />
-              <span>{isMr ? 'आरोग्य मित्र कॉल: 7507342222' : 'Call Arogya Mitra'}</span>
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* ─── TAB 2: STEP-BY-STEP PROCESS (INFOGRAPHIC FLOWCHART) ──────────────── */}
-      {activeTab === 'process' && (
-        <div className="space-y-8">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
-              {isMr ? 'महात्मा फुले योजनेतून मोफत उपचार मिळवण्याची सोपी प्रक्रिया' : 'Step-by-Step MJPJAY Cashless Admission Process'}
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              {isMr
-                ? 'हॉस्पिटलमध्ये दाखल झाल्यापासून डिस्चार्जपर्यंतची संपूर्ण पारदर्शक व जलद प्रक्रिया खालीलप्रमाणे आहे:'
-                : 'Follow these 5 simple steps from hospital arrival to discharge with full cashless assistance:'}
-            </p>
-          </div>
-
-          {/* 5-Step Visual Timeline */}
-          <div className="space-y-4">
-            {processSteps.map((step) => (
-              <div
-                key={step.step}
-                className="card-clean p-5 sm:p-6 space-y-3 hover:shadow-card-hover hover:border-teal-300 transition-all bg-white"
-              >
-                {/* Step Top Bar with Step Number and Timeframe */}
-                <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-100">
-                  <div className="flex items-center gap-2.5">
-                    <span className="w-7 h-7 rounded-lg bg-teal-50 border border-teal-200 text-[#0F766E] font-bold text-xs flex items-center justify-center font-mono">
-                      0{step.step}
-                    </span>
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#0F766E]">
-                      {isMr ? `पायरी ०${step.step}` : `Step 0${step.step}`}
-                    </span>
-                  </div>
-
-                  {step.timeframe && (
-                    <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-teal-800 bg-teal-50/80 px-2.5 py-1 rounded-md border border-teal-100">
-                      <Clock className="w-3 h-3 text-teal-600" />
-                      <span>{step.timeframe}</span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Step Content */}
-                <div className="space-y-1.5 pt-0.5">
-                  <h3 className="text-base sm:text-lg text-stone-900 font-heading">
-                    {isMr ? step.titleMr : step.titleEn}
-                  </h3>
-                  <p className="text-xs sm:text-sm text-stone-600 leading-relaxed font-normal">
-                    {isMr ? step.descMr : step.descEn}
-                  </p>
-                </div>
+      {/* How it works */}
+      <section id="how-it-works" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+        <SectionTitle
+          title={isMr ? 'मोफत उपचार कसे मिळतात' : 'How it works'}
+          sub={isMr ? 'हॉस्पिटलमध्ये आल्यापासून डिस्चार्जपर्यंत.' : 'From arriving at the hospital to going home.'}
+        />
+        <ol className="max-w-3xl divide-y divide-[#E7E3DA] border-y border-[#E7E3DA]">
+          {processSteps.map((step, i) => (
+            <li key={i} className="py-5 flex gap-4">
+              <span className="font-heading text-xl text-[#0F766E] w-6 shrink-0">{i + 1}.</span>
+              <div>
+                <h3 className="text-lg">{isMr ? step.titleMr : step.titleEn}</h3>
+                <p className="mt-1 text-stone-600 leading-relaxed">{isMr ? step.descMr : step.descEn}</p>
+                <p className="mt-1 text-sm text-stone-500">{step.time}</p>
               </div>
-            ))}
-          </div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-          {/* Arogya Mitra Helpdesk Direct Box */}
-          <div className="card-clean p-6 bg-stone-900 text-white flex flex-col sm:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-teal-500/20 text-teal-300 flex items-center justify-center shrink-0">
-                <UserCheck className="w-6 h-6" />
-              </div>
-              <div className="space-y-0.5">
-                <span className="text-xs text-teal-300 block font-medium">
-                  {isMr ? 'आरोग्य मित्र थेट सहाय्यता डेस्क (तळमजला, रूम १०२)' : 'Arogya Mitra Direct Desk (Ground Floor, Room 102)'}
-                </span>
-                <p className="text-base font-bold text-white">
-                  Sanjeevani Multispeciality Hospital, Jalna
-                </p>
-                <p className="text-xs text-stone-400">
-                  {isMr ? 'वेळ: सोमवार ते शनिवार: ०९:०० AM – ०६:०० PM (२४ तास आपत्कालीन चालू)' : 'Timings: Mon–Sat: 09:00 AM – 06:00 PM | Emergency: 24x7'}
-                </p>
-              </div>
-            </div>
-
-            <a
-              href="tel:+917507342222"
-              className="btn-emergency text-xs py-2.5 px-5 whitespace-nowrap shrink-0"
-            >
-              <Phone className="w-4 h-4" />
-              <span>+91-75073-42222</span>
-            </a>
-          </div>
-        </div>
-      )}
-
-      {/* ─── TAB 3: REQUIRED DOCUMENTS (DETAILED BILINGUAL CHECKLIST) ──────────── */}
-      {activeTab === 'documents' && (
-        <div className="space-y-8">
-          <div className="space-y-1">
-            <h2 className="text-xl sm:text-2xl text-stone-900 font-heading">
-              {isMr ? 'महात्मा फुले योजनेसाठी आवश्यक कागदपत्रांची यादी' : 'Complete Document Checklist for MJPJAY Admission'}
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500">
-              {isMr
-                ? 'कृपया रुग्णालयात दाखल होताना खालील मूळ कागदपत्रे आणि प्रत्येकी २ झेरॉक्स प्रती सोबत ठेवाव्यात:'
-                : 'Please bring original physical documents along with 2 photocopies each at the time of admission:'}
-            </p>
-          </div>
-
-          <div className="space-y-6">
-            {documentChecklist.map((group, gIdx) => (
-              <div key={gIdx} className="card-clean p-6 space-y-4">
-                <h3 className="text-sm sm:text-base text-stone-900 font-heading border-b border-stone-100 pb-2.5">
-                  {isMr ? group.categoryMr : group.categoryEn}
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {group.items.map((doc, dIdx) => (
-                    <div
-                      key={dIdx}
-                      className="p-4 rounded-lg bg-stone-50 border border-stone-100 space-y-1.5"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs sm:text-sm font-semibold text-stone-900">
-                          {isMr ? doc.nameMr : doc.nameEn}
-                        </span>
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded shrink-0 ${
-                            doc.required
-                              ? 'bg-red-100 text-red-700'
-                              : 'bg-stone-200 text-stone-700'
-                          }`}
-                        >
-                          {doc.required ? (isMr ? 'अनिवार्य' : 'REQUIRED') : (isMr ? 'पर्यायी' : 'OPTIONAL')}
-                        </span>
-                      </div>
-                      <p className="text-[11px] text-stone-500 leading-normal">
-                        {isMr ? doc.tipMr : doc.tipEn}
-                      </p>
-                    </div>
+      {/* Documents */}
+      <section id="documents" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+        <div className={`${wrap} py-12 sm:py-16`}>
+          <SectionTitle
+            title={isMr ? 'सोबत आणायची कागदपत्रे' : 'Documents to bring'}
+            sub={
+              isMr
+                ? 'मूळ कागदपत्रे आणि प्रत्येकी २ झेरॉक्स प्रती सोबत ठेवा.'
+                : 'Bring the originals and 2 photocopies of each.'
+            }
+          />
+          <div className="grid lg:grid-cols-2 gap-10">
+            <ol className="space-y-3 text-[15px] text-stone-700">
+              {documents.map((doc, i) => (
+                <li key={i} className="flex gap-3">
+                  <span className="font-heading text-[#0F766E] w-5 shrink-0">{i + 1}.</span>
+                  <span>{isMr ? doc.mr : doc.en}</span>
+                </li>
+              ))}
+            </ol>
+            <div className="space-y-8">
+              <div>
+                <h3 className="text-lg">{isMr ? 'असल्यास सोबत आणा' : 'Also helpful'}</h3>
+                <ul className="mt-3 list-disc pl-5 space-y-2 text-[15px] text-stone-700">
+                  {optionalDocuments.map((doc, i) => (
+                    <li key={i}>{isMr ? doc.mr : doc.en}</li>
                   ))}
-                </div>
+                </ul>
               </div>
-            ))}
-          </div>
-
-          {/* Helpful Document Advisory Tip */}
-          <div className="card-clean p-5 bg-teal-50/60 border border-teal-200 flex items-start gap-3 text-xs sm:text-sm text-teal-900">
-            <HelpCircle className="w-5 h-5 text-teal-600 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-semibold text-teal-950">
-                {isMr ? 'रेशन कार्डवर नाव नसल्यास काय करावे?' : 'What if the patient name is missing from the Ration Card?'}
-              </p>
-              <p className="text-xs text-teal-900 leading-relaxed font-normal">
-                {isMr
-                  ? 'जर रुग्णाचे नाव रेशन कार्डवर नसेल, तर लग्न नोंदणी प्रमाणपत्र (विवाहित महिलांसाठी) किंवा तहसीलदार कार्यालयाचा उत्पन्नाचा दाखला/प्रतिज्ञापत्र सादर करून आरोग्य मित्र कक्षातून विशेष मंजुरी प्रक्रिया करता येते.'
-                  : 'If the patient name is not yet updated on the ration card, carry a Marriage Certificate (for married females) or Tehsildar Residence Certificate for special manual desk authorization.'}
-              </p>
+              <div>
+                <h3 className="text-lg">
+                  {isMr ? 'रेशन कार्डवर रुग्णाचे नाव नसल्यास' : 'If the patient’s name is not on the ration card'}
+                </h3>
+                <p className="mt-2 text-[15px] text-stone-700 leading-relaxed">
+                  {isMr
+                    ? 'विवाह नोंदणी प्रमाणपत्र (विवाहित महिलांसाठी) किंवा तहसीलदार कार्यालयाचा दाखला आणा. आरोग्य मित्र कक्ष विशेष मंजुरीसाठी मदत करेल.'
+                    : 'Bring a marriage certificate (for married women) or a residence certificate from the Tehsildar. The Arogya Mitra desk can then request special approval.'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      )}
+      </section>
 
-      {/* ─── TAB 4: REGISTER CLAIM & FAST-TRACK FORM ───────────────────────────── */}
-      {activeTab === 'register' && (
-        <div className="card-clean p-6 sm:p-10 space-y-6">
-          <div className="border-b border-stone-100 pb-4">
-            <h2 className="text-xl text-stone-900 font-heading">
-              {isMr ? 'महात्मा फुले योजना तात्काळ सहाय्यता नोंदणी' : 'Direct MJPJAY Fast-Track Claim Inquire Form'}
-            </h2>
-            <p className="text-xs sm:text-sm text-stone-500 mt-1">
-              {isMr
-                ? 'खालील फॉर्म भरा, आमचे आरोग्य मित्र प्रतिनिधी १५ मिनिटांत आपल्याशी संपर्क साधून पात्रतेची खात्री करतील.'
-                : 'Fill this form to notify our hospital Arogya Mitra team for immediate pre-authorization assistance.'}
+      {/* Register */}
+      <section id="register" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+        <div className="grid lg:grid-cols-12 gap-10">
+          <div className="lg:col-span-4">
+            <SectionTitle
+              title={isMr ? 'आरोग्य मित्र कक्षाकडे नोंदणी' : 'Register with the Arogya Mitra desk'}
+              sub={
+                isMr
+                  ? 'हा फॉर्म भरा. आमचे आरोग्य मित्र १५ मिनिटांत फोन करून पात्रता तपासतील.'
+                  : 'Fill in this form and an Arogya Mitra will call you within 15 minutes to check eligibility.'
+              }
+            />
+            <p className="text-sm text-stone-600">
+              {isMr ? 'थेट बोलायचे आहे?' : 'Prefer to talk?'}{' '}
+              <a href="tel:+917507342222" className="font-semibold text-[#1C2321] hover:underline">
+                +91 75073 42222
+              </a>
             </p>
           </div>
 
-          {submitted ? (
-            <div className="text-center space-y-3 py-8">
-              <div className="w-12 h-12 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center mx-auto">
-                <CheckCircle2 className="w-6 h-6" />
+          <div className="lg:col-span-8 card-clean p-5 sm:p-8">
+            {submitted ? (
+              <div role="status" className="py-4">
+                <h3 className="text-xl text-[#0F766E]">
+                  {isMr ? 'आपला अर्ज मिळाला' : 'Your request has been sent'}
+                </h3>
+                <p className="mt-2 text-stone-600 max-w-md">
+                  {isMr
+                    ? 'आपला अर्ज आरोग्य मित्र कक्षाकडे पोहोचला आहे. आमचा प्रतिनिधी लवकरच फोन करेल.'
+                    : 'The Arogya Mitra desk has your request. Someone will call you shortly.'}
+                </p>
+                <button onClick={() => setSubmitted(false)} className="btn-secondary mt-5">
+                  {isMr ? 'दुसरा अर्ज भरा' : 'Register another patient'}
+                </button>
               </div>
-              <h3 className="text-lg text-stone-900 font-heading">
-                {isMr ? 'योजना सहाय्यता अर्ज यशस्वीरीत्या नोंदवला!' : 'MJPJAY Claim Registered Successfully!'}
-              </h3>
-              <p className="text-xs sm:text-sm text-stone-600 max-w-md mx-auto">
-                {isMr
-                  ? 'आपला अर्ज संजीवनी हॉस्पिटलच्या आरोग्य मित्र कक्षाकडे पाठवला गेला आहे. आमचा प्रतिनिधी लवकरच संपर्क करेल.'
-                  : 'Your claim request has been dispatched to our Arogya Mitra desk. Our coordinator will contact you shortly.'}
-              </p>
-              <button
-                onClick={() => setSubmitted(false)}
-                className="btn-secondary text-xs mt-2"
-              >
-                {isMr ? 'दुसरा अर्ज नोंदवा' : 'Register Another Claim'}
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-5">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient Full Name *'}
+            ) : (
+              <form onSubmit={handleRegister} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label htmlFor="mj-name" className={labelClass}>
+                      {isMr ? 'रुग्णाचे पूर्ण नाव *' : 'Patient’s full name *'}
+                    </label>
+                    <input
+                      id="mj-name"
+                      required
+                      value={formData.patientName}
+                      onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
+                      placeholder={isMr ? 'उदा. ज्ञानेश्वर जाधव' : 'e.g. Dnyaneshwar Jadhav'}
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="mj-phone" className={labelClass}>
+                      {isMr ? 'मोबाईल नंबर (१० अंकी) *' : 'Mobile number (10 digits) *'}
+                    </label>
+                    <input
+                      id="mj-phone"
+                      required
+                      type="tel"
+                      maxLength={10}
+                      value={formData.patientPhone}
+                      onChange={(e) => setFormData({ ...formData, patientPhone: e.target.value })}
+                      placeholder="98XXXXXXXX"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="mj-age" className={labelClass}>
+                      {isMr ? 'रुग्णाचे वय (वर्षे) *' : 'Patient’s age *'}
+                    </label>
+                    <input
+                      id="mj-age"
+                      required
+                      type="number"
+                      min={0}
+                      max={120}
+                      value={formData.patientAge}
+                      onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
+                      placeholder="45"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="mj-aadhaar" className={labelClass}>
+                      {isMr ? 'आधार कार्डचे शेवटचे ४ अंक *' : 'Last 4 digits of Aadhaar *'}
+                    </label>
+                    <input
+                      id="mj-aadhaar"
+                      required
+                      maxLength={4}
+                      inputMode="numeric"
+                      value={formData.aadhaarLast4}
+                      onChange={(e) => setFormData({ ...formData, aadhaarLast4: e.target.value })}
+                      placeholder="4567"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="mj-ration" className={labelClass}>
+                      {isMr ? 'रेशन कार्ड नंबर (पिवळे / केशरी) *' : 'Ration card number (yellow or orange) *'}
+                    </label>
+                    <input
+                      id="mj-ration"
+                      required
+                      value={formData.rationCardNumber}
+                      onChange={(e) => setFormData({ ...formData, rationCardNumber: e.target.value })}
+                      placeholder="MH/JLN/1234567"
+                      className={inputClass}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="mj-amount" className={labelClass}>
+                      {isMr ? 'अंदाजित उपचार खर्च ₹ (पर्यायी)' : 'Estimated treatment cost ₹ (optional)'}
+                    </label>
+                    <input
+                      id="mj-amount"
+                      type="number"
+                      value={formData.estimatedAmount}
+                      onChange={(e) => setFormData({ ...formData, estimatedAmount: e.target.value })}
+                      placeholder="50000"
+                      className={inputClass}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="mj-diagnosis" className={labelClass}>
+                    {isMr ? 'आजार / आवश्यक शस्त्रक्रिया *' : 'Illness or recommended surgery *'}
                   </label>
-                  <input
+                  <textarea
+                    id="mj-diagnosis"
                     required
-                    value={formData.patientName}
-                    onChange={(e) => setFormData({ ...formData, patientName: e.target.value })}
-                    placeholder={isMr ? 'उदा. ज्ञानेश्वर जाधव' : 'e.g. Dnyaneshwar Jadhav'}
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
+                    rows={3}
+                    value={formData.diagnosisDescription}
+                    onChange={(e) => setFormData({ ...formData, diagnosisDescription: e.target.value })}
+                    placeholder={
+                      isMr
+                        ? 'उदा. गुडघे प्रत्यारोपण किंवा हर्निया शस्त्रक्रिया'
+                        : 'e.g. knee replacement, hernia repair, NICU admission'
+                    }
+                    className={`${inputClass} resize-none`}
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'मोबाईल नंबर (१० अंकी) *' : 'Mobile Number (10 Digits) *'}
-                  </label>
-                  <input
-                    required
-                    type="tel"
-                    maxLength={10}
-                    value={formData.patientPhone}
-                    onChange={(e) => setFormData({ ...formData, patientPhone: e.target.value })}
-                    placeholder="98XXXXXXXX"
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  />
-                </div>
+                {error && (
+                  <p role="alert" className="text-sm text-[#C62828] bg-[#FDF1F0] border border-[#F3D3CF] rounded-md px-3.5 py-3">
+                    {error}
+                  </p>
+                )}
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'रुग्णाचे वय (वर्षे) *' : 'Patient Age *'}
-                  </label>
-                  <input
-                    required
-                    type="number"
-                    min={0}
-                    max={120}
-                    value={formData.patientAge}
-                    onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })}
-                    placeholder="45"
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'आधार कार्ड शेवटचे ४ अंक *' : 'Aadhaar Card Last 4 Digits *'}
-                  </label>
-                  <input
-                    required
-                    maxLength={4}
-                    value={formData.aadhaarLast4}
-                    onChange={(e) => setFormData({ ...formData, aadhaarLast4: e.target.value })}
-                    placeholder="4567"
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'रेशन कार्ड नंबर (पिवळे / केशरी) *' : 'Ration Card Number (Yellow/Orange) *'}
-                  </label>
-                  <input
-                    required
-                    value={formData.rationCardNumber}
-                    onChange={(e) => setFormData({ ...formData, rationCardNumber: e.target.value })}
-                    placeholder="MH/JLN/1234567"
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="block text-xs font-semibold text-stone-700">
-                    {isMr ? 'अपेक्षित उपचार खर्च (पर्यायी ₹)' : 'Estimated Surgery / Treatment Cost (₹)'}
-                  </label>
-                  <input
-                    type="number"
-                    value={formData.estimatedAmount}
-                    onChange={(e) => setFormData({ ...formData, estimatedAmount: e.target.value })}
-                    placeholder="50000"
-                    className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-stone-700">
-                  {isMr ? 'आजाराचे नाव / आवश्यक शस्त्रक्रिया वर्णन *' : 'Diagnosis / Recommended Surgery Details *'}
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={formData.diagnosisDescription}
-                  onChange={(e) => setFormData({ ...formData, diagnosisDescription: e.target.value })}
-                  placeholder={
-                    isMr
-                      ? 'उदा. गुडघे प्रत्यारोपण (Knee Replacement) किंवा हर्निया शस्त्रक्रिया...'
-                      : 'Describe the diagnosed ailment or proposed surgery (e.g. Knee Replacement, Hernia Repair, NICU admission)...'
-                  }
-                  className="w-full px-3.5 py-2.5 bg-white border border-stone-200 rounded-lg text-xs sm:text-sm focus:border-[#0F766E] focus:outline-none resize-none"
-                />
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="btn-primary w-full py-3 text-sm font-semibold"
-              >
-                {loading
-                  ? (isMr ? 'अर्ज सबमिट होत आहे...' : 'Submitting Request...')
-                  : (isMr ? 'महात्मा फुले योजना मोफत उपचारासाठी नोंदणी करा' : 'Submit MJPJAY Claim Registration')}
-              </button>
-            </form>
-          )}
+                <button type="submit" disabled={loading} className="btn-primary w-full sm:w-auto disabled:opacity-60">
+                  {loading
+                    ? isMr
+                      ? 'पाठवत आहे...'
+                      : 'Sending...'
+                    : isMr
+                      ? 'नोंदणी पाठवा'
+                      : 'Send registration'}
+                </button>
+              </form>
+            )}
+          </div>
         </div>
-      )}
+      </section>
     </div>
   );
 };

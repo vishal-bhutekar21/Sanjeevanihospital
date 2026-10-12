@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus } from 'lucide-react';
+import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download } from 'lucide-react';
+import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 
@@ -913,6 +914,19 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
     month: 'long',
   });
   const phoneShown = a.patientPhone.startsWith('+') ? a.patientPhone : `+91 ${a.patientPhone}`;
+  const slipRef = useRef<HTMLDivElement>(null);
+  const [pdfState, setPdfState] = useState<'idle' | 'working' | 'error'>('idle');
+
+  const savePdf = async () => {
+    if (!slipRef.current) return;
+    setPdfState('working');
+    try {
+      await downloadSlipPdf(slipRef.current, `Sanjeevani-OPD-${c.appointmentCode}.pdf`);
+      setPdfState('idle');
+    } catch {
+      setPdfState('error');
+    }
+  };
 
   // Google Calendar link (appointment times are IST)
   const calendarUrl = (() => {
@@ -972,15 +986,47 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
       </ul>
 
       <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+        <button type="button" onClick={savePdf} disabled={pdfState === 'working'} className="btn-primary disabled:opacity-60">
+          <Download className="w-4 h-4" />
+          {pdfState === 'working' ? L('Preparing…', 'तयार होत आहे…') : L('Download slip (PDF)', 'पावती डाउनलोड करा (PDF)')}
+        </button>
         <button type="button" onClick={() => window.print()} className="btn-secondary">
-          <Printer className="w-4 h-4" /> {L('Print or save', 'प्रिंट / सेव्ह')}
+          <Printer className="w-4 h-4" /> {L('Print', 'प्रिंट')}
         </button>
         <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
           <CalendarPlus className="w-4 h-4" /> {L('Add to calendar', 'कॅलेंडरमध्ये जोडा')}
         </a>
-        <Link to="/" className="btn-primary">
+        <Link to="/" className="btn-secondary">
           {L('Done', 'पूर्ण')}
         </Link>
+      </div>
+      {pdfState === 'error' && (
+        <p role="alert" className="mt-3 text-sm text-red-700">
+          {L('Could not create the PDF. Please use Print instead, or take a screenshot.', 'PDF तयार झाली नाही. कृपया प्रिंट वापरा किंवा स्क्रीनशॉट घ्या.')}
+        </p>
+      )}
+
+      {/* Off-screen layout used for the PDF */}
+      <div aria-hidden="true" style={{ position: 'fixed', left: -10000, top: 0 }}>
+        <TokenSlip
+          ref={slipRef}
+          d={{
+            appointmentCode: c.appointmentCode,
+            patientName: a.patientName,
+            patientPhone: phoneShown,
+            doctorName: a.doctorName,
+            department: a.department,
+            dateLabel: new Date(`${a.appointmentDate}T00:00:00`).toLocaleDateString('en-IN', {
+              weekday: 'long',
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            }),
+            time: a.startTime,
+            fee: a.fee,
+            paid: a.paymentStatus === 'PAID',
+          }}
+        />
       </div>
     </section>
   );

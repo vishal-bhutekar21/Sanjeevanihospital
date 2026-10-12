@@ -27,7 +27,8 @@
   h6 {
     font-family: 'Source Serif 4', 'Mukta', 'Noto Sans Devanagari', Georgia, serif;
     letter-spacing: -0.01em;
-    color: #1C2321;
+    /* inherit so headings on dark panels stay readable */
+    color: inherit;
     font-weight: 600;
   }
 
