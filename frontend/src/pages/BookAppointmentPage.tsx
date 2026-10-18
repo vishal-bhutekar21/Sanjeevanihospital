@@ -1262,7 +1262,7 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder={isMr ? 'डॉक्टर, विभाग किंवा त्रास शोधा' : 'Search a doctor, department or problem'}
+          placeholder={isMr ? 'डॉक्टर, विभाग, त्रास शोधा' : 'Doctor, department or problem'}
           aria-label={isMr ? 'शोधा' : 'Search'}
           className={`${inputClass} pl-11`}
         />

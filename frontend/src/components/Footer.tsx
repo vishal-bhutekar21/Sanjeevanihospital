@@ -42,7 +42,7 @@ export const Footer: React.FC = () => {
             href={HOSPITAL.mapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 text-white hover:underline underline-offset-4"
+            className="inline-flex items-center gap-2 min-h-[44px] text-white hover:underline underline-offset-4"
           >
             <Navigation className="w-4 h-4 text-stone-500" aria-hidden />
             {isMr ? 'गुगल मॅपवर दिशा' : 'Get directions'}
@@ -53,10 +53,10 @@ export const Footer: React.FC = () => {
           <h2 className="font-sans text-xs font-semibold uppercase tracking-wider text-stone-400 mb-3">
             {isMr ? 'हॉस्पिटल' : 'Hospital'}
           </h2>
-          <ul className="space-y-2">
+          <ul className="space-y-0.5 sm:space-y-2">
             {links.map((l) => (
               <li key={l.to}>
-                <Link to={l.to} className="group inline-flex items-center gap-1.5 hover:text-white">
+                <Link to={l.to} className="group inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-0 hover:text-white">
                   <ChevronRight className="w-3.5 h-3.5 text-stone-600 group-hover:text-stone-400" aria-hidden />
                   {isMr ? l.mr : l.en}
                 </Link>
@@ -96,7 +96,7 @@ export const Footer: React.FC = () => {
               <span className="block text-white text-lg font-semibold group-hover:underline">{HOSPITAL.phones.emergency.display}</span>
             </span>
           </a>
-          <a href={`mailto:${HOSPITAL.emails.footer}`} className="mt-3 flex gap-3 hover:text-white break-all">
+          <a href={`mailto:${HOSPITAL.emails.footer}`} className="mt-1 flex gap-3 py-2.5 hover:text-white break-all">
             <Mail className="w-4 h-4 mt-1 shrink-0 text-stone-500" aria-hidden />
             <span>{HOSPITAL.emails.footer}</span>
           </a>
@@ -129,12 +129,12 @@ export const Footer: React.FC = () => {
               </a>
             </p>
           </div>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 sm:self-end">
+          <div className="flex flex-wrap items-center gap-x-5 sm:self-end">
             <span>{isMr ? `${HOSPITAL.empanelments[0].code} संलग्न रुग्णालय` : `${HOSPITAL.empanelments[0].code} empanelled hospital`}</span>
-            <Link to="/patient" className="hover:text-stone-300">
+            <Link to="/patient" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
               {isMr ? 'पेशंट लॉगिन' : 'Patient login'}
             </Link>
-            <Link to="/admin/login" className="hover:text-stone-300">
+            <Link to="/admin/login" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
               {isMr ? 'कर्मचारी लॉगिन' : 'Staff login'}
             </Link>
           </div>
