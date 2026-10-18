@@ -319,7 +319,7 @@ export const EventsPage: React.FC = () => {
       </PageIntro>
 
       {/* Camps */}
-      <section id="camps" className={`${WRAP} py-12 sm:py-16 scroll-mt-20`}>
+      <section id="camps" className={`${WRAP} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <SectionTitle
           title={isMr ? 'मोफत आरोग्य शिबिरे' : 'Free health camps'}
           sub={
@@ -424,7 +424,7 @@ export const EventsPage: React.FC = () => {
       </section>
 
       {/* Reviews */}
-      <section id="reviews" className="bg-white border-y border-[#E7E3DA] scroll-mt-20">
+      <section id="reviews" className="bg-white border-y border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${WRAP} py-12 sm:py-16`}>
           <SectionTitle
             title={isMr ? 'रुग्णांचे अनुभव' : 'What patients say'}
@@ -599,7 +599,7 @@ export const EventsPage: React.FC = () => {
       </section>
 
       {/* Awards */}
-      <section id="awards" className={`${WRAP} py-12 sm:py-16 scroll-mt-20`}>
+      <section id="awards" className={`${WRAP} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <SectionTitle title={isMr ? 'पुरस्कार व सन्मान' : 'Awards and recognition'} />
         <ul className="grid md:grid-cols-2 gap-x-10 border-t border-[#E7E3DA] md:border-t-0">
           {AWARDS_DATA.map((item) => (
@@ -618,7 +618,7 @@ export const EventsPage: React.FC = () => {
       </section>
 
       {/* Photos */}
-      <section id="photos" className="bg-white border-t border-[#E7E3DA] scroll-mt-20">
+      <section id="photos" className="bg-white border-t border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${WRAP} py-12 sm:py-16`}>
           <SectionTitle
             title={isMr ? 'हॉस्पिटलचे फोटो' : 'Photos of the hospital'}

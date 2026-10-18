@@ -279,7 +279,7 @@ export const MjpjayPage: React.FC = () => {
       </section>
 
       {/* Covered treatments */}
-      <section id="covered" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+      <section id="covered" className="bg-white border-y border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${wrap} py-12 sm:py-16`}>
           <SectionTitle
             title={isMr ? `${HOSPITAL.shortNameMr}मध्ये समाविष्ट उपचार` : `Treatments covered at ${HOSPITAL.brand}`}
@@ -314,7 +314,7 @@ export const MjpjayPage: React.FC = () => {
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+      <section id="how-it-works" className={`${wrap} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <SectionTitle
           title={isMr ? 'मोफत उपचार कसे मिळतात' : 'How it works'}
           sub={isMr ? 'हॉस्पिटलमध्ये आल्यापासून डिस्चार्जपर्यंत.' : 'From arriving at the hospital to going home.'}
@@ -334,7 +334,7 @@ export const MjpjayPage: React.FC = () => {
       </section>
 
       {/* Documents */}
-      <section id="documents" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+      <section id="documents" className="bg-white border-y border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${wrap} py-12 sm:py-16`}>
           <SectionTitle
             title={isMr ? 'सोबत आणायची कागदपत्रे' : 'Documents to bring'}
@@ -378,7 +378,7 @@ export const MjpjayPage: React.FC = () => {
       </section>
 
       {/* Register */}
-      <section id="register" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+      <section id="register" className={`${wrap} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
             <SectionTitle
