@@ -565,7 +565,11 @@ const Overview: React.FC<{
         <button type="button" onClick={() => onOpen('reports')} className="w-full text-left bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-5 hover:border-[#0F766E]">
           <p className="text-sm text-stone-500">{L('Latest report', 'नवीन रिपोर्ट')}</p>
           <p className="mt-1 font-medium">
-            {d.labResults![0].test}: {d.labResults![0].value} {d.labResults![0].unit}
+            {d.labResults![0].test}:{' '}
+            <span className={d.labResults![0].flag === 'HIGH' ? 'text-red-700' : d.labResults![0].flag === 'LOW' ? 'text-amber-800' : ''}>
+              {d.labResults![0].value} {d.labResults![0].unit}
+              {d.labResults![0].flag === 'HIGH' ? ` (${L('high', 'जास्त')})` : d.labResults![0].flag === 'LOW' ? ` (${L('low', 'कमी')})` : ''}
+            </span>
             <span className="text-stone-500"> · {dateText(d.labResults![0].date, isMr)}</span>
           </p>
           <p className="mt-1 text-sm font-semibold text-[#0F766E]">{L('See all reports →', 'सर्व रिपोर्ट पहा →')}</p>
