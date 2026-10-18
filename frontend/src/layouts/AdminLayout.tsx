@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   IdCard,
+  ClipboardList,
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { DEVELOPER } from '../data/developer';
@@ -46,6 +47,7 @@ export const AdminLayout: React.FC = () => {
     { path: '/admin/departments', label: 'Departments', icon: Building2, group: 'core' },
     { path: '/admin/schedules', label: 'OPD timings', icon: Clock, group: 'core' },
     { path: '/admin/payments', label: 'Payments', icon: CreditCard, group: 'core' },
+    { path: '/admin/patients', label: 'Patient records', icon: ClipboardList, group: 'core' },
     { path: '/admin/staff', label: 'Staff', icon: IdCard, group: 'core' },
     { path: '/admin/schemes', label: 'Scheme claims', icon: ShieldCheck, group: 'ext' },
     { path: '/admin/reviews-events', label: 'Reviews & camps', icon: Star, group: 'ext' },

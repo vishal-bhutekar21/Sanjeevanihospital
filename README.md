@@ -247,6 +247,14 @@ Use these to try the site. **They are for testing only.** Change or remove them 
 | Doctors and times | **Testing switch is on:** every doctor can be booked every day, 8 am – 10 pm. Turn it off before going live: `BOOKING_OPEN_ALL_DOCTORS=false` on the backend and `booking.openAllDoctors: false` in `frontend/src/config/hospital.ts`. Patients then see each doctor's timings from Admin → OPD timings |
 | Slip | After booking, **Download slip (PDF)** gives a text PDF with token number and QR code |
 
+### Test patient login (`/patient`, link in the footer)
+
+1. Staff: Admin → **Patient records** → type the patient's mobile → **Open** → **Add bill** / **Add medicine**.
+2. Patient: footer → **Patient login** → same mobile → code `123456` (development) or the SMS code (live).
+3. The patient sees bills (with PDF download), medicines with reminders 30 days before pack expiry and in the last 3 days of a course, and their online bookings.
+
+Patient login needs real SMS codes on the live site (MSG91). Without them it stays closed, so nobody can open another person's records.
+
 ### Test payment (only when Razorpay **test** keys are set)
 
 | Method | Value |

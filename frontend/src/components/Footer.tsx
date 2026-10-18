@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEVELOPER } from '../data/developer';
-import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight } from 'lucide-react';
+import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight, UserRound } from 'lucide-react';
 import { HOSPITAL } from '../config/hospital';
 
 export const Footer: React.FC = () => {
@@ -104,6 +104,13 @@ export const Footer: React.FC = () => {
             <CalendarCheck className="w-4 h-4" aria-hidden />
             {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
           </Link>
+          <Link
+            to="/patient"
+            className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-md border border-white/25 text-white font-semibold hover:bg-white/10"
+          >
+            <UserRound className="w-4 h-4" aria-hidden />
+            {isMr ? 'पेशंट लॉगिन: बिले व औषधे' : 'Patient login: bills and medicines'}
+          </Link>
         </div>
       </div>
 
@@ -122,8 +129,11 @@ export const Footer: React.FC = () => {
               </a>
             </p>
           </div>
-          <div className="flex gap-4 sm:self-end">
+          <div className="flex flex-wrap gap-x-4 gap-y-1 sm:self-end">
             <span>{isMr ? `${HOSPITAL.empanelments[0].code} संलग्न रुग्णालय` : `${HOSPITAL.empanelments[0].code} empanelled hospital`}</span>
+            <Link to="/patient" className="hover:text-stone-300">
+              {isMr ? 'पेशंट लॉगिन' : 'Patient login'}
+            </Link>
             <Link to="/admin/login" className="hover:text-stone-300">
               {isMr ? 'कर्मचारी लॉगिन' : 'Staff login'}
             </Link>

@@ -30,6 +30,8 @@ import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminSchemesPage } from './pages/admin/AdminSchemesPage';
 import { AdminReviewsEventsPage } from './pages/admin/AdminReviewsEventsPage';
 import { AdminStaffPage } from './pages/admin/AdminStaffPage';
+import { AdminPatientRecordsPage } from './pages/admin/AdminPatientRecordsPage';
+import { PatientPortalPage } from './pages/PatientPortalPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -67,6 +69,7 @@ export const App: React.FC = () => {
               <Route path="events" element={<EventsPage />} />
               <Route path="contact" element={<ContactPage />} />
               <Route path="book" element={<BookAppointmentPage />} />
+              <Route path="patient" element={<PatientPortalPage />} />
             </Route>
 
             {/* Admin Authentication Route */}
@@ -90,6 +93,7 @@ export const App: React.FC = () => {
               <Route path="schemes" element={<AdminSchemesPage />} />
               <Route path="reviews-events" element={<AdminReviewsEventsPage />} />
               <Route path="staff" element={<AdminStaffPage />} />
+              <Route path="patients" element={<AdminPatientRecordsPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 
