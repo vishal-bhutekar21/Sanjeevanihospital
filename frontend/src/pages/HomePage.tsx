@@ -282,7 +282,7 @@ export const HomePage: React.FC = () => {
           title={t('sections.specialtiesHeading')}
           sub={t('sections.specialtiesSub')}
           action={
-            <Link to="/departments" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+            <Link to="/departments" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 min-h-[44px] hover:underline underline-offset-4 shrink-0">
               {t('common.viewAll')} <ArrowRight className="w-4 h-4" />
             </Link>
           }
@@ -314,7 +314,7 @@ export const HomePage: React.FC = () => {
             title={t('sections.doctorsHeading')}
             sub={t('sections.doctorsSub')}
             action={
-              <Link to="/doctors" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+              <Link to="/doctors" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 min-h-[44px] hover:underline underline-offset-4 shrink-0">
                 {isMr ? 'सर्व डॉक्टर' : 'All doctors'} <ArrowRight className="w-4 h-4" />
               </Link>
             }
@@ -333,7 +333,7 @@ export const HomePage: React.FC = () => {
                   <p className="mt-2 text-sm text-stone-700">
                     {feeLabel(doc.fee, isMr)} · {isMr ? doc.timingsMr || doc.timings : doc.timings}
                   </p>
-                  <Link to={`/book?doctorId=${doc.id}`} className="mt-2 inline-block text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4">
+                  <Link to={`/book?doctorId=${doc.id}`} className="mt-1 inline-flex items-center min-h-[44px] text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4">
                     {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'} →
                   </Link>
                 </div>
@@ -414,7 +414,7 @@ export const HomePage: React.FC = () => {
         <SectionHeading
           title={isMr ? 'पुरस्कार व सन्मान' : 'Awards and recognition'}
           action={
-            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 min-h-[44px] hover:underline underline-offset-4 shrink-0">
               {isMr ? 'सर्व पुरस्कार' : 'All awards'} <ArrowRight className="w-4 h-4" />
             </Link>
           }
@@ -435,7 +435,7 @@ export const HomePage: React.FC = () => {
         <SectionHeading
           title={t('sections.reviewsHeading')}
           action={
-            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 hover:underline underline-offset-4 shrink-0">
+            <Link to="/events" className="text-[#0F766E] font-semibold inline-flex items-center gap-1.5 min-h-[44px] hover:underline underline-offset-4 shrink-0">
               {isMr ? 'सर्व अभिप्राय' : 'Read more reviews'} <ArrowRight className="w-4 h-4" />
             </Link>
           }

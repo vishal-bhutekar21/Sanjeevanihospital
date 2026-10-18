@@ -12,6 +12,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
 import { PaymentsModule } from './payments/payments.module';
 import { SchemesModule } from './schemes/schemes.module';
 import { ReviewsEventsModule } from './reviews-events/reviews-events.module';
+import { PatientRecordsModule } from './patient-records/patient-records.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { ReviewsEventsModule } from './reviews-events/reviews-events.module';
     PaymentsModule,
     SchemesModule,
     ReviewsEventsModule,
+    PatientRecordsModule,
   ],
   controllers: [AppController],
 })

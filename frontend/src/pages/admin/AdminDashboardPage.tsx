@@ -139,9 +139,9 @@ export const AdminDashboardPage: React.FC = () => {
       )}
 
       {/* Today's figures */}
-      <dl className="grid grid-cols-2 lg:grid-cols-4 bg-white border border-[#E7E3DA] rounded-lg divide-x divide-y lg:divide-y-0 divide-[#E7E3DA]">
+      <dl className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#E7E3DA] border border-[#E7E3DA] rounded-lg overflow-hidden">
         {figures.map((f) => (
-          <div key={f.label} className="p-5 flex flex-col-reverse">
+          <div key={f.label} className="bg-white p-5 flex flex-col-reverse">
             <dt className="text-sm text-stone-500 mt-1">{f.label}</dt>
             <dd className="font-heading text-3xl text-[#1C2321]">{loading ? '–' : f.value}</dd>
           </div>

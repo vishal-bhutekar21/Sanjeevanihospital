@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   IdCard,
+  ClipboardList,
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { DEVELOPER } from '../data/developer';
@@ -46,6 +47,7 @@ export const AdminLayout: React.FC = () => {
     { path: '/admin/departments', label: 'Departments', icon: Building2, group: 'core' },
     { path: '/admin/schedules', label: 'OPD timings', icon: Clock, group: 'core' },
     { path: '/admin/payments', label: 'Payments', icon: CreditCard, group: 'core' },
+    { path: '/admin/patients', label: 'Patient records', icon: ClipboardList, group: 'core' },
     { path: '/admin/staff', label: 'Staff', icon: IdCard, group: 'core' },
     { path: '/admin/schemes', label: 'Scheme claims', icon: ShieldCheck, group: 'ext' },
     { path: '/admin/reviews-events', label: 'Reviews & camps', icon: Star, group: 'ext' },
@@ -80,7 +82,7 @@ export const AdminLayout: React.FC = () => {
         {/* Close Button on Mobile */}
         <button
           onClick={() => setMobileDrawerOpen(false)}
-          className="lg:hidden p-1.5 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
+          className="lg:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-stone-400 hover:text-white hover:bg-stone-800"
           aria-label="Close sidebar"
         >
           <X className="w-5 h-5" />
@@ -88,8 +90,8 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="p-4 space-y-1 overflow-y-auto flex-1">
-        <p className="px-3.5 text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5">Daily work</p>
+      <nav className="p-4 space-y-1 flex-1 shrink-0">
+        <p className="px-3.5 text-xs text-stone-500 font-semibold mb-1.5">Daily work</p>
         {menuItems.filter(m => m.group === 'core').map((item) => {
           const Icon = item.icon;
           const isActive =
@@ -111,7 +113,7 @@ export const AdminLayout: React.FC = () => {
           );
         })}
 
-        <p className="px-3.5 text-[11px] uppercase tracking-wider text-stone-500 font-semibold mb-1.5 pt-4">Patients & schemes</p>
+        <p className="px-3.5 text-xs text-stone-500 font-semibold mb-1.5 pt-4">Patients & schemes</p>
         {menuItems.filter(m => m.group === 'ext').map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname.startsWith(item.path);
@@ -155,7 +157,7 @@ export const AdminLayout: React.FC = () => {
         <Link
           to="/"
           target="_blank"
-          className="flex items-center justify-between px-3 py-2 rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition"
+          className="flex items-center justify-between px-3 min-h-[44px] rounded-lg text-stone-400 hover:text-white hover:bg-stone-800 transition"
         >
           <span className="flex items-center gap-2">
             <ExternalLink className="w-3.5 h-3.5" /> Open website
@@ -181,7 +183,7 @@ export const AdminLayout: React.FC = () => {
 
         <button
           onClick={handleLogout}
-          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-rose-400 hover:text-white hover:bg-rose-900/40 transition font-bold"
+          className="w-full flex items-center justify-center gap-2 px-3 min-h-[44px] rounded-lg text-rose-400 hover:text-white hover:bg-rose-900/40 transition font-bold"
         >
           <LogOut className="w-3.5 h-3.5" />
           <span>Sign Out</span>
@@ -193,7 +195,7 @@ export const AdminLayout: React.FC = () => {
   return (
     <div className="min-h-screen flex bg-[#FAF8F4] text-stone-800 overflow-x-hidden">
       {/* Desktop Sidebar (lg screens) */}
-      <aside className="hidden lg:flex w-64 bg-[#1C2321] text-stone-300 flex-col justify-between shrink-0 shadow-lg">
+      <aside className="hidden lg:flex w-64 bg-[#1C2321] text-stone-300 flex-col justify-between shrink-0 shadow-lg overflow-y-auto">
         {renderNavLinks()}
       </aside>
 
@@ -207,7 +209,7 @@ export const AdminLayout: React.FC = () => {
 
       {/* Mobile Drawer */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#1C2321] text-stone-300 flex flex-col justify-between shadow-lg transition-transform duration-300 lg:hidden ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-[#1C2321] text-stone-300 flex flex-col justify-between overflow-y-auto overscroll-contain shadow-lg transition-transform duration-300 lg:hidden ${
           mobileDrawerOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -222,7 +224,7 @@ export const AdminLayout: React.FC = () => {
             {/* Hamburger Button for Mobile/Tablet */}
             <button
               onClick={() => setMobileDrawerOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-stone-700 hover:bg-stone-100 border border-stone-200"
+              className="lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg text-stone-700 hover:bg-stone-100 border border-stone-200"
               aria-label="Open sidebar"
             >
               <Menu className="w-5 h-5" />

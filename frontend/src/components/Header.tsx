@@ -124,7 +124,8 @@ export const Header: React.FC = () => {
 
       {/* Mobile menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-t border-[#E7E3DA] bg-white">
+        // Scrolls on its own: the header is sticky, so a tall menu on a short screen could not be scrolled otherwise
+        <div className="lg:hidden border-t border-[#E7E3DA] bg-white max-h-[calc(100dvh-4rem)] md:max-h-[calc(100dvh-6.25rem)] overflow-y-auto overscroll-contain">
           <nav className="px-4 py-2" aria-label="Mobile">
             {[{ path: '/', label: t('nav.home') }, ...navLinks].map((link) => {
               const active = link.path === '/' ? location.pathname === '/' : isActive(link.path);

@@ -9,6 +9,14 @@ Status: **planned**. Today the Staff section (`/admin/staff`) saves in the brows
 | Employees, salary payments, dues, reminders | `frontend/src/pages/admin/AdminStaffPage.tsx`, `frontend/src/lib/staffStore.ts` (localStorage key `hospital-admin-staff-v1`) | One browser only. Use Export to keep a copy. |
 | Reminder alerts (salary day, renewals) | `frontend/src/lib/staffNotify.ts`, checked by `AdminLayout` every 15 minutes | Only while the admin panel is open in a tab, after "Turn on alerts". |
 
+## Patient portal (built)
+
+- Patients sign in at `/patient` (footer link) with mobile + SMS code: `/auth/send-otp` → `/auth/verify-otp` → `POST /patient-portal/session`, which gives a 30-day token (`type: PATIENT_PORTAL`). Unverified no-SMS tokens are refused.
+- `GET /patient-portal/me`: the patient's bills, medicines and online appointments.
+- Staff: `GET/POST/PATCH/DELETE /patient-records/:phone/...` (Admin → Patient records). Code: `backend/src/patient-records/`, `frontend/src/pages/PatientPortalPage.tsx`, `frontend/src/pages/admin/AdminPatientRecordsPage.tsx`, `frontend/src/lib/patientPortal.ts`.
+- Storage: one JSON row per patient in the existing `hospital_settings` table (key `patient_record:<mobile>`), so no schema change was needed. Move to proper `patient_bills` / `patient_medicines` tables when the schema change is approved.
+- Alerts: medicine expiry (30 days) and course ending (3 days) show on the portal and as phone notifications while it is open. Push when closed comes with Firebase (Step 2).
+
 ## Step 1: staff records on the server (NestJS + Prisma)
 
 New tables. This is a schema change, so get the owner's approval first (CLAUDE.md rule 1):

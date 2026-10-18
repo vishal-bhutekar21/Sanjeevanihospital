@@ -181,15 +181,15 @@ export const AdminDoctorsPage: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className="flex flex-wrap gap-x-5 gap-y-2 md:flex-col md:items-end md:gap-1.5 shrink-0 text-sm md:pl-4">
-                    <Link to="/admin/schedules" className="text-[#0F766E] font-semibold hover:underline underline-offset-4">
+                  <div className="flex flex-wrap gap-x-5 gap-y-0 md:flex-col md:items-end md:gap-1.5 shrink-0 text-sm md:pl-4">
+                    <Link to="/admin/schedules" className="inline-flex items-center min-h-[44px] md:min-h-0 text-[#0F766E] font-semibold hover:underline underline-offset-4">
                       Edit timings
                     </Link>
                     <a
                       href={`/doctors/${d.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[#0F766E] font-semibold hover:underline underline-offset-4"
+                      className="inline-flex items-center min-h-[44px] md:min-h-0 text-[#0F766E] font-semibold hover:underline underline-offset-4"
                     >
                       View on website
                     </a>

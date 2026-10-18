@@ -10,6 +10,7 @@ import { offlineSlots, bookingHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
+import { getPatientToken, setPatientToken, PatientRecord } from '../lib/patientPortal';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -157,6 +158,34 @@ export const BookAppointmentPage: React.FC = () => {
   // Set when the server books without SMS codes (SMS not set up yet): no code to enter
   const [directToken, setDirectToken] = useState('');
   const [resendIn, setResendIn] = useState(0);
+  // Signed in through Patient login: no SMS code needed, details filled in
+  const [portal, setPortal] = useState<{ token: string; phone: string; name: string } | null>(null);
+  const [staySignedIn, setStaySignedIn] = useState(true);
+
+  useEffect(() => {
+    const t = getPatientToken();
+    if (!t) return;
+    call<PatientRecord>('/patient-portal/me', undefined, t)
+      .then((r) => {
+        setPortal({ token: t, phone: r.phone, name: r.name });
+        setPhone(r.phone);
+        setName((n) => n || r.name || '');
+        if (r.profile?.age) setAge((a) => a || r.profile!.age);
+        if (r.profile?.gender === 'Male' || r.profile?.gender === 'Female' || r.profile?.gender === 'Other') {
+          const g = r.profile.gender;
+          setGender((x) => x || g);
+        }
+      })
+      .catch((e: ApiError) => {
+        if (e.status === 401) setPatientToken(null);
+      });
+  }, []);
+
+  const signOutPortal = () => {
+    setPatientToken(null);
+    setPortal(null);
+    setPhone('');
+  };
 
   // Confirm
   const [bookingSessionId, setBookingSessionId] = useState('');
@@ -346,8 +375,8 @@ export const BookAppointmentPage: React.FC = () => {
       go('confirm');
       return;
     }
-    let token = directToken;
-    if (!otpSessionId) {
+    let token = portal?.token || directToken;
+    if (!token && !otpSessionId) {
       const sent = await sendOtp();
       if (!sent) return;
       // SMS not set up on the server: continue straight away, reception confirms by phone
@@ -364,6 +393,15 @@ export const BookAppointmentPage: React.FC = () => {
       if (!token) {
         const verified = await call<{ token: string }>('/auth/verify-otp', { sessionId: otpSessionId, otp });
         token = verified.token;
+        // Mobile just verified by SMS: optionally keep the patient signed in for next time
+        if (staySignedIn) {
+          call<{ token: string; phone: string }>('/patient-portal/session', {}, verified.token)
+            .then((s2) => {
+              setPatientToken(s2.token);
+              setPortal({ token: s2.token, phone: s2.phone, name: name.trim() });
+            })
+            .catch(() => undefined);
+        }
       }
       const session = await call<{ sessionId: string }>(
         '/appointments/session/init',
@@ -588,7 +626,7 @@ export const BookAppointmentPage: React.FC = () => {
                       role="tab"
                       aria-selected={dayView === k}
                       onClick={() => setDayView(k)}
-                      className={`px-3.5 py-1.5 rounded ${dayView === k ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'}`}
+                      className={`min-h-[40px] px-3.5 py-1.5 rounded ${dayView === k ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'}`}
                     >
                       {label}
                     </button>
@@ -821,8 +859,33 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
               </section>
 
+              {portal && !offline ? (
               <section className="mt-8 pt-6 border-t border-[#E7E3DA]">
                 <h3 className="text-lg font-semibold">{L('Mobile number', 'मोबाईल नंबर')}</h3>
+                <div className="mt-3 p-4 rounded-lg bg-[#E8F3F1] text-[#0B5D57] flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-[15px]">
+                    <span className="font-semibold">+91 {portal.phone}</span>
+                    <span className="block text-sm">
+                      {L('Signed in to Patient login. No code needed.', 'पेशंट लॉगिनमध्ये आहात. कोडची गरज नाही.')}
+                    </span>
+                  </p>
+                  <button type="button" onClick={signOutPortal} className="text-sm font-semibold underline underline-offset-4 py-2">
+                    {L('Use another number', 'दुसरा नंबर वापरा')}
+                  </button>
+                </div>
+              </section>
+              ) : (
+              <section className="mt-8 pt-6 border-t border-[#E7E3DA]">
+                <h3 className="text-lg font-semibold">{L('Mobile number', 'मोबाईल नंबर')}</h3>
+                {!offline && (
+                  <p className="mt-1 text-sm text-stone-600">
+                    {L('Booked with us before?', 'आधी बुकिंग केली आहे?')}{' '}
+                    <Link to="/patient" className="font-semibold text-[#0F766E] underline underline-offset-4">
+                      {L('Sign in to Patient login', 'पेशंट लॉगिन करा')}
+                    </Link>{' '}
+                    {L('to fill in your details. Or continue as a guest below.', 'म्हणजे माहिती आपोआप भरली जाईल. किंवा खाली पाहुणे म्हणून पुढे जा.')}
+                  </p>
+                )}
                 <p className="text-sm text-stone-600 mt-1">
                   {offline
                     ? L('Reception will call you on this number to confirm your time.', 'आपली वेळ निश्चित करण्यासाठी रिसेप्शन या नंबरवर कॉल करेल.')
@@ -897,14 +960,27 @@ export const BookAppointmentPage: React.FC = () => {
                     </p>
                   </div>
                 )}
+
+                {!offline && !directToken && (
+                  <label className="mt-4 flex items-start gap-2.5 text-[15px] cursor-pointer">
+                    <input type="checkbox" checked={staySignedIn} onChange={(e) => setStaySignedIn(e.target.checked)} className="mt-1 w-4 h-4 accent-[#0F766E]" />
+                    <span>
+                      {L('Keep me signed in on this phone', 'या फोनवर लॉगिन ठेवा')}
+                      <span className="block text-sm text-stone-500">
+                        {L('See your bookings, bills and medicines in Patient login.', 'पेशंट लॉगिनमध्ये बुकिंग, बिले व औषधे पहा.')}
+                      </span>
+                    </span>
+                  </label>
+                )}
               </section>
+              )}
 
               <StepNav
                 isMr={isMr}
                 onBack={() => go('time')}
                 submit
                 busy={busy}
-                nextLabel={offline || directToken ? L('Continue', 'पुढे') : otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
+                nextLabel={offline || directToken || portal ? L('Continue', 'पुढे') : otpSessionId ? L('Verify and continue', 'तपासा व पुढे') : L('Send code', 'कोड पाठवा')}
               />
             </form>
           )}
@@ -1130,19 +1206,19 @@ const StepNav: React.FC<{
   // Stays in view while scrolling long lists of times; sits above the phone action bar
   <div className="sticky bottom-[61px] sm:bottom-0 z-30 mt-8 -mx-4 sm:-mx-7 -mb-4 sm:-mb-7 px-4 sm:px-7 py-3 bg-white/95 backdrop-blur border-t border-[#E7E3DA] rounded-b-xl flex items-center justify-between gap-3">
     {onBack ? (
-      <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
+      <button type="button" onClick={onBack} className="shrink-0 inline-flex items-center gap-1.5 min-h-[44px] text-stone-700 hover:text-[#1C2321] py-2">
         <ArrowLeft className="w-4 h-4" />
         {isMr ? 'मागे' : 'Back'}
       </button>
     ) : (
       <span />
     )}
-    {note && <span className="text-sm font-medium text-[#1C2321] truncate">{note}</span>}
+    {note && <span className="min-w-0 text-sm font-medium text-[#1C2321] text-center leading-tight">{note}</span>}
     <button
       type={submit ? 'submit' : 'button'}
       onClick={submit ? undefined : onNext}
       disabled={nextDisabled || busy}
-      className="btn-primary shrink-0 min-w-[132px] sm:min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
+      className="btn-primary shrink-0 min-w-[112px] sm:min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {busy ? (isMr ? 'कृपया थांबा…' : 'Please wait…') : nextLabel}
     </button>
@@ -1186,7 +1262,7 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
-          placeholder={isMr ? 'डॉक्टर, विभाग किंवा त्रास शोधा' : 'Search a doctor, department or problem'}
+          placeholder={isMr ? 'डॉक्टर, विभाग, त्रास शोधा' : 'Doctor, department or problem'}
           aria-label={isMr ? 'शोधा' : 'Search'}
           className={`${inputClass} pl-11`}
         />
@@ -1199,7 +1275,7 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
             type="button"
             onClick={() => setDept(d)}
             aria-pressed={dept === d}
-            className={`shrink-0 px-3 py-1.5 rounded-full border text-sm ${
+            className={`shrink-0 min-h-[44px] px-3 py-1.5 rounded-full border text-sm ${
               dept === d ? 'bg-[#1C2321] border-[#1C2321] text-white' : 'bg-white border-[#D8D3C8] text-stone-700'
             }`}
           >
@@ -1220,10 +1296,10 @@ const DoctorStep: React.FC<{ isMr: boolean; selectedId?: string; onSelect: (d: D
               <span className="flex-1 min-w-0">
                 <span className="block font-heading text-lg leading-tight">{isMr ? d.nameMr : d.name}</span>
                 <span className="block text-sm text-stone-600">{isMr ? d.deptMr : d.dept}</span>
-                <span className="block text-xs text-stone-500 mt-0.5 truncate">{isMr ? d.timingsMr : d.timings}</span>
+                <span className="block text-xs text-stone-500 mt-0.5">{isMr ? d.timingsMr : d.timings}</span>
               </span>
-              <span className="text-right shrink-0">
-                <span className="block font-semibold">{feeLabel(d.fee, isMr)}</span>
+              <span className="text-right shrink-0 max-w-[7.5rem]">
+                <span className="block font-semibold leading-snug">{feeLabel(d.fee, isMr)}</span>
                 <span className="block text-sm text-[#0F766E]">{isMr ? 'निवडा' : 'Select'} →</span>
               </span>
             </button>
@@ -1384,6 +1460,13 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
           {L('Could not create the PDF. Please use Print instead, or take a screenshot.', 'PDF तयार झाली नाही. कृपया प्रिंट वापरा किंवा स्क्रीनशॉट घ्या.')}
         </p>
       )}
+      {getPatientToken() && (
+        <p className="mt-4 text-[15px] print:hidden">
+          <Link to="/patient" className="font-semibold text-[#0F766E] underline underline-offset-4">
+            {L('See this booking in Patient login', 'ही बुकिंग पेशंट लॉगिनमध्ये पहा')}
+          </Link>
+        </p>
+      )}
 
       <div className="mt-8 bg-white border border-[#E7E3DA] rounded-xl p-5 sm:p-6">
         <h2 className="text-xl">{L('Before you come', 'येण्यापूर्वी')}</h2>
@@ -1424,7 +1507,7 @@ const Stepper: React.FC<{
               type="button"
               disabled={!jump}
               onClick={() => onJump(i)}
-              className={`flex items-center gap-2.5 min-w-0 ${jump ? 'cursor-pointer group' : 'cursor-default'}`}
+              className={`flex items-center gap-2.5 min-w-0 min-h-[44px] ${jump ? 'cursor-pointer group' : 'cursor-default'}`}
             >
               <span
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold border-2 shrink-0 transition-colors ${

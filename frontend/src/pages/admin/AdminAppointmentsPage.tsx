@@ -225,7 +225,7 @@ export const AdminAppointmentsPage: React.FC = () => {
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
-                className={`px-3 py-1 rounded-md text-xs font-semibold transition ${
+                className={`min-h-[40px] sm:min-h-0 px-3 py-1 rounded-md text-xs font-semibold transition ${
                   statusFilter === st
                     ? 'bg-white text-stone-900 shadow-2xs font-bold'
                     : 'text-stone-600 hover:text-stone-900'
@@ -240,7 +240,7 @@ export const AdminAppointmentsPage: React.FC = () => {
 
       {/* ─── 3. ULTRA-CLEAN APPOINTMENTS TABLE ───────────────────────────────── */}
       <div className="card-clean bg-white border border-stone-200 rounded-lg overflow-hidden shadow-2xs">
-        <div className="overflow-x-auto no-scrollbar">
+        <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="bg-stone-50/80 border-b border-[#E7E3DA] text-stone-500 text-sm">
@@ -256,17 +256,22 @@ export const AdminAppointmentsPage: React.FC = () => {
             <tbody className="divide-y divide-stone-100">
               {loading && (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-sm text-stone-500">Loading appointments…</td>
+                  <td colSpan={7} className="py-10 text-sm text-stone-500">
+                    <p className="sticky left-0 w-[min(100%,calc(100vw-4rem))] px-4 text-center">Loading appointments…</p>
+                  </td>
                 </tr>
               )}
               {!loading && filtered.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="py-10 text-center text-sm text-stone-500">
+                  <td colSpan={7} className="py-10 text-sm text-stone-500">
+                    {/* Stays in view when the table is wider than a phone screen */}
+                    <p className="sticky left-0 w-[min(100%,calc(100vw-4rem))] px-4 text-center">
                     {appointments.length === 0
                       ? 'No online bookings yet. New bookings appear here automatically.'
                       : search || statusFilter !== 'ALL'
                       ? 'No appointments match this search.'
                       : `No appointments for ${dayLabel.toLowerCase().startsWith('all') ? 'these dates' : dayLabel}.`}
+                    </p>
                   </td>
                 </tr>
               )}
@@ -355,7 +360,7 @@ export const AdminAppointmentsPage: React.FC = () => {
 
       {/* ─── 4. TOKEN SLIP DETAIL MODAL ─────────────────────────────────────── */}
       {selectedAppointment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
           <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-4 shadow-lg border border-stone-200">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
               <h3 className="text-base text-stone-900 font-heading">
@@ -364,7 +369,8 @@ export const AdminAppointmentsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSelectedAppointment(null)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                aria-label="Close"
+                className="p-2.5 -m-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -372,8 +378,8 @@ export const AdminAppointmentsPage: React.FC = () => {
 
             <div className="bg-stone-50 p-4 rounded-lg border border-dashed border-teal-300 space-y-2.5 text-xs">
               <div className="flex justify-between items-center border-b border-stone-200 pb-2">
-                <span className="text-[10px] uppercase font-bold text-[#0F766E]">
-                  Token Number
+                <span className="text-xs text-stone-500">
+                  Token number
                 </span>
                 <span className="font-mono font-bold text-base text-stone-900">
                   {selectedAppointment.appointmentCode}

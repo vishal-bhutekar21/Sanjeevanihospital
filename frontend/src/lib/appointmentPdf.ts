@@ -153,21 +153,8 @@ function field(pdf: JsPDF, label: string, value: string, x: number, y: number, w
   return 10.5;
 }
 
-export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
-  const [{ jsPDF }, QR] = await Promise.all([import('jspdf'), import('qrcode')]);
-  if (document.fonts?.ready) await document.fonts.ready;
-
-  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
-  const confirmed = d.kind === 'confirmed';
-  const issued = new Date();
-  pdf.setProperties({
-    title: confirmed ? `OPD appointment ${d.appointmentCode}` : 'OPD appointment request',
-    subject: `${d.doctorName}, ${longDate(d.date)}`,
-    author: HOSPITAL.name,
-    creator: HOSPITAL.website,
-  });
-
-  // ── Letterhead ───────────────────────────────────────────────────────────
+/** Logo, hospital name, address and contact line, teal rule, then the document title. Returns the next y. */
+async function drawLetterhead(pdf: JsPDF, title: string, issued: Date): Promise<number> {
   let y = M;
   const logo = await imageDataUrl(HOSPITAL.logo);
   let textX = M;
@@ -190,9 +177,8 @@ export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
   pdf.setFillColor(...TEAL);
   pdf.rect(M, y, PAGE_W - 2 * M, 0.8, 'F');
 
-  // ── Title row ────────────────────────────────────────────────────────────
   y += 7;
-  text(pdf, confirmed ? 'OPD Appointment Slip' : 'OPD Appointment Request', M, y, { size: 11, bold: true, color: TEAL });
+  text(pdf, title, M, y, { size: 11, bold: true, color: TEAL });
   text(
     pdf,
     `Issued ${issued.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${issued.toLocaleTimeString('en-IN', {
@@ -203,6 +189,25 @@ export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
     y,
     { size: 7, color: MUTED, align: 'right' },
   );
+
+  return y;
+}
+
+export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
+  const [{ jsPDF }, QR] = await Promise.all([import('jspdf'), import('qrcode')]);
+  if (document.fonts?.ready) await document.fonts.ready;
+
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+  const confirmed = d.kind === 'confirmed';
+  const issued = new Date();
+  pdf.setProperties({
+    title: confirmed ? `OPD appointment ${d.appointmentCode}` : 'OPD appointment request',
+    subject: `${d.doctorName}, ${longDate(d.date)}`,
+    author: HOSPITAL.name,
+    creator: HOSPITAL.website,
+  });
+
+  let y = await drawLetterhead(pdf, confirmed ? 'OPD Appointment Slip' : 'OPD Appointment Request', issued);
 
   // ── Token panel ──────────────────────────────────────────────────────────
   y += 4;
@@ -328,4 +333,158 @@ export async function downloadAppointmentPdf(d: SlipData) {
   const pdf = await buildAppointmentPdf(d);
   const name = d.kind === 'confirmed' ? `${HOSPITAL.brand}-OPD-${d.appointmentCode}.pdf` : `${HOSPITAL.brand}-OPD-request-${d.date}.pdf`;
   pdf.save(name);
+}
+
+// ─── Bill ──────────────────────────────────────────────────────────────────
+
+export interface BillPdfData {
+  billNo: string;
+  date: string; // YYYY-MM-DD
+  title: string;
+  patientName: string;
+  patientPhone: string;
+  items: { name: string; qty: number; amount: number }[];
+  total: number;
+  paid: number;
+  note?: string;
+}
+
+/** Itemised bill as a text PDF (A5), shared with the patient from the portal. */
+export async function downloadBillPdf(b: BillPdfData) {
+  const { jsPDF } = await import('jspdf');
+  if (document.fonts?.ready) await document.fonts.ready;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+  pdf.setProperties({ title: `Bill ${b.billNo}`, author: HOSPITAL.name, creator: HOSPITAL.website });
+
+  let y = await drawLetterhead(pdf, b.title || 'Hospital bill', new Date());
+  y += 8;
+  const colW = (PAGE_W - 2 * M - 6) / 2;
+  field(pdf, 'Bill number', b.billNo, M, y, colW);
+  field(pdf, 'Bill date', longDate(b.date), M + colW + 6, y, colW);
+  y += 11;
+  field(pdf, 'Patient', b.patientName || '-', M, y, colW);
+  field(pdf, 'Mobile', b.patientPhone, M + colW + 6, y, colW);
+  y += 13;
+
+  // Table
+  const xQty = PAGE_W - M - 34;
+  const xAmt = PAGE_W - M;
+  const header = (yy: number) => {
+    pdf.setFillColor(...PANEL);
+    pdf.rect(M, yy - 4.5, PAGE_W - 2 * M, 7, 'F');
+    text(pdf, 'Item', M + 2, yy, { size: 7.5, bold: true, color: MUTED });
+    text(pdf, 'Qty', xQty, yy, { size: 7.5, bold: true, color: MUTED, align: 'right' });
+    text(pdf, 'Amount', xAmt - 2, yy, { size: 7.5, bold: true, color: MUTED, align: 'right' });
+    return yy + 7;
+  };
+  y = header(y);
+  b.items.forEach((it, i) => {
+    if (y > PAGE_H - 45) {
+      pdf.addPage();
+      y = header(M + 6);
+    }
+    text(pdf, `${i + 1}. ${it.name}`, M + 2, y, { size: 8.5, maxWidth: xQty - M - 12 });
+    text(pdf, String(it.qty), xQty, y, { size: 8.5, align: 'right' });
+    text(pdf, money(it.amount), xAmt - 2, y, { size: 8.5, align: 'right' });
+    pdf.setDrawColor(...RULE);
+    pdf.line(M, y + 2.6, PAGE_W - M, y + 2.6);
+    y += 7;
+  });
+
+  // Totals
+  y += 2;
+  const due = Math.max(0, b.total - b.paid);
+  const totalRow = (label: string, value: string, bold = false, color = INK) => {
+    text(pdf, label, xQty, y, { size: 8.5, bold, color: MUTED, align: 'right' });
+    text(pdf, value, xAmt - 2, y, { size: bold ? 10 : 8.5, bold, color, align: 'right' });
+    y += 6;
+  };
+  totalRow('Total', money(b.total), true);
+  totalRow('Paid', money(b.paid));
+  totalRow('Balance due', money(due), true, due > 0 ? AMBER : TEAL);
+
+  if (b.note) {
+    y += 2;
+    text(pdf, 'Note', M, y, { size: 7.5, color: MUTED });
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(...INK);
+    pdf.text(pdf.splitTextToSize(plain(b.note), PAGE_W - 2 * M) as string[], M, y + 4.5);
+  }
+
+  const fy = PAGE_H - 12;
+  pdf.setDrawColor(207, 201, 188);
+  pdf.setLineDashPattern([1, 1], 0);
+  pdf.line(M, fy, PAGE_W - M, fy);
+  pdf.setLineDashPattern([], 0);
+  text(pdf, 'Computer-generated bill. For questions, call ' + HOSPITAL.phones.reception.display + '.', M, fy + 5, { size: 6.8, color: MUTED });
+  pdf.save(`${HOSPITAL.brand}-bill-${b.billNo}.pdf`);
+}
+
+// ─── Medicine list ─────────────────────────────────────────────────────────
+
+export interface MedicineListPdfData {
+  patientName: string;
+  patientPhone: string;
+  medicines: {
+    name: string;
+    strength: string;
+    dosage: string;
+    instructions: string;
+    startDate: string;
+    endDate: string;
+    expiryDate: string;
+    doctorName: string;
+  }[];
+}
+
+/** Current medicines as a text PDF the patient can show at a pharmacy. */
+export async function downloadMedicineListPdf(d: MedicineListPdfData) {
+  const { jsPDF } = await import('jspdf');
+  if (document.fonts?.ready) await document.fonts.ready;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+  pdf.setProperties({ title: 'Current medicines', author: HOSPITAL.name, creator: HOSPITAL.website });
+  let y = await drawLetterhead(pdf, 'Current medicines', new Date());
+  y += 8;
+  const colW = (PAGE_W - 2 * M - 6) / 2;
+  field(pdf, 'Patient', d.patientName || '-', M, y, colW);
+  field(pdf, 'Mobile', d.patientPhone, M + colW + 6, y, colW);
+  y += 14;
+
+  d.medicines.forEach((m, i) => {
+    if (y > PAGE_H - 40) {
+      pdf.addPage();
+      y = M + 6;
+    }
+    pdf.setDrawColor(...RULE);
+    pdf.line(M, y - 4.5, PAGE_W - M, y - 4.5);
+    text(pdf, `${i + 1}. ${[m.name, m.strength].filter(Boolean).join(' ')}`, M, y, { size: 10, bold: true, maxWidth: PAGE_W - 2 * M });
+    y += 5;
+    const dose = /^\s*[\d.½]+\s*-\s*[\d.½]+\s*-\s*[\d.½]+\s*$/.test(m.dosage)
+      ? `Morning ${m.dosage.split('-')[0].trim()} | Afternoon ${m.dosage.split('-')[1].trim()} | Night ${m.dosage.split('-')[2].trim()}`
+      : m.dosage;
+    if (dose || m.instructions) {
+      text(pdf, [dose, m.instructions].filter(Boolean).join('  -  '), M + 4, y, { size: 8.5, maxWidth: PAGE_W - 2 * M - 4 });
+      y += 4.5;
+    }
+    const course = `Course: ${longDate(m.startDate)} to ${m.endDate ? longDate(m.endDate) : 'ongoing'}`;
+    text(pdf, course, M + 4, y, { size: 7.5, color: MUTED, maxWidth: PAGE_W - 2 * M - 4 });
+    y += 4;
+    const extra = [m.expiryDate ? `Pack expiry: ${longDate(m.expiryDate)}` : '', m.doctorName ? `Prescribed by ${m.doctorName}` : '']
+      .filter(Boolean)
+      .join('  |  ');
+    if (extra) {
+      text(pdf, extra, M + 4, y, { size: 7.5, color: MUTED, maxWidth: PAGE_W - 2 * M - 4 });
+      y += 4;
+    }
+    y += 6;
+  });
+
+  const fy = PAGE_H - 12;
+  pdf.setDrawColor(207, 201, 188);
+  pdf.setLineDashPattern([1, 1], 0);
+  pdf.line(M, fy, PAGE_W - M, fy);
+  pdf.setLineDashPattern([], 0);
+  text(pdf, 'Take medicines only as your doctor advised. Questions: ' + HOSPITAL.phones.reception.display, M, fy + 5, { size: 6.8, color: MUTED });
+  pdf.save(`${HOSPITAL.brand}-medicines-${new Date().toISOString().slice(0, 10)}.pdf`);
 }

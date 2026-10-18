@@ -90,7 +90,7 @@ export const OpdWeek: React.FC<{ doctorId: string; fallback: string; isMr: boole
                 {sessions.length > 0 && (
                   <Link
                     to={`/book?doctorId=${encodeURIComponent(doctorId)}&date=${toDateKey(nextDateFor(d))}`}
-                    className="text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4 whitespace-nowrap"
+                    className="inline-block py-3 -my-3 text-sm font-semibold text-[#0F766E] hover:underline underline-offset-4 whitespace-nowrap"
                   >
                     {isMr ? 'बुक करा' : 'Book'}
                   </Link>

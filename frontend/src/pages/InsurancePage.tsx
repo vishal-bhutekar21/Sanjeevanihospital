@@ -218,7 +218,7 @@ export const InsurancePage: React.FC = () => {
       </section>
 
       {/* How it works */}
-      <section id="how-it-works" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+      <section id="how-it-works" className="bg-white border-y border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${wrap} py-12 sm:py-16`}>
           <SectionTitle
             title={isMr ? 'कॅशलेस उपचार कसे मिळतात' : 'How cashless treatment works'}
@@ -240,7 +240,7 @@ export const InsurancePage: React.FC = () => {
       </section>
 
       {/* Documents */}
-      <section id="documents" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+      <section id="documents" className={`${wrap} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <SectionTitle
           title={isMr ? 'सोबत आणायची कागदपत्रे' : 'Documents to bring'}
           sub={
@@ -270,7 +270,7 @@ export const InsurancePage: React.FC = () => {
       </section>
 
       {/* Insurers and TPAs */}
-      <section id="insurers" className="bg-white border-y border-[#E7E3DA] scroll-mt-4">
+      <section id="insurers" className="bg-white border-y border-[#E7E3DA] scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28">
         <div className={`${wrap} py-12 sm:py-16`}>
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
             <SectionTitle
@@ -331,7 +331,7 @@ export const InsurancePage: React.FC = () => {
       </section>
 
       {/* Check your policy form */}
-      <section id="check-policy" className={`${wrap} py-12 sm:py-16 scroll-mt-4`}>
+      <section id="check-policy" className={`${wrap} py-12 sm:py-16 scroll-mt-16 md:scroll-mt-24 lg:scroll-mt-28`}>
         <div className="grid lg:grid-cols-12 gap-10">
           <div className="lg:col-span-4">
             <SectionTitle
