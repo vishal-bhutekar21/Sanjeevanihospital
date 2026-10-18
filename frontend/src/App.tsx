@@ -29,6 +29,7 @@ import { AdminPaymentsPage } from './pages/admin/AdminPaymentsPage';
 import { AdminSettingsPage } from './pages/admin/AdminSettingsPage';
 import { AdminSchemesPage } from './pages/admin/AdminSchemesPage';
 import { AdminReviewsEventsPage } from './pages/admin/AdminReviewsEventsPage';
+import { AdminStaffPage } from './pages/admin/AdminStaffPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -88,6 +89,7 @@ export const App: React.FC = () => {
               <Route path="payments" element={<AdminPaymentsPage />} />
               <Route path="schemes" element={<AdminSchemesPage />} />
               <Route path="reviews-events" element={<AdminReviewsEventsPage />} />
+              <Route path="staff" element={<AdminStaffPage />} />
               <Route path="settings" element={<AdminSettingsPage />} />
             </Route>
 

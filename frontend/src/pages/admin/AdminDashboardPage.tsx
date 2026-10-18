@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { hasFee } from '../../lib/fee';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
+import { computeDues, loadStaffData, monthLabel, rupees, thisMonth } from '../../lib/staffStore';
 
 interface Apt {
   id: string;
@@ -78,6 +79,13 @@ export const AdminDashboardPage: React.FC = () => {
     () => apts.filter((a) => a.appointmentDate > today && a.status === 'CONFIRMED').length,
     [apts, today],
   );
+
+  // Staff salary dues for this month, from the Staff page (saved in this browser only)
+  const staffDue = useMemo(() => {
+    const data = loadStaffData();
+    if (data.employees.length === 0) return 0;
+    return computeDues(data, thisMonth()).reduce((sum, r) => sum + r.balance, 0);
+  }, []);
 
   const count = (s: Apt['status']) => todays.filter((a) => a.status === s).length;
   const collectedOnline = todays.filter((a) => a.paymentStatus === 'PAID').reduce((sum, a) => sum + a.fee, 0);
@@ -225,6 +233,14 @@ export const AdminDashboardPage: React.FC = () => {
               </ul>
             )}
           </section>
+
+          {staffDue > 0 && (
+            <p className="text-sm text-stone-600">
+              <Link to="/admin/staff" className="text-[#0F766E] font-semibold hover:underline underline-offset-4">
+                Staff dues for {monthLabel(thisMonth())}: {rupees(staffDue)}
+              </Link>
+            </p>
+          )}
 
           {upcoming > 0 && (
             <p className="text-sm text-stone-600">

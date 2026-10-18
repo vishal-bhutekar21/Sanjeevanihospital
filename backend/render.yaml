@@ -27,3 +27,6 @@ services:
         sync: false
       - key: MSG91_TEMPLATE_ID
         sync: false
+      # Testing: every doctor bookable every day. Set to "false" before going live.
+      - key: BOOKING_OPEN_ALL_DOCTORS
+        value: "true"

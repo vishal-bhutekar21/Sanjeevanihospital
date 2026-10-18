@@ -56,9 +56,22 @@ export function parseOpdHours(text: string): { weekdays: number[]; sessions: [nu
   return sessions.length ? { weekdays, sessions } : null;
 }
 
+/**
+ * Hours used for booking: every day between HOSPITAL.booking.openFrom and openTo
+ * while the testing switch is on, otherwise the doctor's published hours.
+ */
+export function bookingHours(text: string): { weekdays: number[]; sessions: [number, number][] } | null {
+  const b = HOSPITAL.booking;
+  if (b.openAllDoctors) {
+    const hm = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+    return { weekdays: [0, 1, 2, 3, 4, 5, 6], sessions: [[hm(b.openFrom), hm(b.openTo)]] };
+  }
+  return parseOpdHours(text);
+}
+
 /** Appointment times for one date, skipping times already past today (plus 30 minutes). */
 export function offlineSlots(text: string, dateKey: string, slotMinutes = 15): OfflineSlot[] | null {
-  const hours = parseOpdHours(text);
+  const hours = bookingHours(text);
   if (!hours) return null;
   const [y, mo, d] = dateKey.split('-').map(Number);
   const date = new Date(y, mo - 1, d);

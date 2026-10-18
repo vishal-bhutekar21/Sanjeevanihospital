@@ -16,6 +16,7 @@ interface DoctorSchedule {
   department: string;
   savedInDatabase: boolean;
   schedule: WeeklySchedule;
+  openAllDoctors?: boolean;
 }
 
 // Show Monday first, Sunday last
@@ -148,6 +149,16 @@ export const AdminSchedulesPage: React.FC = () => {
           Set the days and hours each doctor sees patients. The booking page offers appointments only inside these hours.
         </p>
       </div>
+
+      {all[0]?.openAllDoctors && (
+        <div className="p-4 rounded-md bg-amber-50 border border-amber-200 text-sm text-amber-900">
+          <p className="font-semibold">Testing mode: every doctor is bookable every day, 8 am – 10 pm.</p>
+          <p className="mt-1">
+            The timings below are saved but not used yet. Before going live, set <code>BOOKING_OPEN_ALL_DOCTORS=false</code> on
+            the booking server so patients see these timings.
+          </p>
+        </div>
+      )}
 
       {loadError && (
         <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex justify-between gap-3">

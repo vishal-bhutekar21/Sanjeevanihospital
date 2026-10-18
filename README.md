@@ -244,6 +244,8 @@ Use these to try the site. **They are for testing only.** Change or remove them 
 | OTP code | `123456`, **only when the backend runs in development** (`NODE_ENV` not `production`). It's also printed in the backend log |
 | On the live site | A real 6-digit code is sent by SMS (needs `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`) |
 | Limit | 3 codes per number every 10 minutes. Use another number if you hit it while testing |
+| Doctors and times | **Testing switch is on:** every doctor can be booked every day, 8 am – 10 pm. Turn it off before going live: `BOOKING_OPEN_ALL_DOCTORS=false` on the backend and `booking.openAllDoctors: false` in `frontend/src/config/hospital.ts`. Patients then see each doctor's timings from Admin → OPD timings |
+| Slip | After booking, **Download slip (PDF)** gives a text PDF with token number and QR code |
 
 ### Test payment (only when Razorpay **test** keys are set)
 
