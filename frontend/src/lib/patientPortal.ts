@@ -52,11 +52,43 @@ export interface PortalAppointment {
   fee: number;
 }
 
+export interface LabResult {
+  id: string;
+  date: string;
+  test: string;
+  value: string;
+  unit: string;
+  range: string;
+  flag: 'NORMAL' | 'HIGH' | 'LOW' | '';
+  note: string;
+  createdAt: string;
+}
+
+export interface FollowUp {
+  date: string;
+  doctorId: string;
+  doctorName: string;
+  note: string;
+}
+
+export interface PatientProfile {
+  age: string;
+  gender: string;
+  bloodGroup: string;
+  allergies: string;
+  conditions: string;
+  emergencyName: string;
+  emergencyPhone: string;
+}
+
 export interface PatientRecord {
   phone: string;
   name: string;
   bills: PatientBill[];
   medicines: PatientMedicine[];
+  labResults?: LabResult[];
+  followUp?: FollowUp | null;
+  profile?: PatientProfile;
   appointments?: PortalAppointment[];
   updatedAt: string;
 }
@@ -149,8 +181,8 @@ const ALERTED_KEY = 'sanjeevani_patient_alerted_v1';
 
 export const notificationsSupported = () => typeof window !== 'undefined' && 'Notification' in window;
 
-/** Show each medicine alert once a day as a system notification. */
-export function notifyMedicineAlerts(alerts: MedicineAlert[], text: (a: MedicineAlert) => { title: string; body: string }) {
+/** Show each notice (key, title, body) at most once a day as a system notification. */
+export function notifyOncePerDay(notices: { key: string; title: string; body: string }[]) {
   if (!notificationsSupported() || Notification.permission !== 'granted') return;
   const today = todayKey();
   let sent: Record<string, string> = {};
@@ -159,13 +191,11 @@ export function notifyMedicineAlerts(alerts: MedicineAlert[], text: (a: Medicine
   } catch {
     sent = {};
   }
-  for (const a of alerts) {
-    const key = `${a.med.id}:${a.kind}`;
-    if (sent[key] === today) continue;
+  for (const n of notices) {
+    if (sent[n.key] === today) continue;
     try {
-      const { title, body } = text(a);
-      new Notification(title, { body, tag: key, icon: '/logo.png' });
-      sent[key] = today;
+      new Notification(n.title, { body: n.body, tag: n.key, icon: '/logo.png' });
+      sent[n.key] = today;
     } catch {
       return; // some phones only allow notifications from an installed app
     }
@@ -174,5 +204,36 @@ export function notifyMedicineAlerts(alerts: MedicineAlert[], text: (a: Medicine
     localStorage.setItem(ALERTED_KEY, JSON.stringify(sent));
   } catch {
     /* harmless: may notify again */
+  }
+}
+
+// ─── Today's doses (ticks saved on this device) ───────────────────────────
+
+export type DoseTime = 'morning' | 'afternoon' | 'night';
+export const DOSE_TIMES: DoseTime[] = ['morning', 'afternoon', 'night'];
+
+/** "1-0-1" → { morning: "1", afternoon: "", night: "1" }; null when the dose isn't in that form. */
+export function parseDosage(dosage: string): Record<DoseTime, string> | null {
+  const m = dosage.match(/^\s*(\d+(?:\.\d+)?|½)\s*-\s*(\d+(?:\.\d+)?|½)\s*-\s*(\d+(?:\.\d+)?|½)\s*$/);
+  if (!m) return null;
+  const v = (x: string) => (x === '0' ? '' : x);
+  return { morning: v(m[1]), afternoon: v(m[2]), night: v(m[3]) };
+}
+
+const DOSES_KEY = (day: string) => `sanjeevani_doses_${day}`;
+
+export function loadDoseTicks(day = todayKey()): Record<string, boolean> {
+  try {
+    return JSON.parse(localStorage.getItem(DOSES_KEY(day)) || '{}');
+  } catch {
+    return {};
+  }
+}
+
+export function saveDoseTicks(ticks: Record<string, boolean>, day = todayKey()) {
+  try {
+    localStorage.setItem(DOSES_KEY(day), JSON.stringify(ticks));
+  } catch {
+    /* ticks only last for this visit */
   }
 }

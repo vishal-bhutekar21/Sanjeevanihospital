@@ -420,3 +420,71 @@ export async function downloadBillPdf(b: BillPdfData) {
   text(pdf, 'Computer-generated bill. For questions, call ' + HOSPITAL.phones.reception.display + '.', M, fy + 5, { size: 6.8, color: MUTED });
   pdf.save(`${HOSPITAL.brand}-bill-${b.billNo}.pdf`);
 }
+
+// ─── Medicine list ─────────────────────────────────────────────────────────
+
+export interface MedicineListPdfData {
+  patientName: string;
+  patientPhone: string;
+  medicines: {
+    name: string;
+    strength: string;
+    dosage: string;
+    instructions: string;
+    startDate: string;
+    endDate: string;
+    expiryDate: string;
+    doctorName: string;
+  }[];
+}
+
+/** Current medicines as a text PDF the patient can show at a pharmacy. */
+export async function downloadMedicineListPdf(d: MedicineListPdfData) {
+  const { jsPDF } = await import('jspdf');
+  if (document.fonts?.ready) await document.fonts.ready;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5', compress: true });
+  pdf.setProperties({ title: 'Current medicines', author: HOSPITAL.name, creator: HOSPITAL.website });
+  let y = await drawLetterhead(pdf, 'Current medicines', new Date());
+  y += 8;
+  const colW = (PAGE_W - 2 * M - 6) / 2;
+  field(pdf, 'Patient', d.patientName || '-', M, y, colW);
+  field(pdf, 'Mobile', d.patientPhone, M + colW + 6, y, colW);
+  y += 14;
+
+  d.medicines.forEach((m, i) => {
+    if (y > PAGE_H - 40) {
+      pdf.addPage();
+      y = M + 6;
+    }
+    pdf.setDrawColor(...RULE);
+    pdf.line(M, y - 4.5, PAGE_W - M, y - 4.5);
+    text(pdf, `${i + 1}. ${[m.name, m.strength].filter(Boolean).join(' ')}`, M, y, { size: 10, bold: true, maxWidth: PAGE_W - 2 * M });
+    y += 5;
+    const dose = /^\s*[\d.½]+\s*-\s*[\d.½]+\s*-\s*[\d.½]+\s*$/.test(m.dosage)
+      ? `Morning ${m.dosage.split('-')[0].trim()} | Afternoon ${m.dosage.split('-')[1].trim()} | Night ${m.dosage.split('-')[2].trim()}`
+      : m.dosage;
+    if (dose || m.instructions) {
+      text(pdf, [dose, m.instructions].filter(Boolean).join('  -  '), M + 4, y, { size: 8.5, maxWidth: PAGE_W - 2 * M - 4 });
+      y += 4.5;
+    }
+    const course = `Course: ${longDate(m.startDate)} to ${m.endDate ? longDate(m.endDate) : 'ongoing'}`;
+    text(pdf, course, M + 4, y, { size: 7.5, color: MUTED, maxWidth: PAGE_W - 2 * M - 4 });
+    y += 4;
+    const extra = [m.expiryDate ? `Pack expiry: ${longDate(m.expiryDate)}` : '', m.doctorName ? `Prescribed by ${m.doctorName}` : '']
+      .filter(Boolean)
+      .join('  |  ');
+    if (extra) {
+      text(pdf, extra, M + 4, y, { size: 7.5, color: MUTED, maxWidth: PAGE_W - 2 * M - 4 });
+      y += 4;
+    }
+    y += 6;
+  });
+
+  const fy = PAGE_H - 12;
+  pdf.setDrawColor(207, 201, 188);
+  pdf.setLineDashPattern([1, 1], 0);
+  pdf.line(M, fy, PAGE_W - M, fy);
+  pdf.setLineDashPattern([], 0);
+  text(pdf, 'Take medicines only as your doctor advised. Questions: ' + HOSPITAL.phones.reception.display, M, fy + 5, { size: 6.8, color: MUTED });
+  pdf.save(`${HOSPITAL.brand}-medicines-${new Date().toISOString().slice(0, 10)}.pdf`);
+}

@@ -36,11 +36,44 @@ export interface PatientMedicine {
   createdAt: string;
 }
 
+export interface LabResult {
+  id: string;
+  date: string; // YYYY-MM-DD
+  test: string; // "Haemoglobin"
+  value: string; // "11.2"
+  unit: string; // "g/dL"
+  range: string; // "12 - 15"
+  flag: 'NORMAL' | 'HIGH' | 'LOW' | ''; // set by staff
+  note: string;
+  createdAt: string;
+}
+
+export interface FollowUp {
+  date: string; // YYYY-MM-DD
+  doctorId: string; // website doctor id, '' = any
+  doctorName: string;
+  note: string;
+}
+
+/** Details the patient keeps up to date themselves. */
+export interface PatientProfile {
+  age: string;
+  gender: string;
+  bloodGroup: string;
+  allergies: string;
+  conditions: string; // long-term conditions, e.g. diabetes
+  emergencyName: string;
+  emergencyPhone: string;
+}
+
 export interface PatientRecord {
   phone: string; // 10 digits
   name: string;
   bills: PatientBill[];
   medicines: PatientMedicine[];
+  labResults?: LabResult[];
+  followUp?: FollowUp | null;
+  profile?: PatientProfile;
   updatedAt: string;
 }
 
@@ -141,6 +174,7 @@ export class PatientRecordsService {
     await this.loadAll();
     return [...this.records.values()]
       .map((r) => ({
+        followUpDate: r.followUp?.date || '',
         phone: r.phone,
         name: r.name,
         bills: r.bills.length,
@@ -229,11 +263,78 @@ export class PatientRecordsService {
     return { record: rec, savedInDatabase: await this.persist(rec) };
   }
 
-  async remove(phoneRaw: string, kind: 'bills' | 'medicines', id: string) {
+  async addLabResult(phoneRaw: string, body: any) {
+    const phone = normalisePhone(phoneRaw);
+    const test = str(body?.test, 120);
+    const value = str(body?.value, 40);
+    const date = str(body?.date, 10);
+    if (!test || !value) throw new BadRequestException('Test name and result are needed.');
+    if (!ISO.test(date)) throw new BadRequestException('Test date is missing.');
+    const flag = ['NORMAL', 'HIGH', 'LOW'].includes(body?.flag) ? body.flag : '';
+    const rec = await this.getOrCreate(phone, body?.patientName);
+    rec.labResults = rec.labResults || [];
+    rec.labResults.unshift({
+      id: uuidv4(),
+      date,
+      test,
+      value,
+      unit: str(body?.unit, 30),
+      range: str(body?.range, 60),
+      flag,
+      note: str(body?.note, 300),
+      createdAt: new Date().toISOString(),
+    });
+    return { record: rec, savedInDatabase: await this.persist(rec) };
+  }
+
+  /** Set (or clear with an empty date) the next visit the doctor asked for. */
+  async setFollowUp(phoneRaw: string, body: any) {
+    const phone = normalisePhone(phoneRaw);
+    const date = str(body?.date, 10);
+    const rec = await this.getOrCreate(phone, body?.patientName);
+    if (!date) {
+      rec.followUp = null;
+    } else {
+      if (!ISO.test(date)) throw new BadRequestException('Follow-up date is not valid.');
+      rec.followUp = {
+        date,
+        doctorId: str(body?.doctorId, 60),
+        doctorName: str(body?.doctorName, 100),
+        note: str(body?.note, 300),
+      };
+    }
+    return { record: rec, savedInDatabase: await this.persist(rec) };
+  }
+
+  /** Patient edits their own details (never bills, medicines or results). */
+  async updateProfile(phoneRaw: string, body: any) {
+    const phone = normalisePhone(phoneRaw);
+    const rec = await this.getOrCreate(phone, body?.name);
+    const emergencyPhone = str(body?.emergencyPhone, 15).replace(/\D/g, '').slice(-10);
+    if (emergencyPhone && !/^[6-9]\d{9}$/.test(emergencyPhone)) {
+      throw new BadRequestException('Emergency contact number must be a 10-digit mobile number.');
+    }
+    const age = str(body?.age, 3).replace(/\D/g, '');
+    rec.profile = {
+      age,
+      gender: ['Male', 'Female', 'Other'].includes(body?.gender) ? body.gender : '',
+      bloodGroup: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].includes(body?.bloodGroup) ? body.bloodGroup : '',
+      allergies: str(body?.allergies, 300),
+      conditions: str(body?.conditions, 300),
+      emergencyName: str(body?.emergencyName, 100),
+      emergencyPhone,
+    };
+    // If the database is down this stays in memory (logged by persist), same as staff edits
+    await this.persist(rec);
+    return rec;
+  }
+
+  async remove(phoneRaw: string, kind: 'bills' | 'medicines' | 'labResults', id: string) {
     const rec = await this.get(phoneRaw);
-    const before = rec[kind].length;
-    (rec as any)[kind] = (rec[kind] as { id: string }[]).filter((x) => x.id !== id);
-    if (rec[kind].length === before) throw new NotFoundException('Not found.');
+    const list = ((rec as any)[kind] || []) as { id: string }[];
+    const next = list.filter((x) => x.id !== id);
+    if (next.length === list.length) throw new NotFoundException('Not found.');
+    (rec as any)[kind] = next;
     return { record: rec, savedInDatabase: await this.persist(rec) };
   }
 }

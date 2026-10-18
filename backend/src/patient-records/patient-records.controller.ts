@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
@@ -63,6 +64,24 @@ export class PatientRecordsController {
   }
 
   @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
+  @Post(':phone/lab-results')
+  addLabResult(@Param('phone') phone: string, @Body() body: any) {
+    return this.records.addLabResult(phone, body);
+  }
+
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
+  @Delete(':phone/lab-results/:id')
+  removeLabResult(@Param('phone') phone: string, @Param('id') id: string) {
+    return this.records.remove(phone, 'labResults', id);
+  }
+
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
+  @Put(':phone/follow-up')
+  setFollowUp(@Param('phone') phone: string, @Body() body: any) {
+    return this.records.setFollowUp(phone, body);
+  }
+
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
   @Delete(':phone/medicines/:id')
   removeMedicine(@Param('phone') phone: string, @Param('id') id: string) {
     return this.records.remove(phone, 'medicines', id);
@@ -82,6 +101,7 @@ export class PatientPortalController {
   @UseGuards(JwtAuthGuard, PatientSessionGuard)
   @Post('session')
   session(@CurrentUser() user: any) {
+    if (user?.type !== 'BOOKING_SESSION') throw new UnauthorizedException('Please verify your mobile number first.');
     // The no-SMS booking fallback issues unverified tokens; never open records with those
     if (user?.phoneVerified === false) {
       throw new ForbiddenException(
@@ -93,13 +113,23 @@ export class PatientPortalController {
     return { token, phone };
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async me(@CurrentUser() user: any) {
+  private patientPhone(user: any): string {
     if (user?.type !== 'PATIENT_PORTAL' || !user.phone) {
       throw new UnauthorizedException('Please sign in again.');
     }
-    const phone = normalisePhone(user.phone);
+    return normalisePhone(user.phone);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Put('profile')
+  profile(@CurrentUser() user: any, @Body() body: any) {
+    return this.records.updateProfile(this.patientPhone(user), body);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async me(@CurrentUser() user: any) {
+    const phone = this.patientPhone(user);
     const record = await this.records.get(phone);
     const appointments = (await this.appointments.getAllAppointments())
       .filter((a) => a.patientPhone.replace(/\D/g, '').slice(-10) === phone)
@@ -113,6 +143,8 @@ export class PatientPortalController {
         paymentStatus: a.paymentStatus,
         fee: a.fee,
       }));
-    return { ...record, appointments };
+    // New patients who only booked online: greet them by the name they booked with
+    const name = record.name || (await this.appointments.getAllAppointments()).find((a) => a.patientPhone.replace(/\D/g, '').slice(-10) === phone)?.patientName || '';
+    return { ...record, name, appointments };
   }
 }

@@ -1,10 +1,18 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, Bell, CalendarDays, Download, FileText, LogOut, Pill, Phone } from 'lucide-react';
+import { AlertCircle, Bell, CalendarDays, Download, FileText, FlaskConical, Home, LogOut, Pill, Phone, UserRound } from 'lucide-react';
+import { apiUrl } from '../lib/api';
+import { DOCTORS_DATA } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
-import { downloadBillPdf } from '../lib/appointmentPdf';
+import { downloadBillPdf, downloadMedicineListPdf } from '../lib/appointmentPdf';
 import {
+  DOSE_TIMES,
+  LabResult,
+  loadDoseTicks,
+  notifyOncePerDay,
+  parseDosage,
+  saveDoseTicks,
   MedicineAlert,
   PatientBill,
   PatientMedicine,
@@ -15,7 +23,6 @@ import {
   medicineActive,
   medicineAlerts,
   notificationsSupported,
-  notifyMedicineAlerts,
   portalCall,
   setPatientToken,
   todayKey,
@@ -216,13 +223,13 @@ const SignIn: React.FC<{ isMr: boolean; L: LFn; onSignedIn: (token: string) => v
 
 // ─── Portal ──────────────────────────────────────────────────────────────────
 
-type Tab = 'medicines' | 'bills' | 'appointments';
+type Tab = 'overview' | 'medicines' | 'bills' | 'reports' | 'visits' | 'profile';
 
 const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => void }> = ({ token, isMr, L, onSignOut }) => {
   const [data, setData] = useState<PatientRecord | null>(null);
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [error, setError] = useState('');
-  const [tab, setTab] = useState<Tab>('medicines');
+  const [tab, setTab] = useState<Tab>('overview');
   const [perm, setPerm] = useState<NotificationPermission | 'unsupported'>(
     notificationsSupported() ? Notification.permission : 'unsupported',
   );
@@ -262,10 +269,20 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
     };
   };
 
+  const followDays = data?.followUp?.date ? daysUntil(data.followUp.date) : null;
+
   useEffect(() => {
-    if (alerts.length) notifyMedicineAlerts(alerts, alertText);
+    const notices = alerts.map((a) => ({ key: `${a.med.id}:${a.kind}`, ...alertText(a) }));
+    if (data?.followUp && followDays !== null && followDays >= 0 && followDays <= 2) {
+      notices.push({
+        key: `follow-up:${data.followUp.date}`,
+        title: followDays === 0 ? L('Your follow-up visit is today', 'आपली पुढील भेट आज आहे') : L(`Follow-up visit in ${followDays} day${followDays === 1 ? '' : 's'}`, `पुढील भेट ${followDays} दिवसांत`),
+        body: data.followUp.doctorName || HOSPITAL.shortName,
+      });
+    }
+    notifyOncePerDay(notices);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [alerts, perm]);
+  }, [alerts, perm, data?.followUp?.date]);
 
   const turnOnAlerts = async () => {
     if (!notificationsSupported()) return;
@@ -301,10 +318,13 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
 
   const d = data!;
   const due = d.bills.reduce((s, b) => s + Math.max(0, b.total - b.paid), 0);
-  const tabs: { key: Tab; label: string; count: number; icon: React.ElementType }[] = [
-    { key: 'medicines', label: L('Medicines', 'औषधे'), count: d.medicines.length, icon: Pill },
-    { key: 'bills', label: L('Bills', 'बिले'), count: d.bills.length, icon: FileText },
-    { key: 'appointments', label: L('Visits', 'भेटी'), count: d.appointments?.length || 0, icon: CalendarDays },
+  const tabs: { key: Tab; label: string; icon: React.ElementType }[] = [
+    { key: 'overview', label: L('Today', 'आज'), icon: Home },
+    { key: 'medicines', label: L('Medicines', 'औषधे'), icon: Pill },
+    { key: 'bills', label: L('Bills', 'बिले'), icon: FileText },
+    { key: 'reports', label: L('Reports', 'रिपोर्ट'), icon: FlaskConical },
+    { key: 'visits', label: L('Visits', 'भेटी'), icon: CalendarDays },
+    { key: 'profile', label: L('Profile', 'प्रोफाइल'), icon: UserRound },
   ];
 
   return (
@@ -312,7 +332,10 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0">
           <h1 className="text-3xl sm:text-4xl">{d.name ? L(`Hello, ${d.name}`, `नमस्कार, ${d.name}`) : L('Your health records', 'आपली आरोग्य माहिती')}</h1>
-          <p className="mt-1 text-stone-600">+91 {d.phone}</p>
+          <p className="mt-1 text-stone-600">
+            +91 {d.phone}
+            {d.profile?.bloodGroup && ` · ${L('Blood group', 'रक्तगट')} ${d.profile.bloodGroup}`}
+          </p>
         </div>
         <button type="button" onClick={onSignOut} className="btn-secondary">
           <LogOut className="w-4 h-4" /> {L('Sign out', 'लॉगआउट')}
@@ -322,20 +345,205 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
       {/* Summary */}
       <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
         {[
-          [L('Medicines now', 'चालू औषधे'), String(d.medicines.filter((m) => medicineActive(m)).length)],
-          [L('Amount due', 'बाकी रक्कम'), rupees(due)],
-          [L('Alerts', 'सूचना'), String(alerts.length)],
-        ].map(([k, v]) => (
-          <div key={k} className="bg-white border border-[#E7E3DA] rounded-xl p-3 sm:p-4">
+          [L('Medicines now', 'चालू औषधे'), String(d.medicines.filter((m) => medicineActive(m)).length), 'medicines'],
+          [L('Amount due', 'बाकी रक्कम'), rupees(due), 'bills'],
+          [L('Alerts', 'सूचना'), String(alerts.length), 'overview'],
+        ].map(([k, v, t]) => (
+          <button
+            key={k}
+            type="button"
+            onClick={() => setTab(t as Tab)}
+            className="text-left bg-white border border-[#E7E3DA] rounded-xl p-3 sm:p-4 hover:border-[#0F766E]"
+          >
             <dt className="text-xs sm:text-sm text-stone-500">{k}</dt>
-            <dd className="mt-1 text-xl sm:text-2xl font-semibold">{v}</dd>
-          </div>
+            <dd className={`mt-1 text-xl sm:text-2xl font-semibold ${t === 'bills' && due > 0 ? 'text-amber-800' : ''}`}>{v}</dd>
+          </button>
         ))}
       </dl>
 
-      {/* Alerts */}
+      {perm === 'default' && (
+        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#E8F3F1] text-[#0B5D57] rounded-xl p-4 text-[15px]">
+          <p>{L('Get a phone notification when a medicine is about to expire, a course is ending or a follow-up visit is near.', 'औषधाची मुदत संपत आल्यावर, कोर्स संपताना किंवा पुढील भेट जवळ आल्यावर फोनवर सूचना मिळवा.')}</p>
+          <button type="button" className="btn-primary shrink-0" onClick={turnOnAlerts}>
+            <Bell className="w-4 h-4" /> {L('Turn on reminders', 'आठवण सुरू करा')}
+          </button>
+        </div>
+      )}
+
+      {/* Tabs */}
+      <div className="mt-8 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+        <div className="inline-flex min-w-full gap-1 rounded-lg border border-[#D8D3C8] bg-white p-1" role="tablist" aria-label={L('Your records', 'आपली माहिती')}>
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.key}
+              onClick={() => setTab(t.key)}
+              className={`flex-1 shrink-0 min-h-[44px] px-3.5 rounded-md text-sm sm:text-[15px] flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                tab === t.key ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'
+              }`}
+            >
+              <t.icon className="w-4 h-4" />
+              {t.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-5" role="tabpanel">
+        {tab === 'overview' && (
+          <Overview d={d} alerts={alerts} alertText={alertText} isMr={isMr} L={L} onOpen={setTab} />
+        )}
+        {tab === 'medicines' && <Medicines meds={d.medicines} name={d.name} phone={d.phone} isMr={isMr} L={L} />}
+        {tab === 'bills' && <Bills bills={d.bills} name={d.name} phone={d.phone} isMr={isMr} L={L} />}
+        {tab === 'reports' && <Reports list={d.labResults || []} isMr={isMr} L={L} />}
+        {tab === 'visits' && <Visits list={d.appointments || []} followUp={d.followUp || null} isMr={isMr} L={L} />}
+        {tab === 'profile' && <Profile d={d} token={token} L={L} onSaved={(r) => setData((x) => (x ? { ...x, ...r } : r))} />}
+      </div>
+
+      <p className="mt-10 text-sm text-stone-600 flex items-center gap-2">
+        <Phone className="w-4 h-4 shrink-0" />
+        <span>
+          {L('Something missing or wrong? Call', 'काही चुकले किंवा कमी आहे? कॉल करा')}{' '}
+          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
+            {HOSPITAL.phones.reception.short}
+          </a>
+        </span>
+      </p>
+    </div>
+  );
+};
+
+// ─── Today (overview) ────────────────────────────────────────────────────────
+
+const bookLink = (doctorId: string, date?: string) => {
+  const p = new URLSearchParams();
+  if (doctorId && DOCTORS_DATA.some((x) => x.id === doctorId)) p.set('doctorId', doctorId);
+  if (date && date >= todayKey()) p.set('date', date);
+  const q = p.toString();
+  return `/book${q ? `?${q}` : ''}`;
+};
+
+const Overview: React.FC<{
+  d: PatientRecord;
+  alerts: MedicineAlert[];
+  alertText: (a: MedicineAlert) => { title: string; body: string };
+  isMr: boolean;
+  L: LFn;
+  onOpen: (t: Tab) => void;
+}> = ({ d, alerts, alertText, isMr, L, onOpen }) => {
+  const today = todayKey();
+  const [ticks, setTicks] = useState<Record<string, boolean>>(() => loadDoseTicks(today));
+  const toggle = (key: string) =>
+    setTicks((t) => {
+      const next = { ...t, [key]: !t[key] };
+      saveDoseTicks(next, today);
+      return next;
+    });
+
+  const doses = DOSE_TIMES.map((time) => ({
+    time,
+    label: time === 'morning' ? L('Morning', 'सकाळ') : time === 'afternoon' ? L('Afternoon', 'दुपार') : L('Night', 'रात्र'),
+    items: d.medicines
+      .filter((m) => medicineActive(m, today) && m.startDate <= today)
+      .map((m) => ({ m, qty: parseDosage(m.dosage)?.[time] || '' }))
+      .filter((x) => x.qty),
+  })).filter((g) => g.items.length > 0);
+  const total = doses.reduce((s, g) => s + g.items.length, 0);
+  const done = doses.reduce((s, g) => s + g.items.filter((x) => ticks[`${x.m.id}:${g.time}`]).length, 0);
+
+  const upcoming = (d.appointments || [])
+    .filter((a) => a.appointmentDate >= today && a.status === 'CONFIRMED')
+    .sort((a, b) => a.appointmentDate.localeCompare(b.appointmentDate))[0];
+  const fu = d.followUp;
+  const fuDays = fu ? daysUntil(fu.date, today) : null;
+
+  const nothing = !fu && !upcoming && total === 0 && alerts.length === 0;
+
+  return (
+    <div className="space-y-4">
+      {nothing && (
+        <Empty text={L('Nothing for today. Medicines, bills and reports from the hospital will appear here.', 'आज काही नाही. हॉस्पिटलकडून आलेली औषधे, बिले व रिपोर्ट येथे दिसतील.')} />
+      )}
+
+      {fu && fuDays !== null && (
+        <section className="bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-5">
+          <p className="text-sm text-stone-500">{L('Next visit your doctor asked for', 'डॉक्टरांनी सांगितलेली पुढील भेट')}</p>
+          <p className="mt-1 font-heading text-xl">
+            {dateText(fu.date, isMr)}
+            <span className={`ml-2 text-base font-sans font-medium ${fuDays < 0 ? 'text-red-700' : fuDays <= 2 ? 'text-amber-800' : 'text-[#0F766E]'}`}>
+              {fuDays < 0
+                ? L(`${-fuDays} days overdue`, `${-fuDays} दिवस उशीर`)
+                : fuDays === 0
+                ? L('today', 'आज')
+                : L(`in ${fuDays} day${fuDays === 1 ? '' : 's'}`, `${fuDays} दिवसांत`)}
+            </span>
+          </p>
+          {fu.doctorName && <p className="text-stone-700">{fu.doctorName}</p>}
+          {fu.note && <p className="mt-1 text-sm text-stone-600">{fu.note}</p>}
+          <Link to={bookLink(fu.doctorId, fu.date)} className="btn-primary mt-4">
+            <CalendarDays className="w-4 h-4" /> {L('Book this visit', 'ही भेट बुक करा')}
+          </Link>
+        </section>
+      )}
+
+      {upcoming && (
+        <section className="bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm text-stone-500">{L('Upcoming appointment', 'पुढील अपॉइंटमेंट')}</p>
+            <p className="mt-1 font-heading text-lg leading-tight">{upcoming.doctorName}</p>
+            <p className="text-stone-700">
+              {dateText(upcoming.appointmentDate, isMr)}, {upcoming.startTime.replace(/^0/, '')}
+            </p>
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-stone-500">{L('Token', 'टोकन')}</p>
+            <p className="font-mono font-semibold">{upcoming.appointmentCode}</p>
+          </div>
+        </section>
+      )}
+
+      {total > 0 && (
+        <section className="bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-5">
+          <div className="flex items-baseline justify-between gap-3">
+            <h2 className="text-lg">{L('Today’s medicines', 'आजची औषधे')}</h2>
+            <p className={`text-sm font-medium ${done === total ? 'text-[#0F766E]' : 'text-stone-600'}`}>
+              {L(`${done} of ${total} taken`, `${total} पैकी ${done} घेतली`)}
+            </p>
+          </div>
+          <div className="mt-2 h-1.5 rounded-full bg-stone-100 overflow-hidden" aria-hidden="true">
+            <div className="h-full bg-[#0F766E] transition-all" style={{ width: `${(done / total) * 100}%` }} />
+          </div>
+          {doses.map((g) => (
+            <div key={g.time} className="mt-4">
+              <p className="text-sm text-stone-500 mb-1.5">{g.label}</p>
+              <ul className="space-y-1.5">
+                {g.items.map(({ m, qty }) => {
+                  const key = `${m.id}:${g.time}`;
+                  const on = !!ticks[key];
+                  return (
+                    <li key={key}>
+                      <label className={`flex items-center gap-3 min-h-[48px] px-3 rounded-lg border cursor-pointer ${on ? 'bg-[#E8F3F1] border-[#BFE3DD]' : 'bg-white border-[#E7E3DA]'}`}>
+                        <input type="checkbox" checked={on} onChange={() => toggle(key)} className="w-5 h-5 accent-[#0F766E] shrink-0" />
+                        <span className={`flex-1 min-w-0 ${on ? 'text-stone-500 line-through' : ''}`}>
+                          {m.name} {m.strength}
+                          <span className="text-stone-500"> · {qty === '1' ? L('1 tablet', '१ गोळी') : L(`${qty} tablets`, `${qty} गोळ्या`)}</span>
+                          {m.instructions && <span className="block text-sm text-stone-500 no-underline">{m.instructions}</span>}
+                        </span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
+          <p className="mt-3 text-xs text-stone-500">{L('Ticks are saved on this phone only.', 'खुणा फक्त या फोनवर जतन होतात.')}</p>
+        </section>
+      )}
+
       {alerts.length > 0 && (
-        <section className="mt-6 bg-white border border-amber-200 rounded-xl p-4 sm:p-5" aria-label={L('Medicine alerts', 'औषध सूचना')}>
+        <section className="bg-white border border-amber-200 rounded-xl p-4 sm:p-5" aria-label={L('Medicine alerts', 'औषध सूचना')}>
           <h2 className="text-lg flex items-center gap-2">
             <Bell className="w-5 h-5 text-amber-700" /> {L('Needs your attention', 'लक्ष द्या')}
           </h2>
@@ -353,50 +561,170 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
         </section>
       )}
 
-      {perm === 'default' && (
-        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#E8F3F1] text-[#0B5D57] rounded-xl p-4 text-[15px]">
-          <p>{L('Get a phone notification when a medicine is about to expire or a course is ending.', 'औषधाची मुदत संपत आल्यावर किंवा कोर्स संपताना फोनवर सूचना मिळवा.')}</p>
-          <button type="button" className="btn-primary shrink-0" onClick={turnOnAlerts}>
-            <Bell className="w-4 h-4" /> {L('Turn on reminders', 'आठवण सुरू करा')}
-          </button>
-        </div>
+      {(d.labResults || []).length > 0 && (
+        <button type="button" onClick={() => onOpen('reports')} className="w-full text-left bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-5 hover:border-[#0F766E]">
+          <p className="text-sm text-stone-500">{L('Latest report', 'नवीन रिपोर्ट')}</p>
+          <p className="mt-1 font-medium">
+            {d.labResults![0].test}: {d.labResults![0].value} {d.labResults![0].unit}
+            <span className="text-stone-500"> · {dateText(d.labResults![0].date, isMr)}</span>
+          </p>
+          <p className="mt-1 text-sm font-semibold text-[#0F766E]">{L('See all reports →', 'सर्व रिपोर्ट पहा →')}</p>
+        </button>
       )}
-
-      {/* Tabs */}
-      <div className="mt-8 grid grid-cols-3 rounded-lg border border-[#D8D3C8] bg-white p-1" role="tablist" aria-label={L('Your records', 'आपली माहिती')}>
-        {tabs.map((t) => (
-          <button
-            key={t.key}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.key}
-            onClick={() => setTab(t.key)}
-            className={`min-h-[44px] rounded-md text-sm sm:text-[15px] flex items-center justify-center gap-1.5 ${
-              tab === t.key ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'
-            }`}
-          >
-            <t.icon className="w-4 h-4 hidden sm:block" />
-            {t.label} <span className={tab === t.key ? 'text-teal-100' : 'text-stone-400'}>{t.count}</span>
-          </button>
-        ))}
-      </div>
-
-      <div className="mt-5" role="tabpanel">
-        {tab === 'medicines' && <Medicines meds={d.medicines} isMr={isMr} L={L} />}
-        {tab === 'bills' && <Bills bills={d.bills} name={d.name} phone={d.phone} isMr={isMr} L={L} />}
-        {tab === 'appointments' && (
-          <Visits list={d.appointments || []} isMr={isMr} L={L} />
-        )}
-      </div>
-
-      <p className="mt-10 text-sm text-stone-600 flex items-center gap-2">
-        <Phone className="w-4 h-4" />
-        {L('Something missing or wrong? Call', 'काही चुकले किंवा कमी आहे? कॉल करा')}{' '}
-        <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
-          {HOSPITAL.phones.reception.short}
-        </a>
-      </p>
     </div>
+  );
+};
+
+// ─── Reports ─────────────────────────────────────────────────────────────────
+
+const Reports: React.FC<{ list: LabResult[]; isMr: boolean; L: LFn }> = ({ list, isMr, L }) => {
+  if (list.length === 0) return <Empty text={L('No test results shared by the hospital yet.', 'हॉस्पिटलने अजून कोणतेही रिपोर्ट शेअर केलेले नाहीत.')} />;
+  const byDate = list.reduce<Record<string, LabResult[]>>((acc, r) => {
+    (acc[r.date] = acc[r.date] || []).push(r);
+    return acc;
+  }, {});
+  return (
+    <div className="space-y-4">
+      {Object.keys(byDate)
+        .sort((a, b) => b.localeCompare(a))
+        .map((date) => (
+          <section key={date} className="bg-white border border-[#E7E3DA] rounded-xl overflow-hidden">
+            <h2 className="px-4 sm:px-5 py-3 bg-[#FAF8F4] border-b border-[#E7E3DA] text-base font-semibold font-sans">{dateText(date, isMr)}</h2>
+            <ul className="divide-y divide-[#E7E3DA]">
+              {byDate[date].map((r) => (
+                <li key={r.id} className="px-4 sm:px-5 py-3 flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-medium">{r.test}</p>
+                    {r.range && <p className="text-sm text-stone-500">{L(`Normal: ${r.range}`, `सामान्य: ${r.range}`)} {r.unit}</p>}
+                    {r.note && <p className="text-sm text-stone-600 mt-0.5">{r.note}</p>}
+                  </div>
+                  <div className="text-right shrink-0">
+                    <p className={`text-lg font-semibold ${r.flag === 'HIGH' ? 'text-red-700' : r.flag === 'LOW' ? 'text-amber-800' : ''}`}>
+                      {r.value} <span className="text-sm font-normal text-stone-500">{r.unit}</span>
+                    </p>
+                    {r.flag && (
+                      <p className={`text-sm ${r.flag === 'HIGH' ? 'text-red-700' : r.flag === 'LOW' ? 'text-amber-800' : 'text-[#0B5D57]'}`}>
+                        {r.flag === 'HIGH' ? L('High', 'जास्त') : r.flag === 'LOW' ? L('Low', 'कमी') : L('Normal', 'सामान्य')}
+                      </p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ))}
+      <p className="text-sm text-stone-500">{L('Please discuss your results with your doctor.', 'कृपया रिपोर्टबद्दल आपल्या डॉक्टरांशी बोला.')}</p>
+    </div>
+  );
+};
+
+// ─── Profile ─────────────────────────────────────────────────────────────────
+
+const Profile: React.FC<{ d: PatientRecord; token: string; L: LFn; onSaved: (r: PatientRecord) => void }> = ({ d, token, L, onSaved }) => {
+  const [f, setF] = useState({
+    name: d.name,
+    age: d.profile?.age || '',
+    gender: d.profile?.gender || '',
+    bloodGroup: d.profile?.bloodGroup || '',
+    allergies: d.profile?.allergies || '',
+    conditions: d.profile?.conditions || '',
+    emergencyName: d.profile?.emergencyName || '',
+    emergencyPhone: d.profile?.emergencyPhone || '',
+  });
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setF((x) => ({ ...x, [k]: e.target.value }));
+    setMsg(null);
+  };
+
+  const save = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (f.emergencyPhone && !/^[6-9]\d{9}$/.test(f.emergencyPhone)) {
+      setMsg({ ok: false, text: L('Emergency contact number must be a 10-digit mobile number.', 'आपत्कालीन संपर्क क्रमांक १० अंकी मोबाईल नंबर असावा.') });
+      return;
+    }
+    setBusy(true);
+    try {
+      const res = await fetch(apiUrl('/patient-portal/profile'), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(f),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || json?.success === false) throw new Error(json?.error?.message || L('Could not save. Please try again.', 'जतन झाले नाही. पुन्हा प्रयत्न करा.'));
+      onSaved(json.data);
+      setMsg({ ok: true, text: L('Saved. The hospital sees these details at your next visit.', 'जतन झाले. पुढील भेटीत हॉस्पिटलला ही माहिती दिसेल.') });
+    } catch (err: any) {
+      setMsg({ ok: false, text: err.message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const label = 'block font-medium mb-1.5';
+  return (
+    <form onSubmit={save} className="bg-white border border-[#E7E3DA] rounded-xl p-4 sm:p-6 space-y-4">
+      <p className="text-stone-600 text-[15px]">
+        {L('Keep these up to date. They help the doctor in an emergency.', 'ही माहिती अद्ययावत ठेवा. आपत्कालीन वेळी डॉक्टरांना मदत होते.')}
+      </p>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="pf-name" className={label}>{L('Full name', 'पूर्ण नाव')}</label>
+          <input id="pf-name" value={f.name} onChange={set('name')} className={inputClass} autoComplete="name" />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label htmlFor="pf-age" className={label}>{L('Age', 'वय')}</label>
+            <input id="pf-age" inputMode="numeric" value={f.age} onChange={(e) => setF((x) => ({ ...x, age: e.target.value.replace(/\D/g, '').slice(0, 3) }))} className={inputClass} />
+          </div>
+          <div>
+            <label htmlFor="pf-gender" className={label}>{L('Gender', 'लिंग')}</label>
+            <select id="pf-gender" value={f.gender} onChange={set('gender')} className={inputClass}>
+              <option value="">—</option>
+              <option value="Male">{L('Male', 'पुरुष')}</option>
+              <option value="Female">{L('Female', 'स्त्री')}</option>
+              <option value="Other">{L('Other', 'इतर')}</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label htmlFor="pf-blood" className={label}>{L('Blood group', 'रक्तगट')}</label>
+          <select id="pf-blood" value={f.bloodGroup} onChange={set('bloodGroup')} className={inputClass}>
+            <option value="">{L('Don’t know', 'माहीत नाही')}</option>
+            {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((g) => (
+              <option key={g} value={g}>{g}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="pf-allergies" className={label}>{L('Allergies', 'ॲलर्जी')}</label>
+          <input id="pf-allergies" value={f.allergies} onChange={set('allergies')} className={inputClass} placeholder={L('e.g. penicillin, none', 'उदा. पेनिसिलिन, काही नाही')} />
+        </div>
+        <div className="sm:col-span-2">
+          <label htmlFor="pf-cond" className={label}>{L('Long-term conditions', 'दीर्घकालीन आजार')}</label>
+          <input id="pf-cond" value={f.conditions} onChange={set('conditions')} className={inputClass} placeholder={L('e.g. diabetes, BP', 'उदा. मधुमेह, बीपी')} />
+        </div>
+        <div>
+          <label htmlFor="pf-ename" className={label}>{L('Emergency contact name', 'आपत्कालीन संपर्क व्यक्ती')}</label>
+          <input id="pf-ename" value={f.emergencyName} onChange={set('emergencyName')} className={inputClass} />
+        </div>
+        <div>
+          <label htmlFor="pf-ephone" className={label}>{L('Emergency contact mobile', 'आपत्कालीन संपर्क मोबाईल')}</label>
+          <input id="pf-ephone" type="tel" inputMode="numeric" value={f.emergencyPhone} onChange={(e) => setF((x) => ({ ...x, emergencyPhone: e.target.value.replace(/\D/g, '').slice(0, 10) }))} className={inputClass} />
+        </div>
+      </div>
+      {msg && (
+        <p role={msg.ok ? 'status' : 'alert'} className={`p-3 rounded-md text-sm ${msg.ok ? 'bg-[#E8F3F1] text-[#0B5D57]' : 'bg-red-50 text-red-800'}`}>
+          {msg.text}
+        </p>
+      )}
+      <div className="flex justify-end">
+        <button type="submit" disabled={busy} className="btn-primary min-w-[140px] disabled:opacity-60">
+          {busy ? L('Saving…', 'जतन होत आहे…') : L('Save', 'जतन करा')}
+        </button>
+      </div>
+    </form>
   );
 };
 
@@ -414,7 +742,8 @@ const Empty: React.FC<{ text: string }> = ({ text }) => (
   <p className="bg-white border border-[#E7E3DA] rounded-xl p-6 text-center text-stone-600">{text}</p>
 );
 
-const Medicines: React.FC<{ meds: PatientMedicine[]; isMr: boolean; L: LFn }> = ({ meds, isMr, L }) => {
+const Medicines: React.FC<{ meds: PatientMedicine[]; name: string; phone: string; isMr: boolean; L: LFn }> = ({ meds, name, phone, isMr, L }) => {
+  const [pdfFailed, setPdfFailed] = useState(false);
   const today = todayKey();
   const current = meds.filter((m) => medicineActive(m, today));
   const past = meds.filter((m) => !medicineActive(m, today));
@@ -469,6 +798,21 @@ const Medicines: React.FC<{ meds: PatientMedicine[]; isMr: boolean; L: LFn }> = 
   return (
     <div className="space-y-6">
       {current.length > 0 && <ul className="grid sm:grid-cols-2 gap-3">{current.map(card)}</ul>}
+      {current.length > 0 && (
+        <div>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() =>
+              downloadMedicineListPdf({ patientName: name, patientPhone: `+91 ${phone}`, medicines: current }).catch(() => setPdfFailed(true))
+            }
+          >
+            <Download className="w-4 h-4" /> {L('Download medicine list (PDF)', 'औषधांची यादी डाउनलोड करा (PDF)')}
+          </button>
+          <p className="mt-1.5 text-sm text-stone-500">{L('Show it at any pharmacy or to another doctor.', 'कोणत्याही फार्मसीत किंवा दुसऱ्या डॉक्टरांना दाखवा.')}</p>
+          {pdfFailed && <p role="alert" className="mt-1 text-sm text-red-700">{L('Could not create the PDF. Please try again.', 'PDF तयार झाली नाही. पुन्हा प्रयत्न करा.')}</p>}
+        </div>
+      )}
       {past.length > 0 && (
         <details className="group">
           <summary className="cursor-pointer py-2 font-semibold text-stone-700">
@@ -544,7 +888,7 @@ const Bills: React.FC<{ bills: PatientBill[]; name: string; phone: string; isMr:
   );
 };
 
-const Visits: React.FC<{ list: NonNullable<PatientRecord['appointments']>; isMr: boolean; L: LFn }> = ({ list, isMr, L }) => {
+const Visits: React.FC<{ list: NonNullable<PatientRecord['appointments']>; followUp: PatientRecord['followUp']; isMr: boolean; L: LFn }> = ({ list, followUp, isMr, L }) => {
   const statusText: Record<string, string> = {
     CONFIRMED: L('Booked', 'बुक'),
     IN_CONSULTATION: L('With the doctor', 'डॉक्टरांकडे'),
@@ -572,8 +916,8 @@ const Visits: React.FC<{ list: NonNullable<PatientRecord['appointments']>; isMr:
           ))}
         </ul>
       )}
-      <Link to="/book" className="btn-primary">
-        <CalendarDays className="w-4 h-4" /> {L('Book a visit', 'भेट बुक करा')}
+      <Link to={followUp ? bookLink(followUp.doctorId, followUp.date) : '/book'} className="btn-primary">
+        <CalendarDays className="w-4 h-4" /> {followUp ? L('Book your follow-up', 'पुढील भेट बुक करा') : L('Book a visit', 'भेट बुक करा')}
       </Link>
     </div>
   );

@@ -3,6 +3,7 @@ import { Plus, Search, Trash2 } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import type { PatientBill, PatientMedicine, PatientRecord } from '../../lib/patientPortal';
 import { daysUntil, medicineAlerts, todayKey } from '../../lib/patientPortal';
+import { DOCTORS_DATA } from '../../data/doctorsData';
 
 interface Summary {
   phone: string;
@@ -30,7 +31,7 @@ export const AdminPatientRecordsPage: React.FC = () => {
   const [record, setRecord] = useState<PatientRecord | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<Message>(null);
-  const [form, setForm] = useState<'bill' | 'medicine' | null>(null);
+  const [form, setForm] = useState<'bill' | 'medicine' | 'lab' | 'followup' | null>(null);
 
   const loadList = async () => {
     try {
@@ -81,7 +82,7 @@ export const AdminPatientRecordsPage: React.FC = () => {
     loadList();
   };
 
-  const remove = async (kind: 'bills' | 'medicines', id: string, label: string) => {
+  const remove = async (kind: 'bills' | 'medicines' | 'lab-results', id: string, label: string) => {
     if (!record || !window.confirm(`Remove ${label}? The patient will no longer see it.`)) return;
     try {
       const res = await apiFetch<{ record: PatientRecord; savedInDatabase: boolean }>(`/patient-records/${record.phone}/${kind}/${id}`, {
@@ -204,12 +205,45 @@ export const AdminPatientRecordsPage: React.FC = () => {
                   <button type="button" className="btn-secondary" onClick={() => setForm('medicine')}>
                     <Plus className="w-4 h-4" /> Add medicine
                   </button>
+                  <button type="button" className="btn-secondary" onClick={() => setForm('lab')}>
+                    <Plus className="w-4 h-4" /> Add lab result
+                  </button>
+                  <button type="button" className="btn-secondary" onClick={() => setForm('followup')}>
+                    {record.followUp ? 'Change follow-up' : 'Set follow-up'}
+                  </button>
                 </div>
               </div>
+
+              {(record.profile || record.followUp) && (
+                <div className="bg-white border border-[#E7E3DA] rounded-lg p-4 sm:p-5 grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                  {record.profile?.allergies && (
+                    <p className="sm:col-span-2 text-red-700 font-semibold">Allergies: {record.profile.allergies}</p>
+                  )}
+                  {[
+                    ['Age / gender', [record.profile?.age && `${record.profile.age} years`, record.profile?.gender].filter(Boolean).join(', ')],
+                    ['Blood group', record.profile?.bloodGroup],
+                    ['Long-term conditions', record.profile?.conditions],
+                    ['Emergency contact', [record.profile?.emergencyName, record.profile?.emergencyPhone && `+91 ${record.profile.emergencyPhone}`].filter(Boolean).join(', ')],
+                    ['Next follow-up', record.followUp ? `${dateText(record.followUp.date)}${record.followUp.doctorName ? ` · ${record.followUp.doctorName}` : ''}` : ''],
+                  ]
+                    .filter(([, v]) => v)
+                    .map(([k, v]) => (
+                      <p key={k}>
+                        <span className="text-stone-500">{k}: </span>
+                        {v}
+                      </p>
+                    ))}
+                  {record.profile && <p className="sm:col-span-2 text-xs text-stone-500">Age, blood group, allergies and contacts are entered by the patient.</p>}
+                </div>
+              )}
 
               {form === 'bill' && <BillForm record={record} onCancel={() => setForm(null)} onSaved={(r) => applied(r, 'Bill sent.')} />}
               {form === 'medicine' && (
                 <MedicineForm record={record} onCancel={() => setForm(null)} onSaved={(r) => applied(r, 'Medicine sent.')} />
+              )}
+              {form === 'lab' && <LabForm record={record} onCancel={() => setForm(null)} onSaved={(r) => applied(r, 'Lab result sent.')} />}
+              {form === 'followup' && (
+                <FollowUpForm record={record} onCancel={() => setForm(null)} onSaved={(r) => applied(r, 'Follow-up saved.')} />
               )}
 
               {/* Bills */}
@@ -292,6 +326,41 @@ export const AdminPatientRecordsPage: React.FC = () => {
                         </li>
                       );
                     })}
+                  </ul>
+                )}
+              </div>
+              {/* Lab results */}
+              <div className="bg-white border border-[#E7E3DA] rounded-lg">
+                <h2 className="text-lg px-4 sm:px-5 pt-4">Lab results</h2>
+                {(record.labResults || []).length === 0 ? (
+                  <p className="px-4 sm:px-5 py-4 text-sm text-stone-500">No lab results yet.</p>
+                ) : (
+                  <ul className="divide-y divide-[#E7E3DA] mt-2">
+                    {record.labResults!.map((r) => (
+                      <li key={r.id} className="px-4 sm:px-5 py-3 flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <p className="font-medium">
+                            {r.test}:{' '}
+                            <span className={r.flag === 'HIGH' ? 'text-red-700' : r.flag === 'LOW' ? 'text-amber-800' : ''}>
+                              {r.value} {r.unit}
+                              {r.flag && r.flag !== 'NORMAL' ? ` (${r.flag.toLowerCase()})` : ''}
+                            </span>
+                          </p>
+                          <p className="text-sm text-stone-500">
+                            {dateText(r.date)}
+                            {r.range && ` · normal ${r.range}`}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          aria-label={`Remove ${r.test}`}
+                          className="p-2.5 min-w-[44px] min-h-[44px] rounded-md text-stone-500 hover:text-red-700 hover:bg-red-50 shrink-0"
+                          onClick={() => remove('lab-results', r.id, r.test)}
+                        >
+                          <Trash2 className="w-4 h-4 mx-auto" />
+                        </button>
+                      </li>
+                    ))}
                   </ul>
                 )}
               </div>
@@ -487,6 +556,147 @@ const MedicineForm: React.FC<{ record: PatientRecord; onCancel: () => void; onSa
       <div className="flex justify-end gap-2">
         <button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button>
         <button type="submit" disabled={busy} className="btn-primary disabled:opacity-60">{busy ? 'Sending…' : 'Send medicine'}</button>
+      </div>
+    </form>
+  );
+};
+
+const LabForm: React.FC<{ record: PatientRecord; onCancel: () => void; onSaved: (r: SaveResult) => void }> = ({ record, onCancel, onSaved }) => {
+  const [f, setF] = useState({ patientName: record.name, date: todayKey(), test: '', value: '', unit: '', range: '', flag: '', note: '' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF((x) => ({ ...x, [k]: e.target.value }));
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    if (!f.test.trim() || !f.value.trim()) return setError('Test name and result are needed.');
+    setBusy(true);
+    try {
+      const res = await apiFetch<SaveResult>(`/patient-records/${record.phone}/lab-results`, { method: 'POST', body: JSON.stringify(f) });
+      onSaved(res.data);
+    } catch (err: any) {
+      setError(err?.message || 'Could not send the result.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="bg-white border border-[#0F766E] rounded-lg p-4 sm:p-5 space-y-4">
+      <h2 className="text-lg">New lab result</h2>
+      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+      <div className="grid sm:grid-cols-3 gap-3">
+        <div>
+          <label className={labelClass} htmlFor="l-test">Test</label>
+          <input id="l-test" value={f.test} onChange={set('test')} className={inputClass} list="lab-tests" placeholder="e.g. Haemoglobin" />
+          <datalist id="lab-tests">
+            {['Haemoglobin', 'Blood sugar (fasting)', 'Blood sugar (PP)', 'HbA1c', 'Creatinine', 'Urea', 'Total cholesterol', 'TSH', 'Platelets', 'WBC count', 'Vitamin D', 'Vitamin B12'].map((t) => (
+              <option key={t} value={t} />
+            ))}
+          </datalist>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className={labelClass} htmlFor="l-value">Result</label>
+            <input id="l-value" value={f.value} onChange={set('value')} className={inputClass} />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="l-unit">Unit</label>
+            <input id="l-unit" value={f.unit} onChange={set('unit')} className={inputClass} placeholder="g/dL" />
+          </div>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="l-range">Normal range</label>
+          <input id="l-range" value={f.range} onChange={set('range')} className={inputClass} placeholder="12 - 15" />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="l-flag">Result is</label>
+          <select id="l-flag" value={f.flag} onChange={set('flag')} className={inputClass}>
+            <option value="">Not marked</option>
+            <option value="NORMAL">Normal</option>
+            <option value="HIGH">High</option>
+            <option value="LOW">Low</option>
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="l-date">Test date</label>
+          <input id="l-date" type="date" value={f.date} onChange={set('date')} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="l-note">Note (optional)</label>
+          <input id="l-note" value={f.note} onChange={set('note')} className={inputClass} />
+        </div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button>
+        <button type="submit" disabled={busy} className="btn-primary disabled:opacity-60">{busy ? 'Sending…' : 'Send result'}</button>
+      </div>
+    </form>
+  );
+};
+
+const FollowUpForm: React.FC<{ record: PatientRecord; onCancel: () => void; onSaved: (r: SaveResult) => void }> = ({ record, onCancel, onSaved }) => {
+  const [date, setDate] = useState(record.followUp?.date || '');
+  const [doctorId, setDoctorId] = useState(record.followUp?.doctorId || '');
+  const [note, setNote] = useState(record.followUp?.note || '');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const save = async (clear = false) => {
+    setError('');
+    if (!clear && !date) return setError('Choose the follow-up date.');
+    setBusy(true);
+    try {
+      const doc = DOCTORS_DATA.find((d) => d.id === doctorId);
+      const res = await apiFetch<SaveResult>(`/patient-records/${record.phone}/follow-up`, {
+        method: 'PUT',
+        body: JSON.stringify(clear ? { date: '' } : { date, doctorId, doctorName: doc?.name || '', note, patientName: record.name }),
+      });
+      onSaved(res.data);
+    } catch (err: any) {
+      setError(err?.message || 'Could not save the follow-up.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault();
+        save();
+      }}
+      className="bg-white border border-[#0F766E] rounded-lg p-4 sm:p-5 space-y-4"
+    >
+      <h2 className="text-lg">Next follow-up visit</h2>
+      {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+      <div className="grid sm:grid-cols-3 gap-3">
+        <div>
+          <label className={labelClass} htmlFor="f-date">Date</label>
+          <input id="f-date" type="date" min={todayKey()} value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="f-doc">Doctor</label>
+          <select id="f-doc" value={doctorId} onChange={(e) => setDoctorId(e.target.value)} className={inputClass}>
+            <option value="">Any doctor</option>
+            {DOCTORS_DATA.map((d) => (
+              <option key={d.id} value={d.id}>{d.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="f-note">Note (optional)</label>
+          <input id="f-note" value={note} onChange={(e) => setNote(e.target.value)} className={inputClass} placeholder="e.g. bring sugar report" />
+        </div>
+      </div>
+      <p className="text-sm text-stone-500">The patient is reminded two days before and can book the visit with one tap.</p>
+      <div className="flex flex-wrap justify-end gap-2">
+        {record.followUp && (
+          <button type="button" className="btn-secondary mr-auto" onClick={() => save(true)} disabled={busy}>Remove follow-up</button>
+        )}
+        <button type="button" className="btn-secondary" onClick={onCancel}>Cancel</button>
+        <button type="submit" disabled={busy} className="btn-primary disabled:opacity-60">{busy ? 'Saving…' : 'Save follow-up'}</button>
       </div>
     </form>
   );
