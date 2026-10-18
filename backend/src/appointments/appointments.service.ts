@@ -14,6 +14,7 @@ import { ConfirmSlotDto } from './dto/confirm-slot.dto';
 import {
   ROSTER,
   DEFAULT_SCHEDULES,
+  OPEN_ALL_SCHEDULE,
   WeeklySchedule,
   cleanSchedule,
   validateSchedule,
@@ -83,31 +84,7 @@ export class AppointmentsService {
   // In-memory slot & session storage with concurrency guard
   private sessions = new Map<string, BookingSessionRecord>();
   private slots: SlotRecord[] = [];
-  private appointments: ConfirmedAppointmentRecord[] = [
-    {
-      id: 'apt-001',
-      appointmentCode: 'SMH-2026-000101',
-      bookingSessionId: 'sess-demo-1',
-      slotId: 'slot-demo-1',
-      hospitalId: HOSPITAL.id,
-      doctorId: 'doc-goyal',
-      doctorName: 'Dr. Nishant Goyal',
-      department: 'Orthopedics & Joint Replacement',
-      patientName: 'Ramesh Patil',
-      patientPhone: '+919876543210',
-      patientAge: 38,
-      patientGender: 'Male',
-      patientAddress: 'Jalna Rural, Maharashtra',
-      appointmentDate: '2026-08-25',
-      startTime: '11:30 AM',
-      endTime: '12:00 PM',
-      status: 'CONFIRMED',
-      paymentStatus: 'PAID',
-      fee: 500,
-      paymentId: 'pay_K7h2Nm90AqL1',
-      createdAt: new Date().toISOString(),
-    },
-  ];
+  private appointments: ConfirmedAppointmentRecord[] = [];
 
   // Doctors who can be booked online (same ids as the website)
   private doctors = ROSTER;
@@ -137,8 +114,9 @@ export class AppointmentsService {
     const sessionId = uuidv4();
     const session: BookingSessionRecord = {
       id: sessionId,
-      // Always use the phone number that passed OTP, not what the form sent
-      phone: (verifiedPhone || dto.phone).replace(/^\+?91-?/, ''),
+      // Always use the phone number that passed OTP, not what the form sent.
+      // Keep the last 10 digits: drops a +91 prefix without eating numbers that start with 91.
+      phone: (verifiedPhone || dto.phone).replace(/\D/g, '').slice(-10),
       phoneVerified,
       patientName: dto.patientName,
       patientAge: dto.patientAge,
@@ -179,7 +157,7 @@ export class AppointmentsService {
       return { doctorId, date: targetDate, bookable: false, totalSlots: 0, availableSlots: 0, slots: [] };
     }
     await this.loadSchedulesFromDb();
-    const schedule = this.schedules.get(doctor.id);
+    const schedule = this.bookingSchedule(doctor.id);
     const offersOnline = !!schedule && schedule.days.some((d) => d.length > 0);
     if (!offersOnline) {
       return { doctorId, date: targetDate, bookable: false, totalSlots: 0, availableSlots: 0, slots: [] };
@@ -528,6 +506,12 @@ export class AppointmentsService {
     }
   }
 
+  /** Timings patients book against: the saved ones, or every day while the testing switch is on. */
+  private bookingSchedule(doctorId: string): WeeklySchedule | undefined {
+    return HOSPITAL.openAllDoctors ? OPEN_ALL_SCHEDULE : this.schedules.get(doctorId);
+  }
+
+  /** Saved timings for the admin editor, plus whether the testing switch overrides them. */
   async getSchedules() {
     await this.loadSchedulesFromDb();
     return this.doctors.map((d) => ({
@@ -536,14 +520,16 @@ export class AppointmentsService {
       department: d.department,
       savedInDatabase: !!this.dbDoctorIdCache?.has(d.id),
       schedule: this.schedules.get(d.id) || { slotMinutes: 15, days: [[], [], [], [], [], [], []] },
+      openAllDoctors: HOSPITAL.openAllDoctors,
     }));
   }
 
+  /** Public: the timings patients can book for one doctor. */
   async getSchedule(doctorId: string) {
     const all = await this.getSchedules();
     const one = all.find((s) => s.doctorId === doctorId);
     if (!one) throw new NotFoundException('Doctor not found.');
-    return one;
+    return { ...one, schedule: this.bookingSchedule(doctorId) || one.schedule };
   }
 
   async saveSchedule(doctorId: string, input: WeeklySchedule) {

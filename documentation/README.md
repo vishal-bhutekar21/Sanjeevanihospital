@@ -29,6 +29,7 @@ The first hospital to use it is Sanjeevani Multispeciality Hospital, Jalna. The 
 | Deploy, set environment variables, fix common problems | [05-deployment-and-config.md](05-deployment-and-config.md) |
 | Build or change a page so it matches the rest of the site | [06-design-system.md](06-design-system.md) |
 | See planned work | [07-roadmap.md](07-roadmap.md) |
+| Staff records, alerts, Firebase push, Cloudflare cron, login | [08-notifications-and-staff-plan.md](08-notifications-and-staff-plan.md) |
 | Work on the code as an AI agent | [AI_AGENT_GUIDE.md](AI_AGENT_GUIDE.md) |
 
 The older `docs/` folder at the repo root holds earlier research notes and design plans. Where it disagrees with this folder, this folder is the current one.

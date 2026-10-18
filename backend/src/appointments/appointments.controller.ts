@@ -103,7 +103,9 @@ export class AppointmentsController {
     return this.appointmentsService.updateAppointmentStatus(id, status as any);
   }
 
-  @Public()
+  // Returns the patient's name and phone, so staff only (token numbers are guessable)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST, AdminRole.DOCTOR)
   @Get(':code')
   getAppointmentByCode(@Param('code') code: string) {
     return this.appointmentsService.getAppointmentByCode(code);

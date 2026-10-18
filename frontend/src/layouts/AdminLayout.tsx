@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -14,16 +14,25 @@ import {
   Star,
   Menu,
   X,
+  IdCard,
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { DEVELOPER } from '../data/developer';
 import { HOSPITAL } from '../config/hospital';
+import { notifyDueReminders } from '../lib/staffNotify';
 
 export const AdminLayout: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { admin, logout } = useAdminAuth();
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+
+  // Staff reminder alerts while the admin panel is open (checked every 15 minutes)
+  useEffect(() => {
+    notifyDueReminders();
+    const t = setInterval(notifyDueReminders, 15 * 60 * 1000);
+    return () => clearInterval(t);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -37,6 +46,7 @@ export const AdminLayout: React.FC = () => {
     { path: '/admin/departments', label: 'Departments', icon: Building2, group: 'core' },
     { path: '/admin/schedules', label: 'OPD timings', icon: Clock, group: 'core' },
     { path: '/admin/payments', label: 'Payments', icon: CreditCard, group: 'core' },
+    { path: '/admin/staff', label: 'Staff', icon: IdCard, group: 'core' },
     { path: '/admin/schemes', label: 'Scheme claims', icon: ShieldCheck, group: 'ext' },
     { path: '/admin/reviews-events', label: 'Reviews & camps', icon: Star, group: 'ext' },
     { path: '/admin/settings', label: 'Settings', icon: Settings, group: 'settings' },

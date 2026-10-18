@@ -116,6 +116,16 @@ export interface HospitalConfig {
   website: string;
   /** Booking server address used by the live site when VITE_API_URL is not set (must end in /api) */
   apiBaseUrl: string;
+  booking: {
+    /**
+     * Testing switch: every doctor can be booked every day between these hours,
+     * even when the booking server can't be reached. Set to false before going
+     * live (and BOOKING_OPEN_ALL_DOCTORS=false on the server).
+     */
+    openAllDoctors: boolean;
+    openFrom: string; // "HH:mm", 24-hour
+    openTo: string;
+  };
 }
 
 export const HOSPITAL: HospitalConfig = {
@@ -189,4 +199,9 @@ export const HOSPITAL: HospitalConfig = {
   logo: '/logo.png',
   website: 'sanjeevanihosp.in',
   apiBaseUrl: 'https://sanjeevani-backend.onrender.com/api',
+  booking: {
+    openAllDoctors: true,
+    openFrom: '08:00',
+    openTo: '22:00',
+  },
 };

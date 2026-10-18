@@ -92,6 +92,12 @@ export const DEFAULT_SCHEDULES: Record<string, WeeklySchedule> = {
   'doc-sanap': { slotMinutes: 15, days: none() },
 };
 
+/** Used for every doctor while HOSPITAL.openAllDoctors (testing switch) is on. */
+export const OPEN_ALL_SCHEDULE: WeeklySchedule = {
+  slotMinutes: 15,
+  days: Array.from({ length: 7 }, () => [{ start: '08:00', end: '22:00' }]),
+};
+
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 export const toMinutes = (t: string) => {
   const [h, m] = t.split(':').map(Number);

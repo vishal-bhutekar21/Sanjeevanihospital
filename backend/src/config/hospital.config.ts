@@ -76,6 +76,15 @@ export const HOSPITAL = {
   get email() {
     return env('HOSPITAL_EMAIL', 'admin@sanjeevanihosp.in');
   },
+  /**
+   * Testing switch: every doctor can be booked online every day, 08:00–22:00,
+   * whatever their saved OPD timings say. On by default while the hospital
+   * tests online booking. Set BOOKING_OPEN_ALL_DOCTORS=false before going live
+   * so patients see each doctor's real timings from the OPD timings screen.
+   */
+  get openAllDoctors() {
+    return env('BOOKING_OPEN_ALL_DOCTORS', 'true').toLowerCase() !== 'false';
+  },
 };
 
 /** Shorthand for HOSPITAL.id. A function so the env value is read at call time. */

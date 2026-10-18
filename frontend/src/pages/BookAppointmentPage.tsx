@@ -1,12 +1,12 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download } from 'lucide-react';
-import { TokenSlip, downloadSlipPdf } from '../components/TokenSlip';
+import { AlertCircle, ArrowLeft, Check, Phone, Printer, Search, CalendarPlus, Download, ShieldCheck, Clock, MapPin } from 'lucide-react';
+import { downloadAppointmentPdf } from '../lib/appointmentPdf';
 import { DoctorPhoto } from '../components/ui';
 import { feeLabel, hasFee } from '../lib/fee';
 import { DateCalendar } from '../components/DateCalendar';
-import { offlineSlots, parseOpdHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
+import { offlineSlots, bookingHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
@@ -33,6 +33,10 @@ interface Confirmation {
     fee: number;
     paymentStatus: 'PAID' | 'PENDING';
     phoneVerified?: boolean;
+    patientAge?: number;
+    patientGender?: string;
+    patientAddress?: string;
+    paymentId?: string;
   };
   reportingInstructions: string;
 }
@@ -205,7 +209,7 @@ export const BookAppointmentPage: React.FC = () => {
         if (list) {
           setOffline(true);
           if (list.length === 0) {
-            const hours = parseOpdHours(doctor.timings)!;
+            const hours = bookingHours(doctor.timings)!;
             const worksThatDay = hours.weekdays.includes(new Date(`${date}T00:00:00`).getDay());
             // Today's times have passed: move to the next working day unless the patient chose today
             if (worksThatDay && date === minDateKey && !userPickedDate.current) {
@@ -277,7 +281,7 @@ export const BookAppointmentPage: React.FC = () => {
       })
       .catch(() => {
         // Offline: use the published hours to know which weekdays have OPD
-        const hours = parseOpdHours(doctor.timings);
+        const hours = bookingHours(doctor.timings);
         setOpdWeekdays(hours ? hours.weekdays : null);
         if (hours && !hours.weekdays.includes(new Date(`${date}T00:00:00`).getDay())) {
           const first = days.find((x) => hours.weekdays.includes(x.getDay()));
@@ -504,6 +508,16 @@ export const BookAppointmentPage: React.FC = () => {
     done: L('Booked', 'बुकिंग पूर्ण'),
   };
 
+  const stepHints: Record<Step, string> = {
+    doctor: L('Search by name, department or the problem you have.', 'नाव, विभाग किंवा त्रासानुसार शोधा.'),
+    time: L('Pick a day, then a time. Numbers show how many times are free.', 'आधी दिवस, मग वेळ निवडा. आकडे मोकळ्या वेळा दाखवतात.'),
+    details: L('Used only for this appointment and shared only with the hospital.', 'ही माहिती फक्त या अपॉइंटमेंटसाठी व फक्त हॉस्पिटलसोबत वापरली जाते.'),
+    confirm: offline
+      ? L('Send your request; reception will call to confirm.', 'विनंती पाठवा; रिसेप्शन कॉल करून वेळ निश्चित करेल.')
+      : L('Check the details and choose how to pay.', 'माहिती तपासा व पैसे कसे भरायचे ते निवडा.'),
+    done: '',
+  };
+
   // ─── Render ──────────────────────────────────────────────────────────────
 
   return (
@@ -518,21 +532,14 @@ export const BookAppointmentPage: React.FC = () => {
             </a>
           </p>
 
-          {/* Progress */}
-          <ol className="mt-6 grid grid-cols-4 gap-2" aria-label={L('Booking progress', 'बुकिंग प्रगती')}>
-            {STEPS.map((s, i) => (
-              <li key={s} aria-current={i === stepIndex ? 'step' : undefined}>
-                <div className={`h-1 rounded-full ${i <= stepIndex ? 'bg-[#0F766E]' : 'bg-stone-200'}`} />
-                <p className={`mt-2 text-sm hidden sm:block ${i === stepIndex ? 'text-[#1C2321] font-semibold' : 'text-stone-500'}`}>
-                  {stepTitles[s]}
-                </p>
-              </li>
-            ))}
-          </ol>
-          <p className="sm:hidden mt-2 text-sm">
-            <span className="text-stone-500">{L(`Step ${stepIndex + 1} of 4 · `, `टप्पा ${stepIndex + 1} / ४ · `)}</span>
-            <span className="font-semibold">{stepTitles[step]}</span>
-          </p>
+          <Stepper
+            isMr={isMr}
+            current={stepIndex}
+            titles={STEPS.map((x) => stepTitles[x])}
+            // Going back is fine until a time is held on the server
+            canJump={(i) => i < stepIndex && (step !== 'confirm' || offline) && (i !== 1 || !!doctor) && (i !== 2 || !!slot)}
+            onJump={(i) => go(STEPS[i])}
+          />
         </header>
       )}
 
@@ -544,7 +551,14 @@ export const BookAppointmentPage: React.FC = () => {
       )}
 
       <div className={step === 'done' ? '' : 'grid lg:grid-cols-12 gap-8 items-start'}>
-        <div className={step === 'done' ? '' : 'lg:col-span-8 min-w-0'}>
+        <div className={step === 'done' ? '' : 'lg:col-span-8 min-w-0 bg-white border border-[#E7E3DA] rounded-xl shadow-xs p-4 sm:p-7'}>
+          {step !== 'done' && (
+            <div className="mb-6 pb-5 border-b border-[#E7E3DA]">
+              <p className="text-sm text-stone-500">{L(`Step ${stepIndex + 1} of 4`, `टप्पा ${stepIndex + 1} / ४`)}</p>
+              <h2 className="text-2xl mt-0.5">{stepTitles[step]}</h2>
+              <p className="mt-1 text-[15px] text-stone-600">{stepHints[step]}</p>
+            </div>
+          )}
           {/* ── Step 1: Doctor ─────────────────────────────────────────── */}
           {step === 'doctor' && (
             <DoctorStep
@@ -562,7 +576,7 @@ export const BookAppointmentPage: React.FC = () => {
           {step === 'time' && doctor && (
             <section>
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <h2 className="text-xl">{L('Which day?', 'कोणता दिवस?')}</h2>
+                <h3 className="text-lg font-semibold">{L('Which day?', 'कोणता दिवस?')}</h3>
                 <div className="inline-flex rounded-md border border-[#D8D3C8] bg-white p-0.5 text-sm" role="tablist" aria-label={L('How to pick a day', 'दिवस कसा निवडायचा')}>
                   {([
                     ['days', L('Next 7 days', 'पुढील ७ दिवस')],
@@ -640,7 +654,7 @@ export const BookAppointmentPage: React.FC = () => {
                 />
                 )}
                 <div>
-              <h2 className="text-xl mb-1">{L('What time?', 'किती वाजता?')}</h2>
+              <h3 className="text-lg font-semibold mb-1">{L('What time?', 'किती वाजता?')}</h3>
               <p className="text-sm text-stone-500 mb-4">{dateLabel(date, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
 
               {slotsState === 'loading' && (
@@ -738,7 +752,7 @@ export const BookAppointmentPage: React.FC = () => {
                 </div>
               </div>
 
-              <StepNav isMr={isMr} onBack={() => go('doctor')} nextLabel={L('Continue', 'पुढे')} nextDisabled={!slot} onNext={() => go('details')} />
+              <StepNav isMr={isMr} onBack={() => go('doctor')} nextLabel={L('Continue', 'पुढे')} nextDisabled={!slot} onNext={() => go('details')} note={slot ? `${dateLabel(date, { day: 'numeric', month: 'short' })}, ${slot.startTime.replace(/^0/, '')}` : undefined} />
             </section>
           )}
 
@@ -808,7 +822,7 @@ export const BookAppointmentPage: React.FC = () => {
               </section>
 
               <section className="mt-8 pt-6 border-t border-[#E7E3DA]">
-                <h2 className="text-xl">{L('Mobile number', 'मोबाईल नंबर')}</h2>
+                <h3 className="text-lg font-semibold">{L('Mobile number', 'मोबाईल नंबर')}</h3>
                 <p className="text-sm text-stone-600 mt-1">
                   {offline
                     ? L('Reception will call you on this number to confirm your time.', 'आपली वेळ निश्चित करण्यासाठी रिसेप्शन या नंबरवर कॉल करेल.')
@@ -923,7 +937,7 @@ export const BookAppointmentPage: React.FC = () => {
                   </p>
                 </div>
 
-                <h2 className="text-xl mt-8 mb-3">{L('Your request', 'आपली विनंती')}</h2>
+                <h3 className="text-lg font-semibold mt-8 mb-3">{L('Your request', 'आपली विनंती')}</h3>
                 <dl className="divide-y divide-[#E7E3DA] border-y border-[#E7E3DA] text-[15px]">
                   {[
                     [L('Doctor', 'डॉक्टर'), isMr ? doctor.nameMr : doctor.name],
@@ -951,7 +965,31 @@ export const BookAppointmentPage: React.FC = () => {
                     <Phone className="w-4 h-4" /> {L(`Call ${HOSPITAL.phones.reception.short} instead`, `त्याऐवजी ${HOSPITAL.phones.reception.shortMr} वर कॉल करा`)}
                   </a>
                 </div>
-                <button type="button" onClick={() => go('details')} className="mt-6 inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
+                <button
+                  type="button"
+                  className="mt-3 inline-flex items-center gap-1.5 text-[#0F766E] font-semibold underline underline-offset-4 py-2"
+                  onClick={() =>
+                    downloadAppointmentPdf({
+                      kind: 'request',
+                      patientName: name.trim(),
+                      patientAge: age,
+                      patientGender: gender,
+                      patientPhone: `+91 ${phone}`,
+                      town: town.trim(),
+                      doctorName: doctor.name,
+                      department: doctor.dept,
+                      date,
+                      startTime: slot.startTime,
+                      endTime: slot.endTime,
+                      fee: doctor.fee,
+                      paid: false,
+                    }).catch(() => setError(L('Could not create the PDF. Please take a screenshot instead.', 'PDF तयार झाली नाही. कृपया स्क्रीनशॉट घ्या.')))
+                  }
+                >
+                  <Download className="w-4 h-4" /> {L('Download request (PDF)', 'विनंती डाउनलोड करा (PDF)')}
+                </button>
+                <br />
+                <button type="button" onClick={() => go('details')} className="mt-3 inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
                   <ArrowLeft className="w-4 h-4" /> {L('Back', 'मागे')}
                 </button>
               </section>
@@ -969,7 +1007,7 @@ export const BookAppointmentPage: React.FC = () => {
                   : L('Your hold has expired. Please choose the time again.', 'राखीव वेळ संपली. कृपया पुन्हा वेळ निवडा.')}
               </div>
 
-              <h2 className="text-xl mt-8 mb-3">{L('How would you like to pay?', 'पैसे कसे भरणार?')}</h2>
+              <h3 className="text-lg font-semibold mt-8 mb-3">{L('How would you like to pay?', 'पैसे कसे भरणार?')}</h3>
               <div className="space-y-2" role="radiogroup">
                 {order?.paymentsEnabled && (
                   <PayOption
@@ -1023,8 +1061,8 @@ export const BookAppointmentPage: React.FC = () => {
         {/* Summary */}
         {step !== 'done' && doctor && (
           <aside className="lg:col-span-4 lg:sticky lg:top-28 order-first lg:order-none min-w-0" aria-label={L('Your appointment', 'आपली अपॉइंटमेंट')}>
-            <div className="card-clean p-4 sm:p-5">
-              <p className="hidden sm:block text-xs font-semibold uppercase tracking-wider text-stone-500">{L('Your appointment', 'आपली अपॉइंटमेंट')}</p>
+            <div className="bg-white border border-[#E7E3DA] rounded-xl shadow-xs p-4 sm:p-5">
+              <p className="hidden sm:block text-sm font-semibold text-stone-700">{L('Your appointment', 'आपली अपॉइंटमेंट')}</p>
               <div className="sm:mt-3 flex gap-3">
                 <DoctorPhoto src={doctor.image} name={isMr ? doctor.nameMr : doctor.name} className="w-12 h-14 sm:w-14 sm:h-16 rounded-md shrink-0" textClass="text-lg" />
                 <div className="min-w-0">
@@ -1055,6 +1093,20 @@ export const BookAppointmentPage: React.FC = () => {
                   <dd className="text-right font-medium">{feeLabel(doctor.fee, isMr)}</dd>
                 </div>
               </dl>
+              <ul className="hidden lg:block mt-4 pt-4 border-t border-[#E7E3DA] space-y-2.5 text-sm text-stone-600">
+                <li className="flex gap-2.5">
+                  <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" />
+                  {L('Your details go only to the hospital.', 'आपली माहिती फक्त हॉस्पिटलकडे जाते.')}
+                </li>
+                <li className="flex gap-2.5">
+                  <Clock className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" />
+                  {L('Your chosen time is held for 10 minutes while you confirm.', 'निश्चित करताना निवडलेली वेळ १० मिनिटे राखीव राहते.')}
+                </li>
+                <li className="flex gap-2.5">
+                  <MapPin className="w-4 h-4 mt-0.5 shrink-0 text-[#0F766E]" />
+                  {isMr ? HOSPITAL.address.shortMr : HOSPITAL.address.short}
+                </li>
+              </ul>
             </div>
           </aside>
         )}
@@ -1073,8 +1125,10 @@ const StepNav: React.FC<{
   nextDisabled?: boolean;
   busy?: boolean;
   submit?: boolean;
-}> = ({ isMr, onBack, onNext, nextLabel, nextDisabled, busy, submit }) => (
-  <div className="mt-8 flex items-center justify-between gap-3">
+  note?: string;
+}> = ({ isMr, onBack, onNext, nextLabel, nextDisabled, busy, submit, note }) => (
+  // Stays in view while scrolling long lists of times; sits above the phone action bar
+  <div className="sticky bottom-[61px] sm:bottom-0 z-30 mt-8 -mx-4 sm:-mx-7 -mb-4 sm:-mb-7 px-4 sm:px-7 py-3 bg-white/95 backdrop-blur border-t border-[#E7E3DA] rounded-b-xl flex items-center justify-between gap-3">
     {onBack ? (
       <button type="button" onClick={onBack} className="inline-flex items-center gap-1.5 text-stone-700 hover:text-[#1C2321] py-2">
         <ArrowLeft className="w-4 h-4" />
@@ -1083,11 +1137,12 @@ const StepNav: React.FC<{
     ) : (
       <span />
     )}
+    {note && <span className="text-sm font-medium text-[#1C2321] truncate">{note}</span>}
     <button
       type={submit ? 'submit' : 'button'}
       onClick={submit ? undefined : onNext}
       disabled={nextDisabled || busy}
-      className="btn-primary min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
+      className="btn-primary shrink-0 min-w-[132px] sm:min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
     >
       {busy ? (isMr ? 'कृपया थांबा…' : 'Please wait…') : nextLabel}
     </button>
@@ -1191,14 +1246,38 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
     month: 'long',
   });
   const phoneShown = a.patientPhone.startsWith('+') ? a.patientPhone : `+91 ${a.patientPhone}`;
-  const slipRef = useRef<HTMLDivElement>(null);
   const [pdfState, setPdfState] = useState<'idle' | 'working' | 'error'>('idle');
+  const [qr, setQr] = useState('');
+
+  // Same QR as on the PDF: reception can scan it to find the token
+  useEffect(() => {
+    import('qrcode')
+      .then((QR) => QR.toDataURL(`${c.appointmentCode}|${a.appointmentDate}|${a.startTime}`, { margin: 0, width: 240 }))
+      .then(setQr)
+      .catch(() => setQr(''));
+  }, [c.appointmentCode, a.appointmentDate, a.startTime]);
 
   const savePdf = async () => {
-    if (!slipRef.current) return;
     setPdfState('working');
     try {
-      await downloadSlipPdf(slipRef.current, `${HOSPITAL.brand}-OPD-${c.appointmentCode}.pdf`);
+      await downloadAppointmentPdf({
+        kind: 'confirmed',
+        appointmentCode: c.appointmentCode,
+        patientName: a.patientName,
+        patientAge: a.patientAge,
+        patientGender: a.patientGender,
+        patientPhone: phoneShown,
+        phoneVerified: a.phoneVerified,
+        town: a.patientAddress?.split(' · ')[0],
+        doctorName: a.doctorName,
+        department: a.department,
+        date: a.appointmentDate,
+        startTime: a.startTime,
+        endTime: a.endTime,
+        fee: a.fee,
+        paid: a.paymentStatus === 'PAID',
+        paymentId: a.paymentId,
+      });
       setPdfState('idle');
     } catch {
       setPdfState('error');
@@ -1222,35 +1301,57 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
     return `https://calendar.google.com/calendar/render?${params.toString()}`;
   })();
 
+  const rows: [string, React.ReactNode][] = [
+    [L('Doctor', 'डॉक्टर'), <><span className="font-semibold">{a.doctorName}</span><span className="block text-sm text-stone-500">{a.department}</span></>],
+    [L('When', 'केव्हा'), <span className="font-semibold">{when}, {a.startTime.replace(/^0/, '')}</span>],
+    [L('Patient', 'रुग्ण'), <>{a.patientName}<span className="block text-sm text-stone-500">{phoneShown}</span></>],
+    [
+      L('Fee', 'शुल्क'),
+      <>
+        {feeLabel(a.fee, isMr)}
+        <span className={`block text-sm ${a.paymentStatus === 'PAID' ? 'text-[#0B5D57]' : 'text-amber-800'}`}>
+          {a.paymentStatus === 'PAID' ? L('Paid online', 'ऑनलाइन भरले') : L('Pay at the OPD counter', 'OPD काउंटरवर भरा')}
+        </span>
+      </>,
+    ],
+    [L('Where', 'कुठे'), isMr ? HOSPITAL.address.shortMr : HOSPITAL.address.short],
+  ];
+
   return (
-    <section className="max-w-xl mx-auto">
-      <div className="w-12 h-12 rounded-full bg-[#0F766E] text-white flex items-center justify-center print:hidden">
-        <Check className="w-6 h-6" />
+    <section className="max-w-2xl mx-auto">
+      <div className="text-center">
+        <div className="mx-auto w-14 h-14 rounded-full bg-[#E8F3F1] text-[#0F766E] flex items-center justify-center print:hidden">
+          <Check className="w-7 h-7" strokeWidth={2.5} />
+        </div>
+        <h1 className="mt-5 text-3xl sm:text-4xl">{L('You’re booked', 'आपली अपॉइंटमेंट निश्चित झाली')}</h1>
+        <p className="mt-2 text-stone-600">
+          {L('Show the token number or the PDF slip at OPD reception.', 'OPD रिसेप्शनला टोकन क्रमांक किंवा PDF पावती दाखवा.')}
+        </p>
       </div>
-      <h1 className="mt-5 text-3xl sm:text-4xl">{L('You’re booked', 'आपली अपॉइंटमेंट निश्चित झाली')}</h1>
-      <p className="mt-2 text-stone-600">
-        {L(`Booked for mobile number ${phoneShown}. Please keep this token number.`, `मोबाईल नंबर ${phoneShown} साठी बुकिंग झाली. कृपया हा टोकन क्रमांक जपून ठेवा.`)}
-      </p>
 
-      <div className="mt-8 card-clean p-6">
-        <p className="text-sm text-stone-500">{L('Token number', 'टोकन क्रमांक')}</p>
-        <p className="font-mono text-3xl font-semibold tracking-wide">{c.appointmentCode}</p>
-
-        <dl className="mt-6 grid grid-cols-[auto,1fr] gap-x-6 gap-y-2 text-[15px]">
-          <dt className="text-stone-500">{L('Doctor', 'डॉक्टर')}</dt>
-          <dd>{a.doctorName}</dd>
-          <dt className="text-stone-500">{L('When', 'केव्हा')}</dt>
-          <dd>
-            {when}, {a.startTime.replace(/^0/, '')}
-          </dd>
-          <dt className="text-stone-500">{L('Patient', 'रुग्ण')}</dt>
-          <dd>{a.patientName}</dd>
-          <dt className="text-stone-500">{L('Fee', 'शुल्क')}</dt>
-          <dd>
-            {feeLabel(a.fee, isMr)} · {a.paymentStatus === 'PAID' ? L('paid online', 'ऑनलाइन भरले') : L('pay at the OPD counter', 'OPD काउंटरवर भरा')}
-          </dd>
-          <dt className="text-stone-500">{L('Where', 'कुठे')}</dt>
-          <dd>{HOSPITAL.address.short}</dd>
+      {/* Ticket */}
+      <div className="mt-8 bg-white border border-[#E7E3DA] rounded-xl shadow-xs overflow-hidden">
+        <div className="p-5 sm:p-6 flex items-center justify-between gap-4 bg-[#FAF8F4]">
+          <div className="min-w-0">
+            <p className="text-sm text-stone-500">{L('Token number', 'टोकन क्रमांक')}</p>
+            <p className="font-mono text-[22px] sm:text-3xl font-semibold whitespace-nowrap">{c.appointmentCode}</p>
+            <p className={`mt-1 text-sm font-medium ${a.phoneVerified === false ? 'text-amber-800' : 'text-[#0B5D57]'}`}>
+              {a.phoneVerified === false ? L('Confirmed · reception will call', 'निश्चित · रिसेप्शन कॉल करेल') : L('Confirmed', 'निश्चित')}
+            </p>
+          </div>
+          {qr && <img src={qr} alt={L('QR code for this token', 'या टोकनचा QR कोड')} className="w-20 h-20 sm:w-24 sm:h-24 shrink-0" />}
+        </div>
+        <div className="relative h-0 border-t border-dashed border-[#CFC9BC]" aria-hidden="true">
+          <span className="absolute -left-2.5 -top-2.5 w-5 h-5 rounded-full bg-[#FAF8F4] border border-[#E7E3DA]" />
+          <span className="absolute -right-2.5 -top-2.5 w-5 h-5 rounded-full bg-[#FAF8F4] border border-[#E7E3DA]" />
+        </div>
+        <dl className="p-5 sm:p-6 grid grid-cols-[auto,1fr] gap-x-6 gap-y-3.5 text-[15px]">
+          {rows.map(([k, v]) => (
+            <React.Fragment key={k}>
+              <dt className="text-stone-500">{k}</dt>
+              <dd>{v}</dd>
+            </React.Fragment>
+          ))}
         </dl>
       </div>
 
@@ -1263,27 +1364,19 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
         </p>
       )}
 
-      <h2 className="mt-8 text-xl">{L('Before you come', 'येण्यापूर्वी')}</h2>
-      <ul className="mt-3 space-y-2 text-[15px] text-stone-700 list-disc pl-5">
-        <li>{L('Arrive 15 minutes early and show this token number at reception.', '१५ मिनिटे आधी या व रिसेप्शनला हा टोकन क्रमांक दाखवा.')}</li>
-        <li>{L('Bring old prescriptions and test reports, if any.', 'जुनी प्रिस्क्रिप्शन व रिपोर्ट असल्यास सोबत आणा.')}</li>
-        {a.paymentStatus !== 'PAID' && hasFee(a.fee) && <li>{L(`Keep ₹${a.fee} ready for the consultation fee.`, `सल्ला शुल्क ₹${a.fee} सोबत ठेवा.`)}</li>}
-        <li>{L(`To change or cancel, call ${HOSPITAL.phones.reception.short}.`, `बदल किंवा रद्द करण्यासाठी ${HOSPITAL.phones.reception.shortMr} वर कॉल करा.`)}</li>
-      </ul>
-
-      <div className="mt-8 flex flex-wrap gap-3 print:hidden">
+      <div className="mt-6 grid sm:grid-cols-2 gap-3 print:hidden">
         <button type="button" onClick={savePdf} disabled={pdfState === 'working'} className="btn-primary disabled:opacity-60">
           <Download className="w-4 h-4" />
           {pdfState === 'working' ? L('Preparing…', 'तयार होत आहे…') : L('Download slip (PDF)', 'पावती डाउनलोड करा (PDF)')}
         </button>
-        <button type="button" onClick={() => window.print()} className="btn-secondary">
-          <Printer className="w-4 h-4" /> {L('Print', 'प्रिंट')}
-        </button>
         <a href={calendarUrl} target="_blank" rel="noopener noreferrer" className="btn-secondary">
           <CalendarPlus className="w-4 h-4" /> {L('Add to calendar', 'कॅलेंडरमध्ये जोडा')}
         </a>
+        <button type="button" onClick={() => window.print()} className="btn-secondary">
+          <Printer className="w-4 h-4" /> {L('Print', 'प्रिंट')}
+        </button>
         <Link to="/" className="btn-secondary">
-          {L('Done', 'पूर्ण')}
+          {L('Back to home', 'मुख्य पानावर जा')}
         </Link>
       </div>
       {pdfState === 'error' && (
@@ -1292,28 +1385,68 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
         </p>
       )}
 
-      {/* Off-screen layout used for the PDF */}
-      <div aria-hidden="true" style={{ position: 'fixed', left: -10000, top: 0 }}>
-        <TokenSlip
-          ref={slipRef}
-          d={{
-            appointmentCode: c.appointmentCode,
-            patientName: a.patientName,
-            patientPhone: phoneShown,
-            doctorName: a.doctorName,
-            department: a.department,
-            dateLabel: new Date(`${a.appointmentDate}T00:00:00`).toLocaleDateString('en-IN', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            }),
-            time: a.startTime,
-            fee: a.fee,
-            paid: a.paymentStatus === 'PAID',
-          }}
-        />
+      <div className="mt-8 bg-white border border-[#E7E3DA] rounded-xl p-5 sm:p-6">
+        <h2 className="text-xl">{L('Before you come', 'येण्यापूर्वी')}</h2>
+        <ol className="mt-3 space-y-2.5 text-[15px] text-stone-700">
+          {[
+            L('Arrive 15 minutes early and show this token number at reception.', '१५ मिनिटे आधी या व रिसेप्शनला हा टोकन क्रमांक दाखवा.'),
+            L('Bring old prescriptions and test reports, if any.', 'जुनी प्रिस्क्रिप्शन व रिपोर्ट असल्यास सोबत आणा.'),
+            ...(a.paymentStatus !== 'PAID' && hasFee(a.fee) ? [L(`Keep ₹${a.fee} ready for the consultation fee.`, `सल्ला शुल्क ₹${a.fee} सोबत ठेवा.`)] : []),
+            L(`To change or cancel, call ${HOSPITAL.phones.reception.short}.`, `बदल किंवा रद्द करण्यासाठी ${HOSPITAL.phones.reception.shortMr} वर कॉल करा.`),
+          ].map((t, i) => (
+            <li key={t} className="flex gap-3">
+              <span className="w-6 h-6 rounded-full bg-[#E8F3F1] text-[#0B5D57] text-sm font-semibold flex items-center justify-center shrink-0">{i + 1}</span>
+              <span>{t}</span>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
 };
+
+const Stepper: React.FC<{
+  isMr: boolean;
+  current: number;
+  titles: string[];
+  canJump: (i: number) => boolean;
+  onJump: (i: number) => void;
+}> = ({ isMr, current, titles, canJump, onJump }) => (
+  <nav className="mt-7" aria-label={isMr ? 'बुकिंग प्रगती' : 'Booking progress'}>
+    <ol className="flex items-center">
+      {titles.map((t, i) => {
+        const done = i < current;
+        const active = i === current;
+        const jump = canJump(i);
+        return (
+          <li key={t} className="flex items-center flex-1 last:flex-none min-w-0" aria-current={active ? 'step' : undefined}>
+            <button
+              type="button"
+              disabled={!jump}
+              onClick={() => onJump(i)}
+              className={`flex items-center gap-2.5 min-w-0 ${jump ? 'cursor-pointer group' : 'cursor-default'}`}
+            >
+              <span
+                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold border-2 shrink-0 transition-colors ${
+                  done
+                    ? 'bg-[#0F766E] border-[#0F766E] text-white group-hover:bg-[#0B5D57]'
+                    : active
+                    ? 'bg-white border-[#0F766E] text-[#0F766E] ring-4 ring-[#0F766E]/10'
+                    : 'bg-white border-[#D8D3C8] text-stone-400'
+                }`}
+              >
+                {done ? <Check className="w-4 h-4" strokeWidth={3} /> : i + 1}
+              </span>
+              <span
+                className={`hidden md:block text-sm truncate ${active ? 'text-[#1C2321] font-semibold' : done ? 'text-stone-700 group-hover:underline' : 'text-stone-400'}`}
+              >
+                {t}
+              </span>
+            </button>
+            {i < titles.length - 1 && <span className={`flex-1 h-0.5 mx-2 sm:mx-3 rounded-full ${done ? 'bg-[#0F766E]' : 'bg-[#E7E3DA]'}`} />}
+          </li>
+        );
+      })}
+    </ol>
+  </nav>
+);

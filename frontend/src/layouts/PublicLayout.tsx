@@ -6,7 +6,7 @@ import { FloatingLanguageSwitcher } from '../components/FloatingLanguageSwitcher
 
 export const PublicLayout: React.FC = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-transparent overflow-x-hidden">
+    <div className="min-h-screen flex flex-col bg-transparent overflow-x-clip">
       <Header />
       <main className="flex-1 pb-16 sm:pb-0">
         <Outlet />
