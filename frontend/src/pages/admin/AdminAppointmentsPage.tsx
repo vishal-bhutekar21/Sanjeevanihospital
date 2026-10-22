@@ -1,8 +1,19 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { feeLabel } from '../../lib/fee';
 import { apiFetch } from '../../lib/api';
+import { useAdminAuth } from '../../context/AdminAuthContext';
 import { DateCalendar, toDateKey } from '../../components/DateCalendar';
+import { SlotPicker } from '../../components/SlotPicker';
+import { Notice } from '../../components/adminUi';
+import { addDays, isReceptionRole, todayIst } from '../../lib/reception';
+import { downloadAppointmentPdf } from '../../lib/appointmentPdf';
 import {
+  CalendarPlus,
+  CalendarClock,
+  Download,
+  Receipt,
+  XCircle,
   CalendarCheck,
   Search,
   Filter,
@@ -34,7 +45,14 @@ interface AppointmentItem {
   paymentStatus: 'PAID' | 'PENDING';
   phoneVerified?: boolean;
   fee: number;
+  doctorId?: string;
+  endTime?: string;
+  source?: 'ONLINE' | 'WALK_IN' | 'PHONE';
+  patientId?: string;
+  cancelReason?: string;
 }
+
+const SOURCE_LABEL: Record<string, string> = { WALK_IN: 'Walk-in', PHONE: 'Booked by phone' };
 
 // "09:30 AM" -> "0570" so times sort correctly as text
 const toMins = (t: string) => {
@@ -46,7 +64,16 @@ const toMins = (t: string) => {
 };
 
 export const AdminAppointmentsPage: React.FC = () => {
+  const { admin } = useAdminAuth();
+  const canManage = isReceptionRole(admin?.role);
   const [search, setSearch] = useState('');
+  const [message, setMessage] = useState('');
+  const [modalAction, setModalAction] = useState<'none' | 'time' | 'cancel'>('none');
+  const [newDate, setNewDate] = useState(todayIst());
+  const [newTime, setNewTime] = useState('');
+  const [cancelReason, setCancelReason] = useState('');
+  const [actionBusy, setActionBusy] = useState(false);
+  const [actionError, setActionError] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   // Which day(s) to show: a YYYY-MM-DD date, 'UPCOMING' (today onwards) or 'ALL'
   const todayKey = toDateKey(new Date());
@@ -92,6 +119,31 @@ export const AdminAppointmentsPage: React.FC = () => {
     }
   };
 
+  const closeModal = () => {
+    setSelectedAppointment(null);
+    setModalAction('none');
+    setActionError('');
+    setCancelReason('');
+    setNewTime('');
+  };
+
+  // Change the time or cancel: both go through the server and come back with the updated visit
+  const runAction = async (path: string, body: object, done: string) => {
+    if (!selectedAppointment) return;
+    setActionBusy(true);
+    setActionError('');
+    try {
+      const res = await apiFetch<AppointmentItem>(`/appointments/${selectedAppointment.id}/${path}`, { method: 'PATCH', body: JSON.stringify(body) });
+      setAppointments((list) => list.map((a) => (a.id === selectedAppointment.id ? { ...a, ...res.data } : a)));
+      setMessage(done);
+      closeModal();
+    } catch (err: any) {
+      setActionError(err?.message || 'That did not work. Please try again.');
+    } finally {
+      setActionBusy(false);
+    }
+  };
+
   const filtered = appointments.filter((a) => {
     const matchesSearch =
       a.patientName.toLowerCase().includes(search.toLowerCase()) ||
@@ -130,7 +182,14 @@ export const AdminAppointmentsPage: React.FC = () => {
             Today's OPD tokens. Update a patient's status or print their token slip.
           </p>
         </div>
+        {canManage && (
+          <Link to="/admin/appointments/new" className="btn-primary self-start">
+            <CalendarPlus className="w-4 h-4" /> Book a visit
+          </Link>
+        )}
       </div>
+
+      {message && <Notice kind="ok">{message}</Notice>}
 
       {loadError && (
         <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex items-center justify-between gap-3">
@@ -279,9 +338,10 @@ export const AdminAppointmentsPage: React.FC = () => {
                 <tr key={apt.id} className="hover:bg-stone-50/60 transition">
                   {/* Token */}
                   <td className="py-3 px-4 font-mono font-bold text-stone-800">
-                    <span className="bg-stone-100 px-2 py-0.5 rounded text-[11px]">
-                      #{apt.appointmentCode}
-                    </span>
+                    <span className="text-[13px]">{apt.appointmentCode}</span>
+                    {apt.source && apt.source !== 'ONLINE' && (
+                      <span className="block text-[11px] text-stone-500 font-sans font-normal">{SOURCE_LABEL[apt.source]}</span>
+                    )}
                   </td>
 
                   {/* Patient */}
@@ -309,11 +369,11 @@ export const AdminAppointmentsPage: React.FC = () => {
 
                   {/* Fee */}
                   <td className="py-3 px-4">
-                    <span className="font-bold text-stone-900">{feeLabel(apt.fee)}</span>
+                    <span className="font-bold text-stone-900 block">{feeLabel(apt.fee)}</span>
                     {apt.paymentStatus === 'PAID' ? (
-                      <span className="text-[10px] text-emerald-700 font-bold bg-emerald-50 px-1.5 py-0.5 rounded ml-1.5">Paid</span>
+                      <span className="block text-xs text-emerald-700 font-medium">Paid</span>
                     ) : (
-                      <span className="text-[10px] text-amber-800 font-bold bg-amber-50 px-1.5 py-0.5 rounded ml-1.5">Collect at counter</span>
+                      <span className="block text-xs text-amber-800 font-medium">To pay at counter</span>
                     )}
                   </td>
 
@@ -358,60 +418,104 @@ export const AdminAppointmentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ─── 4. TOKEN SLIP DETAIL MODAL ─────────────────────────────────────── */}
+      {/* ─── 4. VISIT DETAILS ───────────────────────────────────────────────── */}
       {selectedAppointment && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg max-w-md w-full p-6 space-y-4 shadow-lg border border-stone-200">
+        <div className="fixed inset-0 bg-black/50 flex items-start sm:items-center justify-center p-4 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-label="Visit details">
+          <div className="bg-white rounded-lg max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-lg border border-stone-200 my-4">
             <div className="flex items-center justify-between border-b border-stone-100 pb-3">
-              <h3 className="text-base text-stone-900 font-heading">
-                Hospital OPD Token Slip
-              </h3>
-              <button
-                type="button"
-                onClick={() => setSelectedAppointment(null)}
-                aria-label="Close"
-                className="p-2.5 -m-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
-              >
+              <h3 className="text-lg text-stone-900 font-heading">Visit details</h3>
+              <button type="button" onClick={closeModal} aria-label="Close" className="p-2.5 -m-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="bg-stone-50 p-4 rounded-lg border border-dashed border-teal-300 space-y-2.5 text-xs">
+            <div className="bg-stone-50 p-4 rounded-lg border border-dashed border-teal-300 space-y-3 text-sm">
               <div className="flex justify-between items-center border-b border-stone-200 pb-2">
-                <span className="text-xs text-stone-500">
-                  Token number
-                </span>
-                <span className="font-mono font-bold text-base text-stone-900">
-                  {selectedAppointment.appointmentCode}
-                </span>
+                <span className="text-stone-500">Token number</span>
+                <span className="font-mono font-bold text-base text-stone-900">{selectedAppointment.appointmentCode}</span>
               </div>
-
-              <div className="space-y-1">
-                <p><span className="text-stone-500">Patient:</span> <span className="font-bold text-stone-900">{selectedAppointment.patientName}</span> ({selectedAppointment.patientAge} Yrs, {selectedAppointment.patientGender})</p>
-                <p><span className="text-stone-500">Phone:</span> <span className="font-bold text-stone-900">{selectedAppointment.patientPhone}</span></p>
-                <p><span className="text-stone-500">Doctor:</span> <span className="font-bold text-stone-900">{selectedAppointment.doctorName}</span></p>
-                <p><span className="text-stone-500">Department:</span> <span className="font-semibold text-[#0F766E]">{selectedAppointment.department}</span></p>
-                <p><span className="text-stone-500">Slot:</span> <span className="font-bold text-stone-900">{selectedAppointment.appointmentDate} at {selectedAppointment.startTime}</span></p>
-                <p><span className="text-stone-500">Consultation Fee:</span> <span className="font-bold text-stone-900">₹{selectedAppointment.fee} ({selectedAppointment.paymentStatus === 'PAID' ? 'paid online' : 'to pay at counter'})</span></p>
+              <div className="space-y-1.5">
+                <p><span className="text-stone-500">Patient:</span> <span className="font-semibold text-stone-900">{selectedAppointment.patientName}</span> ({selectedAppointment.patientAge} yrs, {selectedAppointment.patientGender || '—'})</p>
+                <p><span className="text-stone-500">Mobile:</span> <span className="font-semibold text-stone-900">{selectedAppointment.patientPhone}</span></p>
+                <p><span className="text-stone-500">Doctor:</span> <span className="font-semibold text-stone-900">{selectedAppointment.doctorName}</span> · <span className="text-[#0F766E]">{selectedAppointment.department}</span></p>
+                <p><span className="text-stone-500">When:</span> <span className="font-semibold text-stone-900">{selectedAppointment.appointmentDate} at {selectedAppointment.startTime}</span></p>
+                <p><span className="text-stone-500">Fee:</span> <span className="font-semibold text-stone-900">{feeLabel(selectedAppointment.fee)}</span> ({selectedAppointment.paymentStatus === 'PAID' ? 'paid' : 'to pay at the counter'})</p>
+                {selectedAppointment.source && selectedAppointment.source !== 'ONLINE' && <p><span className="text-stone-500">Booked:</span> {SOURCE_LABEL[selectedAppointment.source]}</p>}
+                {selectedAppointment.status === 'CANCELLED' && selectedAppointment.cancelReason && <p className="text-red-700">Cancelled: {selectedAppointment.cancelReason}</p>}
               </div>
             </div>
 
-            <div className="flex gap-2">
+            {actionError && <Notice kind="error">{actionError}</Notice>}
+
+            <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => window.print()}
-                className="btn-secondary text-xs flex-1 py-2 flex items-center justify-center gap-1.5"
+                className="btn-secondary text-sm flex items-center gap-1.5"
+                onClick={() =>
+                  downloadAppointmentPdf({
+                    kind: 'confirmed',
+                    appointmentCode: selectedAppointment.appointmentCode,
+                    patientName: selectedAppointment.patientName,
+                    patientAge: selectedAppointment.patientAge,
+                    patientGender: selectedAppointment.patientGender,
+                    patientPhone: `+91 ${selectedAppointment.patientPhone}`,
+                    phoneVerified: selectedAppointment.phoneVerified !== false,
+                    doctorName: selectedAppointment.doctorName,
+                    department: selectedAppointment.department,
+                    date: selectedAppointment.appointmentDate,
+                    startTime: selectedAppointment.startTime,
+                    endTime: selectedAppointment.endTime,
+                    fee: selectedAppointment.fee,
+                    paid: selectedAppointment.paymentStatus === 'PAID',
+                  })
+                }
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Token</span>
+                <Download className="w-4 h-4" /> Token slip
               </button>
-              <button
-                type="button"
-                onClick={() => setSelectedAppointment(null)}
-                className="btn-primary text-xs flex-1 py-2"
-              >
-                Close
-              </button>
+              {canManage && (
+                <Link
+                  to={`/admin/receipts/new?appointmentCode=${selectedAppointment.appointmentCode}${selectedAppointment.patientId ? `&patientId=${selectedAppointment.patientId}` : ''}`}
+                  className="btn-secondary text-sm flex items-center gap-1.5"
+                >
+                  <Receipt className="w-4 h-4" /> Make receipt
+                </Link>
+              )}
+              {canManage && selectedAppointment.status !== 'CANCELLED' && selectedAppointment.status !== 'COMPLETED' && (
+                <>
+                  <button type="button" className="btn-secondary text-sm flex items-center gap-1.5" onClick={() => { setModalAction(modalAction === 'time' ? 'none' : 'time'); setNewDate(todayIst()); setNewTime(''); }}>
+                    <CalendarClock className="w-4 h-4" /> Change time
+                  </button>
+                  <button type="button" className="btn-secondary text-sm flex items-center gap-1.5 text-red-700" onClick={() => setModalAction(modalAction === 'cancel' ? 'none' : 'cancel')}>
+                    <XCircle className="w-4 h-4" /> Cancel visit
+                  </button>
+                </>
+              )}
+            </div>
+
+            {modalAction === 'time' && selectedAppointment.doctorId && (
+              <div className="space-y-3 border-t border-stone-100 pt-4">
+                <p className="font-medium">Pick the new day and time</p>
+                <DateCalendar value={newDate} minDate={todayIst()} maxDate={addDays(todayIst(), 60)} note={null} onChange={(k) => { setNewDate(k); setNewTime(''); }} />
+                <SlotPicker doctorId={selectedAppointment.doctorId} date={newDate} value={newTime} onChange={setNewTime} />
+                <button type="button" disabled={!newTime || actionBusy} className="btn-primary disabled:opacity-50" onClick={() => runAction('reschedule', { date: newDate, startTime: newTime }, 'The visit was moved to the new time.')}>
+                  {actionBusy ? 'Saving…' : 'Move the visit'}
+                </button>
+              </div>
+            )}
+
+            {modalAction === 'cancel' && (
+              <div className="space-y-3 border-t border-stone-100 pt-4">
+                <label htmlFor="cancel-why" className="block font-medium">Why is it being cancelled?</label>
+                <input id="cancel-why" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="w-full px-3 py-2.5 bg-white border border-[#D8D3C8] rounded-md focus:border-[#0F766E] focus:outline-none" placeholder="e.g. Patient called to cancel" />
+                <p className="text-sm text-stone-500">The time becomes free for someone else.</p>
+                <button type="button" disabled={cancelReason.trim().length < 3 || actionBusy} className="btn-primary bg-red-700 hover:bg-red-800 border-red-700 disabled:opacity-50" onClick={() => runAction('cancel', { reason: cancelReason }, 'The visit was cancelled.')}>
+                  {actionBusy ? 'Cancelling…' : 'Cancel this visit'}
+                </button>
+              </div>
+            )}
+
+            <div className="pt-1">
+              <button type="button" onClick={closeModal} className="btn-primary w-full">Close</button>
             </div>
           </div>
         </div>

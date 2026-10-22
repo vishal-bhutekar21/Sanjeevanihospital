@@ -46,6 +46,11 @@ enum SessionStatus {
   EXPIRED
 }
 
+enum ReceiptStatus {
+  ISSUED
+  CANCELLED
+}
+
 enum ModerationStatus {
   PENDING
   APPROVED
@@ -79,6 +84,10 @@ model Hospital {
   events          HospitalEvent[]
   reviews         PatientReview[]
   settings        HospitalSetting[]
+  patients        Patient[]
+  receipts        Receipt[]
+  counters        DocCounter[]
+  appointmentRecords AppointmentRecord[]
 
   @@map("hospitals")
 }
@@ -327,4 +336,104 @@ model HospitalSetting {
 
   @@unique([hospitalId, key])
   @@map("hospital_settings")
+}
+
+// Registered patients. One mobile number can have several patients (family members).
+model Patient {
+  id                    String   @id @default(uuid())
+  hospitalId            String   @map("hospital_id")
+  regNo                 String   @unique @map("reg_no") // e.g. "SMH-P-000123"
+  name                  String
+  phone                 String
+  age                   Int?
+  dateOfBirth           String?  @map("date_of_birth") // YYYY-MM-DD
+  gender                String?
+  address               String?
+  idNumber              String?  @map("id_number") // Aadhaar / ABHA, optional
+  scheme                String?  // MJPJAY, Ayushman Bharat, TPA ...
+  emergencyContactName  String?  @map("emergency_contact_name")
+  emergencyContactPhone String?  @map("emergency_contact_phone")
+  notes                 String?
+  createdBy             String?  @map("created_by")
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+
+  hospital              Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, phone])
+  @@index([hospitalId, name])
+  @@map("patients")
+}
+
+// Money is stored in paise (integer) so totals never drift.
+model Receipt {
+  id             String        @id @default(uuid())
+  hospitalId     String        @map("hospital_id")
+  receiptNo      String        @unique @map("receipt_no") // e.g. "SMH-R-2627-000045"
+  status         ReceiptStatus @default(ISSUED)
+  kind           String        @default("CONSULTATION")
+  patientId      String?       @map("patient_id")
+  patientRegNo   String?       @map("patient_reg_no")
+  patientName    String        @map("patient_name")
+  patientPhone   String        @map("patient_phone")
+  patientAddress String?       @map("patient_address")
+  appointmentCode String?      @map("appointment_code")
+  doctorName     String?       @map("doctor_name")
+  items          Json          // [{ name, qty, ratePaise, gstPercent, amountPaise, taxPaise }]
+  subtotalPaise  Int           @map("subtotal_paise")
+  discountPaise  Int           @default(0) @map("discount_paise")
+  taxPaise       Int           @default(0) @map("tax_paise")
+  totalPaise     Int           @map("total_paise")
+  paidPaise      Int           @map("paid_paise")
+  paymentMode    String        @default("CASH") @map("payment_mode") // mode of the first payment
+  paymentRef     String?       @map("payment_ref")
+  payments       Json          @default("[]") // [{ amountPaise, mode, ref, at, by }] every payment taken against this receipt
+  note           String?
+  issuedBy       String?       @map("issued_by")
+  issuedByName   String?       @map("issued_by_name")
+  cancelledAt    DateTime?     @map("cancelled_at")
+  cancelReason   String?       @map("cancel_reason")
+  cancelledBy    String?       @map("cancelled_by")
+  createdAt      DateTime      @default(now()) @map("created_at")
+
+  hospital       Hospital      @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, createdAt])
+  @@index([patientPhone])
+  @@index([appointmentCode])
+  @@map("receipts")
+}
+
+// Running numbers (registration numbers, receipt numbers per financial year).
+model DocCounter {
+  id         String   @id @default(uuid())
+  hospitalId String   @map("hospital_id")
+  key        String
+  value      Int      @default(0)
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@unique([hospitalId, key])
+  @@map("doc_counters")
+}
+
+// Booked appointments, kept so they survive a server restart.
+// `data` is the full appointment record the booking engine works with.
+model AppointmentRecord {
+  id         String   @id
+  hospitalId String   @map("hospital_id")
+  code       String   @unique
+  slotId     String   @map("slot_id")
+  doctorId   String   @map("doctor_id")
+  date       String   // YYYY-MM-DD
+  status     String
+  data       Json
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  hospital   Hospital @relation(fields: [hospitalId], references: [id], onDelete: Cascade)
+
+  @@index([hospitalId, date])
+  @@map("appointment_records")
 }

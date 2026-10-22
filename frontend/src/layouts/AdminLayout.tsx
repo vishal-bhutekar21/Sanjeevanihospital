@@ -16,6 +16,11 @@ import {
   X,
   IdCard,
   ClipboardList,
+  CalendarPlus,
+  UserPlus,
+  Receipt,
+  KeyRound,
+  type LucideIcon,
 } from 'lucide-react';
 import { useAdminAuth } from '../context/AdminAuthContext';
 import { DEVELOPER } from '../data/developer';
@@ -40,24 +45,48 @@ export const AdminLayout: React.FC = () => {
     navigate('/admin/login');
   };
 
-  const menuItems = [
-    { path: '/admin', label: 'Today', icon: LayoutDashboard, group: 'core' },
-    { path: '/admin/appointments', label: 'Appointments', icon: CalendarCheck, group: 'core' },
-    { path: '/admin/doctors', label: 'Doctors', icon: Users, group: 'core' },
-    { path: '/admin/departments', label: 'Departments', icon: Building2, group: 'core' },
-    { path: '/admin/schedules', label: 'OPD timings', icon: Clock, group: 'core' },
-    { path: '/admin/payments', label: 'Payments', icon: CreditCard, group: 'core' },
-    { path: '/admin/patients', label: 'Patient records', icon: ClipboardList, group: 'core' },
-    { path: '/admin/staff', label: 'Staff', icon: IdCard, group: 'core' },
-    { path: '/admin/schemes', label: 'Scheme claims', icon: ShieldCheck, group: 'ext' },
-    { path: '/admin/reviews-events', label: 'Reviews & camps', icon: Star, group: 'ext' },
-    { path: '/admin/settings', label: 'Settings', icon: Settings, group: 'settings' },
+  const isAdmin = admin?.role === 'SUPER_ADMIN' || admin?.role === 'HOSPITAL_ADMIN';
+  const isDoctor = admin?.role === 'DOCTOR';
+
+  interface MenuItem {
+    path: string;
+    label: string;
+    icon: LucideIcon;
+    group: 'front' | 'hospital' | 'admin';
+    adminOnly?: boolean;
+    reception?: boolean; // reception tools (hidden from doctors)
+  }
+
+  const allItems: MenuItem[] = [
+    { path: '/admin', label: 'Today', icon: LayoutDashboard, group: 'front' },
+    { path: '/admin/appointments/new', label: 'Book a visit', icon: CalendarPlus, group: 'front', reception: true },
+    { path: '/admin/appointments', label: 'Appointments', icon: CalendarCheck, group: 'front' },
+    { path: '/admin/registration', label: 'Patients', icon: UserPlus, group: 'front', reception: true },
+    { path: '/admin/receipts', label: 'Receipts', icon: Receipt, group: 'front', reception: true },
+    { path: '/admin/patients', label: 'Bills & medicines', icon: ClipboardList, group: 'front' },
+    { path: '/admin/doctors', label: 'Doctors', icon: Users, group: 'hospital' },
+    { path: '/admin/schedules', label: 'OPD timings', icon: Clock, group: 'hospital' },
+    { path: '/admin/payments', label: 'Online payments', icon: CreditCard, group: 'hospital', reception: true },
+    { path: '/admin/departments', label: 'Departments', icon: Building2, group: 'hospital', adminOnly: true },
+    { path: '/admin/staff', label: 'Staff & salary', icon: IdCard, group: 'admin', adminOnly: true },
+    { path: '/admin/logins', label: 'Team logins', icon: KeyRound, group: 'admin', adminOnly: true },
+    { path: '/admin/schemes', label: 'Scheme claims', icon: ShieldCheck, group: 'admin', adminOnly: true },
+    { path: '/admin/reviews-events', label: 'Reviews & camps', icon: Star, group: 'admin', adminOnly: true },
+    { path: '/admin/settings', label: 'Settings', icon: Settings, group: 'admin', adminOnly: true },
+  ];
+  const menuItems = allItems.filter((m) => (isAdmin ? true : !m.adminOnly && !(isDoctor && m.reception)));
+  const groups: { key: MenuItem['group']; title: string }[] = [
+    { key: 'front', title: 'Front desk' },
+    { key: 'hospital', title: 'Hospital' },
+    { key: 'admin', title: 'Management' },
   ];
 
-  const currentPage =
-    menuItems.find((m) =>
-      m.path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(m.path)
-    )?.label || 'Today';
+  // The most specific match wins, so "Book a visit" is not read as "Appointments"
+  const activePath = [...menuItems]
+    .sort((x, y) => y.path.length - x.path.length)
+    .find((m) => (m.path === '/admin' ? location.pathname === '/admin' : location.pathname.startsWith(m.path)))?.path;
+
+  const currentPage = menuItems.find((m) => m.path === activePath)?.label || (location.pathname.startsWith('/admin/receipts') ? 'Receipts' : 'Today');
 
   const roleLabel = (role?: string) =>
     role
@@ -90,64 +119,32 @@ export const AdminLayout: React.FC = () => {
       </div>
 
       {/* Navigation Links */}
-      <nav className="p-4 space-y-1 flex-1 shrink-0">
-        <p className="px-3.5 text-xs text-stone-500 font-semibold mb-1.5">Daily work</p>
-        {menuItems.filter(m => m.group === 'core').map((item) => {
-          const Icon = item.icon;
-          const isActive =
-            item.path === '/admin'
-              ? location.pathname === '/admin'
-              : location.pathname.startsWith(item.path);
+      <nav className="p-4 space-y-1 flex-1 shrink-0" aria-label="Main">
+        {groups.map((g) => {
+          const items = menuItems.filter((m) => m.group === g.key);
+          if (items.length === 0) return null;
           return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileDrawerOpen(false)}
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
-                isActive ? 'bg-white/10 text-white font-semibold' : 'text-stone-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-
-        <p className="px-3.5 text-xs text-stone-500 font-semibold mb-1.5 pt-4">Patients & schemes</p>
-        {menuItems.filter(m => m.group === 'ext').map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileDrawerOpen(false)}
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
-                isActive ? 'bg-white/10 text-white font-semibold' : 'text-stone-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
-          );
-        })}
-
-        <div className="pt-4" />
-        {menuItems.filter(m => m.group === 'settings').map((item) => {
-          const Icon = item.icon;
-          const isActive = location.pathname.startsWith(item.path);
-          return (
-            <Link
-              key={item.path}
-              to={item.path}
-              onClick={() => setMobileDrawerOpen(false)}
-              className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
-                isActive ? 'bg-white/10 text-white font-semibold' : 'text-stone-400 hover:text-white hover:bg-white/5'
-              }`}
-            >
-              <Icon className="w-4 h-4 shrink-0" />
-              <span>{item.label}</span>
-            </Link>
+            <div key={g.key} className="pb-3">
+              <p className="px-3.5 text-xs text-stone-500 font-semibold mb-1.5">{g.title}</p>
+              {items.map((item) => {
+                const Icon = item.icon;
+                const isActive = item.path === activePath;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    onClick={() => setMobileDrawerOpen(false)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`flex items-center space-x-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition ${
+                      isActive ? 'bg-white/10 text-white font-semibold' : 'text-stone-400 hover:text-white hover:bg-white/5'
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
           );
         })}
       </nav>

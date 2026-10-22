@@ -32,20 +32,20 @@ export interface SlipData {
 }
 
 // Colours (match the website)
-const INK: [number, number, number] = [28, 35, 33];
-const MUTED: [number, number, number] = [107, 100, 89];
-const TEAL: [number, number, number] = [15, 118, 110];
-const RULE: [number, number, number] = [231, 227, 218];
-const PANEL: [number, number, number] = [250, 248, 244];
-const AMBER: [number, number, number] = [122, 83, 0];
-const RED: [number, number, number] = [198, 40, 40];
+export const INK: [number, number, number] = [28, 35, 33];
+export const MUTED: [number, number, number] = [107, 100, 89];
+export const TEAL: [number, number, number] = [15, 118, 110];
+export const RULE: [number, number, number] = [231, 227, 218];
+export const PANEL: [number, number, number] = [250, 248, 244];
+export const AMBER: [number, number, number] = [122, 83, 0];
+export const RED: [number, number, number] = [198, 40, 40];
 
 const PAGE_W = 148;
 const PAGE_H = 210;
 const M = 11; // page margin, mm
 
 /** Typographic characters the built-in fonts can't encode reliably. */
-const plain = (s: string) =>
+export const plain = (s: string) =>
   s
     .replace(/[’‘]/g, "'")
     .replace(/[“”]/g, '"')
@@ -71,9 +71,9 @@ const minus15 = (t: string) => {
   return `${h % 12 === 0 ? 12 : h % 12}:${String(mins % 60).padStart(2, '0')} ${p}`;
 };
 
-const money = (n: number) => `Rs. ${n.toLocaleString('en-IN')}`;
+export const money = (n: number) => `Rs. ${n.toLocaleString('en-IN')}`;
 
-async function imageDataUrl(src: string): Promise<string | null> {
+export async function imageDataUrl(src: string): Promise<string | null> {
   try {
     const res = await fetch(src);
     if (!res.ok) return null;
@@ -89,7 +89,7 @@ async function imageDataUrl(src: string): Promise<string | null> {
   }
 }
 
-interface TextOpts {
+export interface TextOpts {
   size?: number; // pt
   bold?: boolean;
   color?: [number, number, number];
@@ -99,7 +99,7 @@ interface TextOpts {
 }
 
 /** Draws one line of text; non-Latin text becomes a crisp image. Returns the line height in mm. */
-function text(pdf: JsPDF, value: string, x: number, y: number, o: TextOpts = {}): number {
+export function text(pdf: JsPDF, value: string, x: number, y: number, o: TextOpts = {}): number {
   const size = o.size ?? 9;
   const color = o.color ?? INK;
   const lineH = size * 0.3528 * 1.25;
@@ -147,14 +147,14 @@ function text(pdf: JsPDF, value: string, x: number, y: number, o: TextOpts = {})
 }
 
 /** Label above value, in a column. Returns the height used. */
-function field(pdf: JsPDF, label: string, value: string, x: number, y: number, width: number, valueColor = INK): number {
+export function field(pdf: JsPDF, label: string, value: string, x: number, y: number, width: number, valueColor = INK): number {
   text(pdf, label, x, y, { size: 7, color: MUTED });
   text(pdf, value, x, y + 4.4, { size: 9.5, bold: true, color: valueColor, maxWidth: width });
   return 10.5;
 }
 
 /** Logo, hospital name, address and contact line, teal rule, then the document title. Returns the next y. */
-async function drawLetterhead(pdf: JsPDF, title: string, issued: Date): Promise<number> {
+export async function drawLetterhead(pdf: JsPDF, title: string, issued: Date, pageW = PAGE_W): Promise<number> {
   let y = M;
   const logo = await imageDataUrl(HOSPITAL.logo);
   let textX = M;
@@ -166,16 +166,16 @@ async function drawLetterhead(pdf: JsPDF, title: string, issued: Date): Promise<
       /* logo is optional */
     }
   }
-  text(pdf, HOSPITAL.name, textX, y + 4.6, { size: 12.5, bold: true, maxWidth: PAGE_W - textX - M });
-  text(pdf, HOSPITAL.address.letterhead, textX, y + 9, { size: 7, color: MUTED, maxWidth: PAGE_W - textX - M });
+  text(pdf, HOSPITAL.name, textX, y + 4.6, { size: 12.5, bold: true, maxWidth: pageW - textX - M });
+  text(pdf, HOSPITAL.address.letterhead, textX, y + 9, { size: 7, color: MUTED, maxWidth: pageW - textX - M });
   text(pdf, `Phone ${HOSPITAL.phones.reception.display}  |  ${HOSPITAL.emails.main}  |  ${HOSPITAL.website}`, textX, y + 12.6, {
     size: 7,
     color: MUTED,
-    maxWidth: PAGE_W - textX - M,
+    maxWidth: pageW - textX - M,
   });
   y += 17;
   pdf.setFillColor(...TEAL);
-  pdf.rect(M, y, PAGE_W - 2 * M, 0.8, 'F');
+  pdf.rect(M, y, pageW - 2 * M, 0.8, 'F');
 
   y += 7;
   text(pdf, title, M, y, { size: 11, bold: true, color: TEAL });
@@ -185,7 +185,7 @@ async function drawLetterhead(pdf: JsPDF, title: string, issued: Date): Promise<
       hour: 'numeric',
       minute: '2-digit',
     })}`,
-    PAGE_W - M,
+    pageW - M,
     y,
     { size: 7, color: MUTED, align: 'right' },
   );

@@ -8,6 +8,8 @@ import {
   UseGuards,
   ValidationPipe,
   Ip,
+  Patch,
+  Param,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SendOtpDto } from './dto/send-otp.dto';
@@ -55,6 +57,45 @@ export class AuthController {
     @CurrentUser('role') role: string,
   ) {
     return this.authService.adminRegister(dto, role);
+  }
+
+  // Staff logins (reception accounts etc.), admins only
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN)
+  @Get('admin/users')
+  listAdmins() {
+    return this.authService.listAdmins();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN)
+  @Patch('admin/users/:id/active')
+  setAdminActive(
+    @Param('id') id: string,
+    @Body('isActive') isActive: boolean,
+    @CurrentUser() user: any,
+  ) {
+    return this.authService.setAdminActive(id, isActive === true, {
+      id: user?.userId,
+      role: user?.role,
+      name: user?.name || user?.email,
+    });
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN)
+  @Post('admin/users/:id/reset-password')
+  @HttpCode(HttpStatus.OK)
+  resetAdminPassword(
+    @Param('id') id: string,
+    @Body('password') password: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.authService.resetAdminPassword(id, password, {
+      id: user?.userId,
+      role: user?.role,
+      name: user?.name || user?.email,
+    });
   }
 
   @UseGuards(JwtAuthGuard)

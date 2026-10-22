@@ -3,6 +3,11 @@ import { hasFee } from '../../lib/fee';
 import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
 import { computeDues, loadStaffData, monthLabel, rupees, thisMonth } from '../../lib/staffStore';
+import { CalendarCheck, CalendarPlus, CheckCircle2, Hourglass, Receipt, Stethoscope, UserPlus, Wallet } from 'lucide-react';
+import { useAdminAuth } from '../../context/AdminAuthContext';
+import { MODE_COLORS, SplitBar, Stat } from '../../components/adminUi';
+import { PAYMENT_MODES, inr, isReceptionRole } from '../../lib/reception';
+import type { ReceiptSummary } from '../../lib/reception';
 
 interface Apt {
   id: string;
@@ -51,6 +56,22 @@ export const AdminDashboardPage: React.FC = () => {
   const [apts, setApts] = useState<Apt[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const { admin } = useAdminAuth();
+  const canManage = isReceptionRole(admin?.role);
+  const [money, setMoney] = useState<ReceiptSummary | null>(null);
+
+  // Money received today (front desk and administrators only)
+  useEffect(() => {
+    if (!canManage) return;
+    const day = todayIst();
+    const loadMoney = () =>
+      apiFetch<ReceiptSummary>(`/receipts/summary?from=${day}&to=${day}`)
+        .then((r) => setMoney(r.data))
+        .catch(() => setMoney(null));
+    loadMoney();
+    const t = setInterval(loadMoney, 60000);
+    return () => clearInterval(t);
+  }, [canManage]);
 
   const load = () =>
     apiFetch<Apt[]>('/appointments')
@@ -138,15 +159,48 @@ export const AdminDashboardPage: React.FC = () => {
         </div>
       )}
 
+      {canManage && (
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {[
+            { to: '/admin/appointments/new', icon: CalendarPlus, title: 'Book a visit', text: 'For walk-in and phone patients' },
+            { to: '/admin/registration?new=1', icon: UserPlus, title: 'Register a patient', text: 'Add someone new' },
+            { to: '/admin/receipts/new', icon: Receipt, title: 'Make a receipt', text: 'Record money received' },
+          ].map((a) => (
+            <Link key={a.to} to={a.to} className="bg-white border border-[#E7E3DA] rounded-lg p-4 flex items-center gap-3.5 hover:border-[#0F766E] transition min-h-[72px]">
+              <span className="w-11 h-11 rounded-lg bg-[#E6F2F0] text-[#0F766E] flex items-center justify-center shrink-0" aria-hidden>
+                <a.icon className="w-5 h-5" />
+              </span>
+              <span>
+                <span className="block font-medium text-[#1C2321]">{a.title}</span>
+                <span className="block text-sm text-stone-500">{a.text}</span>
+              </span>
+            </Link>
+          ))}
+        </div>
+      )}
+
       {/* Today's figures */}
-      <dl className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-[#E7E3DA] border border-[#E7E3DA] rounded-lg overflow-hidden">
-        {figures.map((f) => (
-          <div key={f.label} className="bg-white p-5 flex flex-col-reverse">
-            <dt className="text-sm text-stone-500 mt-1">{f.label}</dt>
-            <dd className="font-heading text-3xl text-[#1C2321]">{loading ? '–' : f.value}</dd>
-          </div>
-        ))}
-      </dl>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <Stat icon={CalendarCheck} label="Booked for today" value={loading ? '–' : todays.length} />
+        <Stat icon={Hourglass} label="Waiting" value={loading ? '–' : count('CONFIRMED')} tone="amber" />
+        <Stat icon={Stethoscope} label="With doctor" value={loading ? '–' : count('IN_CONSULTATION')} tone="teal" />
+        <Stat icon={CheckCircle2} label="Done" value={loading ? '–' : count('COMPLETED')} tone="stone" />
+      </div>
+
+      {!loading && todays.length > 0 && (
+        <section className="bg-white border border-[#E7E3DA] rounded-lg p-4 sm:p-5">
+          <h2 className="text-lg mb-3">How today is going</h2>
+          <SplitBar
+            parts={[
+              { label: 'Waiting', value: count('CONFIRMED'), color: '#0F766E' },
+              { label: 'With doctor', value: count('IN_CONSULTATION'), color: '#F59E0B' },
+              { label: 'Done', value: count('COMPLETED'), color: '#A8A29E' },
+              { label: 'Did not come', value: count('NO_SHOW'), color: '#F87171' },
+              { label: 'Cancelled', value: count('CANCELLED'), color: '#D6D3D1' },
+            ]}
+          />
+        </section>
+      )}
 
       <div className="grid lg:grid-cols-12 gap-6 items-start">
         {/* Queue */}
@@ -175,7 +229,7 @@ export const AdminDashboardPage: React.FC = () => {
                       </span>
                     </p>
                     <p className="text-sm text-stone-500 truncate">
-                      {a.doctorName} · <span className="font-mono">{a.appointmentCode}</span>
+                      {a.doctorName} · {a.appointmentCode}
                     </p>
                   </div>
                   <span className="hidden sm:inline text-sm text-stone-500 shrink-0">
@@ -192,6 +246,23 @@ export const AdminDashboardPage: React.FC = () => {
         </section>
 
         <div className="lg:col-span-4 space-y-6">
+          {/* Money received at the counter today */}
+          {canManage && money && (
+            <section className="bg-white border border-[#E7E3DA] rounded-lg p-5">
+              <h2 className="text-lg flex items-center gap-2"><Wallet className="w-5 h-5 text-[#0F766E]" aria-hidden /> Money received today</h2>
+              <p className="mt-2 text-3xl font-semibold text-[#1C2321]">{inr(money.collected)}</p>
+              <p className="text-sm text-stone-500 mb-4">{money.receiptsIssued} receipt{money.receiptsIssued === 1 ? '' : 's'}{money.outstanding > 0 ? ` · ${inr(money.outstanding)} still to collect` : ''}</p>
+              <SplitBar
+                parts={PAYMENT_MODES.map((m) => ({ label: m.label, value: money.byMode[m.value] || 0, color: MODE_COLORS[m.value] }))}
+                format={inr}
+                emptyText="No money received yet today."
+              />
+              <Link to="/admin/receipts" className="mt-4 inline-block text-sm text-[#0F766E] font-semibold hover:underline underline-offset-4">
+                See receipts
+              </Link>
+            </section>
+          )}
+
           {/* Money */}
           <section className="bg-white border border-[#E7E3DA] rounded-lg p-5">
             <h2 className="text-lg">Consultation fees today</h2>

@@ -1,5 +1,6 @@
 import {
   Injectable,
+  OnModuleInit,
   ConflictException,
   NotFoundException,
   BadRequestException,
@@ -8,6 +9,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { HospitalContextService } from '../common/hospital-context.service';
+import { StaffBookDto } from './dto/staff-book.dto';
 import { InitBookingSessionDto } from './dto/init-session.dto';
 import { ReserveSlotDto } from './dto/reserve-slot.dto';
 import { ConfirmSlotDto } from './dto/confirm-slot.dto';
@@ -75,10 +78,24 @@ export interface ConfirmedAppointmentRecord {
   fee: number;
   paymentId?: string;
   createdAt: string;
+  // Set for appointments booked by reception
+  source?: 'ONLINE' | 'WALK_IN' | 'PHONE';
+  bookedBy?: string;
+  patientId?: string;
+  patientRegNo?: string;
+  cancelReason?: string;
+  rescheduledFrom?: string;
+}
+
+/** Who is making a staff change (from the JWT) */
+export interface StaffActor {
+  id?: string;
+  name?: string;
+  role?: string;
 }
 
 @Injectable()
-export class AppointmentsService {
+export class AppointmentsService implements OnModuleInit {
   private readonly logger = new Logger(AppointmentsService.name);
 
   // In-memory slot & session storage with concurrency guard
@@ -87,7 +104,8 @@ export class AppointmentsService {
   private appointments: ConfirmedAppointmentRecord[] = [];
 
   // Doctors who can be booked online (same ids as the website)
-  private doctors = ROSTER;
+  // (copied so a fee saved from the admin panel doesn't edit the shared constant)
+  private doctors = ROSTER.map((d) => ({ ...d }));
 
   // Weekly OPD timings. Starts from DEFAULT_SCHEDULES, then whatever admins
   // have saved in the doctor_schedules table overrides it.
@@ -99,7 +117,114 @@ export class AppointmentsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly hospitalCtx: HospitalContextService,
   ) {}
+
+  // ─── Durable storage ─────────────────────────────────────────────────────
+  // Bookings used to live only in memory. They are now written to the
+  // appointment_records table and loaded again when the server starts.
+
+  async onModuleInit() {
+    // Don't hold up start-up if the database is slow or offline
+    this.restoreFromDatabase().catch((err) =>
+      this.logger.warn(`Could not restore appointments: ${(err as Error).message}`),
+    );
+  }
+
+  private async restoreFromDatabase() {
+    const hid = await this.hospitalCtx.hospitalId();
+    if (!hid) return;
+
+    const rows = await this.prisma.appointmentRecord.findMany({
+      where: { hospitalId: hid },
+      orderBy: { createdAt: 'desc' },
+    });
+    const known = new Set(this.appointments.map((a) => a.id));
+    for (const row of rows) {
+      if (known.has(row.id)) continue;
+      const apt = row.data as unknown as ConfirmedAppointmentRecord;
+      if (!apt || !apt.appointmentCode) continue;
+      this.appointments.push(apt);
+      if (apt.status !== 'CANCELLED') this.occupySlot(apt);
+    }
+    this.appointments.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    const fees = await this.prisma.hospitalSetting.findMany({
+      where: { hospitalId: hid, key: { startsWith: 'doctor_fee:' } },
+    });
+    for (const f of fees) {
+      const doc = this.doctors.find((d) => d.id === f.key.slice('doctor_fee:'.length));
+      const fee = Number(f.value);
+      if (doc && Number.isFinite(fee) && fee >= 0) doc.fee = fee;
+    }
+    this.logger.log(`Restored ${rows.length} appointment(s) from the database`);
+  }
+
+  /** Make sure the slot of a stored appointment is marked as taken */
+  private occupySlot(apt: ConfirmedAppointmentRecord) {
+    let slot = this.slots.find(
+      (s) => s.doctorId === apt.doctorId && s.slotDate === apt.appointmentDate && s.startTime === apt.startTime,
+    );
+    if (!slot) {
+      slot = {
+        id: apt.slotId,
+        doctorId: apt.doctorId,
+        slotDate: apt.appointmentDate,
+        startTime: apt.startTime,
+        endTime: apt.endTime,
+        status: 'CONFIRMED',
+      };
+      this.slots.push(slot);
+    }
+    slot.status = 'CONFIRMED';
+    slot.heldBySessionId = undefined;
+    slot.heldUntil = undefined;
+  }
+
+  private releaseSlot(apt: ConfirmedAppointmentRecord) {
+    const slot = this.slots.find(
+      (s) => s.doctorId === apt.doctorId && s.slotDate === apt.appointmentDate && s.startTime === apt.startTime,
+    );
+    if (slot && slot.status === 'CONFIRMED') slot.status = 'AVAILABLE';
+  }
+
+  private async persistAppointment(apt: ConfirmedAppointmentRecord) {
+    try {
+      const hid = await this.hospitalCtx.hospitalId();
+      if (!hid) return;
+      const data = JSON.parse(JSON.stringify(apt));
+      await this.prisma.appointmentRecord.upsert({
+        where: { id: apt.id },
+        create: {
+          id: apt.id,
+          hospitalId: hid,
+          code: apt.appointmentCode,
+          slotId: apt.slotId,
+          doctorId: apt.doctorId,
+          date: apt.appointmentDate,
+          status: apt.status,
+          data,
+        },
+        update: {
+          slotId: apt.slotId,
+          doctorId: apt.doctorId,
+          date: apt.appointmentDate,
+          status: apt.status,
+          data,
+        },
+      });
+    } catch (err) {
+      this.logger.warn(`Appointment ${apt.appointmentCode} was not saved to the database: ${(err as Error).message}`);
+    }
+  }
+
+  private newCode(year: string) {
+    let code: string;
+    do {
+      code = `${HOSPITAL.codePrefix}-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
+    } while (this.appointments.some((a) => a.appointmentCode === code));
+    return code;
+  }
 
   /**
    * 1. Initialize Booking Session with Patient Demographics
@@ -355,10 +480,7 @@ export class AppointmentsService {
 
     const doctor = this.doctors.find((d) => d.id === session.doctorId)!;
     const year = slot.slotDate.slice(0, 4);
-    let appointmentCode: string;
-    do {
-      appointmentCode = `SMH-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
-    } while (this.appointments.some((a) => a.appointmentCode === appointmentCode));
+    const appointmentCode = this.newCode(year);
 
     slot.status = 'CONFIRMED';
     slot.heldBySessionId = undefined;
@@ -389,9 +511,11 @@ export class AppointmentsService {
       fee: doctor.fee,
       paymentId: session.paymentId,
       createdAt: new Date().toISOString(),
+      source: 'ONLINE',
     };
 
     this.appointments.unshift(confirmedRecord);
+    await this.persistAppointment(confirmedRecord);
 
     await this.auditService.logAction({
       hospitalId: HOSPITAL.id,
@@ -457,6 +581,191 @@ export class AppointmentsService {
       // Fee is collected at the counter before the consultation ends
       apt.paymentStatus = 'PAID';
     }
+    // A cancelled visit gives its time back so someone else can book it
+    if (status === 'CANCELLED') this.releaseSlot(apt);
+    await this.persistAppointment(apt);
+    return apt;
+  }
+
+  // ─── Reception (staff) booking ───────────────────────────────────────────
+
+  /** Doctors with their current fee, for the reception booking screen */
+  staffDoctors() {
+    return this.doctors.map((d) => ({ id: d.id, name: d.name, department: d.department, fee: d.fee }));
+  }
+
+  /** Reception sets a doctor's consultation fee (0 = ask at reception) */
+  async setDoctorFee(doctorId: string, fee: number, actor: StaffActor) {
+    const doc = this.doctors.find((d) => d.id === doctorId);
+    if (!doc) throw new NotFoundException('Doctor not found.');
+    if (!Number.isFinite(fee) || fee < 0 || fee > 1_000_000) {
+      throw new BadRequestException('Fee must be an amount in rupees between 0 and 10,00,000.');
+    }
+    const before = doc.fee;
+    doc.fee = Math.round(fee);
+    let savedInDatabase = false;
+    try {
+      const hid = await this.hospitalCtx.hospitalId();
+      if (hid) {
+        const key = `doctor_fee:${doctorId}`;
+        await this.prisma.hospitalSetting.upsert({
+          where: { hospitalId_key: { hospitalId: hid, key } },
+          create: { hospitalId: hid, key, value: String(doc.fee) },
+          update: { value: String(doc.fee) },
+        });
+        savedInDatabase = true;
+      }
+    } catch (err) {
+      this.logger.warn(`Fee for ${doctorId} was not saved to the database: ${(err as Error).message}`);
+    }
+    await this.auditService.logAction({
+      hospitalId: HOSPITAL.id,
+      userId: actor.id,
+      action: 'DOCTOR_FEE_CHANGED',
+      entity: 'DOCTOR',
+      entityId: doctorId,
+      metadata: { from: before, to: doc.fee, by: actor.name },
+    });
+    return { doctorId, fee: doc.fee, savedInDatabase };
+  }
+
+  async staffBook(dto: StaffBookDto, actor: StaffActor) {
+    const doctor = this.doctors.find((d) => d.id === dto.doctorId);
+    if (!doctor) throw new BadRequestException('Choose a doctor from the list.');
+
+    // The time must be one the slot engine offers for that doctor and day
+    const availability: any = await this.getDoctorAvailability(dto.doctorId, dto.date);
+    const offered: SlotRecord | undefined = (availability.slots || []).find(
+      (s: SlotRecord) => s.startTime === dto.startTime,
+    );
+    if (!offered) {
+      throw new BadRequestException('That time is not available for this doctor. Please pick another time.');
+    }
+    const now = Date.now();
+    const slot = this.slots.find((s) => s.id === offered.id)!;
+    if (slot.status === 'CONFIRMED') {
+      throw new ConflictException('This time is already booked. Please pick another time.');
+    }
+    if (slot.status === 'HELD' && slot.heldUntil && now < slot.heldUntil) {
+      throw new ConflictException('This time is being held by a patient booking online. Pick another time.');
+    }
+
+    const fee = doctor.fee > 0 ? doctor.fee : dto.fee ?? 0;
+    if (dto.paymentStatus === 'PAID' && fee <= 0) {
+      throw new BadRequestException('Enter the fee collected before marking this as paid.');
+    }
+
+    slot.status = 'CONFIRMED';
+    slot.heldBySessionId = undefined;
+    slot.heldUntil = undefined;
+
+    const record: ConfirmedAppointmentRecord = {
+      id: uuidv4(),
+      appointmentCode: this.newCode(dto.date.slice(0, 4)),
+      bookingSessionId: '',
+      slotId: slot.id,
+      hospitalId: HOSPITAL.id,
+      doctorId: doctor.id,
+      doctorName: doctor.name,
+      department: doctor.department,
+      patientName: dto.patientName.trim(),
+      patientPhone: dto.patientPhone,
+      phoneVerified: true,
+      patientAge: dto.patientAge,
+      patientGender: dto.patientGender || '',
+      patientAddress: dto.patientAddress || '',
+      appointmentDate: slot.slotDate,
+      startTime: slot.startTime,
+      endTime: slot.endTime,
+      status: 'CONFIRMED',
+      paymentStatus: dto.paymentStatus,
+      fee,
+      createdAt: new Date().toISOString(),
+      source: dto.source,
+      bookedBy: actor.name || actor.id,
+      patientId: dto.patientId,
+      patientRegNo: dto.patientRegNo,
+    };
+    this.appointments.unshift(record);
+    await this.persistAppointment(record);
+
+    await this.auditService.logAction({
+      hospitalId: HOSPITAL.id,
+      userId: actor.id,
+      action: 'APPOINTMENT_BOOKED_BY_STAFF',
+      entity: 'APPOINTMENT',
+      entityId: record.id,
+      metadata: { appointmentCode: record.appointmentCode, source: dto.source, by: actor.name },
+    });
+    return this.confirmationResponse(record);
+  }
+
+  /** Called by receipts: a fully paid receipt marks the visit as paid */
+  async markAppointmentPaid(code: string) {
+    const apt = this.appointments.find((a) => a.appointmentCode.toUpperCase() === (code || '').toUpperCase());
+    if (!apt || apt.paymentStatus === 'PAID') return;
+    apt.paymentStatus = 'PAID';
+    await this.persistAppointment(apt);
+  }
+
+  async cancelAppointment(id: string, reason: string, actor: StaffActor) {
+    const apt = this.appointments.find((a) => a.id === id);
+    if (!apt) throw new NotFoundException('Appointment not found.');
+    if (apt.status === 'CANCELLED') return apt;
+    if (apt.status === 'COMPLETED') {
+      throw new BadRequestException('A completed visit cannot be cancelled.');
+    }
+    const text = (reason || '').trim();
+    if (text.length < 3) throw new BadRequestException('Please give a reason for cancelling.');
+    apt.status = 'CANCELLED';
+    apt.cancelReason = text.slice(0, 300);
+    this.releaseSlot(apt);
+    await this.persistAppointment(apt);
+    await this.auditService.logAction({
+      hospitalId: HOSPITAL.id,
+      userId: actor.id,
+      action: 'APPOINTMENT_CANCELLED',
+      entity: 'APPOINTMENT',
+      entityId: apt.id,
+      metadata: { appointmentCode: apt.appointmentCode, reason: apt.cancelReason, by: actor.name },
+    });
+    return apt;
+  }
+
+  async rescheduleAppointment(id: string, date: string, startTime: string, actor: StaffActor) {
+    const apt = this.appointments.find((a) => a.id === id);
+    if (!apt) throw new NotFoundException('Appointment not found.');
+    if (apt.status === 'COMPLETED' || apt.status === 'CANCELLED') {
+      throw new BadRequestException('Only upcoming visits can be moved.');
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '')) throw new BadRequestException('Choose a date.');
+
+    const availability: any = await this.getDoctorAvailability(apt.doctorId, date);
+    const offered: SlotRecord | undefined = (availability.slots || []).find((s: SlotRecord) => s.startTime === startTime);
+    if (!offered) throw new BadRequestException('That time is not available. Please pick another time.');
+    const slot = this.slots.find((s) => s.id === offered.id)!;
+    if (slot.status === 'CONFIRMED') throw new ConflictException('This time is already booked.');
+    if (slot.status === 'HELD' && slot.heldUntil && Date.now() < slot.heldUntil) {
+      throw new ConflictException('This time is being held by another booking. Pick another time.');
+    }
+
+    const from = `${apt.appointmentDate} ${apt.startTime}`;
+    this.releaseSlot(apt);
+    slot.status = 'CONFIRMED';
+    apt.slotId = slot.id;
+    apt.appointmentDate = slot.slotDate;
+    apt.startTime = slot.startTime;
+    apt.endTime = slot.endTime;
+    apt.rescheduledFrom = from;
+    await this.persistAppointment(apt);
+    await this.auditService.logAction({
+      hospitalId: HOSPITAL.id,
+      userId: actor.id,
+      action: 'APPOINTMENT_RESCHEDULED',
+      entity: 'APPOINTMENT',
+      entityId: apt.id,
+      metadata: { appointmentCode: apt.appointmentCode, from, to: `${slot.slotDate} ${slot.startTime}`, by: actor.name },
+    });
     return apt;
   }
 

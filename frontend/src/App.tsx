@@ -31,7 +31,14 @@ import { AdminSchemesPage } from './pages/admin/AdminSchemesPage';
 import { AdminReviewsEventsPage } from './pages/admin/AdminReviewsEventsPage';
 import { AdminStaffPage } from './pages/admin/AdminStaffPage';
 import { AdminPatientRecordsPage } from './pages/admin/AdminPatientRecordsPage';
+import { AdminStaffLoginsPage } from './pages/admin/AdminStaffLoginsPage';
+import { AdminRegistrationPage } from './pages/admin/AdminRegistrationPage';
+import { AdminNewAppointmentPage } from './pages/admin/AdminNewAppointmentPage';
+import { AdminReceiptsPage } from './pages/admin/AdminReceiptsPage';
+import { AdminReceiptFormPage } from './pages/admin/AdminReceiptFormPage';
+import { AdminReceiptDetailPage } from './pages/admin/AdminReceiptDetailPage';
 import { PatientPortalPage } from './pages/PatientPortalPage';
+import { isAdminRole, isReceptionRole } from './lib/reception';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -48,6 +55,17 @@ const ProtectedAdminRoute: React.FC<{ children: React.ReactNode }> = ({ children
     return <Navigate to="/admin/login" replace />;
   }
   return <>{children}</>;
+};
+
+// Pages only for administrators / only for people who work at the front desk.
+// (The server enforces the same rules; this just keeps people off screens that would not work.)
+const AdminOnly: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { admin } = useAdminAuth();
+  return isAdminRole(admin?.role) ? <>{children}</> : <Navigate to="/admin" replace />;
+};
+const ReceptionOnly: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { admin } = useAdminAuth();
+  return isReceptionRole(admin?.role) ? <>{children}</> : <Navigate to="/admin" replace />;
 };
 
 export const App: React.FC = () => {
@@ -86,15 +104,21 @@ export const App: React.FC = () => {
             >
               <Route index element={<AdminDashboardPage />} />
               <Route path="doctors" element={<AdminDoctorsPage />} />
-              <Route path="departments" element={<AdminDepartmentsPage />} />
+              <Route path="departments" element={<AdminOnly><AdminDepartmentsPage /></AdminOnly>} />
               <Route path="schedules" element={<AdminSchedulesPage />} />
               <Route path="appointments" element={<AdminAppointmentsPage />} />
-              <Route path="payments" element={<AdminPaymentsPage />} />
-              <Route path="schemes" element={<AdminSchemesPage />} />
-              <Route path="reviews-events" element={<AdminReviewsEventsPage />} />
-              <Route path="staff" element={<AdminStaffPage />} />
+              <Route path="appointments/new" element={<ReceptionOnly><AdminNewAppointmentPage /></ReceptionOnly>} />
+              <Route path="registration" element={<ReceptionOnly><AdminRegistrationPage /></ReceptionOnly>} />
+              <Route path="receipts" element={<ReceptionOnly><AdminReceiptsPage /></ReceptionOnly>} />
+              <Route path="receipts/new" element={<ReceptionOnly><AdminReceiptFormPage /></ReceptionOnly>} />
+              <Route path="receipts/:id" element={<ReceptionOnly><AdminReceiptDetailPage /></ReceptionOnly>} />
+              <Route path="payments" element={<ReceptionOnly><AdminPaymentsPage /></ReceptionOnly>} />
+              <Route path="schemes" element={<AdminOnly><AdminSchemesPage /></AdminOnly>} />
+              <Route path="reviews-events" element={<AdminOnly><AdminReviewsEventsPage /></AdminOnly>} />
+              <Route path="staff" element={<AdminOnly><AdminStaffPage /></AdminOnly>} />
+              <Route path="logins" element={<AdminOnly><AdminStaffLoginsPage /></AdminOnly>} />
               <Route path="patients" element={<AdminPatientRecordsPage />} />
-              <Route path="settings" element={<AdminSettingsPage />} />
+              <Route path="settings" element={<AdminOnly><AdminSettingsPage /></AdminOnly>} />
             </Route>
 
             {/* Fallback Catch-All */}

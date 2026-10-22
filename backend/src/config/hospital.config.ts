@@ -76,6 +76,14 @@ export const HOSPITAL = {
   get email() {
     return env('HOSPITAL_EMAIL', 'admin@sanjeevanihosp.in');
   },
+  /** Prefix for patient, receipt and token numbers, e.g. "SMH". Env: HOSPITAL_CODE_PREFIX */
+  get codePrefix() {
+    return env('HOSPITAL_CODE_PREFIX', 'SMH');
+  },
+  /** Printed on receipts when set (leave empty if the hospital has no GSTIN). Env: HOSPITAL_GSTIN */
+  get gstin() {
+    return env('HOSPITAL_GSTIN', '');
+  },
   /**
    * Testing switch: every doctor can be booked online every day, 08:00–22:00,
    * whatever their saved OPD timings say. On by default while the hospital
