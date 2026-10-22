@@ -20,10 +20,13 @@ import { PatientSessionGuard } from '../common/guards/patient-session.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { AppointmentsService } from './appointments.service';
+import { StaffBookDto } from './dto/staff-book.dto';
 import { InitBookingSessionDto } from './dto/init-session.dto';
 import { ReserveSlotDto } from './dto/reserve-slot.dto';
 import { ConfirmSlotDto } from './dto/confirm-slot.dto';
 import { Public } from '../common/decorators/public.decorator';
+
+const actorOf = (user: any) => ({ id: user?.userId, name: user?.name || user?.email, role: user?.role });
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -82,6 +85,49 @@ export class AppointmentsController {
   @Put('schedules/:doctorId')
   saveSchedule(@Param('doctorId') doctorId: string, @Body() body: any) {
     return this.appointmentsService.saveSchedule(doctorId, body);
+  }
+
+  // Reception booking and changes. Declared before the ':code' route so the
+  // fixed paths below are matched first.
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Get('staff/doctors')
+  staffDoctors() {
+    return this.appointmentsService.staffDoctors();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Put('staff/doctors/:doctorId/fee')
+  setDoctorFee(@Param('doctorId') doctorId: string, @Body('fee') fee: number, @CurrentUser() user: any) {
+    return this.appointmentsService.setDoctorFee(doctorId, Number(fee), actorOf(user));
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Post('staff-book')
+  @HttpCode(HttpStatus.CREATED)
+  staffBook(@Body(new ValidationPipe({ transform: true })) dto: StaffBookDto, @CurrentUser() user: any) {
+    return this.appointmentsService.staffBook(dto, actorOf(user));
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Patch(':id/cancel')
+  cancel(@Param('id') id: string, @Body('reason') reason: string, @CurrentUser() user: any) {
+    return this.appointmentsService.cancelAppointment(id, reason, actorOf(user));
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN, AdminRole.RECEPTIONIST)
+  @Patch(':id/reschedule')
+  reschedule(
+    @Param('id') id: string,
+    @Body('date') date: string,
+    @Body('startTime') startTime: string,
+    @CurrentUser() user: any,
+  ) {
+    return this.appointmentsService.rescheduleAppointment(id, date, startTime, actorOf(user));
   }
 
   // Patient names and phone numbers: staff only

@@ -4,6 +4,8 @@ import {
   BadRequestException,
   ConflictException,
   ServiceUnavailableException,
+  ForbiddenException,
+  NotFoundException,
   Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -14,6 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { AdminRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { HospitalContextService } from '../common/hospital-context.service';
 import { SendOtpDto } from './dto/send-otp.dto';
 import { VerifyOtpDto } from './dto/verify-otp.dto';
 import { AdminLoginDto } from './dto/admin-login.dto';
@@ -75,6 +78,7 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
     private readonly configService: ConfigService,
+    private readonly hospitalCtx: HospitalContextService,
   ) {}
 
   private get isProduction() {
@@ -352,43 +356,174 @@ export class AuthService {
     if (creatorRole !== AdminRole.SUPER_ADMIN && creatorRole !== AdminRole.HOSPITAL_ADMIN) {
       throw new UnauthorizedException('Only administrators can register new staff.');
     }
+    const role = dto.role || AdminRole.HOSPITAL_ADMIN;
+    if (role === AdminRole.SUPER_ADMIN && creatorRole !== AdminRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Only a super admin can create another super admin.');
+    }
+    this.checkPasswordStrength(dto.password);
+    const email = dto.email.toLowerCase();
 
-    const existing = this.inMemoryAdmins.find(
-      (a) => a.email.toLowerCase() === dto.email.toLowerCase(),
-    );
-    if (existing) {
+    if (this.inMemoryAdmins.some((a) => a.email.toLowerCase() === email)) {
       throw new ConflictException('An account with this email already exists.');
     }
-
     const passwordHash = await bcrypt.hash(dto.password, 10);
-    const newAdmin: AdminUserRecord = {
-      id: uuidv4(),
-      hospitalId: dto.hospitalId,
-      name: dto.name,
-      email: dto.email.toLowerCase(),
-      passwordHash,
-      role: dto.role || AdminRole.HOSPITAL_ADMIN,
-      isActive: true,
-    };
 
-    this.inMemoryAdmins.push(newAdmin);
+    // Real accounts live in the hospital_admins table so they survive restarts
+    // and can sign in in production. Memory is only the fallback when the
+    // database is unreachable (local development).
+    let created: AdminUserRecord | undefined;
+    const hid = await this.hospitalCtx.hospitalId();
+    if (hid) {
+      try {
+        if (await this.prisma.hospitalAdmin.findUnique({ where: { email } })) {
+          throw new ConflictException('An account with this email already exists.');
+        }
+        const row = await this.prisma.hospitalAdmin.create({
+          data: { hospitalId: hid, name: dto.name.trim(), email, passwordHash, role },
+        });
+        created = {
+          id: row.id,
+          hospitalId: row.hospitalId,
+          name: row.name,
+          email: row.email,
+          passwordHash,
+          role: row.role,
+          isActive: row.isActive,
+        };
+      } catch (err) {
+        if (err instanceof ConflictException) throw err;
+        this.logger.error(`Could not save admin account: ${(err as Error).message}`);
+        if (this.isProduction) {
+          throw new ServiceUnavailableException('Could not save the account right now. Please try again.');
+        }
+      }
+    }
+    if (!created) {
+      if (this.isProduction) {
+        throw new ServiceUnavailableException('The database is not available. Please try again.');
+      }
+      created = {
+        id: uuidv4(),
+        hospitalId: dto.hospitalId,
+        name: dto.name.trim(),
+        email,
+        passwordHash,
+        role,
+        isActive: true,
+      };
+      this.inMemoryAdmins.push(created);
+    }
 
     await this.auditService.logAction({
-      hospitalId: dto.hospitalId,
+      hospitalId: created.hospitalId,
       action: 'ADMIN_CREATED',
       entity: 'HOSPITAL_ADMIN',
-      entityId: newAdmin.id,
-      metadata: { name: newAdmin.name, email: newAdmin.email, role: newAdmin.role },
+      entityId: created.id,
+      metadata: { name: created.name, email: created.email, role: created.role },
     });
 
     return {
-      id: newAdmin.id,
-      hospitalId: newAdmin.hospitalId,
-      name: newAdmin.name,
-      email: newAdmin.email,
-      role: newAdmin.role,
+      id: created.id,
+      hospitalId: created.hospitalId,
+      name: created.name,
+      email: created.email,
+      role: created.role,
       message: 'New administrator registered successfully',
     };
+  }
+
+  private checkPasswordStrength(password: string) {
+    if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+      throw new BadRequestException('Password must be at least 8 characters and include a letter and a number.');
+    }
+  }
+
+  /** Staff logins for the admin screen (never includes password hashes). */
+  async listAdmins() {
+    const out: { id: string; name: string; email: string; role: AdminRole; isActive: boolean; createdAt?: string }[] = [];
+    const hid = await this.hospitalCtx.hospitalId();
+    if (hid) {
+      try {
+        const rows = await this.prisma.hospitalAdmin.findMany({
+          where: { hospitalId: hid },
+          orderBy: { createdAt: 'asc' },
+        });
+        rows.forEach((r) =>
+          out.push({ id: r.id, name: r.name, email: r.email, role: r.role, isActive: r.isActive, createdAt: r.createdAt.toISOString() }),
+        );
+      } catch (err) {
+        this.logger.warn(`Admin list failed: ${(err as Error).message}`);
+      }
+    }
+    if (!this.isProduction) {
+      this.inMemoryAdmins
+        .filter((a) => !out.some((o) => o.email === a.email))
+        .forEach((a) => out.push({ id: a.id, name: a.name, email: a.email, role: a.role, isActive: a.isActive }));
+    }
+    return out;
+  }
+
+  private async findAdminForChange(id: string, actorRole: string, actorId?: string) {
+    const hid = await this.hospitalCtx.hospitalId();
+    let target: { id: string; name: string; email: string; role: AdminRole; hospitalId: string; fromDb: boolean } | undefined;
+    if (hid) {
+      try {
+        const row = await this.prisma.hospitalAdmin.findFirst({ where: { id, hospitalId: hid } });
+        if (row) target = { id: row.id, name: row.name, email: row.email, role: row.role, hospitalId: row.hospitalId, fromDb: true };
+      } catch {
+        /* fall through to memory */
+      }
+    }
+    if (!target && !this.isProduction) {
+      const m = this.inMemoryAdmins.find((a) => a.id === id);
+      if (m) target = { id: m.id, name: m.name, email: m.email, role: m.role, hospitalId: m.hospitalId, fromDb: false };
+    }
+    if (!target) throw new NotFoundException('Staff account not found.');
+    if (target.role === AdminRole.SUPER_ADMIN && actorRole !== AdminRole.SUPER_ADMIN) {
+      throw new ForbiddenException('Only a super admin can change a super admin account.');
+    }
+    return { target, isSelf: actorId === id };
+  }
+
+  async setAdminActive(id: string, isActive: boolean, actor: { id?: string; role: string; name?: string }) {
+    const { target, isSelf } = await this.findAdminForChange(id, actor.role, actor.id);
+    if (isSelf && !isActive) throw new BadRequestException('You cannot deactivate your own account.');
+    if (target.fromDb) {
+      await this.prisma.hospitalAdmin.update({ where: { id }, data: { isActive } });
+    } else {
+      const m = this.inMemoryAdmins.find((a) => a.id === id);
+      if (m) m.isActive = isActive;
+    }
+    await this.auditService.logAction({
+      hospitalId: target.hospitalId,
+      userId: actor.id,
+      action: isActive ? 'ADMIN_ACTIVATED' : 'ADMIN_DEACTIVATED',
+      entity: 'HOSPITAL_ADMIN',
+      entityId: id,
+      metadata: { email: target.email, by: actor.name },
+    });
+    return { id, isActive };
+  }
+
+  async resetAdminPassword(id: string, newPassword: string, actor: { id?: string; role: string; name?: string }) {
+    const { target } = await this.findAdminForChange(id, actor.role, actor.id);
+    this.checkPasswordStrength(newPassword || '');
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    if (target.fromDb) {
+      await this.prisma.hospitalAdmin.update({ where: { id }, data: { passwordHash } });
+    } else {
+      const m = this.inMemoryAdmins.find((a) => a.id === id);
+      if (m) m.passwordHash = passwordHash;
+    }
+    await this.auditService.logAction({
+      hospitalId: target.hospitalId,
+      userId: actor.id,
+      action: 'ADMIN_PASSWORD_RESET',
+      entity: 'HOSPITAL_ADMIN',
+      entityId: id,
+      metadata: { email: target.email, by: actor.name },
+    });
+    return { id, message: 'Password changed.' };
   }
 
   /**
