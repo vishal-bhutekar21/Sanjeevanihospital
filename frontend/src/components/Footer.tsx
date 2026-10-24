@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEVELOPER } from '../data/developer';
 import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight, UserRound } from 'lucide-react';
@@ -10,6 +10,8 @@ export const Footer: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
   const signedIn = usePatientSignedIn();
+  // No "open your records" panel on the records page itself
+  const onPatientPage = useLocation().pathname.startsWith('/patient');
 
   const links = [
     { to: '/departments', en: 'Departments', mr: 'विभाग' },
@@ -110,6 +112,7 @@ export const Footer: React.FC = () => {
       </div>
 
       {/* Patient login */}
+      {!onPatientPage && (
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="rounded-xl border border-white/15 bg-white/[0.04] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
@@ -133,6 +136,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       <div className="border-t border-white/10">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-5 flex flex-col sm:flex-row gap-2 justify-between text-xs text-stone-500">

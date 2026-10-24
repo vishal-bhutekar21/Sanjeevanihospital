@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { AlertCircle, Bell, CalendarDays, Download, FileText, FlaskConical, Home, LogOut, Pill, Phone, UserRound } from 'lucide-react';
+import { AlertCircle, Bell, CalendarDays, Download, FileText, FlaskConical, Home, LogOut, Pill, Phone, ShieldCheck, UserRound, Wallet } from 'lucide-react';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
@@ -46,7 +46,7 @@ export const PatientPortalPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    <div className={`${token ? 'max-w-[1180px]' : 'max-w-[1040px]'} mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12`}>
       {token ? (
         <Portal token={token} isMr={isMr} L={L} onSignOut={signOut} />
       ) : (
@@ -67,7 +67,7 @@ type LFn = (en: string, mr: string) => string;
 
 // ─── Sign in ─────────────────────────────────────────────────────────────────
 
-const SignIn: React.FC<{ isMr: boolean; L: LFn; onSignedIn: (token: string) => void }> = ({ L, onSignedIn }) => {
+const SignIn: React.FC<{ isMr: boolean; L: LFn; onSignedIn: (token: string) => void }> = ({ isMr, L, onSignedIn }) => {
   const [phone, setPhone] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [otp, setOtp] = useState('');
@@ -130,96 +130,147 @@ const SignIn: React.FC<{ isMr: boolean; L: LFn; onSignedIn: (token: string) => v
     }
   };
 
+  const benefits: [React.ElementType, string, string][] = [
+    [CalendarDays, L('Appointments and token numbers', 'अपॉइंटमेंट व टोकन क्रमांक'), L('Upcoming visits, and the follow-up your doctor asked for.', 'पुढील भेटी व डॉक्टरांनी सांगितलेली पुढील तपासणी.')],
+    [FileText, L('Bills and receipts', 'बिले व पावत्या'), L('What is paid and what is due, with a PDF to download.', 'किती भरले, किती बाकी, आणि PDF डाउनलोड.')],
+    [Pill, L('Medicines and reminders', 'औषधे व आठवण'), L('Today’s doses, and a reminder before a medicine expires.', 'आजचे डोस, व औषधाची मुदत संपण्यापूर्वी आठवण.')],
+    [FlaskConical, L('Lab reports', 'लॅब रिपोर्ट'), L('Results the hospital shares, with high and low values marked.', 'हॉस्पिटलने शेअर केलेले रिपोर्ट, जास्त/कमी मूल्ये ठळक.')],
+  ];
+  const step = sessionId ? 2 : 1;
+
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-3xl sm:text-4xl">{L('Patient login', 'पेशंट लॉगिन')}</h1>
-      <p className="mt-2 text-stone-600">
-        {L(
-          'See your bills, your medicines with expiry reminders, and your appointments. Use the mobile number you gave the hospital.',
-          'आपली बिले, औषधे (एक्सपायरी आठवणीसह) व अपॉइंटमेंट पहा. हॉस्पिटलला दिलेला मोबाईल नंबर वापरा.',
-        )}
-      </p>
-
-      <form onSubmit={verify} noValidate className="mt-8 bg-white border border-[#E7E3DA] rounded-xl shadow-xs p-5 sm:p-7 space-y-5">
-        {error && (
-          <div role="alert" className="p-3.5 rounded-md bg-red-50 border border-red-200 text-red-800 flex gap-2.5 text-[15px]">
-            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
-            <span>{error}</span>
-          </div>
-        )}
-        <div>
-          <label htmlFor="pp-phone" className="block font-medium mb-1.5">
-            {L('Mobile number', 'मोबाईल नंबर')}
-          </label>
-          <div className="flex gap-2">
-            <div className="relative flex-1">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-500">+91</span>
-              <input
-                id="pp-phone"
-                type="tel"
-                inputMode="numeric"
-                autoComplete="tel-national"
-                value={phone}
-                disabled={!!sessionId}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                className={`${inputClass} pl-12 disabled:bg-stone-100 disabled:text-stone-600`}
-              />
-            </div>
-            {sessionId && (
-              <button
-                type="button"
-                className="btn-secondary shrink-0"
-                onClick={() => {
-                  setSessionId('');
-                  setOtp('');
-                  setResendIn(0);
-                }}
-              >
-                {L('Change', 'बदला')}
-              </button>
-            )}
-          </div>
+    <div className="grid lg:grid-cols-[1.05fr,1fr] rounded-2xl border border-[#E7E3DA] bg-white shadow-xs overflow-hidden">
+      {/* What you get (below the form on phones) */}
+      <section className="order-2 lg:order-1 bg-[#0F2E2B] text-white p-6 sm:p-9 flex flex-col" aria-label={L('What you can see', 'आपण काय पाहू शकता')}>
+        <div className="flex items-center gap-3">
+          <img src={HOSPITAL.logo} alt="" className="w-10 h-10 rounded-full bg-white p-1 object-contain" />
+          <span className="font-semibold">{L(HOSPITAL.shortName, HOSPITAL.shortNameMr)}</span>
         </div>
+        <h2 className="mt-7 text-2xl sm:text-[28px] leading-tight text-white">{L('Your health records, in one place', 'आपली आरोग्य माहिती, एकाच ठिकाणी')}</h2>
+        <ul className="mt-6 space-y-5">
+          {benefits.map(([Icon, title, sub]) => (
+            <li key={title} className="flex gap-3.5">
+              <span className="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5 text-[#7FD1C7]" aria-hidden />
+              </span>
+              <span>
+                <span className="block font-semibold">{title}</span>
+                <span className="block text-[15px] text-stone-300">{sub}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
+        <p className="mt-8 lg:mt-auto pt-6 border-t border-white/10 flex gap-2.5 text-sm text-stone-300">
+          <ShieldCheck className="w-5 h-5 shrink-0 text-[#7FD1C7]" aria-hidden />
+          {L(
+            'Private: we confirm it’s you with a code sent to your mobile. Only you can see your records.',
+            'खाजगी: आपल्या मोबाईलवर आलेल्या कोडने ओळख पटवतो. आपली माहिती फक्त आपल्यालाच दिसते.',
+          )}
+        </p>
+      </section>
 
-        {sessionId && (
-          <div>
-            <label htmlFor="pp-otp" className="block font-medium mb-1.5">
-              {L(`Enter the 6-digit code sent to +91 ${phone}`, `+91 ${phone} वर आलेला ६ अंकी कोड टाका`)}
-            </label>
-            <input
-              id="pp-otp"
-              autoFocus
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
-              className={`${inputClass} max-w-[220px] text-center text-xl tracking-[0.4em] font-semibold`}
-            />
-            <p className="mt-2 text-sm text-stone-600">
-              {resendIn > 0 ? (
-                L(`Didn’t get it? You can resend in ${resendIn}s`, `कोड आला नाही? ${resendIn} सेकंदांनी पुन्हा पाठवा`)
-              ) : (
-                <button type="button" onClick={sendCode} disabled={busy} className="font-semibold text-[#0F766E] underline underline-offset-4 py-2">
-                  {L('Resend code', 'कोड पुन्हा पाठवा')}
+      {/* Form */}
+      <section className="order-1 lg:order-2 p-6 sm:p-9">
+        <p className="text-sm text-stone-500">{L(`Step ${step} of 2`, `टप्पा ${step === 1 ? '१' : '२'} / २`)}</p>
+        <h1 className="mt-1 text-3xl sm:text-4xl">{step === 1 ? L('Patient login', 'पेशंट लॉगिन') : L('Enter your code', 'कोड टाका')}</h1>
+        <p className="mt-2 text-stone-600 text-[15px]">
+          {step === 1
+            ? L('Use the mobile number you gave the hospital when booking or at reception.', 'बुकिंग करताना किंवा रिसेप्शनला दिलेला मोबाईल नंबर वापरा.')
+            : L(`We sent a 6-digit code by SMS to +91 ${phone}.`, `+91 ${phone} वर एसएमएसने ६ अंकी कोड पाठवला आहे.`)}
+        </p>
+
+        <form onSubmit={verify} noValidate className="mt-7 space-y-5">
+          {error && (
+            <div role="alert" className="p-3.5 rounded-md bg-red-50 border border-red-200 text-red-800 flex gap-2.5 text-[15px]">
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          {step === 1 ? (
+            <div>
+              <label htmlFor="pp-phone" className="block font-medium mb-1.5">
+                {L('Mobile number', 'मोबाईल नंबर')}
+              </label>
+              <div className="flex rounded-md border border-[#D8D3C8] bg-white focus-within:border-[#0F766E] focus-within:ring-2 focus-within:ring-[#0F766E]/15">
+                <span className="px-3.5 flex items-center border-r border-[#E7E3DA] text-stone-600 bg-[#FAF8F4] rounded-l-md">+91</span>
+                <input
+                  id="pp-phone"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel-national"
+                  autoFocus
+                  placeholder="98765 43210"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  className="flex-1 min-w-0 px-3.5 py-3 text-[17px] tracking-wide bg-transparent focus:outline-none rounded-r-md"
+                />
+              </div>
+              <p className="mt-1.5 text-sm text-stone-500">{L('We’ll send a 6-digit code to this number.', 'या नंबरवर ६ अंकी कोड पाठवू.')}</p>
+            </div>
+          ) : (
+            <div>
+              <div className="flex items-center justify-between gap-3 mb-1.5">
+                <label htmlFor="pp-otp" className="font-medium">
+                  {L('6-digit code', '६ अंकी कोड')}
+                </label>
+                <button
+                  type="button"
+                  className="text-sm font-semibold text-[#0F766E] underline underline-offset-4 py-2"
+                  onClick={() => {
+                    setSessionId('');
+                    setOtp('');
+                    setResendIn(0);
+                    setError('');
+                  }}
+                >
+                  {L('Change number', 'नंबर बदला')}
                 </button>
-              )}
-            </p>
-          </div>
-        )}
+              </div>
+              <input
+                id="pp-otp"
+                autoFocus
+                inputMode="numeric"
+                autoComplete="one-time-code"
+                placeholder="••••••"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                className={`${inputClass} text-center text-2xl tracking-[0.6em] font-semibold placeholder:text-stone-300`}
+              />
+              <p className="mt-2 text-sm text-stone-600">
+                {resendIn > 0 ? (
+                  L(`Didn’t get it? You can resend in ${resendIn}s`, `कोड आला नाही? ${resendIn} सेकंदांनी पुन्हा पाठवा`)
+                ) : (
+                  <button type="button" onClick={sendCode} disabled={busy} className="font-semibold text-[#0F766E] underline underline-offset-4 py-2">
+                    {L('Resend code', 'कोड पुन्हा पाठवा')}
+                  </button>
+                )}
+              </p>
+            </div>
+          )}
 
-        <button type="submit" disabled={busy} aria-busy={busy} className="btn-primary w-full disabled:opacity-70 disabled:cursor-wait">
-          <BusyLabel busy={busy} busyText={sessionId ? L('Signing in…', 'लॉगिन होत आहे…') : L('Sending code…', 'कोड पाठवत आहे…')}>
-            {sessionId ? L('Sign in', 'लॉगिन करा') : L('Send code', 'कोड पाठवा')}
-          </BusyLabel>
-        </button>
-      </form>
+          <button type="submit" disabled={busy} aria-busy={busy} className="btn-primary w-full min-h-[48px] text-[16px] disabled:opacity-70 disabled:cursor-wait">
+            <BusyLabel busy={busy} busyText={sessionId ? L('Signing in…', 'लॉगिन होत आहे…') : L('Sending code…', 'कोड पाठवत आहे…')}>
+              {sessionId ? L('Sign in', 'लॉगिन करा') : L('Send code', 'कोड पाठवा')}
+            </BusyLabel>
+          </button>
+        </form>
 
-      <p className="mt-6 text-sm text-stone-600">
-        {L('Need help? Call reception on', 'मदत हवी? रिसेप्शनला कॉल करा')}{' '}
-        <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
-          {HOSPITAL.phones.reception.short}
-        </a>
-      </p>
+        <div className="mt-8 pt-6 border-t border-[#E7E3DA] space-y-3 text-[15px]">
+          <p className="text-stone-600">
+            {L('New patient? Your records start with your first visit.', 'नवीन रुग्ण? पहिल्या भेटीपासून आपली माहिती सुरू होते.')}{' '}
+            <Link to="/book" className="font-semibold text-[#0F766E] underline underline-offset-4">
+              {L('Book a visit', 'भेट बुक करा')}
+            </Link>
+          </p>
+          <p className="text-stone-600">
+            {L('Need help? Call reception on', 'मदत हवी? रिसेप्शनला कॉल करा')}{' '}
+            <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
+              {isMr ? HOSPITAL.phones.reception.shortMr : HOSPITAL.phones.reception.short}
+            </a>
+          </p>
+        </div>
+      </section>
     </div>
   );
 };
@@ -334,69 +385,99 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
     { key: 'profile', label: L('Profile', 'प्रोफाइल'), icon: UserRound },
   ];
 
+  const initials = (d.name || 'P')
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join('')
+    .toUpperCase();
+  const today = todayKey();
+  const nextVisit = [
+    ...(d.appointments || []).filter((a) => a.status === 'CONFIRMED' && a.appointmentDate >= today).map((a) => a.appointmentDate),
+    ...(d.followUp && d.followUp.date >= today ? [d.followUp.date] : []),
+  ].sort()[0];
+  const tiles: { key: Tab; icon: React.ElementType; label: string; value: string; tone?: string }[] = [
+    { key: 'visits', icon: CalendarDays, label: L('Next visit', 'पुढील भेट'), value: nextVisit ? dateText(nextVisit, isMr).replace(/\s\d{4}$/, '') : L('None booked', 'नाही') },
+    { key: 'medicines', icon: Pill, label: L('Medicines now', 'चालू औषधे'), value: String(d.medicines.filter((m) => medicineActive(m)).length) },
+    { key: 'bills', icon: Wallet, label: L('Amount due', 'बाकी रक्कम'), value: rupees(due), tone: due > 0 ? 'text-amber-800' : '' },
+    { key: 'overview', icon: Bell, label: L('Alerts', 'सूचना'), value: String(alerts.length), tone: alerts.length ? 'text-amber-800' : '' },
+  ];
+
   return (
     <div>
-      <header className="flex flex-wrap items-start justify-between gap-4">
-        <div className="min-w-0">
-          <h1 className="text-3xl sm:text-4xl">{d.name ? L(`Hello, ${d.name}`, `नमस्कार, ${d.name}`) : L('Your health records', 'आपली आरोग्य माहिती')}</h1>
-          <p className="mt-1 text-stone-600">
-            +91 {d.phone}
-            {d.profile?.bloodGroup && ` · ${L('Blood group', 'रक्तगट')} ${d.profile.bloodGroup}`}
-          </p>
+      {/* Profile header */}
+      <header className="bg-white border border-[#E7E3DA] rounded-2xl shadow-xs p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-5">
+        <div className="flex items-center gap-4 min-w-0 flex-1">
+          <span className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#0F766E] text-white text-xl sm:text-2xl font-semibold flex items-center justify-center shrink-0" aria-hidden>
+            {initials}
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm text-stone-500">{L('Welcome back', 'पुन्हा स्वागत')}</p>
+            <h1 className="text-2xl sm:text-3xl leading-tight truncate">{d.name || L('Your health records', 'आपली आरोग्य माहिती')}</h1>
+            <p className="mt-0.5 text-[15px] text-stone-600">
+              +91 {d.phone}
+              {d.profile?.bloodGroup && <> · {L('Blood group', 'रक्तगट')} <span className="font-semibold text-[#1C2321]">{d.profile.bloodGroup}</span></>}
+            </p>
+            {d.profile?.allergies && (
+              <p className="mt-1 text-sm font-semibold text-red-700">
+                {L('Allergies', 'ॲलर्जी')}: {d.profile.allergies}
+              </p>
+            )}
+          </div>
         </div>
-        <button type="button" onClick={onSignOut} className="btn-secondary">
-          <LogOut className="w-4 h-4" /> {L('Sign out', 'लॉगआउट')}
-        </button>
+        <div className="flex gap-2 sm:shrink-0">
+          <Link to="/book" className="btn-primary flex-1 sm:flex-none">
+            <CalendarDays className="w-4 h-4" /> {L('Book a visit', 'भेट बुक करा')}
+          </Link>
+          <button type="button" onClick={onSignOut} className="btn-secondary flex-1 sm:flex-none">
+            <LogOut className="w-4 h-4" /> {L('Sign out', 'लॉगआउट')}
+          </button>
+        </div>
       </header>
 
       {/* Summary */}
-      <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-4">
-        {[
-          [L('Medicines now', 'चालू औषधे'), String(d.medicines.filter((m) => medicineActive(m)).length), 'medicines'],
-          [L('Amount due', 'बाकी रक्कम'), rupees(due), 'bills'],
-          [L('Alerts', 'सूचना'), String(alerts.length), 'overview'],
-        ].map(([k, v, t]) => (
+      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {tiles.map((t) => (
           <button
-            key={k}
+            key={t.label}
             type="button"
-            onClick={() => setTab(t as Tab)}
-            className="text-left bg-white border border-[#E7E3DA] rounded-xl p-3 sm:p-4 hover:border-[#0F766E]"
+            onClick={() => setTab(t.key)}
+            className="text-left bg-white border border-[#E7E3DA] rounded-xl p-4 hover:border-[#0F766E] transition-colors flex items-start gap-3"
           >
-            <dt className="text-xs sm:text-sm text-stone-500">{k}</dt>
-            <dd className={`mt-1 text-xl sm:text-2xl font-semibold ${t === 'bills' && due > 0 ? 'text-amber-800' : ''}`}>{v}</dd>
+            <span className="w-9 h-9 rounded-lg bg-[#E8F3F1] text-[#0F766E] flex items-center justify-center shrink-0">
+              <t.icon className="w-[18px] h-[18px]" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-xs sm:text-sm text-stone-500">{t.label}</span>
+              <span className={`block mt-0.5 text-lg sm:text-xl font-semibold truncate ${t.tone || ''}`}>{t.value}</span>
+            </span>
           </button>
         ))}
-      </dl>
-
-      {perm === 'default' && (
-        <div className="mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#E8F3F1] text-[#0B5D57] rounded-xl p-4 text-[15px]">
-          <p>{L('Get a phone notification when a medicine is about to expire, a course is ending or a follow-up visit is near.', 'औषधाची मुदत संपत आल्यावर, कोर्स संपताना किंवा पुढील भेट जवळ आल्यावर फोनवर सूचना मिळवा.')}</p>
-          <button type="button" className="btn-primary shrink-0" onClick={turnOnAlerts}>
-            <Bell className="w-4 h-4" /> {L('Turn on reminders', 'आठवण सुरू करा')}
-          </button>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="mt-8 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
-        <div className="inline-flex min-w-full gap-1 rounded-lg border border-[#D8D3C8] bg-white p-1" role="tablist" aria-label={L('Your records', 'आपली माहिती')}>
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              type="button"
-              role="tab"
-              aria-selected={tab === t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex-1 shrink-0 min-h-[44px] px-3.5 rounded-md text-sm sm:text-[15px] flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                tab === t.key ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321]'
-              }`}
-            >
-              <t.icon className="w-4 h-4" />
-              {t.label}
-            </button>
-          ))}
-        </div>
       </div>
+
+      <div className="mt-6 grid lg:grid-cols-12 gap-6 items-start">
+        <div className="lg:col-span-8 min-w-0">
+          {/* Tabs */}
+          <div className="-mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto no-scrollbar">
+            <div className="inline-flex min-w-full gap-1 rounded-xl border border-[#D8D3C8] bg-white p-1" role="tablist" aria-label={L('Your records', 'आपली माहिती')}>
+              {tabs.map((t) => (
+                <button
+                  key={t.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={tab === t.key}
+                  onClick={() => setTab(t.key)}
+                  className={`flex-1 shrink-0 min-h-[44px] px-3.5 rounded-lg text-sm sm:text-[15px] flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors ${
+                    tab === t.key ? 'bg-[#0F766E] text-white font-semibold' : 'text-stone-700 hover:text-[#1C2321] hover:bg-stone-50'
+                  }`}
+                >
+                  <t.icon className="w-4 h-4" />
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
       <div className="mt-5" role="tabpanel">
         {tab === 'overview' && (
@@ -409,15 +490,46 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
         {tab === 'profile' && <Profile d={d} token={token} L={L} onSaved={(r) => setData((x) => (x ? { ...x, ...r } : r))} />}
       </div>
 
-      <p className="mt-10 text-sm text-stone-600 flex items-center gap-2">
-        <Phone className="w-4 h-4 shrink-0" />
-        <span>
-          {L('Something missing or wrong? Call', 'काही चुकले किंवा कमी आहे? कॉल करा')}{' '}
-          <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="font-semibold text-[#1C2321] underline underline-offset-4">
-            {HOSPITAL.phones.reception.short}
-          </a>
-        </span>
-      </p>
+        </div>
+
+        {/* Side column (below on phones) */}
+        <aside className="lg:col-span-4 space-y-4 lg:sticky lg:top-28" aria-label={L('Help and settings', 'मदत व सेटिंग')}>
+          {perm === 'default' && (
+            <div className="bg-[#E8F3F1] text-[#0B5D57] rounded-xl p-5">
+              <p className="font-semibold flex items-center gap-2">
+                <Bell className="w-5 h-5" aria-hidden /> {L('Reminders on this phone', 'या फोनवर आठवण')}
+              </p>
+              <p className="mt-1 text-[15px]">
+                {L('Get a notification when a medicine is about to expire, a course is ending or a follow-up is near.', 'औषधाची मुदत संपत आल्यावर, कोर्स संपताना किंवा पुढील भेट जवळ आल्यावर सूचना मिळवा.')}
+              </p>
+              <button type="button" className="btn-primary w-full mt-4" onClick={turnOnAlerts}>
+                {L('Turn on reminders', 'आठवण सुरू करा')}
+              </button>
+            </div>
+          )}
+          <div className="bg-white border border-[#E7E3DA] rounded-xl p-5">
+            <p className="font-semibold">{L('Need help with your records?', 'माहितीबद्दल मदत हवी?')}</p>
+            <p className="mt-1 text-[15px] text-stone-600">
+              {L('If a bill, medicine or report looks wrong or is missing, reception can fix it.', 'बिल, औषध किंवा रिपोर्ट चुकीचा किंवा कमी असल्यास रिसेप्शन दुरुस्त करेल.')}
+            </p>
+            <a href={`tel:${HOSPITAL.phones.reception.tel}`} className="btn-secondary w-full mt-4">
+              <Phone className="w-4 h-4" /> {L(`Call ${HOSPITAL.phones.reception.short}`, `${HOSPITAL.phones.reception.shortMr} वर कॉल करा`)}
+            </a>
+            <a href={`tel:${HOSPITAL.phones.emergency.tel}`} className="mt-3 flex items-center justify-center gap-2 min-h-[44px] text-[15px] font-semibold text-red-700">
+              {L('Emergency, 24 hours', 'आपत्कालीन, २४ तास')}: {isMr ? HOSPITAL.phones.emergency.shortMr : HOSPITAL.phones.emergency.short}
+            </a>
+          </div>
+          <button type="button" onClick={() => setTab('profile')} className="w-full text-left bg-white border border-[#E7E3DA] rounded-xl p-5 hover:border-[#0F766E]">
+            <p className="font-semibold">{L('Your details', 'आपली माहिती')}</p>
+            <p className="mt-1 text-[15px] text-stone-600">
+              {d.profile?.bloodGroup || d.profile?.emergencyName
+                ? L('Blood group, allergies and emergency contact are saved.', 'रक्तगट, ॲलर्जी व आपत्कालीन संपर्क जतन आहेत.')
+                : L('Add your blood group, allergies and an emergency contact. It helps the doctor in an emergency.', 'रक्तगट, ॲलर्जी व आपत्कालीन संपर्क जोडा. आपत्कालीन वेळी डॉक्टरांना मदत होते.')}
+            </p>
+            <p className="mt-2 text-sm font-semibold text-[#0F766E]">{L('Open profile →', 'प्रोफाइल उघडा →')}</p>
+          </button>
+        </aside>
+      </div>
     </div>
   );
 };
