@@ -15,6 +15,10 @@ export interface Env {
   HOSPITAL_PINCODE: string;
   HOSPITAL_HELPLINE: string;
   HOSPITAL_EMAIL: string;
+  /** Prefix for token, registration and receipt numbers, e.g. "SMH" */
+  HOSPITAL_CODE_PREFIX?: string;
+  /** GST number printed on receipts; empty = not shown */
+  HOSPITAL_GSTIN?: string;
   // Secrets
   JWT_SECRET: string;
   RAZORPAY_KEY_ID?: string;

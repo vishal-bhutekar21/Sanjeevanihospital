@@ -18,6 +18,8 @@ import { reviewsEventsRoutes } from './routes/reviews';
 import { schemeRoutes } from './routes/schemes';
 import { doctorRoutes, departmentRoutes, hospitalRoutes } from './routes/catalog';
 import { auditRoutes } from './routes/audit';
+import { registryRoutes } from './routes/registry';
+import { receiptRoutes } from './routes/receipts';
 import { cleanup } from './scheduled';
 
 const app = new Hono<AppEnv>().basePath('/api');
@@ -48,6 +50,8 @@ app.route('/doctors', doctorRoutes);
 app.route('/departments', departmentRoutes);
 app.route('/hospitals', hospitalRoutes);
 app.route('/admin/audit-logs', auditRoutes);
+app.route('/patients', registryRoutes);
+app.route('/receipts', receiptRoutes);
 
 app.notFound((c) => c.json(errorBody(404, `Cannot ${c.req.method} ${new URL(c.req.url).pathname}`, new URL(c.req.url).pathname, 'Not Found'), 404));
 
