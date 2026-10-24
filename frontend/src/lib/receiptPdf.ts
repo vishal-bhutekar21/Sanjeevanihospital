@@ -7,7 +7,7 @@
 
 import type { jsPDF as JsPDF } from 'jspdf';
 import { HOSPITAL } from '../config/hospital';
-import { drawLetterhead, text, field, plain, INK, MUTED, TEAL, RULE, PANEL, AMBER, RED } from './appointmentPdf';
+import { drawLetterhead, text, field, plain, pdfFont, pdfPlain, drawStatusBox, drawTableHeader, drawTableRow, drawTotalsBox, TableCol, INK, MUTED, TEAL, RULE, PANEL, AMBER, RED } from './appointmentPdf';
 import type { Receipt, ReceiptLang } from './reception';
 import { kindLabel, modeLabel } from './reception';
 
@@ -50,6 +50,7 @@ export const RECEIPT_LABELS = {
     sign: 'Authorised signatory',
     footer: 'Computer-generated receipt. For questions, call',
     reason: 'Cancelled because',
+    paidFull: 'Paid in full',
   },
   mr: {
     title: 'पावती',
@@ -85,6 +86,7 @@ export const RECEIPT_LABELS = {
     sign: 'अधिकृत स्वाक्षरी',
     footer: 'संगणकीय पावती. चौकशीसाठी संपर्क',
     reason: 'रद्द करण्याचे कारण',
+    paidFull: 'पूर्ण भरले',
   },
 } as const;
 
@@ -108,7 +110,7 @@ export const MODE_MR: Record<string, string> = {
   SCHEME: 'शासकीय योजना',
 };
 
-const amt = (n: number) => `Rs. ${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const amt = (n: number) => `₹${n.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
 const TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
@@ -153,9 +155,10 @@ export async function buildReceiptPdf(r: Receipt, lang: ReceiptLang = 'en'): Pro
     text(pdf, t.cancelled, PAGE_W / 2, y + 1, { size: 20, bold: true, color: RED, align: 'center' });
   }
   y += 9;
+  if (r.status !== 'CANCELLED') drawStatusBox(pdf, PAGE_W - M, y - 4, r.balance, { paid: t.paidFull, due: t.balance });
 
   // ── Details ──
-  const colW = (PAGE_W - 2 * M - 12) / 3;
+  const colW = (PAGE_W - 2 * M - 12 - 44) / 3;
   const c = (i: number) => M + i * (colW + 6);
   const kind = lang === 'mr' ? KIND_MR[r.kind] || kindLabel(r.kind) : kindLabel(r.kind);
   field(pdf, t.no, r.receiptNo, c(0), y, colW);
@@ -178,69 +181,75 @@ export async function buildReceiptPdf(r: Receipt, lang: ReceiptLang = 'en'): Pro
   y += 2;
 
   // ── Items ──
-  const xAmt = PAGE_W - M - 2;
+  const Lx = M;
+  const Rx = PAGE_W - M;
+  const xAmt = Rx - 2;
   const xGst = xAmt - 34;
   const xRate = xGst - 22;
-  const xQty = xRate - 28;
-  const header = (yy: number) => {
-    pdf.setFillColor(...PANEL);
-    pdf.rect(M, yy - 4.8, PAGE_W - 2 * M, 7.4, 'F');
-    text(pdf, t.item, M + 2, yy, { size: 8, bold: true, color: MUTED });
-    text(pdf, t.qty, xQty, yy, { size: 8, bold: true, color: MUTED, align: 'right' });
-    text(pdf, t.rate, xRate, yy, { size: 8, bold: true, color: MUTED, align: 'right' });
-    text(pdf, `${t.gst} %`, xGst, yy, { size: 8, bold: true, color: MUTED, align: 'right' });
-    text(pdf, t.amount, xAmt, yy, { size: 8, bold: true, color: MUTED, align: 'right' });
-    return yy + 7.5;
-  };
-  y = header(y);
+  const xQty = xRate - 30;
+  const cols: TableCol[] = [
+    { label: '#', x: Lx + 2 },
+    { label: t.item, x: Lx + 10 },
+    { label: t.qty, x: xQty, align: 'right' },
+    { label: t.rate, x: xRate, align: 'right' },
+    { label: `${t.gst} %`, x: xGst, align: 'right' },
+    { label: t.amount, x: xAmt, align: 'right' },
+  ];
+  y = drawTableHeader(pdf, cols, Lx, Rx, y);
   r.items.forEach((it, i) => {
     if (y > PAGE_H - 95) {
       pdf.addPage();
-      y = header(M + 6);
+      y = drawTableHeader(pdf, cols, Lx, Rx, M + 8);
     }
-    text(pdf, `${i + 1}. ${it.name}`, M + 2, y, { size: 9, maxWidth: xQty - M - 16 });
-    text(pdf, String(it.qty), xQty, y, { size: 9, align: 'right' });
-    text(pdf, amt(it.rate), xRate, y, { size: 9, align: 'right' });
-    text(pdf, it.gstPercent ? `${it.gstPercent}%` : '-', xGst, y, { size: 9, align: 'right' });
-    text(pdf, amt(it.amount), xAmt, y, { size: 9, align: 'right' });
-    pdf.setDrawColor(...RULE);
-    pdf.line(M, y + 2.8, PAGE_W - M, y + 2.8);
-    y += 7.5;
+    y = drawTableRow(
+      pdf,
+      [
+        { value: String(i + 1), x: Lx + 2 },
+        { value: it.name, x: Lx + 10, maxWidth: xQty - Lx - 24 },
+        { value: String(it.qty), x: xQty, align: 'right' },
+        { value: amt(it.rate), x: xRate, align: 'right' },
+        { value: it.gstPercent ? `${it.gstPercent}%` : '-', x: xGst, align: 'right' },
+        { value: amt(it.amount), x: xAmt, align: 'right' },
+      ],
+      Lx,
+      Rx,
+      y,
+      i,
+      9,
+    );
   });
 
-  // ── Totals ──
-  if (y > PAGE_H - 90) {
+  // ── Totals (right) and amount in words (left) ──
+  if (y > PAGE_H - 100) {
     pdf.addPage();
     y = M + 8;
   }
-  y += 2;
-  const labelX = xGst + 2;
-  const row = (label: string, value: string, bold = false, color = INK) => {
-    text(pdf, label, labelX, y, { size: 9, bold, color: MUTED, align: 'right' });
-    text(pdf, value, xAmt, y, { size: bold ? 10.5 : 9, bold, color, align: 'right' });
-    y += 6.2;
-  };
-  row(t.subtotal, amt(r.subtotal));
-  if (r.discount > 0) row(t.discount, `- ${amt(r.discount)}`);
+  y += 5;
+  const before: [string, string][] = [[t.subtotal, amt(r.subtotal)]];
+  if (r.discount > 0) before.push([t.discount, `- ${amt(r.discount)}`]);
   if (r.tax > 0) {
     // Intra-state supply: the tax splits equally into central and state GST
     const half = Math.round((r.tax / 2) * 100) / 100;
-    row(t.cgst, amt(half));
-    row(t.sgst, amt(Math.round((r.tax - half) * 100) / 100));
+    before.push([t.cgst, amt(half)], [t.sgst, amt(Math.round((r.tax - half) * 100) / 100)]);
   }
-  pdf.setDrawColor(...INK);
-  pdf.line(labelX - 40, y - 3.4, xAmt, y - 3.4);
-  y += 1;
-  row(t.total, amt(r.total), true);
-  row(t.paid, amt(r.paid));
-  row(t.balance, amt(r.balance), true, r.balance > 0 ? AMBER : TEAL);
+  const boxW = 78;
+  const totalsTop = y;
+  const totalsBottom = drawTotalsBox(pdf, Rx - boxW, boxW, y, before, [t.total, amt(r.total)], [
+    [t.paid, amt(r.paid)],
+    [t.balance, amt(r.balance), r.balance > 0 ? AMBER : TEAL],
+  ]);
 
   if (lang === 'en') {
-    y += 1;
-    text(pdf, t.words, M, y, { size: 7.5, color: MUTED });
-    text(pdf, amountInWords(r.total), M, y + 4.6, { size: 9, bold: true, maxWidth: PAGE_W - 2 * M });
-    y += 11;
+    const wordsW = Rx - boxW - Lx - 8;
+    pdf.setFillColor(...PANEL);
+    pdf.roundedRect(Lx, totalsTop, wordsW, 20, 1.8, 1.8, 'F');
+    text(pdf, t.words, Lx + 4, totalsTop + 6, { size: 7.5, color: MUTED });
+    pdf.setFont(pdfFont(pdf), 'bold');
+    pdf.setFontSize(9);
+    pdf.setTextColor(...INK);
+    pdf.text(pdf.splitTextToSize(pdfPlain(pdf, amountInWords(r.total)), wordsW - 8).slice(0, 2) as string[], Lx + 4, totalsTop + 11.5);
   }
+  y = totalsBottom + 6;
 
   // ── Payments ──
   if (r.payments.length > 0) {
@@ -264,11 +273,11 @@ export async function buildReceiptPdf(r: Receipt, lang: ReceiptLang = 'en'): Pro
   if (r.note) {
     y += 2;
     text(pdf, t.note, M, y, { size: 7.5, color: MUTED });
-    pdf.setFont('helvetica', 'normal');
+    pdf.setFont(pdfFont(pdf), 'normal');
     pdf.setFontSize(9);
     pdf.setTextColor(...INK);
     if (/[^\x20-\x7E]/.test(plain(r.note))) text(pdf, r.note, M, y + 4.6, { size: 9, maxWidth: PAGE_W - 2 * M });
-    else pdf.text(pdf.splitTextToSize(plain(r.note), PAGE_W - 2 * M) as string[], M, y + 4.6);
+    else pdf.text(pdf.splitTextToSize(pdfPlain(pdf, r.note), PAGE_W - 2 * M) as string[], M, y + 4.6);
     y += 12;
   }
   if (r.status === 'CANCELLED' && r.cancelReason) {
