@@ -29,7 +29,23 @@ export interface SlipData {
   fee: number; // 0 = not published
   paid: boolean;
   paymentId?: string;
+  /** Hospital registration number (UHID), e.g. SMH-P-000123 */
+  regNo?: string;
+  /** How the visit was booked */
+  visitType?: 'ONLINE' | 'WALK_IN' | 'PHONE';
+  /** Staff member who booked it (reception bookings) */
+  bookedBy?: string;
+  /** When it was booked (ISO) */
+  bookedAt?: string;
+  address?: string;
 }
+
+const VISIT_TYPE: Record<string, string> = { ONLINE: 'Online booking', WALK_IN: 'Walk-in', PHONE: 'Booked by phone' };
+
+const stamp = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${d.toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}`;
+};
 
 // Colours (match the website)
 export const INK: [number, number, number] = [28, 35, 33];
@@ -154,7 +170,13 @@ export function field(pdf: JsPDF, label: string, value: string, x: number, y: nu
 }
 
 /** Logo, hospital name, address and contact line, teal rule, then the document title. Returns the next y. */
-export async function drawLetterhead(pdf: JsPDF, title: string, issued: Date, pageW = PAGE_W): Promise<number> {
+export async function drawLetterhead(
+  pdf: JsPDF,
+  title: string,
+  issued: Date,
+  pageW = PAGE_W,
+  gstin: string | null = HOSPITAL.gstin || null,
+): Promise<number> {
   let y = M;
   const logo = await imageDataUrl(HOSPITAL.logo);
   let textX = M;
@@ -166,13 +188,16 @@ export async function drawLetterhead(pdf: JsPDF, title: string, issued: Date, pa
       /* logo is optional */
     }
   }
-  text(pdf, HOSPITAL.name, textX, y + 4.6, { size: 12.5, bold: true, maxWidth: pageW - textX - M });
+  text(pdf, HOSPITAL.name, textX, y + 4.6, { size: 12.5, bold: true, maxWidth: pageW - textX - M - (gstin ? 34 : 0) });
   text(pdf, HOSPITAL.address.letterhead, textX, y + 9, { size: 7, color: MUTED, maxWidth: pageW - textX - M });
   text(pdf, `Phone ${HOSPITAL.phones.reception.display}  |  ${HOSPITAL.emails.main}  |  ${HOSPITAL.website}`, textX, y + 12.6, {
     size: 7,
     color: MUTED,
     maxWidth: pageW - textX - M,
   });
+  if (gstin) {
+    text(pdf, `GSTIN ${gstin}`, pageW - M, y + 4.6, { size: 7, color: MUTED, align: 'right' });
+  }
   y += 17;
   pdf.setFillColor(...TEAL);
   pdf.rect(M, y, pageW - 2 * M, 0.8, 'F');
@@ -257,9 +282,11 @@ export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
   ya += field(pdf, 'Please report by', `${minus15(d.startTime)} at OPD reception`, c1, ya, colW);
   ya += field(pdf, 'Doctor', d.doctorName, c1, ya, colW);
   ya += field(pdf, 'Department', d.department, c1, ya, colW);
+  if (d.visitType) ya += field(pdf, 'Visit type', VISIT_TYPE[d.visitType] || d.visitType, c1, ya, colW);
 
   let yp = section('Patient', c2, y);
   yp += field(pdf, 'Name', d.patientName, c2, yp, colW);
+  if (d.regNo) yp += field(pdf, 'Registration no. (UHID)', d.regNo, c2, yp, colW);
   const ageSex = [d.patientAge ? `${d.patientAge} years` : '', d.patientGender || ''].filter(Boolean).join(', ');
   if (ageSex) yp += field(pdf, 'Age and gender', ageSex, c2, yp, colW);
   yp += field(pdf, 'Mobile', d.patientPhone, c2, yp, colW);
@@ -325,6 +352,10 @@ export async function buildAppointmentPdf(d: SlipData): Promise<JsPDF> {
     fy + 10,
     { size: 6.8, color: MUTED },
   );
+  if (confirmed && (d.bookedAt || d.bookedBy)) {
+    const who = d.bookedBy ? `Booked by ${d.bookedBy}` : d.visitType === 'ONLINE' || !d.visitType ? 'Booked online' : 'Booked';
+    text(pdf, `${who}${d.bookedAt ? ` on ${stamp(d.bookedAt)}` : ''}`, M, fy + 13.6, { size: 6.5, color: MUTED, maxWidth: PAGE_W - 2 * M });
+  }
   return pdf;
 }
 
@@ -487,4 +518,159 @@ export async function downloadMedicineListPdf(d: MedicineListPdfData) {
   pdf.setLineDashPattern([], 0);
   text(pdf, 'Take medicines only as your doctor advised. Questions: ' + HOSPITAL.phones.reception.display, M, fy + 5, { size: 6.8, color: MUTED });
   pdf.save(`${HOSPITAL.brand}-medicines-${new Date().toISOString().slice(0, 10)}.pdf`);
+}
+
+// ─── OPD case sheet (A4, for the doctor's desk) ─────────────────────────────
+
+/**
+ * Printed by reception for each visit: patient and visit details at the top,
+ * then blank, ruled sections the doctor fills in by hand (vitals, complaints,
+ * examination, diagnosis, prescription, tests, advice, follow-up, signature).
+ */
+export async function downloadOpdSheetPdf(d: SlipData) {
+  const [{ jsPDF }, QR] = await Promise.all([import('jspdf'), import('qrcode')]);
+  if (document.fonts?.ready) await document.fonts.ready;
+  const W = 210;
+  const H = 297;
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
+  pdf.setProperties({ title: `OPD case sheet ${d.appointmentCode || ''}`.trim(), author: HOSPITAL.name, creator: HOSPITAL.website });
+
+  let y = await drawLetterhead(pdf, 'OPD Case Sheet', new Date(), W);
+  y += 4;
+
+  // Token band
+  const bandH = 24;
+  pdf.setFillColor(...PANEL);
+  pdf.setDrawColor(...RULE);
+  pdf.setLineWidth(0.3);
+  pdf.roundedRect(M, y, W - 2 * M, bandH, 2, 2, 'FD');
+  if (d.appointmentCode) {
+    const qr = await QR.toDataURL(`${d.appointmentCode}|${d.date}|${d.startTime}`, {
+      errorCorrectionLevel: 'M',
+      margin: 0,
+      width: 300,
+      color: { dark: '#1C2321', light: '#FAF8F4' },
+    });
+    pdf.addImage(qr, 'PNG', W - M - 3 - 18, y + 3, 18, 18);
+  }
+  const bandCols = [
+    ['Token number', d.appointmentCode || '-'],
+    ['Date and time', `${new Date(`${d.date}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}, ${time12(d.startTime)}`],
+    ['Doctor', d.doctorName],
+  ];
+  const bandW = (W - 2 * M - 28) / 3;
+  bandCols.forEach(([label, value], i) => {
+    const x = M + 5 + i * bandW;
+    text(pdf, label, x, y + 8, { size: 7.5, color: MUTED });
+    text(pdf, value, x, y + 15, { size: i === 0 ? 13 : 10, bold: true, font: i === 0 ? 'courier' : 'helvetica', maxWidth: bandW - 4 });
+    if (i === 2) text(pdf, d.department, x, y + 20, { size: 7.5, color: MUTED, maxWidth: bandW - 4 });
+  });
+  y += bandH + 7;
+
+  // Patient and visit grid (4 columns x 2 rows)
+  const cells: [string, string][] = [
+    ['Patient name', d.patientName],
+    ['Registration no. (UHID)', d.regNo || '-'],
+    ['Age / gender', [d.patientAge ? `${d.patientAge} yrs` : '', d.patientGender || ''].filter(Boolean).join(' / ') || '-'],
+    ['Mobile', d.patientPhone],
+    ['Address', d.address || d.town || '-'],
+    ['Visit type', d.visitType ? VISIT_TYPE[d.visitType] || d.visitType : '-'],
+    ['Consultation fee', `${d.fee > 0 ? money(d.fee) : 'As per rates'} (${d.paid ? 'paid' : 'due'})`],
+    ['Booked', d.bookedAt ? `${stamp(d.bookedAt)}${d.bookedBy ? `, ${d.bookedBy}` : ''}` : d.bookedBy || '-'],
+  ];
+  const cw = (W - 2 * M) / 4;
+  cells.forEach(([label, value], i) => {
+    const x = M + (i % 4) * cw;
+    const yy = y + Math.floor(i / 4) * 11;
+    text(pdf, label, x, yy, { size: 7, color: MUTED });
+    text(pdf, value, x, yy + 4.4, { size: 9, bold: true, maxWidth: cw - 3 });
+  });
+  y += 22 + 1;
+
+  // Vitals boxes
+  const vitals = ['BP (mmHg)', 'Pulse (/min)', 'Temp (F)', 'SpO2 (%)', 'Weight (kg)', 'Height (cm)'];
+  const vw = (W - 2 * M - 5 * 3) / 6;
+  text(pdf, 'Vitals', M, y + 3, { size: 9, bold: true, color: TEAL });
+  y += 5.5;
+  vitals.forEach((v, i) => {
+    const x = M + i * (vw + 3);
+    pdf.setDrawColor(...RULE);
+    pdf.setLineWidth(0.3);
+    pdf.roundedRect(x, y, vw, 12, 1.5, 1.5, 'S');
+    text(pdf, v, x + 2, y + 4, { size: 6.8, color: MUTED });
+  });
+  y += 12 + 6;
+
+  // Ruled writing sections
+  const ruled = (title: string, lines: number) => {
+    text(pdf, title, M, y, { size: 9, bold: true, color: TEAL });
+    y += 2;
+    pdf.setDrawColor(...RULE);
+    pdf.setLineWidth(0.25);
+    for (let i = 1; i <= lines; i++) pdf.line(M, y + i * 5.8, W - M, y + i * 5.8);
+    y += lines * 5.8 + 5;
+  };
+  ruled('Chief complaints', 2);
+  ruled('History and examination', 3);
+  ruled('Provisional diagnosis', 2);
+
+  // Prescription table
+  text(pdf, 'Rx', M, y, { size: 12, bold: true, color: TEAL, font: 'courier' });
+  y += 2.5;
+  const cols: [string, number][] = [
+    ['#', 8],
+    ['Medicine and strength', 72],
+    ['Dose', 22],
+    ['Morning - Noon - Night', 36],
+    ['Before / after food', 26],
+    ['Days', 22],
+  ];
+  const rowH = 6.4;
+  const rows = 6;
+  pdf.setFillColor(...PANEL);
+  pdf.rect(M, y, W - 2 * M, rowH, 'F');
+  let x = M;
+  cols.forEach(([h, w]) => {
+    text(pdf, h, x + 1.8, y + 4.7, { size: 7.2, bold: true, color: MUTED, maxWidth: w - 3 });
+    x += w;
+  });
+  pdf.setDrawColor(...RULE);
+  pdf.setLineWidth(0.25);
+  for (let r = 0; r <= rows + 1; r++) pdf.line(M, y + r * rowH, W - M, y + r * rowH);
+  x = M;
+  for (const [, w] of cols) {
+    pdf.line(x, y, x, y + (rows + 1) * rowH);
+    x += w;
+  }
+  pdf.line(W - M, y, W - M, y + (rows + 1) * rowH);
+  for (let r = 1; r <= rows; r++) text(pdf, String(r), M + 2.6, y + r * rowH + 4.8, { size: 7.5, color: MUTED });
+  y += (rows + 1) * rowH + 5.5;
+
+  ruled('Investigations advised', 2);
+  ruled('Advice', 2);
+
+  // Follow-up and signature
+  const sigW = 62;
+  text(pdf, 'Follow-up on', M, y + 1, { size: 9, bold: true, color: TEAL });
+  pdf.setDrawColor(...RULE);
+  pdf.line(M + 26, y + 1.5, M + 80, y + 1.5);
+  pdf.roundedRect(W - M - sigW, y - 4, sigW, 19, 1.5, 1.5, 'S');
+  pdf.line(W - M - sigW + 4, y + 7.5, W - M - 4, y + 7.5);
+  text(pdf, d.doctorName, W - M - sigW / 2, y + 11.2, { size: 8, bold: true, align: 'center', maxWidth: sigW - 6 });
+  text(pdf, "Doctor's signature and stamp", W - M - sigW / 2, y + 13.8, { size: 6.5, color: MUTED, align: 'center' });
+
+  // Footer
+  const fy = H - 10;
+  pdf.setDrawColor(207, 201, 188);
+  pdf.setLineDashPattern([1, 1], 0);
+  pdf.line(M, fy, W - M, fy);
+  pdf.setLineDashPattern([], 0);
+  text(pdf, `Emergency, 24 hours: ${HOSPITAL.phones.emergency.display}`, M, fy + 5, { size: 7.5, bold: true, color: RED });
+  text(pdf, `${HOSPITAL.website}  |  Medicines only as prescribed. Keep this sheet for your next visit.`, W - M, fy + 5, {
+    size: 7,
+    color: MUTED,
+    align: 'right',
+  });
+
+  pdf.save(`${HOSPITAL.brand}-OPD-sheet-${d.appointmentCode || d.date}.pdf`);
 }

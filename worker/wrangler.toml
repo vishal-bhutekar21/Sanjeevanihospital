@@ -38,5 +38,6 @@ HOSPITAL_HELPLINE = "+91-75073-42222"
 HOSPITAL_EMAIL = "admin@sanjeevanihosp.in"
 # Prefix for registration and receipt numbers (SMH-P-000123, SMH-R-2627-000045)
 HOSPITAL_CODE_PREFIX = "SMH"
-# GST number printed on receipts; leave empty until the hospital confirms it
-HOSPITAL_GSTIN = ""
+# GST number printed on receipts. SAMPLE value in the standard format (27 = Maharashtra):
+# replace it with the hospital's real GSTIN before giving receipts to patients.
+HOSPITAL_GSTIN = "27AAAAA0000A1Z5"

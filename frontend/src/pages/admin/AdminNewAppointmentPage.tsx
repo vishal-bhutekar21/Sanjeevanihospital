@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { CalendarPlus, Download, Receipt, Phone, Footprints } from 'lucide-react';
+import { CalendarPlus, Download, FileText, Receipt, Phone, Footprints } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import { DateCalendar } from '../../components/DateCalendar';
 import { SlotPicker } from '../../components/SlotPicker';
@@ -8,7 +8,7 @@ import { PatientPicker } from '../../components/PatientPicker';
 import { Field, Notice, PageHeader, Step } from '../../components/adminUi';
 import type { RegisteredPatient } from '../../lib/reception';
 import { addDays, inputClass, inr, todayIst } from '../../lib/reception';
-import { downloadAppointmentPdf } from '../../lib/appointmentPdf';
+import { downloadAppointmentPdf, downloadOpdSheetPdf, SlipData } from '../../lib/appointmentPdf';
 
 interface Doc {
   id: string;
@@ -32,6 +32,11 @@ interface Booked {
     endTime: string;
     fee: number;
     paymentStatus: 'PAID' | 'PENDING';
+    source?: 'ONLINE' | 'WALK_IN' | 'PHONE';
+    bookedBy?: string;
+    patientRegNo?: string;
+    patientAddress?: string;
+    createdAt?: string;
   };
 }
 
@@ -117,6 +122,27 @@ export const AdminNewAppointmentPage: React.FC = () => {
 
   if (booked) {
     const a = booked.appointment;
+    const slip: SlipData = {
+      kind: 'confirmed',
+      appointmentCode: booked.appointmentCode,
+      patientName: a.patientName,
+      patientAge: a.patientAge,
+      patientGender: a.patientGender,
+      patientPhone: `+91 ${a.patientPhone}`,
+      phoneVerified: true,
+      doctorName: a.doctorName,
+      department: a.department,
+      date: a.appointmentDate,
+      startTime: a.startTime,
+      endTime: a.endTime,
+      fee: a.fee,
+      paid: a.paymentStatus === 'PAID',
+      regNo: a.patientRegNo || patient?.regNo,
+      address: a.patientAddress || patient?.address || undefined,
+      visitType: a.source || source,
+      bookedBy: a.bookedBy,
+      bookedAt: a.createdAt,
+    };
     return (
       <div className="max-w-[720px] mx-auto space-y-6">
         <PageHeader icon={CalendarPlus} title="Visit booked" />
@@ -136,26 +162,12 @@ export const AdminNewAppointmentPage: React.FC = () => {
             <button
               type="button"
               className="btn-secondary"
-              onClick={() =>
-                downloadAppointmentPdf({
-                  kind: 'confirmed',
-                  appointmentCode: booked.appointmentCode,
-                  patientName: a.patientName,
-                  patientAge: a.patientAge,
-                  patientGender: a.patientGender,
-                  patientPhone: `+91 ${a.patientPhone}`,
-                  phoneVerified: true,
-                  doctorName: a.doctorName,
-                  department: a.department,
-                  date: a.appointmentDate,
-                  startTime: a.startTime,
-                  endTime: a.endTime,
-                  fee: a.fee,
-                  paid: a.paymentStatus === 'PAID',
-                })
-              }
+              onClick={() => downloadAppointmentPdf(slip)}
             >
               <Download className="w-4 h-4" /> Download token slip
+            </button>
+            <button type="button" className="btn-secondary" onClick={() => downloadOpdSheetPdf(slip)}>
+              <FileText className="w-4 h-4" /> Print OPD case sheet
             </button>
           </div>
           <div className="mt-4 flex flex-wrap gap-x-5 text-sm">

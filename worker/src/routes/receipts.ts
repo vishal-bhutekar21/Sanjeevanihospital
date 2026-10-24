@@ -307,6 +307,18 @@ receiptRoutes.post('/', async (c) => {
   const payments: PaymentEntry[] =
     paidPaise > 0 ? [{ amountPaise: paidPaise, mode: dto.paymentMode, ref: paymentRef, at, by: actor.name || null }] : [];
   const id = uuid();
+  const appointmentCode = typeof dto.appointmentCode === 'string' ? dto.appointmentCode.trim() || null : null;
+  let doctorName = typeof dto.doctorName === 'string' ? dto.doctorName.trim() || null : null;
+  if (appointmentCode && !doctorName) {
+    // Show the treating doctor on the receipt
+    const appt = await first<{ doctor_name: string | null }>(
+      c.env,
+      `SELECT doctor_name FROM appointments WHERE appointment_code = ? COLLATE NOCASE AND hospital_id = ?`,
+      appointmentCode,
+      hospital(c.env).id,
+    );
+    doctorName = appt?.doctor_name ?? null;
+  }
 
   await run(
     c.env,
@@ -323,8 +335,8 @@ receiptRoutes.post('/', async (c) => {
     patientName,
     patientPhone,
     patientAddress,
-    typeof dto.appointmentCode === 'string' ? dto.appointmentCode.trim() || null : null,
-    typeof dto.doctorName === 'string' ? dto.doctorName.trim() || null : null,
+    appointmentCode,
+    doctorName,
     JSON.stringify(calc.items),
     calc.subtotalPaise,
     calc.discountPaise,

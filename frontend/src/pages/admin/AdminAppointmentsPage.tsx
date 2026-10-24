@@ -7,28 +7,8 @@ import { DateCalendar, toDateKey } from '../../components/DateCalendar';
 import { SlotPicker } from '../../components/SlotPicker';
 import { Notice } from '../../components/adminUi';
 import { addDays, isReceptionRole, todayIst } from '../../lib/reception';
-import { downloadAppointmentPdf } from '../../lib/appointmentPdf';
-import {
-  CalendarPlus,
-  CalendarClock,
-  Download,
-  Receipt,
-  XCircle,
-  CalendarCheck,
-  Search,
-  Filter,
-  CheckCircle2,
-  Clock,
-  User,
-  Phone,
-  Printer,
-  ChevronDown,
-  Sparkles,
-  ArrowUpDown,
-  Eye,
-  X,
-  Stethoscope,
-} from 'lucide-react';
+import { downloadAppointmentPdf, downloadOpdSheetPdf, SlipData } from '../../lib/appointmentPdf';
+import { CalendarPlus, CalendarClock, Download, Receipt, XCircle, CalendarCheck, Search, Filter, CheckCircle2, Clock, User, Phone, Printer, ChevronDown, Sparkles, ArrowUpDown, Eye, X, Stethoscope, FileText } from 'lucide-react';
 
 interface AppointmentItem {
   id: string;
@@ -50,9 +30,36 @@ interface AppointmentItem {
   source?: 'ONLINE' | 'WALK_IN' | 'PHONE';
   patientId?: string;
   cancelReason?: string;
+  patientRegNo?: string;
+  patientAddress?: string;
+  bookedBy?: string;
+  createdAt?: string;
 }
 
 const SOURCE_LABEL: Record<string, string> = { WALK_IN: 'Walk-in', PHONE: 'Booked by phone' };
+
+/** Data for the token slip and the OPD case sheet PDFs. */
+const slipFor = (a: AppointmentItem): SlipData => ({
+  kind: 'confirmed',
+  appointmentCode: a.appointmentCode,
+  patientName: a.patientName,
+  patientAge: a.patientAge,
+  patientGender: a.patientGender,
+  patientPhone: `+91 ${a.patientPhone}`,
+  phoneVerified: a.phoneVerified !== false,
+  doctorName: a.doctorName,
+  department: a.department,
+  date: a.appointmentDate,
+  startTime: a.startTime,
+  endTime: a.endTime,
+  fee: a.fee,
+  paid: a.paymentStatus === 'PAID',
+  regNo: a.patientRegNo,
+  address: a.patientAddress?.split(' · ')[0],
+  visitType: a.source || 'ONLINE',
+  bookedBy: a.bookedBy,
+  bookedAt: a.createdAt,
+});
 
 // "09:30 AM" -> "0570" so times sort correctly as text
 const toMins = (t: string) => {
@@ -405,10 +412,11 @@ export const AdminAppointmentsPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedAppointment(apt)}
+                      aria-label={`Details for ${apt.appointmentCode}`}
                       className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-teal-50 hover:text-[#0F766E] text-stone-700 transition inline-flex items-center gap-1 text-xs font-semibold"
                     >
                       <Eye className="w-3 h-3" />
-                      <span>Slip</span>
+                      <span>Details</span>
                     </button>
                   </td>
                 </tr>
@@ -451,26 +459,16 @@ export const AdminAppointmentsPage: React.FC = () => {
               <button
                 type="button"
                 className="btn-secondary text-sm flex items-center gap-1.5"
-                onClick={() =>
-                  downloadAppointmentPdf({
-                    kind: 'confirmed',
-                    appointmentCode: selectedAppointment.appointmentCode,
-                    patientName: selectedAppointment.patientName,
-                    patientAge: selectedAppointment.patientAge,
-                    patientGender: selectedAppointment.patientGender,
-                    patientPhone: `+91 ${selectedAppointment.patientPhone}`,
-                    phoneVerified: selectedAppointment.phoneVerified !== false,
-                    doctorName: selectedAppointment.doctorName,
-                    department: selectedAppointment.department,
-                    date: selectedAppointment.appointmentDate,
-                    startTime: selectedAppointment.startTime,
-                    endTime: selectedAppointment.endTime,
-                    fee: selectedAppointment.fee,
-                    paid: selectedAppointment.paymentStatus === 'PAID',
-                  })
-                }
+                onClick={() => downloadAppointmentPdf(slipFor(selectedAppointment))}
               >
                 <Download className="w-4 h-4" /> Token slip
+              </button>
+              <button
+                type="button"
+                className="btn-secondary text-sm flex items-center gap-1.5"
+                onClick={() => downloadOpdSheetPdf(slipFor(selectedAppointment))}
+              >
+                <FileText className="w-4 h-4" /> OPD case sheet
               </button>
               {canManage && (
                 <Link
