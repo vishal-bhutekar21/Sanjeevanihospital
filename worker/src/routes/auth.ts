@@ -2,12 +2,13 @@
  * Patient OTP + staff login. Port of backend/src/auth (auth.controller.ts, auth.service.ts, dto/).
  * OTP codes live in otp_sessions (hashed), counters in rate_limits.
  */
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
+import { decode } from 'hono/jwt';
 import type { AppEnv, Env } from '../env';
 import { AdminRole } from '../env';
 import { hospital, isProduction, flag } from '../lib/config';
-import { HttpError, badRequest, conflict, ok, body, clientIp, tooMany, unauthorized } from '../lib/http';
-import { first, run, uuid, nowIso } from '../lib/db';
+import { HttpError, badRequest, conflict, forbidden, notFound, ok, body, clientIp, tooMany, unauthorized } from '../lib/http';
+import { all, first, run, uuid, nowIso } from '../lib/db';
 import { requireAuth, requireRoles, signToken } from '../lib/auth';
 import { hashPassword, verifyPassword, sha256, safeEqual } from '../lib/password';
 import { hit } from '../lib/ratelimit';
@@ -311,32 +312,30 @@ authRoutes.post('/admin/register', requireRoles(AdminRole.SUPER_ADMIN, AdminRole
   }
   if (!isStr(dto.hospitalId)) throw badRequest('hospitalId must be a string');
 
-  const email = dto.email.toLowerCase();
+  const creatorRole = c.get('user').role;
   const role = (dto.role as string) || AdminRole.HOSPITAL_ADMIN;
+  if (role === AdminRole.SUPER_ADMIN && creatorRole !== AdminRole.SUPER_ADMIN) {
+    throw forbidden('Only a super admin can create another super admin.');
+  }
+  checkPasswordStrength(dto.password);
+  const email = dto.email.toLowerCase();
+  const name = dto.name.trim();
 
   const taken =
-    (await first(env, `SELECT id FROM hospital_admins WHERE email = ? COLLATE NOCASE`, email)) ||
-    (!isProduction(env) && BUILT_IN_ADMINS(env).some((a) => a.email === email));
+    (!isProduction(env) && BUILT_IN_ADMINS(env).some((a) => a.email === email)) ||
+    (await first(env, `SELECT id FROM hospital_admins WHERE email = ? COLLATE NOCASE`, email));
   if (taken) throw conflict('An account with this email already exists.');
 
-  // hospital_admins.hospital_id must point at a hospitals row; create ours from config if missing
-  const h = hospital(env);
-  if (!(await first(env, `SELECT id FROM hospitals WHERE id = ?`, dto.hospitalId))) {
-    if (dto.hospitalId !== h.id) throw badRequest('Unknown hospital.');
-    await run(
-      env,
-      `INSERT OR IGNORE INTO hospitals (id, name, slug, address, city, state, pincode, phone, emergency_phone, email)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      h.id, h.name, h.slug, h.addressLine, h.city, h.state, h.pincode, h.helpline, h.helpline, h.email,
-    );
-  }
+  // Accounts always belong to this hospital (like the old server's hospital row),
+  // whatever hospitalId the browser sent. Create the hospitals row from config if missing.
+  const hospitalId = await ensureHospitalRow(env);
 
   const id = uuid();
   try {
     await run(
       env,
       `INSERT INTO hospital_admins (id, hospital_id, name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, ?, ?, 1)`,
-      id, dto.hospitalId, dto.name, email, await hashPassword(dto.password), role,
+      id, hospitalId, name, email, await hashPassword(dto.password), role,
     );
   } catch (err) {
     if (/UNIQUE/i.test((err as Error).message)) throw conflict('An account with this email already exists.');
@@ -348,14 +347,136 @@ authRoutes.post('/admin/register', requireRoles(AdminRole.SUPER_ADMIN, AdminRole
     action: 'ADMIN_CREATED',
     entity: 'HOSPITAL_ADMIN',
     entityId: id,
-    metadata: { name: dto.name, email, role },
+    metadata: { name, email, role },
   });
 
-  return ok(
-    c,
-    { id, hospitalId: dto.hospitalId, name: dto.name, email, role, message: 'New administrator registered successfully' },
-    201,
+  return ok(c, { id, hospitalId, name, email, role, message: 'New administrator registered successfully' }, 201);
+});
+
+// ─── 4b. Team logins: list, stop / allow access, reset password (admins only) ─
+
+function checkPasswordStrength(password: string) {
+  if (password.length < 8 || !/[A-Za-z]/.test(password) || !/\d/.test(password)) {
+    throw badRequest('Password must be at least 8 characters and include a letter and a number.');
+  }
+}
+
+async function ensureHospitalRow(env: Env): Promise<string> {
+  const h = hospital(env);
+  if (!(await first(env, `SELECT id FROM hospitals WHERE id = ?`, h.id))) {
+    await run(
+      env,
+      `INSERT OR IGNORE INTO hospitals (id, name, slug, address, city, state, pincode, phone, emergency_phone, email)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      h.id, h.name, h.slug, h.addressLine, h.city, h.state, h.pincode, h.helpline, h.helpline, h.email,
+    );
+  }
+  return h.id;
+}
+
+/** Who is making the change, from the token (name is in staff tokens). */
+function actorOf(c: Context<AppEnv>) {
+  const user = c.get('user');
+  let name: unknown;
+  try {
+    const token = (c.req.header('authorization') || '').replace(/^Bearer\s+/i, '');
+    name = decode(token).payload.name; // already verified by requireRoles
+  } catch {
+    /* no name in the token */
+  }
+  return { id: user.userId, role: user.role, name: (isStr(name) && name) || user.email || undefined };
+}
+
+const MANAGERS = [AdminRole.SUPER_ADMIN, AdminRole.HOSPITAL_ADMIN];
+
+authRoutes.get('/admin/users', requireRoles(...MANAGERS), async (c) => {
+  const env = c.env;
+  const rows = await all<{ id: string; name: string; email: string; role: string; is_active: number; created_at: string }>(
+    env,
+    `SELECT id, name, email, role, is_active, created_at FROM hospital_admins WHERE hospital_id = ? ORDER BY created_at ASC`,
+    hospital(env).id,
   );
+  const out: { id: string; name: string; email: string; role: string; isActive: boolean; createdAt?: string }[] = rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    email: r.email,
+    role: r.role,
+    isActive: r.is_active === 1,
+    createdAt: r.created_at,
+  }));
+  if (!isProduction(env)) {
+    BUILT_IN_ADMINS(env)
+      .filter((a) => !out.some((o) => o.email === a.email))
+      .forEach((a) => out.push({ id: a.id, name: a.name, email: a.email, role: a.role, isActive: a.isActive }));
+  }
+  return ok(c, out);
+});
+
+/** The account to change; only a super admin may change a super admin. */
+async function findAdminForChange(env: Env, id: string, actor: { id: string; role: string }) {
+  const row = await first<{ id: string; name: string; email: string; role: string; hospital_id: string }>(
+    env,
+    `SELECT id, name, email, role, hospital_id FROM hospital_admins WHERE id = ? AND hospital_id = ?`,
+    id,
+    hospital(env).id,
+  );
+  let builtIn = false;
+  let target = row ? { id: row.id, name: row.name, email: row.email, role: row.role } : undefined;
+  if (!target && !isProduction(env)) {
+    const m = BUILT_IN_ADMINS(env).find((a) => a.id === id);
+    if (m) {
+      target = { id: m.id, name: m.name, email: m.email, role: m.role };
+      builtIn = true;
+    }
+  }
+  if (!target) throw notFound('Staff account not found.');
+  if (target.role === AdminRole.SUPER_ADMIN && actor.role !== AdminRole.SUPER_ADMIN) {
+    throw forbidden('Only a super admin can change a super admin account.');
+  }
+  return { target, builtIn, isSelf: actor.id === id };
+}
+
+// Built-in accounts exist only in local development and live in code, so nothing can be saved for them
+const BUILT_IN_FIXED = 'Built-in development accounts cannot be changed. Create a real login instead.';
+
+authRoutes.patch('/admin/users/:id/active', requireRoles(...MANAGERS), async (c) => {
+  const env = c.env;
+  const id = c.req.param('id');
+  const { isActive: isActiveIn } = await body<{ isActive?: unknown }>(c);
+  const isActive = isActiveIn === true;
+  const actor = actorOf(c);
+  const { target, builtIn, isSelf } = await findAdminForChange(env, id, actor);
+  if (isSelf && !isActive) throw badRequest('You cannot deactivate your own account.');
+  if (builtIn) throw badRequest(BUILT_IN_FIXED);
+  await run(env, `UPDATE hospital_admins SET is_active = ?, updated_at = ? WHERE id = ?`, isActive, nowIso(), id);
+  await logAction(env, {
+    userId: actor.id,
+    action: isActive ? 'ADMIN_ACTIVATED' : 'ADMIN_DEACTIVATED',
+    entity: 'HOSPITAL_ADMIN',
+    entityId: id,
+    metadata: { email: target.email, by: actor.name },
+  });
+  return ok(c, { id, isActive });
+});
+
+authRoutes.post('/admin/users/:id/reset-password', requireRoles(...MANAGERS), async (c) => {
+  const env = c.env;
+  const id = c.req.param('id');
+  const { password } = await body<{ password?: unknown }>(c);
+  const actor = actorOf(c);
+  const { target, builtIn } = await findAdminForChange(env, id, actor);
+  const newPassword = isStr(password) ? password : '';
+  checkPasswordStrength(newPassword);
+  if (builtIn) throw badRequest(BUILT_IN_FIXED);
+  await run(env, `UPDATE hospital_admins SET password_hash = ?, updated_at = ? WHERE id = ?`, await hashPassword(newPassword), nowIso(), id);
+  await logAction(env, {
+    userId: actor.id,
+    action: 'ADMIN_PASSWORD_RESET',
+    entity: 'HOSPITAL_ADMIN',
+    entityId: id,
+    metadata: { email: target.email, by: actor.name },
+  });
+  return ok(c, { id, message: 'Password changed.' });
 });
 
 // ─── 5. Who am I ─────────────────────────────────────────────────────────────

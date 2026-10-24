@@ -2,7 +2,8 @@
  * Online OPD booking. Port of backend/src/appointments (controller, service, dto/).
  * Sessions, slot holds, appointments and OPD timings are stored in D1.
  */
-import { Hono } from 'hono';
+import { Hono, type Context } from 'hono';
+import { decode } from 'hono/jwt';
 import type { AppEnv, Env } from '../env';
 import { hospital, openAllDoctors } from '../lib/config';
 import { badRequest, conflict, notFound, ok, body } from '../lib/http';
@@ -33,6 +34,60 @@ const need = (v: unknown, field: string): string => {
 };
 
 const findDoctor = (id: string) => ROSTER.find((d) => d.id === id);
+
+// ─── Consultation fees ───────────────────────────────────────────────────────
+// ROSTER has the published fee; reception can override it per doctor from the
+// admin panel. Overrides live in hospital_settings as "doctor_fee:<doctorId>"
+// (same key as the old server) and apply to online bookings too.
+
+const FEE_KEY = 'doctor_fee:';
+
+const validFee = (v: unknown) => {
+  const n = Number(v);
+  return Number.isFinite(n) && n >= 0 ? n : undefined;
+};
+
+/** Current fee of every roster doctor (saved override, else the roster fee). */
+export async function doctorFees(env: Env): Promise<Map<string, number>> {
+  const map = new Map(ROSTER.map((d) => [d.id, d.fee]));
+  const rows = await all<{ key: string; value: string }>(
+    env,
+    `SELECT key, value FROM hospital_settings WHERE hospital_id = ? AND key GLOB 'doctor_fee:*'`,
+    hospital(env).id,
+  );
+  for (const r of rows) {
+    const id = r.key.slice(FEE_KEY.length);
+    const fee = validFee(r.value);
+    if (map.has(id) && fee !== undefined) map.set(id, fee);
+  }
+  return map;
+}
+
+/** Current fee of one doctor (0 = not set; patient pays at the counter). */
+export async function doctorFee(env: Env, doctorId: string): Promise<number> {
+  const doc = findDoctor(doctorId);
+  if (!doc) return 0;
+  const row = await first<{ value: string }>(
+    env,
+    `SELECT value FROM hospital_settings WHERE hospital_id = ? AND key = ?`,
+    hospital(env).id,
+    FEE_KEY + doctorId,
+  );
+  return validFee(row?.value) ?? doc.fee;
+}
+
+/** Who is making a staff change: id, name from the token (old StaffActor). */
+function actorOf(c: Context<AppEnv>) {
+  const user = c.get('user');
+  let name: unknown;
+  try {
+    const token = (c.req.header('authorization') || '').replace(/^Bearer\s+/i, '');
+    name = decode(token).payload.name; // already verified by requireRoles
+  } catch {
+    /* no name in the token */
+  }
+  return { id: user.userId, name: (isStr(name) && name) || user.email || undefined, role: user.role };
+}
 
 // ─── OPD timings ─────────────────────────────────────────────────────────────
 
@@ -149,6 +204,13 @@ function toAppointment(r: Record<string, any>) {
     fee: r.fee,
     paymentId: r.razorpay_payment_id ?? undefined,
     createdAt: r.created_at,
+    // Reception tools (migration 0003); left out when not set, like the old records
+    source: r.source ?? undefined,
+    bookedBy: r.booked_by ?? undefined,
+    patientId: r.patient_id ?? undefined,
+    patientRegNo: r.patient_reg_no ?? undefined,
+    cancelReason: r.cancel_reason ?? undefined,
+    rescheduledFrom: r.rescheduled_from ?? undefined,
   };
 }
 type Appointment = ReturnType<typeof toAppointment>;
@@ -229,7 +291,7 @@ appointmentRoutes.post('/session/init', requirePatient('BOOKING_SESSION', 'PATIE
         expiresAt,
         createdAt,
       },
-      doctor: { id: doctor.id, name: doctor.name, department: doctor.department, fee: doctor.fee },
+      doctor: { id: doctor.id, name: doctor.name, department: doctor.department, fee: await doctorFee(env, doctor.id) },
       message: 'Booking session created. Proceed to slot reservation & payment.',
     },
     201,
@@ -286,7 +348,7 @@ appointmentRoutes.get('/availability', async (c) => {
     doctorName: doctor.name,
     department: doctor.department,
     date: targetDate,
-    fee: doctor.fee,
+    fee: await doctorFee(env, doctor.id),
     totalSlots: slots.length,
     availableSlots: slots.filter((s) => s.status === 'AVAILABLE').length,
     slots,
@@ -446,6 +508,7 @@ appointmentRoutes.post('/confirm-slot', async (c) => {
 
   const year = slot.slot_date.slice(0, 4);
   const aptId = uuid();
+  const fee = await doctorFee(env, doctor.id);
 
   for (let attempt = 0; attempt < 5; attempt++) {
     const code = appointmentCode(year);
@@ -465,12 +528,12 @@ appointmentRoutes.post('/confirm-slot', async (c) => {
              (id, appointment_code, hospital_id, department_id, doctor_id, slot_id, session_id, payment_id,
               patient_name, patient_phone, patient_age, patient_gender, patient_address,
               appointment_date, start_time, end_time, doctor_name, department_name, fee,
-              payment_status, razorpay_payment_id, phone_verified, status, created_at, updated_at)
-           SELECT ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', ?, ?
+              payment_status, razorpay_payment_id, phone_verified, status, source, created_at, updated_at)
+           SELECT ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'CONFIRMED', 'ONLINE', ?, ?
            WHERE EXISTS (SELECT 1 FROM appointment_slots WHERE id = ? AND status = 'CONFIRMED' AND booking_session_id = ?)`,
           aptId, code, hospital(env).id, doctor.id, slot.id, bookingSessionId, payment?.id ?? null,
           session.patient_name, session.phone_number, session.patient_age, session.patient_gender, session.patient_address,
-          slot.slot_date, slot.start_time, slot.end_time, doctor.name, doctor.department, doctor.fee,
+          slot.slot_date, slot.start_time, slot.end_time, doctor.name, doctor.department, fee,
           isPaid ? 'PAID' : 'PENDING', payment?.razorpay_payment_id ?? null, session.phone_verified !== 0, now, now,
           slot.id, bookingSessionId,
         ),
@@ -593,7 +656,329 @@ appointmentRoutes.put('/schedules/:doctorId', requireRoles(...FRONT_DESK), async
   return ok(c, { doctorId, savedInDatabase: true, schedule });
 });
 
-// ─── 6. Staff: list, status, look up by token ────────────────────────────────
+// ─── 6. Reception: doctors and fees, walk-in / phone booking, cancel, change time ──
+// Fixed paths are registered before the ':code' / ':id' routes below.
+
+appointmentRoutes.get('/staff/doctors', requireRoles(...FRONT_DESK), async (c) => {
+  const fees = await doctorFees(c.env);
+  return ok(
+    c,
+    ROSTER.map((d) => ({ id: d.id, name: d.name, department: d.department, fee: fees.get(d.id) ?? d.fee })),
+  );
+});
+
+appointmentRoutes.put('/staff/doctors/:doctorId/fee', requireRoles(...FRONT_DESK), async (c) => {
+  const env = c.env;
+  const doctorId = c.req.param('doctorId');
+  const doctor = findDoctor(doctorId);
+  if (!doctor) throw notFound('Doctor not found.');
+  const { fee: feeIn } = await body<{ fee?: unknown }>(c);
+  const fee = Number(feeIn);
+  if (!Number.isFinite(fee) || fee < 0 || fee > 1_000_000) {
+    throw badRequest('Fee must be an amount in rupees between 0 and 10,00,000.');
+  }
+  const before = await doctorFee(env, doctorId);
+  const value = Math.round(fee);
+  const now = nowIso();
+  await run(
+    env,
+    `INSERT INTO hospital_settings (id, hospital_id, key, value, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)
+     ON CONFLICT (hospital_id, key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at`,
+    uuid(), hospital(env).id, FEE_KEY + doctorId, String(value), now, now,
+  );
+  const actor = actorOf(c);
+  await logAction(env, {
+    userId: actor.id,
+    action: 'DOCTOR_FEE_CHANGED',
+    entity: 'DOCTOR',
+    entityId: doctorId,
+    metadata: { from: before, to: value, by: actor.name },
+  });
+  return ok(c, { doctorId, fee: value, savedInDatabase: true });
+});
+
+/**
+ * Take a free time for a reception booking, in the same table online holds use.
+ * Free = no row, AVAILABLE, or an expired online hold. The slot row is marked
+ * with "staff:<appointment id>" so an online session can never confirm it.
+ */
+const staffMark = (aptId: string) => `staff:${aptId}`;
+
+async function slotConflict(env: Env, doctorId: string, date: string, startTime: string, held: string, booked: string) {
+  const cur = await first<{ status: string }>(
+    env,
+    `SELECT status FROM appointment_slots WHERE doctor_id = ? AND slot_date = ? AND start_time = ?`,
+    doctorId, date, startTime,
+  );
+  return conflict(cur?.status === 'HELD' ? held : booked);
+}
+
+/** The offered slot for this doctor/date/time (same rules as availability), or undefined. */
+async function offeredSlot(env: Env, doctorId: string, date: string, startTime: string) {
+  const schedule = await bookingSchedule(env, doctorId);
+  if (!schedule || !schedule.days.some((d) => d.length > 0)) return undefined;
+  return offeredSlots(schedule, date).slots.find((s) => s.startTime === startTime);
+}
+
+const PAYMENT_STATUSES = ['PAID', 'PENDING'];
+const STAFF_SOURCES = ['WALK_IN', 'PHONE'];
+const optStr = (v: unknown, field: string, max?: number): string | undefined => {
+  if (v === undefined || v === null) return undefined;
+  if (!isStr(v)) throw badRequest(`${field} must be a string`);
+  if (max && v.length > max) throw badRequest(`${field} must be shorter than or equal to ${max} characters`);
+  return v;
+};
+const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
+
+appointmentRoutes.post('/staff-book', requireRoles(...FRONT_DESK), async (c) => {
+  const env = c.env;
+  const dto = await body<Record<string, unknown>>(c);
+  // Same checks as the old StaffBookDto
+  if (!isStr(dto.doctorId)) throw badRequest('doctorId must be a string');
+  if (!isStr(dto.date) || !DATE_RE.test(dto.date)) throw badRequest('date must be YYYY-MM-DD');
+  if (!isStr(dto.startTime)) throw badRequest('startTime must be a string');
+  if (!isStr(dto.patientName)) throw badRequest('patientName must be a string');
+  if (dto.patientName.length > 120) throw badRequest('patientName must be shorter than or equal to 120 characters');
+  if (dto.patientName.trim() === '') throw badRequest('patientName should not be empty');
+  if (!isStr(dto.patientPhone) || !/^\d{10}$/.test(dto.patientPhone)) throw badRequest('phone must be 10 digits');
+  if (!isInt(dto.patientAge)) throw badRequest('patientAge must be an integer number');
+  if (dto.patientAge < 0) throw badRequest('patientAge must not be less than 0');
+  if (dto.patientAge > 120) throw badRequest('patientAge must not be greater than 120');
+  const patientGender = optStr(dto.patientGender, 'patientGender');
+  const patientAddress = optStr(dto.patientAddress, 'patientAddress', 300);
+  const patientId = optStr(dto.patientId, 'patientId');
+  const patientRegNo = optStr(dto.patientRegNo, 'patientRegNo');
+  if (!isStr(dto.source) || !STAFF_SOURCES.includes(dto.source)) {
+    throw badRequest('source must be one of the following values: WALK_IN, PHONE');
+  }
+  if (dto.fee !== undefined && dto.fee !== null) {
+    if (!isInt(dto.fee)) throw badRequest('fee must be an integer number');
+    if (dto.fee < 0) throw badRequest('fee must not be less than 0');
+    if (dto.fee > 1_000_000) throw badRequest('fee must not be greater than 1000000');
+  }
+  if (!isStr(dto.paymentStatus) || !PAYMENT_STATUSES.includes(dto.paymentStatus)) {
+    throw badRequest('paymentStatus must be one of the following values: PAID, PENDING');
+  }
+  const { date, startTime, source, paymentStatus } = dto as Record<string, string>;
+
+  const doctor = findDoctor(dto.doctorId);
+  if (!doctor) throw badRequest('Choose a doctor from the list.');
+
+  // The time must be one the slot engine offers for that doctor and day
+  const wanted = await offeredSlot(env, doctor.id, date, startTime);
+  if (!wanted) throw badRequest('That time is not available for this doctor. Please pick another time.');
+
+  const doctorFeeNow = await doctorFee(env, doctor.id);
+  const fee = doctorFeeNow > 0 ? doctorFeeNow : ((dto.fee as number | undefined) ?? 0);
+  if (paymentStatus === 'PAID' && fee <= 0) throw badRequest('Enter the fee collected before marking this as paid.');
+
+  const actor = actorOf(c);
+  const aptId = uuid();
+  const mark = staffMark(aptId);
+  const sid = slotId(doctor.id, date, wanted.minutes);
+  const held = 'This time is being held by a patient booking online. Pick another time.';
+  const booked = 'This time is already booked. Please pick another time.';
+
+  let took = false;
+  for (let attempt = 0; attempt < 5 && !took; attempt++) {
+    const code = appointmentCode(date.slice(0, 4));
+    const now = nowIso();
+    try {
+      const res = await env.DB.batch([
+        stmt(
+          env,
+          `INSERT OR IGNORE INTO appointment_slots (id, doctor_id, slot_date, start_time, end_time, status, created_at, updated_at)
+           VALUES (?, ?, ?, ?, ?, 'AVAILABLE', ?, ?)`,
+          sid, doctor.id, date, wanted.startTime, wanted.endTime, now, now,
+        ),
+        // Race-free: only a free time or an expired online hold can be taken
+        stmt(
+          env,
+          `UPDATE appointment_slots SET status = 'CONFIRMED', held_until = NULL, booking_session_id = ?, updated_at = ?
+           WHERE doctor_id = ? AND slot_date = ? AND start_time = ?
+             AND (status = 'AVAILABLE' OR (status = 'HELD' AND (held_until IS NULL OR held_until < ?)))`,
+          mark, now, doctor.id, date, wanted.startTime, now,
+        ),
+        stmt(
+          env,
+          `INSERT INTO appointments
+             (id, appointment_code, hospital_id, department_id, doctor_id, slot_id, session_id, payment_id,
+              patient_name, patient_phone, patient_age, patient_gender, patient_address,
+              appointment_date, start_time, end_time, doctor_name, department_name, fee,
+              payment_status, phone_verified, status, source, booked_by, booked_by_id, patient_id, patient_reg_no,
+              created_at, updated_at)
+           SELECT ?, ?, ?, NULL, ?, s.id, NULL, NULL, ?, ?, ?, ?, ?, s.slot_date, s.start_time, s.end_time, ?, ?, ?,
+                  ?, 1, 'CONFIRMED', ?, ?, ?, ?, ?, ?, ?
+           FROM appointment_slots s
+           WHERE s.doctor_id = ? AND s.slot_date = ? AND s.start_time = ? AND s.status = 'CONFIRMED' AND s.booking_session_id = ?`,
+          aptId, code, hospital(env).id, doctor.id,
+          dto.patientName.trim(), dto.patientPhone, dto.patientAge, patientGender ?? '', patientAddress ?? '',
+          doctor.name, doctor.department, fee,
+          paymentStatus, source, actor.name || actor.id, actor.id, patientId ?? null, patientRegNo ?? null,
+          now, now,
+          doctor.id, date, wanted.startTime, mark,
+        ),
+      ]);
+      if ((res[2].meta?.changes ?? 0) === 0) throw await slotConflict(env, doctor.id, date, wanted.startTime, held, booked);
+      took = true;
+    } catch (err) {
+      const msg = (err as Error).message || '';
+      if (/UNIQUE/i.test(msg) && /appointment_code/i.test(msg) && attempt < 4) continue; // token clash: try another
+      if (/UNIQUE/i.test(msg) && /slot_id/i.test(msg)) throw conflict(booked);
+      throw err;
+    }
+  }
+
+  const row = await first(env, `SELECT * FROM appointments WHERE id = ?`, aptId);
+  const apt = toAppointment(row!);
+  await logAction(env, {
+    userId: actor.id,
+    action: 'APPOINTMENT_BOOKED_BY_STAFF',
+    entity: 'APPOINTMENT',
+    entityId: apt.id,
+    metadata: { appointmentCode: apt.appointmentCode, source, by: actor.name },
+  });
+  return ok(c, confirmationResponse(env, apt), 201);
+});
+
+const getAppointment = (env: Env, id: string) =>
+  first(env, `SELECT * FROM appointments WHERE id = ? AND hospital_id = ?`, id, hospital(env).id);
+
+appointmentRoutes.patch('/:id/cancel', requireRoles(...FRONT_DESK), async (c) => {
+  const env = c.env;
+  const id = c.req.param('id');
+  const { reason } = await body<{ reason?: unknown }>(c);
+  const apt = await getAppointment(env, id);
+  if (!apt) throw notFound('Appointment not found.');
+  if (apt.status === 'CANCELLED') return ok(c, toAppointment(apt));
+  if (apt.status === 'COMPLETED') throw badRequest('A completed visit cannot be cancelled.');
+  const text = (isStr(reason) ? reason : '').trim();
+  if (text.length < 3) throw badRequest('Please give a reason for cancelling.');
+  const cancelReason = text.slice(0, 300);
+
+  const now = nowIso();
+  const res = await env.DB.batch([
+    // Give the time back so another patient can book it
+    stmt(
+      env,
+      `UPDATE appointment_slots SET status = 'AVAILABLE', held_until = NULL, booking_session_id = NULL, updated_at = ?
+       WHERE id = (SELECT slot_id FROM appointments WHERE id = ? AND hospital_id = ? AND status NOT IN ('CANCELLED', 'COMPLETED'))`,
+      now, id, hospital(env).id,
+    ),
+    stmt(
+      env,
+      `UPDATE appointments SET status = 'CANCELLED', cancel_reason = ?, slot_id = NULL, updated_at = ?
+       WHERE id = ? AND hospital_id = ? AND status NOT IN ('CANCELLED', 'COMPLETED') RETURNING *`,
+      cancelReason, now, id, hospital(env).id,
+    ),
+  ]);
+  const row = (res[1].results?.[0] as Record<string, any> | undefined) ?? (await getAppointment(env, id));
+  if (!row) throw notFound('Appointment not found.');
+  if (row.status === 'COMPLETED') throw badRequest('A completed visit cannot be cancelled.');
+  const updated = toAppointment(row);
+
+  const actor = actorOf(c);
+  await logAction(env, {
+    userId: actor.id,
+    action: 'APPOINTMENT_CANCELLED',
+    entity: 'APPOINTMENT',
+    entityId: updated.id,
+    metadata: { appointmentCode: updated.appointmentCode, reason: updated.cancelReason, by: actor.name },
+  });
+  return ok(c, updated);
+});
+
+appointmentRoutes.patch('/:id/reschedule', requireRoles(...FRONT_DESK), async (c) => {
+  const env = c.env;
+  const id = c.req.param('id');
+  const { date, startTime } = await body<{ date?: unknown; startTime?: unknown }>(c);
+  const apt = await getAppointment(env, id);
+  if (!apt) throw notFound('Appointment not found.');
+  if (apt.status === 'COMPLETED' || apt.status === 'CANCELLED') throw badRequest('Only upcoming visits can be moved.');
+  if (!isStr(date) || !DATE_RE.test(date)) throw badRequest('Choose a date.');
+
+  const wanted = isStr(startTime) ? await offeredSlot(env, apt.doctor_id, date, startTime) : undefined;
+  if (!wanted) throw badRequest('That time is not available. Please pick another time.');
+
+  const from = `${apt.appointment_date} ${apt.start_time}`;
+  const mark = staffMark(id);
+  const sid = slotId(apt.doctor_id, date, wanted.minutes);
+  const now = nowIso();
+  const upcoming = `EXISTS (SELECT 1 FROM appointments WHERE id = ? AND hospital_id = ? AND status NOT IN ('COMPLETED', 'CANCELLED'))`;
+  const newSlotTaken = `EXISTS (SELECT 1 FROM appointment_slots WHERE doctor_id = ? AND slot_date = ? AND start_time = ? AND status = 'CONFIRMED' AND booking_session_id = ? AND updated_at = ?)`;
+  const takenArgs = [apt.doctor_id, date, wanted.startTime, mark, now] as const;
+
+  let res: D1Result[];
+  try {
+    res = await env.DB.batch([
+      stmt(
+        env,
+        `INSERT OR IGNORE INTO appointment_slots (id, doctor_id, slot_date, start_time, end_time, status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, 'AVAILABLE', ?, ?)`,
+        sid, apt.doctor_id, date, wanted.startTime, wanted.endTime, now, now,
+      ),
+      // Take the new time (race-free, same rule as reception booking)
+      stmt(
+        env,
+        `UPDATE appointment_slots SET status = 'CONFIRMED', held_until = NULL, booking_session_id = ?, updated_at = ?
+         WHERE doctor_id = ? AND slot_date = ? AND start_time = ?
+           AND (status = 'AVAILABLE' OR (status = 'HELD' AND (held_until IS NULL OR held_until < ?)))
+           AND ${upcoming}`,
+        mark, now, apt.doctor_id, date, wanted.startTime, now, id, hospital(env).id,
+      ),
+      // Give the old time back
+      stmt(
+        env,
+        `UPDATE appointment_slots SET status = 'AVAILABLE', held_until = NULL, booking_session_id = NULL, updated_at = ?
+         WHERE id = (SELECT slot_id FROM appointments WHERE id = ? AND hospital_id = ?)
+           AND NOT (doctor_id = ? AND slot_date = ? AND start_time = ?) AND ${newSlotTaken}`,
+        now, id, hospital(env).id, apt.doctor_id, date, wanted.startTime, ...takenArgs,
+      ),
+      stmt(
+        env,
+        `UPDATE appointments SET
+           slot_id = (SELECT id FROM appointment_slots WHERE doctor_id = ? AND slot_date = ? AND start_time = ?),
+           appointment_date = ?, start_time = ?, end_time = ?, rescheduled_from = ?, updated_at = ?
+         WHERE id = ? AND hospital_id = ? AND ${newSlotTaken} RETURNING *`,
+        apt.doctor_id, date, wanted.startTime, date, wanted.startTime, wanted.endTime, from, now,
+        id, hospital(env).id, ...takenArgs,
+      ),
+    ]);
+  } catch (err) {
+    if (/UNIQUE/i.test((err as Error).message || '')) throw conflict('This time is already booked.');
+    throw err;
+  }
+  const row = res[3].results?.[0] as Record<string, any> | undefined;
+  if (!row) {
+    const now2 = await getAppointment(env, id);
+    if (!now2 || now2.status === 'COMPLETED' || now2.status === 'CANCELLED') throw badRequest('Only upcoming visits can be moved.');
+    throw await slotConflict(env, apt.doctor_id, date, wanted.startTime, 'This time is being held by another booking. Pick another time.', 'This time is already booked.');
+  }
+  const updated = toAppointment(row);
+
+  const actor = actorOf(c);
+  await logAction(env, {
+    userId: actor.id,
+    action: 'APPOINTMENT_RESCHEDULED',
+    entity: 'APPOINTMENT',
+    entityId: updated.id,
+    metadata: { appointmentCode: updated.appointmentCode, from, to: `${date} ${wanted.startTime}`, by: actor.name },
+  });
+  return ok(c, updated);
+});
+
+/** For receipts: a fully paid receipt marks the visit (by token number) as paid. */
+export async function markAppointmentPaid(env: Env, code: string) {
+  if (!code) return;
+  await run(
+    env,
+    `UPDATE appointments SET payment_status = 'PAID', updated_at = ?
+     WHERE appointment_code = ? COLLATE NOCASE AND hospital_id = ? AND payment_status = 'PENDING'`,
+    nowIso(), code, hospital(env).id,
+  );
+}
+
+// ─── 7. Staff: list, status, look up by token ────────────────────────────────
 
 appointmentRoutes.get('/', requireRoles(...STAFF), async (c) => {
   const rows = await all(c.env, `SELECT * FROM appointments WHERE hospital_id = ? ORDER BY created_at DESC`, hospital(c.env).id);
