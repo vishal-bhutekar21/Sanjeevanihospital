@@ -3,15 +3,14 @@ import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Menu, X, Phone, UserRound } from 'lucide-react';
 import { HOSPITAL } from '../config/hospital';
-import { getPatientToken } from '../lib/patientPortal';
+import { usePatientSignedIn } from '../lib/patientPortal';
 
 export const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMr = i18n.language === 'mr';
-  // Re-read on every render (the header re-renders on each page change, e.g. after logging in)
-  const patientSignedIn = !!getPatientToken();
+  const patientSignedIn = usePatientSignedIn();
 
   // Close the mobile menu whenever the route changes
   useEffect(() => {

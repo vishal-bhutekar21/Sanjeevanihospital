@@ -5,6 +5,8 @@ import { PageIntro } from '../components/ui';
 import { HOSPITAL } from '../config/hospital';
 
 const WRAP = 'max-w-[760px] mx-auto px-4 sm:px-6 lg:px-8';
+const MR_DIGITS = '०१२३४५६७८९';
+const num = (n: number, mr: boolean) => (mr ? String(n).replace(/\d/g, (d) => MR_DIGITS[Number(d)]) : String(n));
 const LINK = 'text-[#0F766E] underline underline-offset-2 hover:text-[#0B5D57]';
 
 type Section = { id: string; title: string; body: React.ReactNode };
@@ -339,19 +341,19 @@ export const PrivacyPage: React.FC = () => {
           </>
         }
       />
-      <LongForm sections={sections} tocLabel={L('On this page', 'या पानावर')} />
+      <LongForm sections={sections} tocLabel={L('On this page', 'या पानावर')} isMr={isMr} />
     </div>
   );
 };
 
 /** "On this page" list followed by numbered sections. */
-const LongForm: React.FC<{ sections: Section[]; tocLabel: string }> = ({ sections, tocLabel }) => (
+const LongForm: React.FC<{ sections: Section[]; tocLabel: string; isMr: boolean }> = ({ sections, tocLabel, isMr }) => (
   <div className={`${WRAP} py-10 sm:py-14`}>
     <nav aria-labelledby="toc-title" className="card-clean p-5 sm:p-6">
       <h2 id="toc-title" className="text-[1.125rem] leading-snug">
         {tocLabel}
       </h2>
-      <ol className="mt-3 space-y-1 list-decimal pl-5 marker:text-stone-500">
+      <ol className={`mt-3 space-y-1 pl-5 marker:text-stone-500 ${isMr ? '[list-style-type:devanagari]' : 'list-decimal'}`}>
         {sections.map((s) => (
           <li key={s.id}>
             <a href={`#${s.id}`} className={`${LINK} inline-block py-1.5`}>
@@ -364,7 +366,7 @@ const LongForm: React.FC<{ sections: Section[]; tocLabel: string }> = ({ section
     {sections.map((s, i) => (
       <section key={s.id} id={s.id} aria-labelledby={`${s.id}-h`} className="mt-10 scroll-mt-20 lg:scroll-mt-24">
         <h2 id={`${s.id}-h`} className="text-[1.375rem] sm:text-[1.625rem] leading-tight">
-          <span className="text-stone-400 mr-2">{i + 1}.</span>
+          <span className="text-stone-400 mr-2">{num(i + 1, isMr)}.</span>
           {s.title}
         </h2>
         {s.body}

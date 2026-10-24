@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 /**
  * Patient portal: sign-in token, data loading and medicine alerts.
  * Patients sign in with their mobile number and an SMS code; the hospital
@@ -109,6 +110,8 @@ export const getPatientToken = (): string | null => {
   }
 };
 
+const AUTH_EVENT = 'sanjeevani-patient-auth';
+
 export const setPatientToken = (token: string | null) => {
   try {
     if (token) localStorage.setItem(PATIENT_TOKEN_KEY, token);
@@ -116,7 +119,24 @@ export const setPatientToken = (token: string | null) => {
   } catch {
     /* private mode: stays signed in for this page only */
   }
+  // Header and footer update straight away (same page, no navigation)
+  if (typeof window !== 'undefined') window.dispatchEvent(new Event(AUTH_EVENT));
 };
+
+/** True while a patient is signed in; follows log in / log out on this page and in other tabs. */
+export function usePatientSignedIn(): boolean {
+  const [signedIn, setSignedIn] = useState(() => !!getPatientToken());
+  useEffect(() => {
+    const update = () => setSignedIn(!!getPatientToken());
+    window.addEventListener(AUTH_EVENT, update);
+    window.addEventListener('storage', update);
+    return () => {
+      window.removeEventListener(AUTH_EVENT, update);
+      window.removeEventListener('storage', update);
+    };
+  }, []);
+  return signedIn;
+}
 
 export async function portalCall<T = any>(path: string, body?: unknown, token?: string | null): Promise<T> {
   let res: Response;

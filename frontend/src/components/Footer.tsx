@@ -1,16 +1,15 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEVELOPER } from '../data/developer';
 import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight, UserRound } from 'lucide-react';
 import { HOSPITAL } from '../config/hospital';
-import { getPatientToken } from '../lib/patientPortal';
+import { usePatientSignedIn } from '../lib/patientPortal';
 
 export const Footer: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
-  useLocation(); // re-render on page change so the login state is current
-  const signedIn = !!getPatientToken();
+  const signedIn = usePatientSignedIn();
 
   const links = [
     { to: '/departments', en: 'Departments', mr: 'विभाग' },

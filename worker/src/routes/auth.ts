@@ -74,8 +74,9 @@ authRoutes.post('/send-otp', async (c) => {
     throw badRequest('Please provide a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9');
   }
 
-  // Max 3 OTP requests per 10 minutes per phone
-  if (!(await hit(env, `otp:phone:${phone}`, 3, OTP_TTL_MS))) {
+  // Max 3 OTP requests per 10 minutes per phone (10 for the demo test number, used for repeated testing)
+  const isTestPhone = !!env.TEST_PATIENT_PHONE && phone === env.TEST_PATIENT_PHONE.trim();
+  if (!(await hit(env, `otp:phone:${phone}`, isTestPhone ? 10 : 3, OTP_TTL_MS))) {
     throw badRequest('Too many OTP requests for this mobile number. Please wait 10 minutes before retrying.');
   }
 
