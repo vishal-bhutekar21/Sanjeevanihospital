@@ -1,90 +1,97 @@
 # Deployment and configuration
 
-Frontend → **Netlify** (static site). Backend → **Render** (Node web service). Database → **PostgreSQL** (Supabase or any Postgres).
+Website → **Netlify** (static site, `frontend/`). API → **Cloudflare Workers** (`worker/`). Database → **Cloudflare D1**. The API is deployed by GitHub Actions.
 
-## Environment variables
+The full, step-by-step Cloudflare setup (account, API token, GitHub secrets, first deploy, copying the old data, first admin, custom domain) is in [09-cloudflare.md](09-cloudflare.md). This page is the reference for settings, the website deploy, MSG91 and Razorpay.
 
-### Backend (`backend/.env`, or Render → Environment)
+## API settings
 
-| Variable | Required | Example / default | Notes |
-| --- | --- | --- | --- |
-| `NODE_ENV` | yes (prod) | `production` | Anything other than `production` turns on development behaviour (OTP `123456`, in-memory admin accounts). |
-| `PORT` | no | `3000` | Render sets it for you. |
-| `DATABASE_URL` | yes | `postgresql://…:6543/postgres?pgbouncer=true` | Pooled connection. Without a database the server still starts; OPD timings fall back to defaults and admin login only works in development. |
-| `DIRECT_URL` | for migrations | `postgresql://…:5432/postgres` | Used by `prisma db push` / migrations. |
-| `JWT_SECRET` | **yes** | long random string | Signs patient and staff tokens. The code has a built-in fallback: never rely on it. New value per hospital. |
-| `JWT_EXPIRES_IN` | no | `7d` | Staff login lifetime. |
-| `MSG91_AUTH_KEY` | recommended (prod) | from MSG91 | Without it (in production) patients still book, but the mobile number is not checked: the booking is marked "mobile not verified" in Admin → Appointments and reception calls to confirm. Limited to 5 such bookings per visitor per day. |
-| `MSG91_TEMPLATE_ID` | recommended (prod) | from MSG91 | DLT-approved OTP template. |
-| `REQUIRE_OTP` | no | `false` | `true` = refuse online booking until SMS codes work (patients are asked to call). |
-| `RAZORPAY_KEY_ID` | no | `rzp_live_…` | Empty = online payment off; patients pay at the counter. |
-| `RAZORPAY_KEY_SECRET` | no | from Razorpay | Needed with the key id; used to verify signatures. |
-| `HOSPITAL_TENANT_ID` | no | `hosp-sanjeevani-jalna` | See `src/config/hospital.config.ts`. |
-| `HOSPITAL_NAME`, `HOSPITAL_SHORT_NAME`, `HOSPITAL_SLUG` | no | Sanjeevani values | |
-| `HOSPITAL_ADDRESS`, `HOSPITAL_CITY`, `HOSPITAL_STATE`, `HOSPITAL_PINCODE` | no | Sanjeevani values | |
-| `HOSPITAL_HELPLINE`, `HOSPITAL_LANDLINE`, `HOSPITAL_EMAIL` | no | Sanjeevani values | Shown in API messages and the confirmation response. |
-| `HOSPITAL_TAGLINE`, `HOSPITAL_FOUNDED_YEAR` | no | | `/api/hospitals/profile` only. |
-| `FIREBASE_*` | no | | Not used yet. |
+### Public settings: `worker/wrangler.toml` → `[vars]`
 
-### Frontend (`frontend/.env`, or Netlify → Site configuration → Environment variables)
+Change them in the file and commit to `main`; the deploy workflow applies them. Changes made in the Cloudflare dashboard are overwritten by the next deploy.
 
-| Variable | Required | Example | Notes |
-| --- | --- | --- | --- |
-| `VITE_API_URL` | **yes** (prod) | `https://sanjeevani-backend.onrender.com/api` | Must end with `/api`. Read at **build** time: after changing it, redeploy the site. If it is not set, the live site uses `apiBaseUrl` from `frontend/src/config/hospital.ts`; on localhost it uses `http://localhost:3000/api`. |
-| `VITE_RAZORPAY_KEY_ID` | no | | Not needed; the backend sends the key id with each order. |
-| `VITE_GOOGLE_MAPS_KEY`, `VITE_FIREBASE_*` | no | | Not used by the current pages. |
+| Setting | Example / default | Notes |
+| --- | --- | --- |
+| `ENVIRONMENT` | `production` | `development` (set in `.dev.vars` for local runs) turns on the built-in admin accounts and OTP `123456`. |
+| `ALLOWED_ORIGINS` | `*` | Websites allowed to call the API: `*` or a comma-separated list of addresses. |
+| `BOOKING_OPEN_ALL_DOCTORS` | `true` | Testing switch: every doctor bookable every day 08:00–22:00. Set `"false"` before going live (and `booking.openAllDoctors` in `frontend/src/config/hospital.ts`). |
+| `REQUIRE_OTP` | `false` | `true` = refuse online booking until SMS codes work (patients are asked to call). `false` = without MSG91, patients book and the number is marked "not verified". |
+| `HOSPITAL_TENANT_ID` | `hosp-sanjeevani-jalna` | Hospital id stored on records and in staff tokens. |
+| `HOSPITAL_NAME`, `HOSPITAL_SHORT_NAME`, `HOSPITAL_SLUG` | Sanjeevani values | |
+| `HOSPITAL_ADDRESS`, `HOSPITAL_CITY`, `HOSPITAL_STATE`, `HOSPITAL_PINCODE` | Sanjeevani values | Booking confirmation address. |
+| `HOSPITAL_HELPLINE`, `HOSPITAL_EMAIL` | Sanjeevani values | Shown in API messages and the confirmation reply. |
+
+### Secrets: GitHub repository secrets
+
+Set in GitHub → **Settings** → **Secrets and variables** → **Actions**. The deploy workflow copies them onto the Worker.
+
+| Secret | Required | Notes |
+| --- | --- | --- |
+| `CLOUDFLARE_API_TOKEN` | **yes** | "Edit Cloudflare Workers" template plus Account → D1 → Edit. |
+| `CLOUDFLARE_ACCOUNT_ID` | **yes** | Dashboard → Workers & Pages → right sidebar. |
+| `JWT_SECRET` | **yes** | 32+ random characters (`openssl rand -hex 32`). Signs patient and staff tokens. New value per hospital. Changing it signs everyone out. |
+| `MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID` | recommended | Without them on the live site, see `REQUIRE_OTP`. Patient login needs them. |
+| `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` | no | Empty = online payment off; patients pay at the counter. |
+| `SUPABASE_DATABASE_URL` | one time | Only for the one-time data copy from Supabase. Delete afterwards. |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | one time | Only for creating the first admin with the data workflow. |
+
+After adding or changing a secret, run **Actions → Worker: deploy API to Cloudflare → Run workflow** so the Worker gets it.
+
+### Website: `frontend/src/config/hospital.ts` and Netlify
+
+| Setting | Where | Notes |
+| --- | --- | --- |
+| `apiBaseUrl` | `frontend/src/config/hospital.ts` | API address for the live site, e.g. `https://sanjeevani-api.<your-subdomain>.workers.dev/api`. Must end with `/api`. |
+| `VITE_API_URL` | Netlify → Site configuration → Environment variables (or `frontend/.env`) | Optional. Wins over `apiBaseUrl`. Read at **build** time: redeploy the site after changing it. |
+| `booking.openAllDoctors` | `frontend/src/config/hospital.ts` | Website side of the testing switch. Keep it equal to `BOOKING_OPEN_ALL_DOCTORS`. |
+| `VITE_RAZORPAY_KEY_ID` | — | Not needed; the API sends the key id with each order. |
+| `VITE_GOOGLE_MAPS_KEY`, `VITE_FIREBASE_*` | — | Not used by the current pages. |
+
+On `localhost` the website always uses `http://localhost:8787/api` unless `VITE_API_URL` is set.
 
 Hospital details are **not** environment variables on the frontend; they are in `frontend/src/config/hospital.ts`.
 
 ## Local development
 
 ```bash
-# Backend
-cd backend
+# API (local D1 database on your computer)
+cd worker
+cp .dev.vars.example .dev.vars
 npm install
-npx prisma generate
-npm run build
-NODE_ENV=development PORT=3000 JWT_SECRET=dev-secret \
-  DATABASE_URL="postgresql://x:y@127.0.0.1:1/z" node dist/main.js
-# (the fake DATABASE_URL lets it start without a database; OTP is 123456, see the log)
+npm run db:migrate:local
+npm run dev          # http://localhost:8787/api
 
-# Frontend (another terminal)
+# Website (another terminal)
 cd frontend
 npm install
 npx vite --port 5173
 ```
 
-Open http://localhost:5173. Admin: http://localhost:5173/admin/login with `admin@sanjeevanihosp.in` / `Admin@123` (development only).
+Open http://localhost:5173. Admin: http://localhost:5173/admin/login with `admin@sanjeevanihosp.in` / `Admin@123` or `superadmin@sanjeevanihosp.in` / `SuperAdmin@123` (development only). OTP code: `123456`.
 
-## Deploy the backend on Render
+## Deploy the API (Cloudflare)
 
-1. New → Web Service → connect the repository. Root directory: `backend`. (Or use the blueprint `backend/render.yaml`.)
-2. Build command: `npm install && npx prisma generate && npm run build`
-3. Start command: `npm run start:prod`
-4. Health check path: `/api/health`
-5. Add the environment variables above (`NODE_ENV=production`, `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET`, MSG91, Razorpay, `HOSPITAL_*`).
-6. First time only, from your machine with `DIRECT_URL` set: `npx prisma db push` then `npm run prisma:seed` (after editing `prisma/seed.ts`).
-7. Check `https://<service>.onrender.com/api/health`.
+Automatic: every push to `main` that changes `worker/` runs `.github/workflows/worker-deploy.yml`: typecheck → find or create the D1 database → apply migrations → `wrangler deploy` → set Worker secrets → health check. The run summary shows the workers.dev address.
 
-Choose a paid instance for a live hospital: free instances sleep after inactivity (the first booking after a pause waits ~1 minute) and each restart loses in-memory appointments (see [04-architecture.md](04-architecture.md#where-data-lives)).
+First time and data copy: follow [09-cloudflare.md](09-cloudflare.md).
 
-## Deploy the frontend on Netlify
+## Deploy the website on Netlify
 
 1. Add new site → Import from Git → pick the repository.
 2. The root `netlify.toml` sets base directory `frontend`, build command `npm run build`, publish directory `dist`, Node 20, and the single-page-app redirect.
-3. Environment variable: `VITE_API_URL=https://<backend>/api`.
+3. Point the site at the API: `apiBaseUrl` in `frontend/src/config/hospital.ts`, or `VITE_API_URL` on Netlify.
 4. Deploy. Then Domain management → add the hospital's domain; Netlify issues HTTPS.
 
 ## MSG91 (OTP SMS)
 
 1. Create an MSG91 account in the hospital's name and complete DLT registration (India) for the sender id and an OTP template, e.g. `Your OTP for booking at <Hospital> is ##OTP##.`
-2. Copy the **Auth Key** and the **OTP template id** into `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`.
-3. Test: book with your own number; the code should arrive within seconds. Failures are logged as `MSG91 OTP send failed…`.
+2. Put the **Auth Key** and the **OTP template id** in the GitHub secrets `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`, then run the deploy workflow.
+3. Test: book with your own number; the code should arrive within seconds. Failures appear in the Worker logs (Cloudflare dashboard → Workers & Pages → sanjeevani-api → Logs).
 
 ## Razorpay (online payment)
 
 1. Razorpay account in the hospital's name (KYC done).
-2. Dashboard → Account & Settings → API Keys → generate live keys. Put them in `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`.
+2. Dashboard → Account & Settings → API Keys → generate keys. Put them in the GitHub secrets `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET`, then run the deploy workflow.
 3. Test with test keys first (`rzp_test_…`), then switch to live.
 4. If you do not set keys, online payment is hidden and every booking is "pay at the OPD counter".
 
@@ -93,29 +100,29 @@ Choose a paid instance for a live hospital: free instances sleep after inactivit
 `GET /api/health` returns:
 
 ```json
-{ "success": true, "data": { "status": "UP", "service": "<Hospital> Backend API", "mode": "production", … } }
+{ "success": true, "data": { "status": "UP", "service": "<Hospital short name> API", "runtime": "cloudflare-workers", "timestamp": "…" } }
 ```
 
 ## Common problems
 
+More Cloudflare-specific problems (secrets, token permissions, CPU limit) are in [09-cloudflare.md](09-cloudflare.md#troubleshooting).
+
 | What you see | Likely cause | Fix |
 | --- | --- | --- |
-| Booking page: **"We couldn't load the times"** or it switches to "send request on WhatsApp" | Backend is down or asleep, or `VITE_API_URL` is wrong / missing `/api` | Open `<VITE_API_URL>/health` in a browser. If it fails, check Render. If it works, check the Netlify variable and redeploy the site. |
-| Render page says **"Service Suspended"** | Free hours used up, billing problem, or the service was suspended by the owner | Render dashboard → service → resume / fix billing / upgrade. |
-| First request takes ~1 minute | Render free instance waking up | Use a paid instance, or accept the delay. |
-| "Online booking is temporarily unavailable. Please call reception…" when sending OTP | `NODE_ENV=production` but MSG91 not set | Set `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID`. |
-| OTP never arrives | DLT template not approved, wrong template id, or no MSG91 balance | Check MSG91 logs and the server log. |
-| No "Pay online" option | Razorpay keys missing, or the doctor's fee is `0` | Set keys; publish the fee. |
-| Appointments disappeared from admin | Backend restarted (memory storage) | Expected today; see roadmap item "Move appointments to the database". |
-| OPD timings saved but not kept after restart | No database connection, or the doctor's name in `ROSTER` does not match the database `doctors` row | Check `DATABASE_URL`; check names. The server log says "Using default OPD timings (database not reachable)". |
-| Admin login fails in production | No admin in the database | Run the seed, or create an admin. |
+| Booking page: **"We couldn't load the times"** or it switches to "send request on WhatsApp" | API address wrong / missing `/api`, or the API is not deployed | Open `<api address>/health` in a browser. If it fails, check the last deploy run in GitHub Actions. If it works, check `apiBaseUrl` / `VITE_API_URL` and redeploy the site. |
+| "Online booking is temporarily unavailable. Please call reception…" when sending OTP | `REQUIRE_OTP = "true"` but MSG91 not set | Add the MSG91 secrets and redeploy, or set `REQUIRE_OTP = "false"`. |
+| OTP never arrives | DLT template not approved, wrong template id, or no MSG91 balance | Check MSG91 logs and the Worker logs. |
+| No "Pay online" option | Razorpay keys missing, or the doctor's fee is `0` | Set the secrets; publish the fee. |
+| Every doctor is bookable 8 am – 10 pm every day | Testing switch still on | Part 6 of [09-cloudflare.md](09-cloudflare.md). |
+| Admin login fails on the live site | No admin in D1 | Copy the data from Supabase or create the first admin ([09-cloudflare.md](09-cloudflare.md)). |
+| Everyone signed out at once | `JWT_SECRET` changed | Expected; sign in again. |
 | Pages 404 on refresh at `/doctors` etc. | SPA redirect missing | Netlify: keep `netlify.toml` / `public/_redirects`. |
 | Doctor photo shows initials | File `public/images/doctors/<id>.webp` missing or misnamed | Add it with the exact id. |
 
 ## "Online booking is not available right now"
 
-The booking page shows this when it cannot reach the booking server. Check, in order:
+The booking page shows this when it cannot reach the API. Check, in order:
 
-1. Open `https://<backend>/api/health`. "Service Suspended" or no answer means the Render service is off: Render dashboard → the service → **Resume Service** (check billing if it was suspended for payment).
-2. The site must point at the server: `VITE_API_URL` on Netlify, or `apiBaseUrl` in `frontend/src/config/hospital.ts`. Redeploy the site after changing either.
-3. While the server is off, the page still lets patients pick a time and send the request to reception on WhatsApp.
+1. Open `<api address>/health` (for example `https://sanjeevani-api.<your-subdomain>.workers.dev/api/health`). No answer means the Worker is not deployed or the address is wrong: check GitHub → Actions → **Worker: deploy API to Cloudflare**.
+2. The site must point at the API: `VITE_API_URL` on Netlify, or `apiBaseUrl` in `frontend/src/config/hospital.ts`. Redeploy the site after changing either.
+3. While the API cannot be reached, the page still lets patients pick a time and send the request to reception on WhatsApp.

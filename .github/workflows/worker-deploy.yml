@@ -33,10 +33,12 @@ jobs:
           missing=""
           [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
           [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
-          [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
           if [ -n "$missing" ]; then
             echo "::error::Add these GitHub repository secrets first:$missing (see documentation/09-cloudflare.md)"
             exit 1
+          fi
+          if [ -z "$JWT_SECRET" ]; then
+            echo "::notice::JWT_SECRET is not a GitHub secret; the Worker keeps the value already set in Cloudflare."
           fi
 
       - uses: actions/setup-node@v4
@@ -75,7 +77,7 @@ jobs:
             require("fs").writeFileSync(process.env.RUNNER_TEMP + "/secrets.json", JSON.stringify(out));
             console.log("Setting:", Object.keys(out).join(", "));
           '
-          npx wrangler secret bulk "$RUNNER_TEMP/secrets.json"
+          if [ "$(cat "$RUNNER_TEMP/secrets.json")" != "{}" ]; then npx wrangler secret bulk "$RUNNER_TEMP/secrets.json"; fi
           rm -f "$RUNNER_TEMP/secrets.json"
 
       - name: Check the API answers

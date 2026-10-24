@@ -52,6 +52,7 @@ jobs:
         env:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_NAME: ${{ secrets.ADMIN_NAME }}
         run: |
           node scripts/initial-admin.mjs
           npx wrangler d1 execute sanjeevani-db --remote --file=seed/initial-admin.sql

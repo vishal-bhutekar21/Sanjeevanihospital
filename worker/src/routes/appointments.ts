@@ -608,11 +608,21 @@ appointmentRoutes.patch('/:id/status', requireRoles(...STAFF), async (c) => {
   if (!isStr(status) || !STATUSES.includes(status)) {
     throw badRequest(`status must be one of ${STATUSES.join(', ')}`);
   }
+  // Cancelled: give the time back so another patient can book it
+  if (status === 'CANCELLED') {
+    await run(
+      env,
+      `UPDATE appointment_slots SET status = 'AVAILABLE', held_until = NULL, booking_session_id = NULL, updated_at = ?
+       WHERE id = (SELECT slot_id FROM appointments WHERE id = ? AND hospital_id = ?)`,
+      nowIso(), c.req.param('id'), hospital(env).id,
+    );
+  }
   // Fee is collected at the counter before the consultation ends
   const row = await first(
     env,
     `UPDATE appointments SET status = ?1,
        payment_status = CASE WHEN ?1 = 'COMPLETED' AND payment_status = 'PENDING' THEN 'PAID' ELSE payment_status END,
+       slot_id = CASE WHEN ?1 = 'CANCELLED' THEN NULL ELSE slot_id END,
        updated_at = ?2
      WHERE id = ?3 AND hospital_id = ?4 RETURNING *`,
     status, nowIso(), c.req.param('id'), hospital(env).id,

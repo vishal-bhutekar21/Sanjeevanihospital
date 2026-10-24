@@ -10,15 +10,19 @@
  * The password hash uses the same PBKDF2 format as src/lib/password.ts.
  */
 import { pbkdf2Sync, randomBytes, randomUUID } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
+// Hospital details default to wrangler.toml [vars], so a rebranded copy needs no edits here
+const vars = Object.fromEntries(
+  [...readFileSync(join(here, '..', 'wrangler.toml'), 'utf8').matchAll(/^(HOSPITAL_[A-Z_]+)\s*=\s*"([^"]*)"/gm)].map((m) => [m[1], m[2]]),
+);
 const email = (process.env.ADMIN_EMAIL || '').trim().toLowerCase();
 const password = process.env.ADMIN_PASSWORD || '';
 const name = process.env.ADMIN_NAME || 'Hospital Administrator';
-const tenant = process.env.HOSPITAL_TENANT_ID || 'hosp-sanjeevani-jalna';
+const tenant = process.env.HOSPITAL_TENANT_ID || vars.HOSPITAL_TENANT_ID || 'hosp-sanjeevani-jalna';
 
 if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email) || password.length < 10) {
   console.error('Set ADMIN_EMAIL and ADMIN_PASSWORD (at least 10 characters).');
@@ -29,7 +33,7 @@ const salt = randomBytes(16);
 const hash = pbkdf2Sync(password, salt, 100_000, 32, 'sha256');
 const passwordHash = `pbkdf2$100000$${salt.toString('base64')}$${hash.toString('base64')}`;
 const q = (s) => `'${String(s).replace(/'/g, "''")}'`;
-const env = (k, d) => process.env[k] || d;
+const env = (k, d) => process.env[k] || vars[k] || d;
 
 const sql = [
   `INSERT OR IGNORE INTO hospitals (id, name, slug, address, city, state, pincode, phone, emergency_phone, email) VALUES (${[

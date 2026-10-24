@@ -1,5 +1,7 @@
 # API Specification: Sanjeevani Platform REST Endpoints
 
+> Early plan, kept for reference. The live API has no `/v1` in its paths (for example `/api/appointments/availability`, `/api/auth/send-otp`) and runs on Cloudflare Workers (`worker/src/routes/`). The current booking calls are listed in [documentation/04-architecture.md](../../documentation/04-architecture.md).
+
 **Base URL**: `/api/v1`  
 **Content-Type**: `application/json`
 

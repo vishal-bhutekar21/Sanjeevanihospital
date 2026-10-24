@@ -143,7 +143,7 @@ authRoutes.post('/verify-otp', async (c) => {
   // Count the attempt atomically before checking the code
   const row = await first<{ id: string; phone: string; otp_hash: string; attempts: number; expires_at: string }>(
     env,
-    `UPDATE otp_sessions SET attempts = attempts + 1 WHERE id = ? RETURNING id, phone, otp_hash, attempts, expires_at`,
+    `UPDATE otp_sessions SET attempts = attempts + 1 WHERE id = ? AND verified_at IS NULL RETURNING id, phone, otp_hash, attempts, expires_at`,
     sessionId,
   );
   if (!row) throw unauthorized('Session expired or not found. Please request a new OTP.');
@@ -160,7 +160,9 @@ authRoutes.post('/verify-otp', async (c) => {
     throw unauthorized('Invalid OTP. Please check the code and retry.');
   }
 
-  await run(env, `UPDATE otp_sessions SET verified_at = ? WHERE id = ?`, nowIso(), row.id);
+  // Each code works once (also guards two simultaneous correct submissions)
+  const used = await run(env, `UPDATE otp_sessions SET verified_at = ? WHERE id = ? AND verified_at IS NULL`, nowIso(), row.id);
+  if (used !== 1) throw unauthorized('This code was already used. Please request a new OTP.');
 
   // Patient booking token, valid 30 minutes
   const token = await signToken(

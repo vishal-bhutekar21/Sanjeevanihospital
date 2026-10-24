@@ -13,7 +13,7 @@ crons = ["30 3 * * *"]
 binding = "DB"
 database_name = "sanjeevani-db"
 # Filled in by the deploy workflow (it creates the database on first run).
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "f1775031-3ad1-42cc-bf3f-b3c9aa211e80"
 migrations_dir = "migrations"
 
 # Public settings. Secrets (JWT_SECRET, RAZORPAY_*, MSG91_*) are set with

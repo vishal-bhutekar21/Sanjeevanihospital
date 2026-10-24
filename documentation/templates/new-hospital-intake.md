@@ -40,7 +40,6 @@ Hospital contact person: ____________________  Phone: ____________  Date: ______
 | MJPJAY / Arogya Mitra desk | | Contact, MJPJAY page |
 | Insurance / TPA desk | | Contact, insurance page |
 | Administration | | Contact page |
-| Landline (optional) | | Backend |
 
 ## 4. Email
 
@@ -124,7 +123,9 @@ Only real photos of this hospital, with permission to publish.
 | Razorpay key id / secret handed over securely? | |
 | MSG91 account + DLT sender id + OTP template approved? | |
 | WhatsApp number for requests confirmed working? | |
-| Domain name and who controls DNS | |
+| Domain name and who controls DNS (is DNS on Cloudflare? needed for `api.<domain>`) | |
+| Cloudflare account in hospital's name (for the API and database)? | |
+| GitHub repository: who has admin access to add secrets? | |
 | Who receives admin login (name, email) | |
 | Who can approve text in Marathi | |
 

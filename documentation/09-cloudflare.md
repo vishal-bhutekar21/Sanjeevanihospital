@@ -1,5 +1,19 @@
 # Cloudflare setup: the hospital API on Workers + D1
 
+## Live now (set up on 24 Oct 2026)
+
+| What | Value |
+|---|---|
+| API | https://sanjeevani-api.vishalbhutekar33772.workers.dev/api (health check: `/api/health`) |
+| Worker name | `sanjeevani-api` |
+| D1 database | `sanjeevani-db` (id in `worker/wrangler.toml`) |
+| Daily clean-up | 09:00 IST (cron `30 3 * * *`) |
+| Website setting | `apiBaseUrl` in `frontend/src/config/hospital.ts` already points at the API |
+| Secrets set on the Worker | `JWT_SECRET` (random). Add `MSG91_*` and `RAZORPAY_*` when the accounts are ready |
+| Staff login | `admin@sanjeevanihosp.in`, with a strong password given privately to the owner (not in this repository) |
+| Still to do | Copy the old data from Supabase (step 6 below), add the GitHub secrets so future merges deploy by themselves (step 4) |
+
+
 This page is for the hospital owner or whoever looks after the website. It explains, step by step, how to put the booking API online on Cloudflare, copy the old data across, create the first admin, and connect the website. You do not need to install anything on your computer for the live setup: everything runs from GitHub and the Cloudflare website.
 
 ## What runs where
@@ -82,7 +96,7 @@ The deploy runs by itself every time a change to `worker/` reaches the `main` br
 2. In the left list, click **Worker: deploy API to Cloudflare**.
 3. Click **Run workflow** → keep branch `main` → **Run workflow**.
 4. Wait for the run to finish (a few minutes). It goes through these steps:
-   - checks the three required secrets are there;
+   - checks the Cloudflare secrets are there (and notes if `JWT_SECRET` is not a GitHub secret);
    - checks the API code (typecheck);
    - finds the D1 database `sanjeevani-db`, or creates it on the first run;
    - applies the database tables (migrations);
@@ -115,6 +129,7 @@ Only needed if the hospital already used the old server with a Supabase database
 Notes:
 - Run the copy **before** the hospital starts using the new API. Running it again later is possible, but rows that exist in both places are overwritten with the Supabase version.
 - Short-lived booking data (unfinished booking sessions and time holds) is not copied.
+- Admin accounts keep their old passwords. If the old database still has the test account `admin@sanjeevanihosp.in` with `Admin@123`, that account is copied too: change its password or have your developer remove it before going live.
 - If the run fails with a network error (for example `ENETUNREACH` or a timeout), Supabase's direct connection may not be reachable from GitHub. In Supabase → **Connect**, copy the **Session pooler** string instead (also port 5432), put it in the same secret and run again.
 
 ---
@@ -213,7 +228,7 @@ In development (`ENVIRONMENT="development"` in `.dev.vars`):
 
 If you set `ALLOWED_ORIGINS` to a list, add `ALLOWED_ORIGINS="*"` to `.dev.vars` so the local website can still call the local API.
 
-The `database_id` in `wrangler.toml` is a placeholder; the GitHub workflows fill in the real id on each run. Local commands (`--local`) do not need it.
+The `database_id` in `wrangler.toml` is written by the GitHub workflows: on each run they look up (or create) `sanjeevani-db` in the Cloudflare account and put its id there. Local commands (`--local`) do not use it.
 
 ---
 
@@ -221,7 +236,8 @@ The `database_id` in `wrangler.toml` is a placeholder; the GitHub workflows fill
 
 | What you see | Cause | Fix |
 | --- | --- | --- |
-| Deploy run fails at **Check repository secrets**: "Add these GitHub repository secrets first: …" | A required secret is missing or misspelt | Add the named secrets (Step 5), exactly as spelt, then run the workflow again. |
+| Deploy run fails at **Check repository secrets**: "Add these GitHub repository secrets first: …" | `CLOUDFLARE_API_TOKEN` or `CLOUDFLARE_ACCOUNT_ID` is missing or misspelt | Add the named secrets (Step 5), exactly as spelt, then run the workflow again. |
+| Run shows the notice "JWT_SECRET is not a GitHub secret" | `JWT_SECRET` is not in GitHub secrets. The Worker keeps whatever value it already has; on a first deploy it has none | Add `JWT_SECRET` (Step 4 and 5) and run the deploy again. Keep it in GitHub so every hospital deploy has it. |
 | Fails at **Find or create the D1 database**, or "Authentication error" / code 10000 | The API token lacks a permission, or belongs to another account | Edit the token (My Profile → API Tokens): it needs the **Edit Cloudflare Workers** permissions **and** Account → D1 → Edit, for the right account. Check `CLOUDFLARE_ACCOUNT_ID`. |
 | Deploy log says you need to register a **workers.dev subdomain** | The account has no workers.dev subdomain yet | Dashboard → Workers & Pages → choose a subdomain, then run the workflow again. |
 | **Check the API answers** fails right after a first deploy | A new workers.dev address can take a minute to start answering | Open `/api/health` yourself after a minute. If it works, nothing to do. |
@@ -264,16 +280,16 @@ There is no server to keep awake: the API does not sleep and has no "first reque
 
 | Before | Now |
 | --- | --- |
-| NestJS server on Render, PostgreSQL database on Supabase | Cloudflare Worker (TypeScript, Hono) and Cloudflare D1 (SQLite) |
-| Code in `backend/` | Code in `worker/`: routes in `worker/src/routes/`, tables in `worker/migrations/` |
-| Settings as environment variables on Render | Public settings in `worker/wrangler.toml` `[vars]`; secrets from GitHub secrets |
-| Deployed from the Render dashboard | Deployed by GitHub Actions on every change to `worker/` on `main` |
+| A Node.js API server on a separate host, with a hosted PostgreSQL database | Cloudflare Worker (TypeScript, Hono) and Cloudflare D1 (SQLite) |
+| Code in a separate server folder (now removed) | Code in `worker/`: routes in `worker/src/routes/`, tables in `worker/migrations/` |
+| Settings as environment variables on the old host | Public settings in `worker/wrangler.toml` `[vars]`; secrets from GitHub secrets |
+| Deployed from the old host's dashboard | Deployed by GitHub Actions on every change to `worker/` on `main` |
 | Appointments, slot holds, OTP codes, payments, reviews, camps and scheme claims kept in server memory and lost on every restart | All stored in D1; nothing is lost on a redeploy |
 | Sample reviews, camps and claims built into the server | Removed. Only real data is shown |
 | Saved OPD timings linked to database doctors by name | Saved in `doctor_schedules` by the website doctor id (for example `doc-bagal`) |
 | Patient records (bills, medicines, lab results, follow-ups, profile) | Same storage idea: one JSON row per patient in `hospital_settings` (key `patient_record:<mobile>`) |
 | bcrypt passwords | Copied bcrypt passwords still work and are upgraded on next login; new and changed passwords use PBKDF2 |
-| Render free plan slept after inactivity | No sleeping |
+| The old free hosting plan slept after inactivity (first request waited about a minute) | No sleeping |
 | Rate limit on OTP per phone (in memory) | Limits on OTP per phone, sign-in attempts and no-SMS bookings, stored in D1 |
 | Built-in admin accounts in development | Same accounts, only when `ENVIRONMENT=development` |
 

@@ -64,7 +64,7 @@ app.onError((err, c) => {
 export default {
   fetch: app.fetch,
   // Cron trigger (wrangler.toml): tidy expired OTP codes, holds and sessions
-  scheduled: async (_event: ScheduledEvent, env: Env, ctx: ExecutionContext) => {
+  scheduled: async (_controller: ScheduledController, env: Env, ctx: ExecutionContext) => {
     ctx.waitUntil(cleanup(env));
   },
 } satisfies ExportedHandler<Env>;
