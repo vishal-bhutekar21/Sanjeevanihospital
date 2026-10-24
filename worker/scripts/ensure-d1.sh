@@ -3,8 +3,14 @@
 # Needs CLOUDFLARE_API_TOKEN and CLOUDFLARE_ACCOUNT_ID in the environment.
 set -euo pipefail
 cd "$(dirname "$0")/.."
+# Already set in wrangler.toml (not the all-zero placeholder): nothing to do
+CURRENT="$(sed -n 's/^database_id = "\(.*\)"/\1/p' wrangler.toml)"
+if [ -n "$CURRENT" ] && [ "$CURRENT" != "00000000-0000-0000-0000-000000000000" ]; then
+  echo "D1 database id (from wrangler.toml): $CURRENT"
+  exit 0
+fi
 find_id() {
-  npx wrangler d1 list --json 2>/dev/null | node -e '
+  npx wrangler d1 list --json | node -e '
     let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => {
       try { const db = JSON.parse(s).find((x) => x.name === "sanjeevani-db"); process.stdout.write(db ? db.uuid : ""); }
       catch { process.stdout.write(""); }
