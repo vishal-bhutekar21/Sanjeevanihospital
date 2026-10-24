@@ -1,0 +1,58 @@
+name: "Worker: copy data / create admin"
+
+# Run by hand (Actions → this workflow → Run workflow). Setup: documentation/09-cloudflare.md
+on:
+  workflow_dispatch:
+    inputs:
+      import_from_supabase:
+        description: "Copy all data from Supabase into D1 (needs secret SUPABASE_DATABASE_URL)"
+        type: boolean
+        default: false
+      create_admin:
+        description: "Create the first admin account (needs secrets ADMIN_EMAIL and ADMIN_PASSWORD)"
+        type: boolean
+        default: false
+
+jobs:
+  data:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+
+      - name: Find or create the D1 database
+        run: ./scripts/ensure-d1.sh
+
+      - name: Apply database migrations
+        run: npx wrangler d1 migrations apply sanjeevani-db --remote
+
+      - name: Copy data from Supabase
+        if: ${{ inputs.import_from_supabase }}
+        env:
+          SUPABASE_DATABASE_URL: ${{ secrets.SUPABASE_DATABASE_URL }}
+        run: |
+          if [ -z "$SUPABASE_DATABASE_URL" ]; then echo "::error::Add the SUPABASE_DATABASE_URL secret first"; exit 1; fi
+          node scripts/export-supabase.mjs | tee import.log
+          npx wrangler d1 execute sanjeevani-db --remote --file=seed/supabase-import.sql
+          { echo "### Copied from Supabase"; echo '```'; cat import.log; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Create the first admin
+        if: ${{ inputs.create_admin }}
+        env:
+          ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          node scripts/initial-admin.mjs
+          npx wrangler d1 execute sanjeevani-db --remote --file=seed/initial-admin.sql
+          echo "Admin account ready for $ADMIN_EMAIL (unchanged if it already existed)." >> "$GITHUB_STEP_SUMMARY"

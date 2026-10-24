@@ -1,0 +1,5 @@
+node_modules/
+.wrangler/
+.dev.vars
+seed/supabase-import.sql
+seed/initial-admin.sql

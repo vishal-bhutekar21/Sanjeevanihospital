@@ -198,7 +198,11 @@ export const HOSPITAL: HospitalConfig = {
   ],
   logo: '/logo.png',
   website: 'sanjeevanihosp.in',
-  apiBaseUrl: 'https://sanjeevani-backend.onrender.com/api',
+  // Hospital API on Cloudflare Workers (worker/). After the first deploy, the
+  // "Worker: deploy API to Cloudflare" GitHub run shows the address; put it here
+  // (or set VITE_API_URL on Netlify). Until then the booking page uses its
+  // offline mode (WhatsApp request to reception).
+  apiBaseUrl: 'https://sanjeevani-api.CHANGE-ME.workers.dev/api',
   booking: {
     openAllDoctors: true,
     openFrom: '08:00',

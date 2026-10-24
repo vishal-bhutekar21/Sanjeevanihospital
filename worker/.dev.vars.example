@@ -1,0 +1,7 @@
+# Copy to .dev.vars for `npm run dev` (never commit .dev.vars)
+ENVIRONMENT="development"
+JWT_SECRET="dev-secret-change-me-0123456789"
+# RAZORPAY_KEY_ID=""
+# RAZORPAY_KEY_SECRET=""
+# MSG91_AUTH_KEY=""
+# MSG91_TEMPLATE_ID=""
