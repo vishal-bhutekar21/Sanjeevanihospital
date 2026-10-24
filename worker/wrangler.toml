@@ -30,6 +30,9 @@ ALLOWED_ORIGINS = "*"
 BOOKING_OPEN_ALL_DOCTORS = "true"
 # "true" = patients must verify by SMS; "false" = book without SMS when MSG91 isn't set up
 REQUIRE_OTP = "false"
+# Test patient for demos: this number signs in with the secret TEST_PATIENT_OTP
+# (set with `wrangler secret put TEST_PATIENT_OTP`; delete the secret to switch it off)
+TEST_PATIENT_PHONE = "9999900001"
 HOSPITAL_TENANT_ID = "hosp-sanjeevani-jalna"
 HOSPITAL_NAME = "Sanjeevani Multispeciality Hospital"
 HOSPITAL_SHORT_NAME = "Sanjeevani Hospital"

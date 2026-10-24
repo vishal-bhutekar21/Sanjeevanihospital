@@ -42,6 +42,9 @@ import { AdminReceiptsPage } from './pages/admin/AdminReceiptsPage';
 import { AdminReceiptFormPage } from './pages/admin/AdminReceiptFormPage';
 import { AdminReceiptDetailPage } from './pages/admin/AdminReceiptDetailPage';
 import { PatientPortalPage } from './pages/PatientPortalPage';
+import { NotFoundPage } from './pages/NotFoundPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
 import { isAdminRole, isReceptionRole } from './lib/reception';
 
 const queryClient = new QueryClient({
@@ -92,6 +95,9 @@ export const App: React.FC = () => {
               <Route path="contact" element={<ContactPage />} />
               <Route path="book" element={<BookAppointmentPage />} />
               <Route path="patient" element={<PatientPortalPage />} />
+              <Route path="privacy" element={<PrivacyPage />} />
+              <Route path="terms" element={<TermsPage />} />
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
 
             {/* Admin Authentication Route */}
@@ -125,8 +131,10 @@ export const App: React.FC = () => {
               <Route path="settings" element={<AdminOnly><AdminSettingsPage /></AdminOnly>} />
             </Route>
 
-            {/* Fallback Catch-All */}
-            <Route path="*" element={<Navigate to="/" replace />} />
+            {/* Unknown addresses outside the site and admin: 404 page */}
+            <Route path="*" element={<PublicLayout />}>
+              <Route path="*" element={<NotFoundPage />} />
+            </Route>
           </Routes>
         </BrowserRouter>
       </AdminAuthProvider>

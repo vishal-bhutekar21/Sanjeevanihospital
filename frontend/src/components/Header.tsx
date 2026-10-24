@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Menu, X, Phone } from 'lucide-react';
+import { Menu, X, Phone, UserRound } from 'lucide-react';
 import { HOSPITAL } from '../config/hospital';
+import { usePatientSignedIn } from '../lib/patientPortal';
 
 export const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const isMr = i18n.language === 'mr';
+  const patientSignedIn = usePatientSignedIn();
 
   // Close the mobile menu whenever the route changes
   useEffect(() => {
@@ -98,6 +100,14 @@ export const Header: React.FC = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <Link
+              to="/patient"
+              aria-current={location.pathname.startsWith('/patient') ? 'page' : undefined}
+              className="hidden sm:inline-flex items-center gap-1.5 min-h-[40px] px-3 rounded-md text-sm font-medium text-stone-700 hover:text-[#0F766E] hover:bg-stone-100"
+            >
+              <UserRound className="w-4 h-4" aria-hidden />
+              {patientSignedIn ? (isMr ? 'माझी माहिती' : 'My records') : isMr ? 'पेशंट लॉगिन' : 'Patient login'}
+            </Link>
             <Link to="/book" className="hidden sm:inline-flex btn-primary min-h-[40px] py-2 px-4 text-sm">
               {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
             </Link>
@@ -141,6 +151,13 @@ export const Header: React.FC = () => {
                 </Link>
               );
             })}
+            <Link
+              to="/patient"
+              className={`flex items-center gap-2 py-3 border-b border-stone-100 text-[15px] ${location.pathname.startsWith('/patient') ? 'text-[#0F766E] font-semibold' : 'text-stone-800'}`}
+            >
+              <UserRound className="w-4 h-4" aria-hidden />
+              {patientSignedIn ? (isMr ? 'माझी माहिती (पेशंट लॉगिन)' : 'My records (Patient login)') : isMr ? 'पेशंट लॉगिन: बिले व औषधे' : 'Patient login: bills and medicines'}
+            </Link>
           </nav>
           <div className="px-4 py-4 flex items-center justify-between gap-3">
             <button onClick={toggleLanguage} className="btn-secondary flex-1" lang={isMr ? 'en' : 'mr'}>

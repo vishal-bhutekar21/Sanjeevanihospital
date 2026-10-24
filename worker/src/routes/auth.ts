@@ -74,13 +74,30 @@ authRoutes.post('/send-otp', async (c) => {
     throw badRequest('Please provide a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9');
   }
 
-  // Max 3 OTP requests per 10 minutes per phone
-  if (!(await hit(env, `otp:phone:${phone}`, 3, OTP_TTL_MS))) {
+  // Max 3 OTP requests per 10 minutes per phone (10 for the demo test number, used for repeated testing)
+  const isTestPhone = !!env.TEST_PATIENT_PHONE && phone === env.TEST_PATIENT_PHONE.trim();
+  if (!(await hit(env, `otp:phone:${phone}`, isTestPhone ? 10 : 3, OTP_TTL_MS))) {
     throw badRequest('Too many OTP requests for this mobile number. Please wait 10 minutes before retrying.');
   }
 
   const sessionId = uuid();
   const sms = msg91(env);
+
+  // Test patient: one configured number signs in with a fixed secret code, no SMS.
+  // Only that number; everyone else goes through the normal rules below.
+  const testPhone = (env.TEST_PATIENT_PHONE || '').trim();
+  const testOtp = (env.TEST_PATIENT_OTP || '').trim();
+  if (testPhone && /^\d{6}$/.test(testOtp) && phone === testPhone) {
+    await run(
+      env,
+      `INSERT INTO otp_sessions (id, phone, otp_hash, attempts, expires_at) VALUES (?, ?, ?, 0, ?)`,
+      sessionId,
+      phone,
+      await sha256(testOtp + sessionId),
+      new Date(Date.now() + OTP_TTL_MS).toISOString(),
+    );
+    return ok(c, { sessionId, phone: `+91-${phone}`, otpRequired: true, expiresInSeconds: 600, message: 'OTP sent by SMS' });
+  }
 
   if (!sms.configured && isProduction(env)) {
     // No SMS gateway in production: book without a code, number marked "not verified".
