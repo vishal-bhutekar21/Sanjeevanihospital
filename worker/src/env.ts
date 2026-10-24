@@ -25,6 +25,10 @@ export interface Env {
   RAZORPAY_KEY_SECRET?: string;
   MSG91_AUTH_KEY?: string;
   MSG91_TEMPLATE_ID?: string;
+  /** One test mobile number that signs in with a fixed code instead of SMS (for demos and app testing) */
+  TEST_PATIENT_PHONE?: string;
+  /** Secret 6-digit code for TEST_PATIENT_PHONE; unset = no test login */
+  TEST_PATIENT_OTP?: string;
 }
 
 /** Who is calling, from the Bearer token. */

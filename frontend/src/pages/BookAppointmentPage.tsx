@@ -10,6 +10,7 @@ import { offlineSlots, bookingHours, HOSPITAL_WHATSAPP } from '../lib/opdHours';
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA, DoctorItem } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
+import { BusyLabel } from '../components/Spinner';
 import { getPatientToken, setPatientToken, PatientRecord } from '../lib/patientPortal';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
@@ -1219,9 +1220,10 @@ const StepNav: React.FC<{
       type={submit ? 'submit' : 'button'}
       onClick={submit ? undefined : onNext}
       disabled={nextDisabled || busy}
+      aria-busy={busy}
       className="btn-primary shrink-0 min-w-[112px] sm:min-w-[160px] disabled:opacity-50 disabled:cursor-not-allowed"
     >
-      {busy ? (isMr ? 'कृपया थांबा…' : 'Please wait…') : nextLabel}
+      <BusyLabel busy={!!busy} busyText={isMr ? 'कृपया थांबा…' : 'Please wait…'}>{nextLabel}</BusyLabel>
     </button>
   </div>
 );

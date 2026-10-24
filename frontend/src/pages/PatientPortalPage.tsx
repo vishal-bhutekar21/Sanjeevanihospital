@@ -5,6 +5,7 @@ import { AlertCircle, Bell, CalendarDays, Download, FileText, FlaskConical, Home
 import { apiUrl } from '../lib/api';
 import { DOCTORS_DATA } from '../data/doctorsData';
 import { HOSPITAL } from '../config/hospital';
+import { BusyLabel, Spinner } from '../components/Spinner';
 import { downloadBillPdf, downloadMedicineListPdf } from '../lib/appointmentPdf';
 import {
   DOSE_TIMES,
@@ -206,8 +207,10 @@ const SignIn: React.FC<{ isMr: boolean; L: LFn; onSignedIn: (token: string) => v
           </div>
         )}
 
-        <button type="submit" disabled={busy} className="btn-primary w-full disabled:opacity-60">
-          {busy ? L('Please wait…', 'कृपया थांबा…') : sessionId ? L('Sign in', 'लॉगिन करा') : L('Send code', 'कोड पाठवा')}
+        <button type="submit" disabled={busy} aria-busy={busy} className="btn-primary w-full disabled:opacity-70 disabled:cursor-wait">
+          <BusyLabel busy={busy} busyText={sessionId ? L('Signing in…', 'लॉगिन होत आहे…') : L('Sending code…', 'कोड पाठवत आहे…')}>
+            {sessionId ? L('Sign in', 'लॉगिन करा') : L('Send code', 'कोड पाठवा')}
+          </BusyLabel>
         </button>
       </form>
 
@@ -292,6 +295,10 @@ const Portal: React.FC<{ token: string; isMr: boolean; L: LFn; onSignOut: () => 
   if (state === 'loading' && !data) {
     return (
       <div aria-busy="true" className="space-y-4">
+        <p className="flex items-center gap-2 text-stone-600" role="status">
+          <Spinner className="w-5 h-5 text-[#0F766E]" />
+          {L('Opening your records…', 'आपली माहिती उघडत आहे…')}
+        </p>
         <div className="h-10 w-64 rounded bg-stone-200/70 animate-pulse" />
         <div className="h-32 rounded-xl bg-stone-200/60 animate-pulse" />
         <div className="h-32 rounded-xl bg-stone-200/60 animate-pulse" />
@@ -724,8 +731,8 @@ const Profile: React.FC<{ d: PatientRecord; token: string; L: LFn; onSaved: (r: 
         </p>
       )}
       <div className="flex justify-end">
-        <button type="submit" disabled={busy} className="btn-primary min-w-[140px] disabled:opacity-60">
-          {busy ? L('Saving…', 'जतन होत आहे…') : L('Save', 'जतन करा')}
+        <button type="submit" disabled={busy} aria-busy={busy} className="btn-primary min-w-[140px] disabled:opacity-70 disabled:cursor-wait">
+          <BusyLabel busy={busy} busyText={L('Saving…', 'जतन होत आहे…')}>{L('Save', 'जतन करा')}</BusyLabel>
         </button>
       </div>
     </form>

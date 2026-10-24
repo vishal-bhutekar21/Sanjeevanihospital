@@ -1,3 +1,4 @@
+import { BusyLabel } from '../../components/Spinner';
 import React, { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
@@ -101,8 +102,8 @@ export const AdminLoginPage: React.FC = () => {
               />
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full disabled:opacity-60">
-              {loading ? 'Signing in…' : 'Sign in'}
+            <button type="submit" disabled={loading} aria-busy={loading} className="btn-primary w-full disabled:opacity-70 disabled:cursor-wait">
+              <BusyLabel busy={loading} busyText="Signing in…">Sign in</BusyLabel>
             </button>
           </form>
         </div>

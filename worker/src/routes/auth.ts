@@ -82,6 +82,22 @@ authRoutes.post('/send-otp', async (c) => {
   const sessionId = uuid();
   const sms = msg91(env);
 
+  // Test patient: one configured number signs in with a fixed secret code, no SMS.
+  // Only that number; everyone else goes through the normal rules below.
+  const testPhone = (env.TEST_PATIENT_PHONE || '').trim();
+  const testOtp = (env.TEST_PATIENT_OTP || '').trim();
+  if (testPhone && /^\d{6}$/.test(testOtp) && phone === testPhone) {
+    await run(
+      env,
+      `INSERT INTO otp_sessions (id, phone, otp_hash, attempts, expires_at) VALUES (?, ?, ?, 0, ?)`,
+      sessionId,
+      phone,
+      await sha256(testOtp + sessionId),
+      new Date(Date.now() + OTP_TTL_MS).toISOString(),
+    );
+    return ok(c, { sessionId, phone: `+91-${phone}`, otpRequired: true, expiresInSeconds: 600, message: 'OTP sent by SMS' });
+  }
+
   if (!sms.configured && isProduction(env)) {
     // No SMS gateway in production: book without a code, number marked "not verified".
     // REQUIRE_OTP=true turns this off.

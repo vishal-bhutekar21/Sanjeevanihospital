@@ -1,13 +1,16 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { DEVELOPER } from '../data/developer';
 import { MapPin, Phone, Mail, Clock, Siren, Navigation, CalendarCheck, ChevronRight, UserRound } from 'lucide-react';
 import { HOSPITAL } from '../config/hospital';
+import { getPatientToken } from '../lib/patientPortal';
 
 export const Footer: React.FC = () => {
   const { i18n } = useTranslation();
   const isMr = i18n.language === 'mr';
+  useLocation(); // re-render on page change so the login state is current
+  const signedIn = !!getPatientToken();
 
   const links = [
     { to: '/departments', en: 'Departments', mr: 'विभाग' },
@@ -104,13 +107,31 @@ export const Footer: React.FC = () => {
             <CalendarCheck className="w-4 h-4" aria-hidden />
             {isMr ? 'अपॉइंटमेंट घ्या' : 'Book appointment'}
           </Link>
-          <Link
-            to="/patient"
-            className="mt-3 w-full sm:w-auto inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-md border border-white/25 text-white font-semibold hover:bg-white/10"
-          >
-            <UserRound className="w-4 h-4" aria-hidden />
-            {isMr ? 'पेशंट लॉगिन: बिले व औषधे' : 'Patient login: bills and medicines'}
-          </Link>
+        </div>
+      </div>
+
+      {/* Patient login */}
+      <div className="border-t border-white/10">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div className="rounded-xl border border-white/15 bg-white/[0.04] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
+            <span className="w-11 h-11 rounded-full bg-[#0F766E] text-white flex items-center justify-center shrink-0" aria-hidden>
+              <UserRound className="w-5 h-5" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-white font-semibold text-lg">
+                {signedIn ? (isMr ? 'आपली आरोग्य माहिती' : 'Your health records') : isMr ? 'पेशंट लॉगिन' : 'Patient login'}
+              </p>
+              <p className="mt-0.5 text-stone-400 text-[15px]">
+                {isMr
+                  ? 'आपल्या अपॉइंटमेंट, बिले, औषधे (मुदत संपण्याची आठवण) व रिपोर्ट एका ठिकाणी. मोबाईल नंबर व एसएमएस कोडने लॉगिन करा.'
+                  : 'Your appointments, bills, medicines with expiry reminders, and reports in one place. Sign in with your mobile number and an SMS code.'}
+              </p>
+            </div>
+            <Link to="/patient" className="btn-primary shrink-0 w-full sm:w-auto">
+              <UserRound className="w-4 h-4" aria-hidden />
+              {signedIn ? (isMr ? 'माझी माहिती उघडा' : 'Open my records') : isMr ? 'लॉगिन करा' : 'Log in'}
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -131,8 +152,11 @@ export const Footer: React.FC = () => {
           </div>
           <div className="flex flex-wrap items-center gap-x-5 sm:self-end">
             <span>{isMr ? `${HOSPITAL.empanelments[0].code} संलग्न रुग्णालय` : `${HOSPITAL.empanelments[0].code} empanelled hospital`}</span>
-            <Link to="/patient" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
-              {isMr ? 'पेशंट लॉगिन' : 'Patient login'}
+            <Link to="/privacy" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
+              {isMr ? 'गोपनीयता धोरण' : 'Privacy policy'}
+            </Link>
+            <Link to="/terms" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
+              {isMr ? 'अटी व शर्ती' : 'Terms of use'}
             </Link>
             <Link to="/admin/login" className="inline-flex items-center min-h-[44px] sm:min-h-0 hover:text-stone-300">
               {isMr ? 'कर्मचारी लॉगिन' : 'Staff login'}
