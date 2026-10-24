@@ -34,6 +34,7 @@ interface Confirmation {
     fee: number;
     paymentStatus: 'PAID' | 'PENDING';
     phoneVerified?: boolean;
+    createdAt?: string;
     patientAge?: number;
     patientGender?: string;
     patientAddress?: string;
@@ -1353,6 +1354,8 @@ const DoneView: React.FC<{ isMr: boolean; c: Confirmation }> = ({ isMr, c }) => 
         fee: a.fee,
         paid: a.paymentStatus === 'PAID',
         paymentId: a.paymentId,
+        visitType: 'ONLINE',
+        bookedAt: a.createdAt,
       });
       setPdfState('idle');
     } catch {

@@ -147,10 +147,8 @@ export async function buildReceiptPdf(r: Receipt, lang: ReceiptLang = 'en'): Pro
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', compress: true });
   pdf.setProperties({ title: `${t.title} ${r.receiptNo}`, author: HOSPITAL.name, creator: HOSPITAL.website });
 
-  let y = await drawLetterhead(pdf, t.title, new Date(r.createdAt), PAGE_W);
-  if (r.hospital?.gstin) {
-    text(pdf, `${t.gstin}: ${r.hospital.gstin}`, PAGE_W / 2, y, { size: 8, color: MUTED, align: "center" });
-  }
+  // GSTIN from the API (the hospital's registered value) goes in the letterhead
+  let y = await drawLetterhead(pdf, t.title, new Date(r.createdAt), PAGE_W, r.hospital?.gstin ?? null);
   if (r.status === 'CANCELLED') {
     text(pdf, t.cancelled, PAGE_W / 2, y + 1, { size: 20, bold: true, color: RED, align: 'center' });
   }

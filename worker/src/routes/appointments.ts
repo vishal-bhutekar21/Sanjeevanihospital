@@ -747,7 +747,17 @@ appointmentRoutes.post('/staff-book', requireRoles(...FRONT_DESK), async (c) => 
   const patientGender = optStr(dto.patientGender, 'patientGender');
   const patientAddress = optStr(dto.patientAddress, 'patientAddress', 300);
   const patientId = optStr(dto.patientId, 'patientId');
-  const patientRegNo = optStr(dto.patientRegNo, 'patientRegNo');
+  // Registration number (UHID) comes from the patient record when only the id is sent
+  let patientRegNo = optStr(dto.patientRegNo, 'patientRegNo');
+  if (patientId && !patientRegNo) {
+    const reg = await first<{ reg_no: string }>(
+      env,
+      `SELECT reg_no FROM patients WHERE id = ? AND hospital_id = ?`,
+      patientId,
+      hospital(env).id,
+    );
+    patientRegNo = reg?.reg_no;
+  }
   if (!isStr(dto.source) || !STAFF_SOURCES.includes(dto.source)) {
     throw badRequest('source must be one of the following values: WALK_IN, PHONE');
   }

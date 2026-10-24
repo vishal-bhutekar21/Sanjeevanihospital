@@ -11,6 +11,7 @@
 | Website setting | `apiBaseUrl` in `frontend/src/config/hospital.ts` already points at the API |
 | Secrets set on the Worker | `JWT_SECRET` (random). Add `MSG91_*` and `RAZORPAY_*` when the accounts are ready |
 | Staff login | `admin@sanjeevanihosp.in`, with a strong password given privately to the owner (not in this repository) |
+| GST number | SAMPLE `27AAAAA0000A1Z5` in `HOSPITAL_GSTIN` (worker/wrangler.toml) and `gstin` (frontend/src/config/hospital.ts). Replace both with the real GSTIN before giving receipts to patients |
 | Still to do | Copy the old data from Supabase (step 6 below), add the GitHub secrets so future merges deploy by themselves (step 4) |
 
 

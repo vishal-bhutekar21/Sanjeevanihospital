@@ -74,3 +74,13 @@ Reception logins are saved in the existing `hospital_admins` table.
 - Stopping a login blocks the next sign-in; someone already signed in stays signed in until their session ends (up to 7 days).
 - A doctor's fee changed here applies to bookings and receipts. The fee shown on the public website still comes from `frontend/src/data/doctorsData.ts` until that file is changed.
 - Receipts are in rupees only and assume the hospital and patient are in the same state (CGST + SGST).
+
+## Printouts
+
+| Printout | Size | Where | What it has |
+|---|---|---|---|
+| Token slip | A5 | Online booking, Book a visit, Appointments → Details | Token and QR, date, time, report-by time, doctor, visit type, patient with UHID, fee and payment, instructions, who booked and when |
+| OPD case sheet | A4 | Book a visit, Appointments → Details | Token and QR, patient and visit details, vitals boxes, complaints, history and examination, diagnosis, Rx table, investigations, advice, follow-up date, doctor signature box |
+| Receipt | A4 | Receipts → receipt | GST lines, CGST/SGST, discount, amount in words, payments, English / Marathi |
+
+All three print the hospital GSTIN in the letterhead (receipts use the API value `HOSPITAL_GSTIN`; slips and case sheets use `gstin` in `frontend/src/config/hospital.ts`).
