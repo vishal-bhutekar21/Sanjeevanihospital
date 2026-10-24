@@ -12,7 +12,7 @@
 | Secrets set on the Worker | `JWT_SECRET` (random). Add `MSG91_*` and `RAZORPAY_*` when the accounts are ready |
 | Staff login | `admin@sanjeevanihosp.in`, with a strong password given privately to the owner (not in this repository) |
 | GST number | SAMPLE `27AAAAA0000A1Z5` in `HOSPITAL_GSTIN` (worker/wrangler.toml) and `gstin` (frontend/src/config/hospital.ts). Replace both with the real GSTIN before giving receipts to patients |
-| Still to do | Copy the old data from Supabase (step 6 below), add the GitHub secrets so future merges deploy by themselves (step 4) |
+| Still to do | Add ONE GitHub secret, `CLOUDFLARE_API_TOKEN`, so merges deploy by themselves (the account ID is already in the workflows). Optionally copy the old data from Supabase (step 6) |
 
 
 This page is for the hospital owner or whoever looks after the website. It explains, step by step, how to put the booking API online on Cloudflare, copy the old data across, create the first admin, and connect the website. You do not need to install anything on your computer for the live setup: everything runs from GitHub and the Cloudflare website.
