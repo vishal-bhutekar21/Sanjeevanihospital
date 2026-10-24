@@ -1,0 +1,60 @@
+name: "Website: deploy to Cloudflare"
+
+# Builds frontend/ and publishes it as the Worker "sanjeevani-web" on
+# sanjeevani.vishalbhutekar.me and sanjeevani-admin.vishalbhutekar.me.
+# Uses the same CLOUDFLARE_API_TOKEN secret as the API deploy.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "frontend/**"
+      - ".github/workflows/web-deploy.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: web-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      # Not a secret: identifies the hospital's Cloudflare account
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '0f1a504839b6b0767e3ee44da77c2c43' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check repository secret
+        run: |
+          if [ -z "$CLOUDFLARE_API_TOKEN" ]; then
+            echo "::error::Add the GitHub repository secret CLOUDFLARE_API_TOKEN first (see documentation/09-cloudflare.md, step 4)"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npx vite build
+
+      # Netlify's SPA rule; Cloudflare uses not_found_handling in wrangler.toml instead
+      - run: rm -f dist/_redirects
+
+      - name: Deploy
+        run: npx --yes wrangler@4.152.0 deploy
+
+      - name: Check the website answers
+        run: |
+          sleep 5
+          for u in https://sanjeevani.vishalbhutekar.me/ https://sanjeevani-admin.vishalbhutekar.me/admin/login; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "$u"); echo "$u -> $code"
+          done
+          echo "### Website deployed: https://sanjeevani.vishalbhutekar.me (admin: https://sanjeevani-admin.vishalbhutekar.me)" >> "$GITHUB_STEP_SUMMARY"

@@ -4,11 +4,13 @@
 
 | What | Value |
 |---|---|
-| API | https://sanjeevani-api.vishalbhutekar33772.workers.dev/api (health check: `/api/health`) |
+| Website | https://sanjeevani.vishalbhutekar.me (Worker `sanjeevani-web`, static assets from `frontend/dist`, deployed by `.github/workflows/web-deploy.yml`) |
+| Admin panel | https://sanjeevani-admin.vishalbhutekar.me (same app; opens the staff login) |
+| API | https://sanjeevani-api.vishalbhutekar.me/api (also https://sanjeevani-api.vishalbhutekar33772.workers.dev/api; health check: `/api/health`) |
 | Worker name | `sanjeevani-api` |
 | D1 database | `sanjeevani-db` (id in `worker/wrangler.toml`) |
 | Daily clean-up | 09:00 IST (cron `30 3 * * *`) |
-| Website setting | `apiBaseUrl` in `frontend/src/config/hospital.ts` already points at the API |
+| Website setting | `apiBaseUrl` and `domains` in `frontend/src/config/hospital.ts`; addresses also in `frontend/wrangler.toml` and `worker/wrangler.toml` `routes` |
 | Secrets set on the Worker | `JWT_SECRET` (random). Add `MSG91_*` and `RAZORPAY_*` when the accounts are ready |
 | Staff login | `admin@sanjeevanihosp.in`, with a strong password given privately to the owner (not in this repository) |
 | GST number | SAMPLE `27AAAAA0000A1Z5` in `HOSPITAL_GSTIN` (worker/wrangler.toml) and `gstin` (frontend/src/config/hospital.ts). Replace both with the real GSTIN before giving receipts to patients |

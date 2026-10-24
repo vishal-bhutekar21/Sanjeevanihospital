@@ -116,6 +116,8 @@ export interface HospitalConfig {
   website: string;
   /** Booking server address used by the live site when VITE_API_URL is not set (must end in /api) */
   apiBaseUrl: string;
+  /** Web addresses. The admin address opens the staff login. */
+  domains: { site: string; admin: string; api: string };
   /** GST number on PDFs (slips, case sheets). Keep in step with HOSPITAL_GSTIN in worker/wrangler.toml. */
   gstin: string;
   booking: {
@@ -201,7 +203,12 @@ export const HOSPITAL: HospitalConfig = {
   logo: '/logo.png',
   website: 'sanjeevanihosp.in',
   // Hospital API on Cloudflare Workers (worker/). VITE_API_URL on Netlify overrides it.
-  apiBaseUrl: 'https://sanjeevani-api.vishalbhutekar33772.workers.dev/api',
+  apiBaseUrl: 'https://sanjeevani-api.vishalbhutekar.me/api',
+  domains: {
+    site: 'sanjeevani.vishalbhutekar.me',
+    admin: 'sanjeevani-admin.vishalbhutekar.me',
+    api: 'sanjeevani-api.vishalbhutekar.me',
+  },
   // SAMPLE GSTIN in the standard format (27 = Maharashtra). Replace with the hospital's real one.
   gstin: '27AAAAA0000A1Z5',
   booking: {

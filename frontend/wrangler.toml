@@ -1,0 +1,16 @@
+# Website on Cloudflare (Workers static assets). Deployed by
+# .github/workflows/web-deploy.yml after `npm run build`.
+name = "sanjeevani-web"
+compatibility_date = "2025-09-01"
+
+# Public site and the staff admin panel are the same app on two addresses;
+# the admin address opens the staff login (see src/App.tsx, HOSPITAL.domains).
+routes = [
+  { pattern = "sanjeevani.vishalbhutekar.me", custom_domain = true },
+  { pattern = "sanjeevani-admin.vishalbhutekar.me", custom_domain = true },
+]
+
+[assets]
+directory = "./dist"
+# Every page path (e.g. /doctors, /admin/receipts) returns index.html
+not_found_handling = "single-page-application"
