@@ -2,6 +2,7 @@ import type { MiddlewareHandler } from 'hono';
 import { sign, verify } from 'hono/jwt';
 import type { AppEnv, AuthUser, Env } from '../env';
 import { forbidden, unauthorized } from './http';
+import { isProduction } from './config';
 
 /**
  * HS256 JWTs, compatible with tokens from the old NestJS server when
@@ -56,6 +57,12 @@ export const requireRoles =
     if (!user) throw unauthorized('Please sign in again.');
     if (!user.role || !roles.includes(user.role)) {
       throw forbidden(`Access denied: Required role [${roles.join(', ')}], current user role: [${user.role}]`);
+    }
+    // A deactivated or deleted staff account stops working at once, not when its token expires
+    if (!user.type || user.type === 'ADMIN_SESSION') {
+      const row = await c.env.DB.prepare(`SELECT is_active FROM hospital_admins WHERE id = ?`).bind(user.userId).first<{ is_active: number }>();
+      const allowed = row ? row.is_active === 1 : !isProduction(c.env); // built-in accounts exist only in development
+      if (!allowed) throw unauthorized('This account has been switched off. Please contact the hospital administrator.');
     }
     c.set('user', user);
     await next();

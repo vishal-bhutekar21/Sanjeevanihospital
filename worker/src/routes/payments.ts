@@ -11,6 +11,7 @@ import { FRONT_DESK, requireRoles } from '../lib/auth';
 import { safeEqual } from '../lib/password';
 import { logAction } from '../lib/audit';
 import { ROSTER } from '../data/roster';
+import { doctorFee } from './appointments';
 
 export const paymentRoutes = new Hono<AppEnv>();
 
@@ -39,7 +40,8 @@ async function sessionForPayment(env: Env, bookingSessionId: string) {
   }
   if (!s.held_slot_id) throw badRequest('Please choose an appointment time first.');
   const doctor = ROSTER.find((d) => d.id === s.doctor_id);
-  return { fee: doctor?.fee ?? 0, doctorName: doctor?.name ?? '' };
+  // Current fee, including any change made in the admin panel
+  return { fee: await doctorFee(env, s.doctor_id), doctorName: doctor?.name ?? '' };
 }
 
 async function hmacSha256Hex(secret: string, message: string) {
