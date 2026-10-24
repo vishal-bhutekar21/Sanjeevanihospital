@@ -1,5 +1,9 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HOSPITAL } from './config/hospital';
+
+// The admin address (e.g. sanjeevani-admin.…) opens the staff login instead of the home page
+const isAdminHost = typeof window !== 'undefined' && window.location.hostname === HOSPITAL.domains.admin;
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AdminAuthProvider, useAdminAuth } from './context/AdminAuthContext';
 import { PublicLayout } from './layouts/PublicLayout';
@@ -76,7 +80,7 @@ export const App: React.FC = () => {
           <Routes>
             {/* Public Patient Website Routes */}
             <Route path="/" element={<PublicLayout />}>
-              <Route index element={<HomePage />} />
+              <Route index element={isAdminHost ? <Navigate to="/admin" replace /> : <HomePage />} />
               <Route path="doctors" element={<DoctorsPage />} />
               <Route path="doctors/:doctorId" element={<DoctorDetailPage />} />
               <Route path="departments" element={<DepartmentsPage />} />

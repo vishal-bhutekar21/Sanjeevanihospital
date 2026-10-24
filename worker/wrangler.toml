@@ -5,6 +5,10 @@ main = "src/index.ts"
 compatibility_date = "2025-09-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Own address on the Cloudflare domain; the workers.dev address keeps working too
+workers_dev = true
+routes = [{ pattern = "sanjeevani-api.vishalbhutekar.me", custom_domain = true }]
+
 # Daily 09:00 IST (03:30 UTC): clean up expired OTP codes, holds and sessions
 [triggers]
 crons = ["30 3 * * *"]
