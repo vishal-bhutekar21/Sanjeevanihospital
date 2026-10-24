@@ -46,17 +46,11 @@ Each patient gets a registration number `SMH-P-<6 digits>`. One mobile number ca
 
 ## Visits booked by reception
 
-`POST /appointments/staff-book` uses the same slot engine as online booking (no OTP). Only times the engine offers can be booked, and a time that is taken or held by an online patient is refused. Cancelling a visit frees its time. Visits now persist in the `appointment_records` table and are loaded again when the server starts, so a restart no longer loses bookings.
+`POST /appointments/staff-book` uses the same slot engine as online booking (no OTP). Only times the engine offers can be booked, and a time that is taken or held by an online patient is refused. Cancelling a visit frees its time. Visits are stored in the D1 `appointments` table like online bookings, so nothing is lost when the Worker restarts.
 
-## Database change (needs approval before deploy)
+## Database tables
 
-New tables in `backend/prisma/schema.prisma`: `patients`, `receipts`, `doc_counters`, `appointment_records` (and enum `ReceiptStatus`). Nothing existing was changed. Apply with:
-
-```bash
-cd backend
-npx prisma db push      # or: npx prisma migrate dev --name reception
-npx prisma generate
-```
+On Cloudflare D1: `patients`, `receipts` and `doc_counters` come from `worker/migrations/0002_patients_receipts.sql`; extra appointment columns for staff bookings come from `worker/migrations/0003_staff_booking.sql`. The deploy workflow applies them (`npx wrangler d1 migrations apply sanjeevani-db --remote`).
 
 Reception logins are saved in the existing `hospital_admins` table.
 
