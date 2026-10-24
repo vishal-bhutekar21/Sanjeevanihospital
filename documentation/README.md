@@ -8,7 +8,7 @@ A website for a single hospital, with online OPD booking and an admin panel for 
 
 - **Public website:** departments, doctors with their weekly OPD timings, facilities, MJPJAY and insurance pages, health camps and patient reviews, contact page. Every page is in English and Marathi.
 - **Online booking:** the patient picks a doctor, a date and a time, confirms their mobile number with a one-time code (OTP), and either pays online (Razorpay) or pays at the counter. They get a token number and an A5 PDF token slip.
-- **Admin panel:** appointments, OPD timings per doctor, doctors, departments, payments, scheme claims, reviews and camps, and a read-only page of hospital details.
+- **Admin panel:** front desk tools (register patients, book walk-in visits, make receipts, reception logins), appointments, OPD timings per doctor, doctors, departments, payments, scheme claims, reviews and camps, and a read-only page of hospital details.
 
 The first hospital to use it is Sanjeevani Multispeciality Hospital, Jalna. The code is set up so that the same product can be launched for another hospital by changing the hospital details, the doctor list and the photos.
 
@@ -31,6 +31,7 @@ The first hospital to use it is Sanjeevani Multispeciality Hospital, Jalna. The 
 | See planned work | [07-roadmap.md](07-roadmap.md) |
 | Staff records, alerts, Firebase push, scheduled jobs, login | [08-notifications-and-staff-plan.md](08-notifications-and-staff-plan.md) |
 | Put the API online on Cloudflare (Workers + D1), copy old data, create the first admin | [09-cloudflare.md](09-cloudflare.md) |
+| Reception: register patients, book visits, make receipts, reception logins | [10-reception-patients-receipts.md](10-reception-patients-receipts.md) |
 | Work on the code as an AI agent | [AI_AGENT_GUIDE.md](AI_AGENT_GUIDE.md) |
 
 The older `docs/` folder at the repo root holds earlier research notes and design plans. Where it disagrees with this folder, this folder is the current one.

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Plus, Search, Trash2 } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import type { PatientBill, PatientMedicine, PatientRecord } from '../../lib/patientPortal';
@@ -46,6 +47,14 @@ export const AdminPatientRecordsPage: React.FC = () => {
   useEffect(() => {
     loadList();
   }, []);
+
+  // Opened from the Patients page: show that patient's file straight away
+  const [searchParams] = useSearchParams();
+  const phoneFromLink = searchParams.get('phone');
+  useEffect(() => {
+    if (phoneFromLink) open(phoneFromLink);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [phoneFromLink]);
 
   const open = async (p: string) => {
     const ten = p.replace(/\D/g, '').slice(-10);
@@ -115,7 +124,7 @@ export const AdminPatientRecordsPage: React.FC = () => {
   return (
     <div className="max-w-[1200px] mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl sm:text-3xl">Patient records</h1>
+        <h1 className="text-2xl sm:text-3xl">Bills & medicines</h1>
         <p className="mt-1 text-stone-600">
           Share bills and medicines with a patient by mobile number. The patient sees them under Patient login on the website, with
           reminders before a medicine expires.

@@ -5,6 +5,8 @@ import { Search } from 'lucide-react';
 import { apiFetch } from '../../lib/api';
 import { DOCTORS_DATA } from '../../data/doctorsData';
 import { DoctorPhoto } from '../../components/ui';
+import { useAdminAuth } from '../../context/AdminAuthContext';
+import { isReceptionRole } from '../../lib/reception';
 
 interface Session {
   start: string;
@@ -55,6 +57,32 @@ export const AdminDoctorsPage: React.FC = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [dept, setDept] = useState('');
+  const { admin } = useAdminAuth();
+  const canEditFee = isReceptionRole(admin?.role);
+  // Fees as the booking server has them (a fee changed here wins over the website list)
+  const [fees, setFees] = useState<Record<string, number>>({});
+  const [feeFor, setFeeFor] = useState<string | null>(null);
+  const [feeText, setFeeText] = useState('');
+  const [feeMsg, setFeeMsg] = useState('');
+
+  useEffect(() => {
+    if (!canEditFee) return;
+    apiFetch<{ id: string; fee: number }[]>('/appointments/staff/doctors')
+      .then((r) => setFees(Object.fromEntries((Array.isArray(r.data) ? r.data : []).map((d) => [d.id, d.fee]))))
+      .catch(() => undefined);
+  }, [canEditFee]);
+
+  const saveFee = async (id: string, name: string) => {
+    setFeeMsg('');
+    try {
+      const res = await apiFetch<{ fee: number }>(`/appointments/staff/doctors/${id}/fee`, { method: 'PUT', body: JSON.stringify({ fee: Number(feeText) || 0 }) });
+      setFees((f) => ({ ...f, [id]: res.data.fee }));
+      setFeeFor(null);
+      setFeeMsg(`${name}’s fee is now ${res.data.fee > 0 ? `₹${res.data.fee}` : 'not set (asked at reception)'}.`);
+    } catch (e: any) {
+      setFeeMsg(e?.message || 'Could not save the fee.');
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -102,6 +130,8 @@ export const AdminDoctorsPage: React.FC = () => {
           The {DOCTORS_DATA.length} doctors listed on the website, with their current OPD timings for online booking.
         </p>
       </div>
+
+      {feeMsg && <p role="status" className="p-3 rounded-md bg-[#F0F7F6] border border-[#CFE4E0] text-sm">{feeMsg}</p>}
 
       {error && (
         <div role="alert" className="p-3 rounded-md bg-red-50 border border-red-200 text-sm text-red-800 flex justify-between gap-3">
@@ -170,7 +200,7 @@ export const AdminDoctorsPage: React.FC = () => {
                       <p className="font-medium text-[#1C2321]">{d.name}</p>
                       <p className="text-sm text-stone-600">{d.role}</p>
                       <p className="text-sm text-stone-500">
-                        {d.dept} · {d.degree} · {hasFee(d.fee) ? `₹${d.fee} fee` : 'fee not set'}
+                        {d.dept} · {d.degree} · {hasFee(fees[d.id] ?? d.fee) ? `₹${fees[d.id] ?? d.fee} fee` : 'fee not set'}
                       </p>
                       <p className="mt-1.5 text-sm text-stone-700">{t.text}</p>
                       {t.on !== null && (
@@ -182,6 +212,20 @@ export const AdminDoctorsPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-x-5 gap-y-0 md:flex-col md:items-end md:gap-1.5 shrink-0 text-sm md:pl-4">
+                    {canEditFee && (
+                      feeFor === d.id ? (
+                        <span className="flex items-center gap-2 w-full md:w-auto">
+                          <label className="sr-only" htmlFor={`fee-${d.id}`}>Fee in rupees</label>
+                          <input id={`fee-${d.id}`} inputMode="numeric" autoFocus value={feeText} onChange={(e) => setFeeText(e.target.value.replace(/\D/g, ''))} className={`${inputClass} w-28`} placeholder="₹" />
+                          <button type="button" onClick={() => saveFee(d.id, d.name)} className="btn-primary px-3 py-2 text-sm">Save</button>
+                          <button type="button" onClick={() => setFeeFor(null)} className="text-stone-600 hover:underline text-sm">Cancel</button>
+                        </span>
+                      ) : (
+                        <button type="button" onClick={() => { setFeeFor(d.id); setFeeText(String(fees[d.id] ?? d.fee ?? '')); setFeeMsg(''); }} className="inline-flex items-center min-h-[44px] md:min-h-0 text-[#0F766E] font-semibold hover:underline underline-offset-4">
+                          Change fee
+                        </button>
+                      )
+                    )}
                     <Link to="/admin/schedules" className="inline-flex items-center min-h-[44px] md:min-h-0 text-[#0F766E] font-semibold hover:underline underline-offset-4">
                       Edit timings
                     </Link>
@@ -202,8 +246,8 @@ export const AdminDoctorsPage: React.FC = () => {
       </section>
 
       <p className="text-sm text-stone-600 max-w-3xl">
-        OPD timings can be changed here under Edit timings. A doctor’s profile details (name, qualifications, fee,
-        photo) are part of the website’s doctor list, so to change them, ask your developer. Doctor photos go in{' '}
+        OPD timings can be changed here under Edit timings. A doctor’s profile details (name, qualifications,
+        photo) are part of the website’s doctor list, so to change them, ask your developer. The consultation fee can be changed here with Change fee. Doctor photos go in{' '}
         <span className="font-mono text-[13px]">/public/images/doctors/&lt;id&gt;.webp</span>, for example{' '}
         <span className="font-mono text-[13px]">doc-bagal.webp</span>. Until a photo is added, the website shows the
         doctor’s initials.
