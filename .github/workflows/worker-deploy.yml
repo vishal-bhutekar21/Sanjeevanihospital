@@ -22,7 +22,8 @@ jobs:
         working-directory: worker
     env:
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      # Not a secret: identifies the hospital's Cloudflare account
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID || '0f1a504839b6b0767e3ee44da77c2c43' }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,9 +33,8 @@ jobs:
         run: |
           missing=""
           [ -z "$CLOUDFLARE_API_TOKEN" ] && missing="$missing CLOUDFLARE_API_TOKEN"
-          [ -z "$CLOUDFLARE_ACCOUNT_ID" ] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
           if [ -n "$missing" ]; then
-            echo "::error::Add these GitHub repository secrets first:$missing (see documentation/09-cloudflare.md)"
+            echo "::error::Add the GitHub repository secret$missing first (see documentation/09-cloudflare.md, step 4)"
             exit 1
           fi
           if [ -z "$JWT_SECRET" ]; then
