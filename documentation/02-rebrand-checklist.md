@@ -4,7 +4,7 @@ Follow these steps in order. Collect the information first with [templates/new-h
 
 Field-by-field details for every file are in [03-data-reference.md](03-data-reference.md).
 
-> **Join key:** a doctor's `id` (for example `doc-goyal`) links the website doctor list, the doctor's photo file and the backend booking roster. If the three do not match, the doctor has no photo or cannot be booked.
+> **Join key:** a doctor's `id` (for example `doc-goyal`) links the website doctor list, the doctor's photo file, the API booking roster (`worker/src/data/roster.ts`) and saved OPD timings. If the three do not match, the doctor has no photo or cannot be booked.
 
 ---
 
@@ -33,11 +33,11 @@ Notes:
 
 **Check:** `cd frontend && npx tsc --noEmit`. Open `/`, `/contact` and `/admin/settings` and read every number and line.
 
-## 2. Hospital details (backend): `backend/src/config/hospital.config.ts` + environment
+## 2. Hospital details (API): `worker/wrangler.toml` → `[vars]`
 
-**What to change:** set these environment variables on the server (Render → Environment) rather than editing the file:
+**What to change:** the `HOSPITAL_*` lines.
 
-| Variable | Example |
+| Setting | Example |
 | --- | --- |
 | `HOSPITAL_TENANT_ID` | `hosp-shanti-pune` |
 | `HOSPITAL_NAME` | `Shanti Hospital` |
@@ -46,13 +46,13 @@ Notes:
 | `HOSPITAL_ADDRESS` | `12, MG Road` |
 | `HOSPITAL_CITY` / `HOSPITAL_STATE` / `HOSPITAL_PINCODE` | `Pune` / `Maharashtra` / `411001` |
 | `HOSPITAL_HELPLINE` | `+91-98220-11111` |
-| `HOSPITAL_LANDLINE` | `020-1234567` |
 | `HOSPITAL_EMAIL` | `info@shantihospital.in` |
-| `HOSPITAL_TAGLINE`, `HOSPITAL_FOUNDED_YEAR` | optional |
 
-If you sell many copies from one code base, you may prefer to change the defaults in the file too, so a missing variable never shows the old hospital.
+Also set `ALLOWED_ORIGINS` (optional) and keep `BOOKING_OPEN_ALL_DOCTORS = "true"` only while testing.
 
-**Check:** `curl https://<backend>/api/hospitals/profile` and `curl https://<backend>/api/health` show the new name.
+If two hospitals will share one Cloudflare account, also give each its own Worker and database name. The names `sanjeevani-api` and `sanjeevani-db` appear in `worker/wrangler.toml`, `worker/package.json`, `worker/scripts/ensure-d1.sh` and both `.github/workflows/worker-*.yml` files; change them all together. One Cloudflare account per hospital is simpler and needs no renaming.
+
+**Check:** `curl https://<api>/api/health` and `curl https://<api>/api/hospitals/profile` show the new name.
 
 ## 3. Doctors: `frontend/src/data/doctorsData.ts`
 
@@ -125,21 +125,20 @@ Most sentences now take the name from config. These still contain hospital-speci
 | --- | --- |
 | `pages/HomePage.tsx` | Department highlights, equipment, MJPJAY teaser, stats |
 | `pages/FacilitiesPage.tsx` | Facility list (for example "Sanjeevani Pharma") |
-| `pages/EventsPage.tsx` | Sample camps (venue text such as "OPD hall, Sanjeevani Hospital") used when the server has no camps |
+| `pages/EventsPage.tsx` | Camp text that names the hospital (for example venue text) |
 | `pages/MjpjayPage.tsx`, `pages/InsurancePage.tsx` | Covered treatments, insurers, steps |
 | `pages/ContactPage.tsx` | Directions list (distances from station and bus stand) |
 | `data/doctorsData.ts` | `about` text mentions the hospital |
 | `data/awardsData.ts`, `data/photos.ts` | Award text, captions |
-| `backend/src/reviews-events/reviews-events.service.ts` | Sample reviews and camps shown before the database has real ones |
-| `backend/src/schemes/schemes.service.ts` | Insurer and TPA lists, desk timings |
+| `worker/src/routes/schemes.ts` | MJPJAY / insurance information the API returns (insurer and TPA lists, desk directions and timings) |
 
-**Check:** `grep -rn "Sanjeevani\|संजीवनी\|Jalna\|जालना" frontend/src backend/src` should return only lines you have decided to keep.
+**Check:** `grep -rn "Sanjeevani\|संजीवनी\|Jalna\|जालना" frontend/src worker/src worker/wrangler.toml worker/scripts` should return only lines you have decided to keep.
 
-## 11. Backend booking roster: `backend/src/appointments/schedules.ts`
+## 11. API booking roster: `worker/src/data/roster.ts`
 
 **What to change:**
 - `ROSTER`: one entry per bookable doctor with the **same `id`, `name` and `fee`** as `doctorsData.ts`, plus a `department` label.
-- `DEFAULT_SCHEDULES`: starting weekly timings per doctor id (`monToSat(...)` or `none()`). Times are 24-hour `"HH:mm"`. Admins can change them later in the admin panel.
+- `DEFAULT_SCHEDULES`: starting weekly timings per doctor id (`monToSat(...)` or `none()`). Times are 24-hour `"HH:mm"`. Admins can change them later in the admin panel; saved timings are stored in D1 by doctor id.
 
 **Example:**
 ```ts
@@ -148,15 +147,19 @@ Most sentences now take the name from config. These still contain hospital-speci
 'doc-patil': { slotMinutes: 15, days: monToSat({ start: '10:00', end: '14:00' }, { start: '17:00', end: '20:00' }) },
 ```
 
-**Check:** `curl "https://<backend>/api/appointments/availability?doctorId=doc-patil&date=<YYYY-MM-DD>"` returns times on an OPD day.
+**Check:** `curl "https://<api>/api/appointments/availability?doctorId=doc-patil&date=<YYYY-MM-DD>"` returns times on an OPD day.
 
-## 12. Database seed: `backend/prisma/seed.ts`
+## 12. Database and first admin (Cloudflare D1)
 
-**What to change:** hospital row (name, slug, address, phones, email), the admin account email and **password** (`Admin@123` today; never ship that), the doctors (their names must match the `ROSTER` names, because saved OPD timings are linked to database doctors by name), and settings such as `EMERGENCY_HOTLINE`.
+A new hospital starts with an empty D1 database; the deploy workflow creates it and its tables. There is no seed file and no default password.
 
-**Check:** run `npm run prisma:seed` against the new database, then log in at `/admin/login` with the new account. Save OPD timings for one doctor, restart the server, and check they are still there.
+**What to do:**
+- Create the first admin with the data workflow (GitHub secrets `ADMIN_EMAIL`, `ADMIN_PASSWORD`; see [09-cloudflare.md](09-cloudflare.md#part-3-create-the-first-admin)).
+- That workflow also creates the `hospitals` row if it is missing. It uses the defaults written in `worker/scripts/initial-admin.mjs` (Sanjeevani's name, tenant id, address, phone and email), because the workflow does not pass the `HOSPITAL_*` values. Change those defaults to the new hospital's values (and the same `HOSPITAL_TENANT_ID` as in `wrangler.toml`) before running it.
+- Do **not** tick "Copy all data from Supabase" for a new hospital.
+- Optionally change the development-only built-in accounts in `worker/src/routes/auth.ts` (`admin@sanjeevanihosp.in` / `Admin@123`). They never work on Cloudflare.
 
-Also change the in-memory development admin accounts in `backend/src/auth/auth.service.ts` (`admin@sanjeevanihosp.in` / `Admin@123`) or make sure production always has a database.
+**Check:** log in at `/admin/login` with the new account. Save OPD timings for one doctor, reload the page, and check they are still there.
 
 ## 13. Page title and search text: `frontend/index.html`
 
@@ -164,16 +167,17 @@ Also change the in-memory development admin accounts in `backend/src/auth/auth.s
 
 **Check:** browser tab title; view page source.
 
-## 14. Environment variables and hosting
+## 14. Secrets and hosting
 
-See [05-deployment-and-config.md](05-deployment-and-config.md).
+Follow [09-cloudflare.md](09-cloudflare.md) with the new hospital's own accounts. Reference: [05-deployment-and-config.md](05-deployment-and-config.md).
 
-- Backend (Render): `DATABASE_URL`, `DIRECT_URL`, `JWT_SECRET` (new random value per hospital), `NODE_ENV=production`, `MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `HOSPITAL_*`.
-- Frontend (Netlify): `VITE_API_URL=https://<backend>/api`.
+- GitHub secrets: `CLOUDFLARE_API_TOKEN`, `CLOUDFLARE_ACCOUNT_ID` (the hospital's Cloudflare account), `JWT_SECRET` (new random value per hospital), `MSG91_AUTH_KEY`, `MSG91_TEMPLATE_ID`, `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`.
+- Website: `apiBaseUrl` in `frontend/src/config/hospital.ts` (or `VITE_API_URL` on Netlify) = the new Worker address ending in `/api`.
 - Use the hospital's own Razorpay and MSG91 accounts, so money and SMS costs go to them.
-- Point the hospital's domain at Netlify.
+- Point the hospital's domain at Netlify. Optionally add `api.<domain>` to the Worker (09, Part 5).
+- Before launch, switch off the testing switch in both places (09, Part 6).
 
-**Check:** `https://<backend>/api/health` returns `"status":"UP"`; a real booking on the live site with a real phone number.
+**Check:** `https://<api>/api/health` returns `"status":"UP"`; a real booking on the live site with a real phone number.
 
 ## 15. Developer credit: `frontend/src/data/developer.ts`
 
@@ -186,7 +190,7 @@ This is the template author's credit shown in the footer and admin sidebar. Keep
 - [ ] `config/hospital.ts` filled in; every phone tested by tapping it on a phone
 - [ ] WhatsApp number receives a test message from the offline booking request
 - [ ] Map link opens the right place; map embed shows the right place
-- [ ] Backend `HOSPITAL_*` variables set; `/api/hospitals/profile` correct
+- [ ] `worker/wrangler.toml` `HOSPITAL_*` values set; `/api/hospitals/profile` correct
 - [ ] `doctorsData.ts` replaced; ids follow `doc-<name>`
 - [ ] A photo for each doctor at `public/images/doctors/<id>.webp` (or initials accepted)
 - [ ] `DEPARTMENTS` replaced; all `doctorIds` exist
@@ -195,13 +199,14 @@ This is the template author's credit shown in the footer and admin sidebar. Keep
 - [ ] `public/logo.png` replaced
 - [ ] `locales/en.json` and `mr.json` hero and section text updated
 - [ ] Page copy in step 10 reviewed; grep shows no old hospital name
-- [ ] Backend `ROSTER` and `DEFAULT_SCHEDULES` use the same ids, names and fees as `doctorsData.ts`
-- [ ] `seed.ts` updated; admin password changed; seed run on the new database
+- [ ] `worker/src/data/roster.ts` `ROSTER` and `DEFAULT_SCHEDULES` use the same ids, names and fees as `doctorsData.ts`
+- [ ] `initial-admin.mjs` defaults updated; first admin created with the data workflow; `ADMIN_PASSWORD` secret deleted
 - [ ] `index.html` title, description and keywords updated
 - [ ] `JWT_SECRET` is a new random value
 - [ ] MSG91 live: a real OTP arrives
 - [ ] Razorpay live keys set; one real ₹1 test payment refunded (or "pay at counter" only)
-- [ ] `VITE_API_URL` set on Netlify; site rebuilt
+- [ ] Worker deployed; `apiBaseUrl` (or `VITE_API_URL`) points at it; site rebuilt
+- [ ] Testing switch off: `BOOKING_OPEN_ALL_DOCTORS = "false"` and `booking.openAllDoctors: false`; OPD timings set for every doctor
 - [ ] Booked one appointment end to end; PDF slip shows new name, address, phone
 - [ ] Every page checked in English and Marathi at 390 px wide and on desktop
-- [ ] `npx tsc --noEmit` and `npx vite build` pass (frontend); `npx tsc --noEmit -p tsconfig.json` passes (backend)
+- [ ] `npx tsc --noEmit` and `npx vite build` pass (frontend); `npx tsc --noEmit` passes in `worker/`

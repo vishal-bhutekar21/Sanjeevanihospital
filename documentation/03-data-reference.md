@@ -5,7 +5,7 @@ Field-by-field reference for every file you edit to set up a hospital. "Required
 General rules:
 - Every text a patient sees has an English field and a Marathi field (`…Mr`). Fill both.
 - Use real information only. If something is not known (a fee, a photo), leave it empty or `0` and the site shows a sensible fallback.
-- Doctor `id` is the join key across `doctorsData.ts`, `public/images/doctors/<id>.webp`, `DepartmentsPage.tsx` `doctorIds`, and backend `ROSTER` / `DEFAULT_SCHEDULES`.
+- Doctor `id` is the join key across `doctorsData.ts`, `public/images/doctors/<id>.webp`, `DepartmentsPage.tsx` `doctorIds`, the API `ROSTER` / `DEFAULT_SCHEDULES` (`worker/src/data/roster.ts`) and saved timings in D1 `doctor_schedules`.
 
 ---
 
@@ -43,38 +43,40 @@ General rules:
 | `empanelments` | `{code, en, mr}[]` | no | `{ code: 'MJPJAY', … }` | Footer bottom line uses the first `code` |
 | `logo` | path | yes | `/logo.png` | Header, footer, admin, slip |
 | `website` | domain | yes | `sanjeevanihosp.in` | Admin sidebar placeholder email |
+| `apiBaseUrl` | URL ending in `/api` | yes (live) | `https://sanjeevani-api.<your-subdomain>.workers.dev/api` | API address used by the live site when `VITE_API_URL` is not set. On localhost the site uses `http://localhost:8787/api`. |
+| `booking.openAllDoctors` | boolean | yes | `true` while testing | Testing switch: every doctor bookable every day between `booking.openFrom` and `booking.openTo`. Set `false` before going live, together with `BOOKING_OPEN_ALL_DOCTORS` in `worker/wrangler.toml`. |
+| `booking.openFrom` / `openTo` | `"HH:mm"` | yes | `08:00` / `22:00` | Hours used while the testing switch is on. |
 
 Rules:
 - `tel` = `+` country code + number, no spaces. `display` is what people read.
 - `shortMr` uses Marathi digits.
 - Admin Settings shows a warning when `emails.main ≠ emails.footer`, or when the contact-page morning hours differ from the header/footer morning hours.
 
-## 2. `backend/src/config/hospital.config.ts` → `HOSPITAL`
+## 2. `worker/wrangler.toml` → `[vars]`
 
-Read through getters, so environment variables loaded from `.env` are seen.
+Read by the API through `hospital(env)` in `worker/src/lib/config.ts`. Change the file and commit to `main`; the deploy workflow applies it.
 
-| Field | Env variable | Default |
+| Field | Setting | Sanjeevani value |
 | --- | --- | --- |
 | `id` | `HOSPITAL_TENANT_ID` | `hosp-sanjeevani-jalna` |
 | `name` | `HOSPITAL_NAME` | `Sanjeevani Multispeciality Hospital` |
 | `shortName` | `HOSPITAL_SHORT_NAME` | `Sanjeevani Hospital` |
 | `slug` | `HOSPITAL_SLUG` | `sanjeevani-jalna` |
-| `tagline` | `HOSPITAL_TAGLINE` | `Comprehensive healthcare, closer to you.` |
-| `establishedYear` | `HOSPITAL_FOUNDED_YEAR` | `2016` |
 | `addressLine` | `HOSPITAL_ADDRESS` | `Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli` |
 | `city` / `state` / `pincode` | `HOSPITAL_CITY` / `HOSPITAL_STATE` / `HOSPITAL_PINCODE` | `Jalna` / `Maharashtra` / `431203` |
 | `fullAddress` | (computed) | `<addressLine>, <city> – <pincode>` |
 | `helpline` | `HOSPITAL_HELPLINE` | `+91-75073-42222` |
-| `landline` | `HOSPITAL_LANDLINE` | `02482-223322` |
 | `email` | `HOSPITAL_EMAIL` | `admin@sanjeevanihosp.in` |
 
-Used by: `/api/health`, `/api/hospitals/profile`, booking confirmation (`hospitalAddress`, `emergencyHelpline`), admin login response (`hospitalName`), payment order (`hospitalName`), insurance info (`helpline`), the "call reception" message when OTP SMS is not set up, and the `hospitalId` on every in-memory record.
+Used by: `/api/health`, booking confirmation (`hospitalAddress`, `emergencyHelpline`), admin login reply (`hospitalName`), payment order (`hospitalName`), the "call reception" messages, and the `hospital_id` on records the API saves.
+
+Other settings in the same block: `ENVIRONMENT`, `ALLOWED_ORIGINS`, `BOOKING_OPEN_ALL_DOCTORS`, `REQUIRE_OTP` (see [05-deployment-and-config.md](05-deployment-and-config.md#api-settings)).
 
 ## 3. `frontend/src/data/doctorsData.ts` → `DOCTORS_DATA: DoctorItem[]`
 
 | Field | Type | Req. | Example | Notes |
 | --- | --- | --- | --- | --- |
-| `id` | string | yes | `doc-goyal` | Lowercase, `doc-` prefix. Must match the photo file name and backend `ROSTER`. Used in URLs (`/doctors/doc-goyal`, `/book?doctorId=doc-goyal`); never change once live. |
+| `id` | string | yes | `doc-goyal` | Lowercase, `doc-` prefix. Must match the photo file name and the API `ROSTER`. Used in URLs (`/doctors/doc-goyal`, `/book?doctorId=doc-goyal`); never change once live. |
 | `name` / `nameMr` | string | yes | `Dr. Nishant Goyal` | Must match `ROSTER.name` and the database doctor name (see section 7). |
 | `role` / `roleMr` | string | yes | `Consultant Orthopaedic Surgeon` | |
 | `degree` | string | yes | `MBBS, DNB, D. Ortho` | |
@@ -133,16 +135,16 @@ Mon – Sat: 10:00 AM – 02:00 PM | 05:00 PM – 08:00 PM
 
 **Logo:** `frontend/public/logo.png`, square PNG, transparent background.
 
-## 7. `backend/src/appointments/schedules.ts`
+## 7. `worker/src/data/roster.ts`
 
-### `ROSTER: RosterDoctor[]`: doctors the booking server knows
+### `ROSTER: RosterDoctor[]`: doctors the API knows
 
 | Field | Type | Notes |
 | --- | --- | --- |
 | `id` | string | Same as `DOCTORS_DATA.id`. |
-| `name` | string | Same as `DOCTORS_DATA.name`. Saved OPD timings are linked to database `doctors` rows **by name** (case and "Dr." are ignored; one name may start with the other). |
+| `name` | string | Same as `DOCTORS_DATA.name`. Also used once, by the copy from Supabase, to match old database doctors to website ids (case and "Dr." are ignored; one name may start with the other). |
 | `department` | string | Shown in admin and on the slip. |
-| `fee` | number | Same as `DOCTORS_DATA.fee`. The server uses this fee for payment, never the browser's. `0` = pay at counter, no online payment. |
+| `fee` | number | Same as `DOCTORS_DATA.fee`. The API uses this fee for payment, never the browser's. `0` = pay at counter, no online payment. |
 
 ### `DEFAULT_SCHEDULES: Record<doctorId, WeeklySchedule>`
 
@@ -154,7 +156,7 @@ Mon – Sat: 10:00 AM – 02:00 PM | 05:00 PM – 08:00 PM
 
 Helpers: `monToSat(session, session…)` (no Sunday) and `none()` (no online OPD: patients are asked to call).
 
-These are only the starting values. Once an admin saves timings in **OPD timings**, they are stored in the `doctor_schedules` table and override the defaults.
+These are only the starting values. Once an admin saves timings in **OPD timings**, they are stored in the D1 table `doctor_schedules` under the doctor's `id` and override the defaults.
 
 ## 8. `frontend/src/locales/en.json` and `mr.json`
 
@@ -168,9 +170,9 @@ Shared UI text, nested by area: `nav`, `topbar`, `hero`, `quickActions`, `sectio
 
 `<title>`, `<meta name="description">`, `<meta name="keywords">`, `<meta name="author">`, favicon (`/logo.png`). Plain HTML, edit by hand.
 
-## 10. `backend/prisma/seed.ts`
+## 10. Database: `worker/migrations/`
 
-Creates the hospital row, one admin (`admin@sanjeevanihosp.in` / `Admin@123` today: change both), doctors (names must match `ROSTER`), departments and settings such as `EMERGENCY_HOTLINE`. Run with `npm run prisma:seed`. The schema itself (`prisma/schema.prisma`) is not changed per hospital.
+The D1 tables are defined in numbered SQL files (`0001_init.sql`, …). They are the same for every hospital; do not change them per hospital. A new hospital's database starts empty: the first admin (and the `hospitals` row) is created with the data workflow, using `worker/scripts/initial-admin.mjs` ([09-cloudflare.md](09-cloudflare.md#part-3-create-the-first-admin)). There is no seed file and no default admin password.
 
 ## 11. Data that is not edited per hospital
 

@@ -7,10 +7,10 @@ import { HOSPITAL } from '../config/hospital';
 const isLocalHost =
   typeof window !== 'undefined' && ['localhost', '127.0.0.1'].includes(window.location.hostname);
 
-// VITE_API_URL wins. Without it, the live site uses the hospital's booking server
-// from config/hospital.ts, and local development uses localhost.
+// VITE_API_URL wins. Without it, the live site uses the Cloudflare Worker address
+// from config/hospital.ts, and local development uses `wrangler dev` (port 8787).
 export const API_BASE_URL =
-  import.meta.env.VITE_API_URL || (isLocalHost ? 'http://localhost:3000/api' : HOSPITAL.apiBaseUrl);
+  import.meta.env.VITE_API_URL || (isLocalHost ? 'http://localhost:8787/api' : HOSPITAL.apiBaseUrl);
 
 export const apiUrl = (endpoint: string): string => {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;

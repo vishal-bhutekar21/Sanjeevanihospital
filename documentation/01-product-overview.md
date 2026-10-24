@@ -31,7 +31,7 @@
 | --- | --- |
 | Dashboard | Today's queue, consultation fees taken today, and appointments by doctor. |
 | Appointments | List with a **date filter**; change status (pending, confirmed, completed, cancelled, no-show). |
-| OPD timings | Set each doctor's weekly sessions and slot length. Saved to the `doctor_schedules` table in the database; the booking page uses them straight away. |
+| OPD timings | Set each doctor's weekly sessions and slot length. Saved to the `doctor_schedules` table in the D1 database (by doctor id); the booking page uses them straight away. |
 | Doctors | List of doctors as the booking system knows them. |
 | Departments | List of departments. |
 | Payments | Online payments with status. |
@@ -44,11 +44,11 @@
 | Part | Technology |
 | --- | --- |
 | Frontend | React 18, TypeScript, Vite 5, Tailwind CSS 3, React Router 6, i18next (EN/MR), lucide-react icons, html2canvas + jsPDF (token slip) |
-| Backend | NestJS 10, TypeScript, Prisma 5, Passport JWT, bcryptjs, Helmet, Throttler, class-validator |
-| Database | PostgreSQL (Supabase in production) |
+| API | Cloudflare Workers, TypeScript, Hono (routing, CORS, JWT, secure headers), PBKDF2 passwords via Web Crypto (bcryptjs only to check old copied hashes) |
+| Database | Cloudflare D1 (SQLite) |
 | Payments | Razorpay (orders + signature check) |
 | SMS / OTP | MSG91 |
-| Hosting | Frontend on Netlify, backend on Render (Docker files also included) |
+| Hosting | Website on Netlify; API on Cloudflare Workers, deployed by GitHub Actions ([09-cloudflare.md](09-cloudflare.md)) |
 
 ## Folder map
 
@@ -57,7 +57,9 @@
 ├── AGENTS.md / CLAUDE.md          Short rules for AI agents (point to documentation/AI_AGENT_GUIDE.md)
 ├── README.md                      Original project README
 ├── netlify.toml                   Netlify build settings (base = frontend)
-├── docker-compose.yml             Local Postgres + backend + frontend in Docker
+├── .github/workflows/
+│   ├── worker-deploy.yml          Deploys worker/ to Cloudflare on every push to main
+│   └── worker-data.yml            Manual: copy data from Supabase (one time), create first admin
 ├── documentation/                 This documentation
 ├── docs/                          Older research notes and plans
 ├── frontend/
@@ -94,21 +96,22 @@
 │       ├── context/AdminAuthContext.tsx  Admin login state
 │       └── pages/                 One file per page; pages/admin/* for the admin panel
 │                                  (DepartmentsPage.tsx also exports the DEPARTMENTS list)
-└── backend/
-    ├── .env.example               All environment variables
-    ├── render.yaml                Render blueprint
-    ├── prisma/schema.prisma       Database schema (do not change without agreement)
-    ├── prisma/seed.ts             Seeds hospital, admin, doctors, settings
+└── worker/                         Hospital API (Cloudflare Worker + D1)
+    ├── wrangler.toml              Worker name, D1 binding, daily cron, public settings ([vars]: HOSPITAL_*, testing switch)
+    ├── .dev.vars.example          Local secrets for `npm run dev` (copy to .dev.vars)
+    ├── package.json               Scripts: dev, deploy, typecheck, db:migrate:local / :remote
+    ├── migrations/                Database schema as numbered SQL files (do not change without agreement)
+    ├── scripts/
+    │   ├── ensure-d1.sh           Finds or creates the D1 database (used by the workflows)
+    │   ├── export-supabase.mjs    One-time copy of the old Supabase data into SQL for D1
+    │   └── initial-admin.mjs      SQL for the hospital row and the first admin
     └── src/
-        ├── config/hospital.config.ts  Hospital id, name, address, helpline (env overridable)
-        ├── main.ts                Server start, /api prefix, CORS, Helmet
-        ├── app.module.ts          Modules, env loading, rate limiting
-        ├── appointments/          Availability, slot holds, booking, OPD timings
-        │   └── schedules.ts       ROSTER (doctors the server knows) + DEFAULT_SCHEDULES
-        ├── auth/                  OTP (MSG91), patient session token, admin login (JWT)
-        ├── payments/              Razorpay order + verify
-        ├── schemes/               MJPJAY / insurance info and claims
-        ├── reviews-events/        Reviews and health camps
-        ├── doctors/, departments/, hospitals/, audit/
-        └── common/                Guards (JWT, roles, patient session), filters, interceptors
+        ├── index.ts               App start, /api prefix, CORS, secure headers, route mounting, cron handler
+        ├── env.ts                 Bindings, settings and secrets the Worker expects
+        ├── scheduled.ts           Daily tidy-up (expired OTP codes, holds, sessions)
+        ├── data/roster.ts         ROSTER (doctors the API knows, fees) + DEFAULT_SCHEDULES
+        ├── lib/                   auth (JWT, roles), password, db, http (reply shape, errors), ratelimit, config, audit, phone
+        └── routes/                appointments, auth (OTP, admin login), payments (Razorpay), patients
+                                   (patient records + patient portal), reviews (reviews and camps), schemes, catalog
+                                   (doctors, departments, hospital profile), audit
 ```

@@ -1,0 +1,42 @@
+# Cloudflare Worker for the hospital API (replaces backend/ on Render).
+# Deploys from GitHub Actions (.github/workflows/worker-deploy.yml).
+name = "sanjeevani-api"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Daily 09:00 IST (03:30 UTC): clean up expired OTP codes, holds and sessions
+[triggers]
+crons = ["30 3 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sanjeevani-db"
+# Filled in by the deploy workflow (it creates the database on first run).
+database_id = "f1775031-3ad1-42cc-bf3f-b3c9aa211e80"
+migrations_dir = "migrations"
+
+# Public settings. Secrets (JWT_SECRET, RAZORPAY_*, MSG91_*) are set with
+# `wrangler secret put` by the deploy workflow from GitHub secrets.
+[vars]
+ENVIRONMENT = "production"
+# Origins allowed to call the API: "*" (bearer tokens, no cookies) or a comma-separated list
+ALLOWED_ORIGINS = "*"
+# Testing switch: every doctor bookable every day 08:00-22:00. Set "false" before going live.
+BOOKING_OPEN_ALL_DOCTORS = "true"
+# "true" = patients must verify by SMS; "false" = book without SMS when MSG91 isn't set up
+REQUIRE_OTP = "false"
+HOSPITAL_TENANT_ID = "hosp-sanjeevani-jalna"
+HOSPITAL_NAME = "Sanjeevani Multispeciality Hospital"
+HOSPITAL_SHORT_NAME = "Sanjeevani Hospital"
+HOSPITAL_SLUG = "sanjeevani-jalna"
+HOSPITAL_ADDRESS = "Plot No. 17, Rishi Park, Ambad Road / Ambad Choufuli"
+HOSPITAL_CITY = "Jalna"
+HOSPITAL_STATE = "Maharashtra"
+HOSPITAL_PINCODE = "431203"
+HOSPITAL_HELPLINE = "+91-75073-42222"
+HOSPITAL_EMAIL = "admin@sanjeevanihosp.in"
+# Prefix for registration and receipt numbers (SMH-P-000123, SMH-R-2627-000045)
+HOSPITAL_CODE_PREFIX = "SMH"
+# GST number printed on receipts; leave empty until the hospital confirms it
+HOSPITAL_GSTIN = ""

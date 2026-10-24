@@ -1,0 +1,26 @@
+{
+  "name": "sanjeevani-worker",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Hospital API on Cloudflare Workers + D1 (replaces backend/ NestJS server)",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "db:migrate:local": "wrangler d1 migrations apply sanjeevani-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply sanjeevani-db --remote",
+    "export:supabase": "node scripts/export-supabase.mjs",
+    "admin:sql": "node scripts/initial-admin.mjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "hono": "^4.9.0"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261019.1",
+    "pg": "^8.16.0",
+    "typescript": "^5.5.4",
+    "wrangler": "^4.150.0"
+  }
+}

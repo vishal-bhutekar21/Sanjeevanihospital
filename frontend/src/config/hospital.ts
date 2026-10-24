@@ -198,7 +198,8 @@ export const HOSPITAL: HospitalConfig = {
   ],
   logo: '/logo.png',
   website: 'sanjeevanihosp.in',
-  apiBaseUrl: 'https://sanjeevani-backend.onrender.com/api',
+  // Hospital API on Cloudflare Workers (worker/). VITE_API_URL on Netlify overrides it.
+  apiBaseUrl: 'https://sanjeevani-api.vishalbhutekar33772.workers.dev/api',
   booking: {
     openAllDoctors: true,
     openFrom: '08:00',

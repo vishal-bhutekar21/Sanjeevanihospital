@@ -26,16 +26,22 @@ The first hospital to use it is Sanjeevani Multispeciality Hospital, Jalna. The 
 | Launch the site for a new hospital | [02-rebrand-checklist.md](02-rebrand-checklist.md), then [templates/new-hospital-intake.md](templates/new-hospital-intake.md) |
 | Look up a field in a data file (doctors, departments, timings…) | [03-data-reference.md](03-data-reference.md) |
 | Understand how booking, login and data storage work | [04-architecture.md](04-architecture.md) |
-| Deploy, set environment variables, fix common problems | [05-deployment-and-config.md](05-deployment-and-config.md) |
+| Deploy, settings and secrets, fix common problems | [05-deployment-and-config.md](05-deployment-and-config.md) |
 | Build or change a page so it matches the rest of the site | [06-design-system.md](06-design-system.md) |
 | See planned work | [07-roadmap.md](07-roadmap.md) |
-| Staff records, alerts, Firebase push, Cloudflare cron, login | [08-notifications-and-staff-plan.md](08-notifications-and-staff-plan.md) |
-| Reception: register patients, book visits, make receipts, reception logins | [09-reception-patients-receipts.md](09-reception-patients-receipts.md) |
+| Staff records, alerts, Firebase push, scheduled jobs, login | [08-notifications-and-staff-plan.md](08-notifications-and-staff-plan.md) |
+| Put the API online on Cloudflare (Workers + D1), copy old data, create the first admin | [09-cloudflare.md](09-cloudflare.md) |
+| Reception: register patients, book visits, make receipts, reception logins | [10-reception-patients-receipts.md](10-reception-patients-receipts.md) |
 | Work on the code as an AI agent | [AI_AGENT_GUIDE.md](AI_AGENT_GUIDE.md) |
 
 The older `docs/` folder at the repo root holds earlier research notes and design plans. Where it disagrees with this folder, this folder is the current one.
 
+## Where it runs
+
+- **Website:** `frontend/`, hosted on Netlify.
+- **API:** `worker/`, a Cloudflare Worker with a Cloudflare D1 database, deployed by GitHub Actions. Setup: [09-cloudflare.md](09-cloudflare.md).
+
 ## The two most important files
 
-- `frontend/src/config/hospital.ts`: the hospital's name, phone numbers, emails, address, hours and map. Every page reads from it.
-- `backend/src/config/hospital.config.ts`: the hospital id and details used by the server. Each value can be overridden with an environment variable.
+- `frontend/src/config/hospital.ts`: the hospital's name, phone numbers, emails, address, hours and map. Every page reads from it. It also holds the API address (`apiBaseUrl`) and the booking testing switch.
+- `worker/wrangler.toml` (`[vars]`): the hospital id and details used by the API, the allowed website addresses and the API's testing switch.

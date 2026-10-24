@@ -24,16 +24,16 @@ The **Sanjeevani Multispeciality Hospital** platform uses a decoupled client-ser
                                                        │ HTTPS REST Requests (with CORS)
                                                        ▼
                         ┌─────────────────────────────────────────────────────────────┐
-                        │           BACKEND API (Render / Railway / VPS / Docker)     │
-                        │  - NestJS REST endpoints (`/api/...`)                       │
-                        │  - Razorpay, MSG91, Firebase gateways                       │
-                        │  - Supabase / PostgreSQL database connection                │
+                        │           API: CLOUDFLARE WORKER (worker/)                  │
+                        │  - REST endpoints under `/api/...` (Hono, TypeScript)       │
+                        │  - Razorpay and MSG91                                       │
+                        │  - Cloudflare D1 (SQLite) database                          │
                         └─────────────────────────────────────────────────────────────┘
 ```
 
 * **Frontend SPA**: React 18 + Vite 5 + TailwindCSS + TypeScript. Hosted on **Netlify Edge CDN**.
-* **Backend API**: NestJS 10 REST API. Hosted on **Render**, **Railway**, **AWS**, or a dedicated **Docker VPS**.
-* **Database**: **Supabase** Managed PostgreSQL with PgBouncer.
+* **API**: Cloudflare Worker in `worker/`, deployed by GitHub Actions. Setup: [documentation/09-cloudflare.md](../../documentation/09-cloudflare.md).
+* **Database**: Cloudflare D1 (SQLite).
 
 ---
 
@@ -53,20 +53,17 @@ The **Sanjeevani Multispeciality Hospital** platform uses a decoupled client-ser
 
 Vite embeds environment variables prefixed with `VITE_` directly into the static bundle during **build time**. 
 
+> [!NOTE]
+> You do not have to set any variable: the site uses `apiBaseUrl` from `frontend/src/config/hospital.ts` when `VITE_API_URL` is not set.
+
 > [!IMPORTANT]
 > Because Vite embeds variables during build time, if you add or change an environment variable in Netlify, you **MUST trigger a new deploy** (Deploy ➔ Trigger deploy ➔ Clear cache and deploy site) for the new values to take effect.
 
 | Environment Variable | Required? | Example Production Value | Description |
 |---|:---:|---|---|
-| `VITE_API_URL` | **Yes** | `https://sanjeevani-backend.onrender.com/api` | Base URL for the NestJS Backend API. Must include the `/api` prefix. |
-| `VITE_RAZORPAY_KEY_ID` | **Yes** | `rzp_live_XXXXXXXXXXXXXX` (or `rzp_test_XXXXXXXXXXXXXX`) | Public Razorpay Key ID for OPD consultation fee processing. |
-| `VITE_GOOGLE_MAPS_KEY` | Optional | `AIzaSyD...` | Google Maps JavaScript Embed API Key for live hospital map view. |
-| `VITE_FIREBASE_API_KEY` | Optional | `AIzaSy...` | Firebase Web API Key for Web Push Notifications & Analytics. |
-| `VITE_FIREBASE_AUTH_DOMAIN` | Optional | `sanjeevani-hospital.firebaseapp.com` | Firebase Auth domain. |
-| `VITE_FIREBASE_PROJECT_ID` | Optional | `sanjeevani-hospital-jalna` | Firebase Project ID. |
-| `VITE_FIREBASE_STORAGE_BUCKET` | Optional | `sanjeevani-hospital-jalna.appspot.com` | Firebase Storage Bucket. |
-| `VITE_FIREBASE_MESSAGING_SENDER_ID` | Optional | `123456789012` | Firebase Cloud Messaging (FCM) Sender ID. |
-| `VITE_FIREBASE_APP_ID` | Optional | `1:123456789012:web:abcdef123456` | Firebase Web App Identifier. |
+| `VITE_API_URL` | Optional | `https://sanjeevani-api.<your-subdomain>.workers.dev/api` | API address (the Cloudflare Worker). Must include the `/api` prefix. Overrides `apiBaseUrl` in `frontend/src/config/hospital.ts`. |
+
+The Razorpay key id is sent by the API with each payment order, so the website needs no Razorpay variable. `VITE_GOOGLE_MAPS_KEY` and `VITE_FIREBASE_*` in `frontend/.env.example` are not used by the current pages.
 
 ---
 
@@ -96,9 +93,7 @@ Netlify will automatically detect the `netlify.toml` file in your repository. Ve
 #### Step 3: Add Production Environment Variables
 1. Under **Environment variables**, click **"Add a variable"** (or **"Import from .env"**).
 2. Add the production keys:
-   * `VITE_API_URL`: Set to your live backend endpoint (e.g., `https://sanjeevani-backend.onrender.com/api`).
-   * `VITE_RAZORPAY_KEY_ID`: Set to your Razorpay Live or Test Key ID.
-   * *(Optional)* Add any Google Maps or Firebase keys if utilized.
+   * *(Optional)* `VITE_API_URL`: the Worker address, e.g. `https://sanjeevani-api.<your-subdomain>.workers.dev/api`. Skip it if `apiBaseUrl` in `frontend/src/config/hospital.ts` is already set.
 
 #### Step 4: Deploy the Site
 1. Click **"Deploy sanjeevani-platform"**.
@@ -136,8 +131,7 @@ Follow the interactive prompts:
 
 #### Step 4: Set Environment Variables via CLI
 ```bash
-netlify env:set VITE_API_URL "https://sanjeevani-backend.onrender.com/api"
-netlify env:set VITE_RAZORPAY_KEY_ID "rzp_test_XXXXXXXXXXXXXX"
+netlify env:set VITE_API_URL "https://sanjeevani-api.<your-subdomain>.workers.dev/api"
 ```
 
 #### Step 5: Build and Deploy to Production
@@ -162,7 +156,7 @@ Quickest way to test a local build without connecting Git or installing the CLI.
 2. Open [Netlify Drop](https://app.netlify.com/drop) in your browser.
 3. Drag and drop the generated `frontend/dist` folder into the upload target area.
 4. Netlify will deploy the site in seconds.
-5. Go to **Site Configuration ➔ Environment variables** to configure `VITE_API_URL` and `VITE_RAZORPAY_KEY_ID`, then trigger a rebuild.
+5. Drag-and-drop sites are not built by Netlify, so environment variables have no effect. Set `apiBaseUrl` in `frontend/src/config/hospital.ts` (or `VITE_API_URL` in `frontend/.env`) before running `npm run build`.
 
 ---
 
@@ -231,25 +225,21 @@ The included `netlify.toml` file enforces industry-standard web security headers
 
 ---
 
-## 🔗 8. Backend CORS & API Verification Checklist
+## 🔗 8. API CORS & Verification Checklist
 
-When your frontend is running on `https://[your-site].netlify.app` or your custom domain, ensure your backend server allows requests from the Netlify domain:
+When your website is running on `https://[your-site].netlify.app` or your custom domain:
 
-1. **Verify Backend Status**:
-   Visit `https://your-backend-api.onrender.com/api/health` in your browser. It should return:
+1. **Verify the API**:
+   Visit `https://sanjeevani-api.<your-subdomain>.workers.dev/api/health` (or your API address + `/health`). It should return:
    ```json
-   {
-     "status": "ok",
-     "timestamp": "2026-08-22T...",
-     "uptime": 120
-   }
+   { "success": true, "data": { "status": "UP", "service": "...", "runtime": "cloudflare-workers", "timestamp": "..." } }
    ```
 
 2. **Verify CORS Settings**:
-   The Sanjeevani NestJS backend in `backend/src/main.ts` is configured with `app.enableCors({ origin: '*', credentials: true })`, permitting API calls from any Netlify domain out of the box.
+   `ALLOWED_ORIGINS` in `worker/wrangler.toml` is `*` by default, which allows calls from any website. If you set it to a list, it must include the Netlify address and your custom domain (with `https://`).
 
 3. **Check Browser Console for Mixed Content**:
-   Always use `https://` for `VITE_API_URL`. Calling an `http://` backend from an `https://` Netlify frontend will cause modern browsers to block requests due to Mixed Content security rules.
+   Always use `https://` for the API address. Calling an `http://` API from an `https://` Netlify site is blocked by browsers (Mixed Content).
 
 ---
 
@@ -267,8 +257,8 @@ When your frontend is running on `https://[your-site].netlify.app` or your custo
 ### Issue 3: Build failed: `tsc command failed` or TypeScript errors
 * **Fix**: Run `npm run build` locally in the `frontend` folder before pushing to Git to resolve any lint or type mismatch errors.
 
-### Issue 4: Razorpay payment modal fails to pop up
-* **Fix**: Ensure `VITE_RAZORPAY_KEY_ID` is set in Netlify environment variables and that your Razorpay account is active (Test Key IDs start with `rzp_test_`, Live Key IDs start with `rzp_live_`).
+### Issue 4: No "Pay online" option, or the Razorpay window does not open
+* **Fix**: The Razorpay keys belong to the API, not Netlify. Add the `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` GitHub secrets and run the deploy workflow (see [documentation/09-cloudflare.md](../../documentation/09-cloudflare.md)). A doctor with fee `0` never offers online payment.
 
 ---
 

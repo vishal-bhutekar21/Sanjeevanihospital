@@ -2,7 +2,7 @@
 
 Goal: the site should feel like it was made for Sanjeevani Hospital, not generated from a template. Patients are mostly local families in Jalna, often on a phone and often in a hurry. Staff use the admin screens every day.
 
-Database models, API routes, field names and IDs are **not** changed by any item below. Everything here is presentation and wording.
+Database tables, API routes, field names and IDs are **not** changed by any item below. (Stack today: React website on Netlify, API on Cloudflare Workers + D1; see [documentation/04-architecture.md](../documentation/04-architecture.md).) Everything here is presentation and wording.
 
 ## Done in this round
 
@@ -59,18 +59,18 @@ The new flow has 4 steps: **Doctor → Date & time → Details & phone check →
 | Admin appointments & payments | Hard-coded sample patients | Live list from the server, refreshes every 30 s; status changes are saved |
 | Patient data exposure | `GET /appointments` and `GET /payments` were public | Staff login required |
 | Built-in admin accounts | `admin@…` / `Admin@123` worked on the live server | Only in local development; production uses database accounts only |
-| Committed keys | Razorpay test key and secret in `render.yaml`, `docker-compose.yml`, `.env.example` and the docs | Removed; set them in the hosting dashboard |
+| Committed keys | Razorpay test key and secret in the old server's deployment files, `.env.example` and the docs | Removed; now set as GitHub secrets, copied to the Worker on deploy |
 
 ### To switch it on (hospital / developer)
-1. **MSG91**: set `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID` (a DLT-approved OTP template) on the backend. Until then, the live site asks patients to call reception instead of booking online.
-2. **Razorpay**: set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` (live keys when ready). Without them, only "pay at the hospital" is offered.
+1. **MSG91**: set `MSG91_AUTH_KEY` and `MSG91_TEMPLATE_ID` (a DLT-approved OTP template) as GitHub secrets for the API. Until then, live bookings go through without a code and are marked "mobile not verified" (or, with `REQUIRE_OTP = "true"`, patients are asked to call reception).
+2. **Razorpay**: set `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` as GitHub secrets (live keys when ready). Without them, only "pay at the hospital" is offered.
 3. **Rotate the old Razorpay test secret.** It was public in the repo.
-4. **Change the database admin password.** `prisma/seed.ts` creates `admin@sanjeevanihosp.in` with `Admin@123`, which was also printed on the old login page.
-5. **Make sure `JWT_SECRET` is set** on the server. The code falls back to a fixed value if it's missing.
+4. **Change the old admin password.** The old database seed created `admin@sanjeevanihosp.in` with `Admin@123`, which was also printed on the old login page. Accounts copied from Supabase keep their passwords, so change or remove that account after the copy.
+5. **Set `JWT_SECRET`** as a GitHub secret (32+ random characters). The API has no fallback value: without it, sign-in and booking fail.
 
 ### Still to do (not changed this round)
-- **Appointments, booking sessions and payments are kept in server memory**, not in PostgreSQL, so a server restart loses them. Move them to Prisma tables next. This needs new tables, which is why I didn't do it without asking.
-- **Online booking covers 6 doctors** (the list in `appointments.service.ts`). Other doctors show "call reception" until they're added there or moved to the database.
+- ~~Appointments, booking sessions and payments are kept in server memory.~~ Done: they are stored in Cloudflare D1 since the move to Workers.
+- ~~Online booking covers 6 doctors.~~ Done: every doctor in `worker/src/data/roster.ts` can be booked once they have OPD timings.
 - **Send the token number by SMS** after booking (needs a second MSG91 template).
 - **Razorpay webhook** for payments that succeed after the patient closes the page.
 

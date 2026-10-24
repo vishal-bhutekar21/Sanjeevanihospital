@@ -4,7 +4,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 
 | # | Item | Effort | Depends on |
 | --- | --- | --- | --- |
-| 1 | Move appointments, sessions and payments to the database | M | — |
+| 1 | ~~Move appointments, sessions and payments to the database~~ **Done** (Cloudflare D1) | — | — |
 | 2 | WhatsApp / SMS notifications | M | 1 |
 | 3 | Payments reconciliation | S–M | 1 |
 | 4 | Smart invoices | M | 1, 3 |
@@ -15,17 +15,9 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 
 ---
 
-## 1. Move appointments, sessions and payments to the database (M)
+## 1. Move appointments, sessions and payments to the database (done)
 
-**Why:** today appointments, booking sessions, slot holds, payments, claims and reviews live in server memory and are lost on every restart (see [04-architecture.md](04-architecture.md#where-data-lives)). Nothing else on this list is safe to build until this is fixed.
-
-**What:**
-- Use the Prisma tables that already exist: `Appointment`, `AppointmentSlot`, `BookingSession`, `Payment`, `PatientReview`, `HospitalEvent`, `AuditLog`. Scheme claims have no table yet; adding one is a schema change and needs agreement first.
-- Slot holds: a row with an expiry time and a unique constraint on doctor + date + time, so two people cannot hold the same time even with several server instances.
-- OTP sessions can stay short-lived (memory or a small table); patient JWT stays as is.
-- Keep API field names the same so the frontend does not change.
-
-**Depends on:** nothing.
+Done with the move to Cloudflare Workers + D1 ([09-cloudflare.md](09-cloudflare.md)). Appointments, booking sessions, slot holds, OTP codes, payments, reviews, camps and scheme claims are stored in D1 and survive redeploys (see [04-architecture.md](04-architecture.md#where-data-lives)). API field names did not change.
 
 ## 2. WhatsApp / SMS notifications (M)
 
@@ -36,7 +28,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 - Cancellation and reschedule messages when staff change status.
 - Opt-out handling; messages in English or Marathi based on the language used at booking.
 
-**How:** MSG91 (SMS, already used for OTP; needs DLT templates for each message) and/or WhatsApp Business API through a provider (Gupshup, Interakt, MSG91 WhatsApp; needs approved templates). A scheduled job (cron) picks up due reminders from the database.
+**How:** MSG91 (SMS, already used for OTP; needs DLT templates for each message) and/or WhatsApp Business API through a provider (Gupshup, Interakt, MSG91 WhatsApp; needs approved templates). The Worker's daily cron (`worker/src/scheduled.ts`, 03:30 UTC) can pick up due reminders from D1; reminders 2 hours before need an extra, more frequent cron in `wrangler.toml`.
 
 **Depends on:** 1 (reminders need stored appointments), hospital's MSG91 / WhatsApp Business accounts and template approval.
 
@@ -44,7 +36,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 
 **What:** Razorpay webhook (`payment.captured`, `refund.processed`) to mark payments even if the browser closed; daily report matching Razorpay settlements to appointments; refunds from admin when an appointment is cancelled.
 
-**Depends on:** 1, webhook secret in env.
+**Depends on:** 1, a webhook secret (GitHub secret → Worker secret).
 
 ## 4. Smart invoices (M)
 
@@ -54,7 +46,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 - **Insurance / MJPJAY split**: amount covered by the scheme or insurer vs amount payable by the patient.
 - Send the invoice by WhatsApp/SMS link and show it in admin.
 
-**Depends on:** 1, 3; hospital's GST details (add to `config/hospital.ts` and backend config).
+**Depends on:** 1, 3; hospital's GST details (add to `config/hospital.ts` and `worker/wrangler.toml` `[vars]`).
 
 ## 5. Patient accounts and visit history (M–L)
 
@@ -79,7 +71,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 **What:**
 - One deployment serving many hospitals, chosen by domain.
 - **Per-hospital config** stored in the database instead of `config/hospital.ts`: name, phones, address, hours, logo, colours, doctors, departments, photos (upload to storage).
-- `hospitalId` on every row (already present on most records) enforced by `HospitalIsolationGuard`.
+- `hospital_id` on every row (already present on most D1 tables) checked in every Worker route against the staff token's `hospitalId`.
 - Per-hospital Razorpay and MSG91 credentials, stored encrypted.
 - Super-admin panel to create hospitals; billing for the SaaS subscription.
 
@@ -91,8 +83,7 @@ Planned work, roughly in the order it should be done. Effort: **S** = a few days
 
 | Item | Effort |
 | --- | --- |
-| Register a global `ThrottlerGuard` (rate limiting is configured but not enforced) | S |
-| Limit CORS to the hospital's domain | S |
-| Fail start-up in production when `JWT_SECRET` is missing | S |
+| Set `ALLOWED_ORIGINS` in `worker/wrangler.toml` to the hospital's domains (today `*`) | S |
+| Separate tables for patient records (today JSON rows in `hospital_settings`; schema change, needs approval) | S–M |
 | Contact form: send enquiries to the server/email (today it only shows a thank-you on screen) | S |
 | Admin: edit hospital details and doctors from the panel (today read-only / in source) | M (part of 8) |

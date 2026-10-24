@@ -29,7 +29,7 @@
 ---
 
 ## Information Architecture for Department Pages
-Each dynamic department route (`/departments/:slug`) will render:
+Each dynamic department route (`/departments/:slug`) will show:
 1. **Header Banner**: Department Name, Bilingual Title, Quick Booking CTA.
 2. **Clinical Scope & Procedures**: Plain-language description of treated conditions.
 3. **Faculty / Assigned Doctors**: List of specialists mapped to this department with direct slot booking.
